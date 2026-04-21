@@ -14,27 +14,28 @@ let timerInterval;
 // INITIALIZATION
 // ============================================================================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
   // Check if user came from index page
   checkAuthentication();
-  
-  // Load dropdown data
-  loadDropdowns();
-  
-  // Load location data
-  loadLocations();
-  
-  // Initialize timer
-  startSessionTimer();
   
   // Display interviewer code
   displayInterviewerCode();
   
-  // Initialize first step
-  setTimeout(() => {
-    loadAllSteps();
-    updateProgress(1);
-  }, 100);
+  // Initialize timer
+  startSessionTimer();
+  
+  // Load data FIRST before rendering steps
+  await Promise.all([
+    loadDropdowns(),
+    loadLocations()
+  ]);
+  
+  // Wait a bit for data to be available
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // NOW load the steps
+  loadAllSteps();
+  updateProgress(1);
 });
 
 // ============================================================================
@@ -111,23 +112,59 @@ function confirmLogout() {
 
 async function loadDropdowns() {
   try {
+    console.log('🔄 Loading dropdown options...');
     const response = await fetch('/api/get-options.php');
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
     const data = await response.json();
     globalData = data;
-    console.log('Dropdown data loaded:', data);
+    console.log('✅ Dropdown data loaded:', Object.keys(data));
+    console.log('Sample data:', data.List_Religion);
+    return data;
   } catch (error) {
-    console.error('Error loading dropdown data:', error);
+    console.error('❌ Error loading dropdown data:', error);
+    // Set empty defaults so app doesn't crash
+    globalData = {
+      List_Religion: [],
+      List_IP: [],
+      List_Education: [],
+      List_Relationship: [],
+      List_Disability: [],
+      List_Illness: [],
+      List_Extension: [],
+      List_Occupation: [],
+      List_Occupation_Class: [],
+      List_Materials: [],
+      List_Tenure: [],
+      List_Electricity: [],
+      List_Water: [],
+      List_Toilet: [],
+      List_Garbage: []
+    };
+    return globalData;
   }
 }
 
 async function loadLocations() {
   try {
+    console.log('🔄 Loading location data...');
     const response = await fetch('/api/get-locations.php');
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
     const data = await response.json();
     locationData = data;
-    console.log('Location data loaded:', data);
+    console.log('✅ Location data loaded:', Object.keys(data));
+    return data;
   } catch (error) {
-    console.error('Error loading location data:', error);
+    console.error('❌ Error loading location data:', error);
+    locationData = {};
+    return locationData;
   }
 }
 
@@ -1494,10 +1531,17 @@ function initializeAllSteps() {
 }
 
 function populateAllDropdowns() {
+  console.log('📋 Populating all dropdowns...');
+  console.log('Global data available:', globalData);
+  
   if (!globalData || Object.keys(globalData).length === 0) {
-    console.warn('Global data not loaded yet');
+    console.error('❌ Global data not loaded yet!');
+    // Try again after a delay
+    setTimeout(populateAllDropdowns, 1000);
     return;
   }
+  
+  console.log('✅ Populating dropdowns with data...');
   
   // Step 2
   populateSelect('dd-relationship', globalData.List_Relationship, "Select Relationship");
@@ -1517,11 +1561,24 @@ function populateAllDropdowns() {
   populateSelect('dd-water', globalData.List_Water, "Select Water Source");
   populateSelect('dd-toilet', globalData.List_Toilet, "Select Toilet Type");
   populateSelect('dd-garbage', globalData.List_Garbage, "Select System");
+  
+  console.log('✅ All dropdowns populated!');
 }
 
 function populateSelect(id, items, placeholder) {
   const s = document.getElementById(id);
-  if (!s) return;
+  if (!s) {
+    console.warn(`⚠️ Dropdown element not found: ${id}`);
+    return;
+  }
+  
+  if (!items || items.length === 0) {
+    console.warn(`⚠️ No items provided for dropdown: ${id}`);
+    s.innerHTML = `<option value="" disabled selected>${placeholder} (No data)</option>`;
+    return;
+  }
+  
+  console.log(`✓ Populating ${id} with ${items.length} items`);
   
   s.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
   let hasOthers = false;
