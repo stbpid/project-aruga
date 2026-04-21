@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Aruga - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'sans': ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              dark: '#111811',
+              blue: '#1152d4',
+              blueHover: '#0d3fa3',
+              bg: '#F0F4F8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+  <header class="w-full bg-[#f6f8f6f2] border-b border-[#e0e4e0] h-14 sticky top-0 z-50 backdrop-blur-sm">
+    <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+      
+      <div class="flex items-center gap-3">
+         <img id="img-nav-logo" src="" alt="Logo" class="h-10 w-auto object-contain">
+         <h2 class="font-bold text-brand-dark text-lg sm:text-xl">Project Aruga</h2>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="#privacy" class="text-xs font-medium text-gray-600 hover:text-brand-blue transition-colors">Privacy Policy</a>
+        <a href="#docs" class="text-xs font-medium text-gray-600 hover:text-brand-blue transition-colors">Documentation</a>
+        <a href="#contact" class="text-xs font-medium text-gray-600 hover:text-brand-blue transition-colors">Contact us</a>
+      </nav>
+      
+      <button class="md:hidden text-gray-600 focus:outline-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+      </button>
+
+    </div>
+  </header>
+
+  <main class="flex-grow flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-5xl flex flex-col lg:flex-row overflow-hidden border border-[#e0e4e0]">
+      
+      <aside class="relative w-full h-40 lg:h-auto lg:w-5/12 bg-gray-900">
+        <img id="img-hero" src="" alt="Hero" class="absolute inset-0 w-full h-full object-cover opacity-60">
+      </aside>
+
+      <section class="w-full lg:w-7/12 p-6 sm:p-8 flex flex-col justify-center">
+        
+        <div class="mb-4">
+           <img id="img-form-logo" src="" alt="Form Logo" class="h-10 sm:h-12 w-auto object-contain">
+        </div>
+
+        <h1 class="font-bold text-xl mb-4 text-brand-dark">Data Privacy Agreement</h1>
+        
+        <div class="bg-gray-50 border border-gray-200 p-4 h-48 overflow-y-auto custom-scroll text-sm text-gray-600 mb-4 rounded-lg leading-relaxed text-justify">
+          <p>
+            By proceeding, I understand that Project Aruga (Department of Social Welfare and Development) will collect and process personal and sensitive information for the purpose of profiling, assessment, and delivery of services for children with disabilities.
+          </p>
+          <br>
+          <p class="font-bold text-gray-800">I acknowledge that:</p>
+          <ul class="list-disc pl-5 mt-2 space-y-2">
+            <li>My data will be handled securely in compliance with the Data Privacy Act of 2012 (RA 10173).</li>
+            <li>Information may be shared with authorized DSWD personnel and relevant partners solely for program implementation and reporting.</li>
+            <li>I have the right to access, correct, or request the deletion of my information.</li>
+          </ul>
+        </div>
+        
+        <div class="flex items-center gap-3 mb-6">
+           <input type="checkbox" id="agree" class="h-4 w-4 cursor-pointer text-brand-blue rounded border-gray-300 focus:ring-brand-blue">
+           <label for="agree" class="text-sm font-medium cursor-pointer text-brand-dark leading-tight select-none">
+             I accept the Data Privacy terms and conditions for data processing.
+           </label>
+        </div>
+
+        <label class="block font-bold text-sm mb-1 text-brand-dark">Interviewer Code</label>
+        <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-2 h-10 mb-4 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+            <input id="code" type="text" maxlength="8" class="w-full text-sm outline-none text-gray-800 placeholder-gray-400" placeholder="Enter 8-digit code">
+        </div>
+        
+        <button id="btn-submit" class="w-full h-10 bg-brand-blue text-white rounded-lg font-bold hover:bg-brand-blueHover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md" disabled>
+          Submit and Proceed
+        </button>
+      </section>
+    </div>
+  </main>
+
+  <footer class="w-full py-4 text-center px-4">
+    <p class="text-[10px] sm:text-xs text-gray-400">
+      © 2026 Department of Social Welfare Development - Social Technology Bureau
+    </p>
+  </footer>
+
+  <script src="/js/index.js"></script>
+</body>
+</html>
