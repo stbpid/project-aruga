@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vercel PHP Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        h1 { color: #0070f3; }
+        button {
+            background: #0070f3;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background: #0051cc; }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Vercel PHP API Test</h1>
+    <p>Click the button below to test if the PHP backend is working:</p>
+    <button onclick="testAPI()">Test PHP API</button>
+    <div id="result">Click the button to test...</div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '⏳ Loading...';
+            
+            try {
+                const response = await fetch('/api/test.php');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                resultDiv.innerHTML = '✅ SUCCESS!\n\n' + JSON.stringify(data, null, 2);
+                resultDiv.style.color = 'green';
+            } catch (error) {
+                resultDiv.innerHTML = '❌ ERROR:\n\n' + error.message;
+                resultDiv.style.color = 'red';
+            }
+        }
+    </script>
+</body>
+</html>
