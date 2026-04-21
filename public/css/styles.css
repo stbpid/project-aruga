@@ -1,0 +1,207 @@
+/* Import Poppins Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Global Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Animations & Transitions */
+.step-section { 
+  transition: opacity 0.3s ease-in-out; 
+}
+
+.hidden-step { 
+  display: none; 
+  opacity: 0; 
+}
+
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Radio Button Card Logic */
+.radio-card:has(input:checked) {
+  border-color: #1152d4;
+  background-color: rgba(25, 127, 230, 0.05);
+  box-shadow: 0 0 0 1px #1152d4;
+}
+
+.radio-card:has(input:checked) h3,
+.radio-card:has(input:checked) span.font-bold { 
+  color: #1152d4; 
+}
+
+/* Custom Scrollbar */
+.custom-scroll::-webkit-scrollbar,
+.dropdown-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scroll::-webkit-scrollbar-track,
+.dropdown-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb,
+.dropdown-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* Material Symbols */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  line-height: 1;
+}
+
+/* Google UI Dropdowns */
+.google-dropdown-style {
+  appearance: none !important;
+  border: 1px solid #dadce0 !important;
+  border-radius: 4px !important;
+  background-color: #ffffff !important;
+  color: #3c4043 !important;
+  transition: all 0.2s ease-in-out !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.google-dropdown-style:hover {
+  border-color: #80868b !important;
+}
+
+.google-dropdown-style:focus,
+.google-dropdown-style:focus-within,
+.google-dropdown-style.ring-1 {
+  border-color: #1a73e8 !important;
+  box-shadow: 0 0 0 1px #1a73e8 !important;
+}
+
+.google-dropdown-style:invalid {
+  color: #9ca3af !important;
+}
+
+.google-menu {
+  border: 1px solid #dadce0 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  background-color: #ffffff !important;
+  padding: 6px 0 !important;
+  margin-top: 4px !important;
+}
+
+.google-menu-item {
+  padding: 10px 16px !important;
+  color: #3c4043 !important;
+  font-size: 0.875rem !important;
+  cursor: pointer !important;
+  transition: background 0.15s !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.google-menu-item:hover {
+  background-color: #f1f3f4 !important;
+}
+
+.google-menu-item input[type="checkbox"] {
+  accent-color: #1a73e8 !important;
+  width: 18px !important;
+  height: 18px !important;
+  cursor: pointer !important;
+}
+
+.google-menu-custom {
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  padding: 6px 0;
+  margin-top: 4px;
+}
+
+/* Slide Animation Toggle Buttons */
+.slide-toggle-container {
+  position: relative;
+  display: flex;
+  background-color: #f1f3f4;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.slide-toggle-slider {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: calc(50% - 4px);
+  background-color: #1a73e8;
+  border-radius: 6px;
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  z-index: 1;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.slide-toggle-label {
+  flex: 1;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+/* Review Page Styles */
+.review-group { 
+  border-bottom: 1px solid #f3f4f6;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.review-label { 
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 0.125rem;
+}
+
+.review-value { 
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1f2937;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+.review-section-header { 
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #1152d4;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #eff6ff;
+  padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sub-group { 
+  background-color: #f9fafb;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #e5e7eb;
+}
