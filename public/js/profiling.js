@@ -2194,132 +2194,475 @@ function updateTotalCount() {
 // ============================================================================
 
 function generateReview() {
-  const getVal = (id) => {
-    const el = document.getElementById(id);
-    return (el && el.value.trim() !== "") ? el.value : 'N/A';
+  const getVal = (id) => { 
+    const el = document.getElementById(id); 
+    return (el && el.value.trim() !== "") ? el.value : 'N/A'; 
   };
   
-  const getRadio = (name) => {
-    const el = document.querySelector(`input[name="${name}"]:checked`);
-    return el ? el.value : 'N/A';
+  const getRadio = (name) => { 
+    const el = document.querySelector(`input[name="${name}"]:checked`); 
+    return el ? el.value : 'N/A'; 
   };
   
   let html = `
-    <h3 class="review-section-header">
-      <span class="material-symbols-outlined text-[20px] text-brand-blue">assignment_ind</span>
-      1. Pre-Qualification
-    </h3>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 review-group">
-      <div><div class="review-label">4Ps Member</div><div class="review-value">${getRadio('membership')}</div></div>
-      <div><div class="review-label">Household ID</div><div class="review-value">${getVal('household-id')}</div></div>
+    <!-- REVIEW INTRODUCTION -->
+    <div class="bg-gradient-to-r from-green-600 to-emerald-700 rounded-xl p-6 mb-6 text-white">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-[28px]">fact_check</span>
+        </div>
+        <div>
+          <h2 class="text-2xl font-extrabold">Assessment Review</h2>
+          <p class="text-sm opacity-90 mt-1">Please verify all information before final submission</p>
+        </div>
+      </div>
     </div>
 
-    <h3 class="review-section-header">
-      <span class="material-symbols-outlined text-[20px] text-brand-blue">account_circle</span>
-      2. Respondent Profile
-    </h3>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 review-group">
-      <div><div class="review-label">Name</div><div class="review-value">${getVal('resp-name')}</div></div>
-      <div><div class="review-label">Relationship</div><div class="review-value">${getVal('dd-relationship')}</div></div>
-      <div><div class="review-label">Email</div><div class="review-value">${getVal('resp-email')}</div></div>
-      <div><div class="review-label">Contact</div><div class="review-value">${getVal('resp-contact')}</div></div>
-    </div>
+    <!-- SECTION 1: PRE-QUALIFICATION -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">assignment_ind</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">1. Pre-Qualification</h3>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-12">
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">4Ps Member</p>
+          <p class="text-sm font-semibold text-gray-900">${getRadio('membership')}</p>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Household ID</p>
+          <p class="text-sm font-semibold text-gray-900">${getVal('household-id')}</p>
+        </div>
+      </div>
+    </section>
 
-    <h3 class="review-section-header">
-      <span class="material-symbols-outlined text-[20px] text-brand-blue">face</span>
-      3. Child Profile
-    </h3>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 review-group">
-      <div><div class="review-label">Full Name</div><div class="review-value">${getVal('child-fname')} ${getVal('child-mname')} ${getVal('child-lname')}</div></div>
-      <div><div class="review-label">Address</div><div class="review-value">${getVal('child-street')}, ${getVal('child-barangay')}, ${getVal('child-city')}, ${getVal('child-province')}</div></div>
-      <div><div class="review-label">DOB / Sex</div><div class="review-value">${getVal('child-dob')} / ${getRadio('sex')}</div></div>
-      <div><div class="review-label">Disability</div><div class="review-value">${document.getElementById('disability-display') ? document.getElementById('disability-display').innerText : 'N/A'}</div></div>
-      <div><div class="review-label">Illness</div><div class="review-value">${document.getElementById('illness-display') ? document.getElementById('illness-display').innerText : 'N/A'}</div></div>
-    </div>
+    <!-- SECTION 2: RESPONDENT PROFILE -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-indigo-600 text-[22px]">account_circle</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">2. Respondent Profile</h3>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-12">
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Name</p>
+          <p class="text-sm font-semibold text-gray-900">${getVal('resp-name')}</p>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Relationship</p>
+          <p class="text-sm font-semibold text-gray-900">${getVal('dd-relationship')}</p>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Email</p>
+          <p class="text-sm font-semibold text-gray-900 break-all">${getVal('resp-email')}</p>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Contact</p>
+          <p class="text-sm font-semibold text-gray-900">${getVal('resp-contact')}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: CHILD PROFILE -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-purple-600 text-[22px]">face</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">3. Child Profile</h3>
+      </div>
+      <div class="ml-12 space-y-4">
+        <!-- Personal Information -->
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Personal Information</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Full Name</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-fname')} ${getVal('child-mname')} ${getVal('child-lname')} ${getVal('dd-extension')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Date of Birth / Sex</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-dob')} / ${getRadio('sex')}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Address</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Street Address</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-street')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Barangay</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-barangay')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">City/Municipality</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-city')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Province</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-province')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Region</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-region')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Contact Number</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-contact')}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Demographics -->
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Demographics</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Religion</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-religion') === 'Others' ? getVal('rel-other') : getVal('dd-religion')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">IP Membership</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-ip') === 'Others' ? getVal('ip-other') : getVal('dd-ip')}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Condition & Education -->
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Condition & Education</p>
+          <div class="grid grid-cols-1 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Highest Educational Attainment</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-education') === 'Others' ? getVal('edu-other') : getVal('dd-education')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Disability or Special Needs</p>
+              <p class="text-sm font-semibold text-gray-900">${document.getElementById('disability-display') ? document.getElementById('disability-display').innerText : 'N/A'}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Critical Illness</p>
+              <p class="text-sm font-semibold text-gray-900">${document.getElementById('illness-display') ? document.getElementById('illness-display').innerText : 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     
-    <h3 class="review-section-header">
-      <span class="material-symbols-outlined text-[20px] text-brand-blue">family_restroom</span>
-      4. Family Profile
-    </h3>
-    <div class="review-group space-y-2">
+    <!-- SECTION 4: FAMILY PROFILE -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-pink-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-pink-600 text-[22px]">family_restroom</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">4. Family Profile</h3>
+      </div>
+      <div class="ml-12">
+        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-4">
+          <div class="flex justify-between items-center">
+            <p class="text-sm font-bold text-brand-dark">Total Family Size</p>
+            <p class="text-2xl font-extrabold text-brand-blue">${getVal('total-family-size')}</p>
+          </div>
+        </div>
   `;
   
   const cards = document.querySelectorAll('.member-card');
   if (cards.length === 0) {
-    html += `<div class="sub-group"><div class="review-value">No additional members added.</div></div>`;
+    html += `
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
+          <p class="text-sm text-gray-500">No family members added</p>
+        </div>
+    `;
   } else {
+    html += `<div class="space-y-3">`;
     cards.forEach((card, index) => {
       const inputs = card.querySelectorAll('input[type="text"]');
-      let name = "";
-      if (inputs.length > 0 && inputs[0].value) name = inputs[0].value;
-      if (!name) name = "Member " + (index + 1);
-      html += `<div class="sub-group"><div class="review-label">Family Member</div><div class="review-value">${name}</div></div>`;
+      let name = "Member " + (index + 1);
+      if (inputs.length > 0 && inputs[0].value) {
+        name = inputs[0].value;
+      }
+      html += `
+        <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-brand-blue text-[18px]">person</span>
+            <p class="text-sm font-semibold text-gray-900">${name}</p>
+          </div>
+        </div>
+      `;
     });
+    html += `</div>`;
   }
-  html += `</div>`;
-
   html += `
-    <h3 class="review-section-header">
-      <span class="material-symbols-outlined text-[20px] text-brand-blue">home</span>
-      5. Socio Economic
-    </h3>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 review-group">
-      <div><div class="review-label">Housing Materials</div><div class="review-value">${getVal('dd-materials') === 'Others' ? getVal('mat-other') : getVal('dd-materials')}</div></div>
-      <div><div class="review-label">Tenure Status</div><div class="review-value">${getVal('dd-tenure') === 'Others' ? getVal('tenure-other') : getVal('dd-tenure')}</div></div>
-      <div><div class="review-label">Water Supply</div><div class="review-value">${getVal('dd-water') === 'Others' ? getVal('water-other') : getVal('dd-water')}</div></div>
-      <div><div class="review-label">Toilet Type</div><div class="review-value">${getVal('dd-toilet') === 'Others' ? getVal('toilet-other') : getVal('dd-toilet')}</div></div>
-    </div>
-    
-    <h3 class="review-section-header">
-      <span class="material-symbols-outlined text-[20px] text-brand-blue">health_and_safety</span>
-      6. Health
-    </h3>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 review-group">
-      <div><div class="review-label">Vaccinations</div><div class="review-value">${getRadio('vaccines')}</div></div>
-      <div><div class="review-label">Total Health Expense</div><div class="review-value">₱${getVal('exp-total')}</div></div>
-      <div><div class="review-label">Availed Services</div><div class="review-value">${getRadio('avail_services')}</div></div>
-      <div><div class="review-label">Facility Accessible</div><div class="review-value">${getRadio('facility_access')}</div></div>
-    </div>
+      </div>
+    </section>
 
-    <h3 class="review-section-header">
-      <span class="material-symbols-outlined text-[20px] text-brand-blue">school</span>
-      7. Education
-    </h3>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 review-group">
-      <div><div class="review-label">Highest Education</div><div class="review-value">${getVal('dd-education') === 'Others' ? getVal('edu-other') : getVal('dd-education')}</div></div>
-      <div><div class="review-label">Currently Enrolled</div><div class="review-value">${getRadio('enrolled') === 'Yes' ? 'Yes - ' + getVal('grade-level') : 'No - ' + getVal('not-enrolled-reason')}</div></div>
-    </div>
+    <!-- SECTION 5: SOCIO ECONOMIC -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-orange-600 text-[22px]">home</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">5. Socio Economic</h3>
+      </div>
+      <div class="ml-12 space-y-3">
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Housing Condition</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Construction Materials</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-materials') === 'Others' ? getVal('mat-other') : getVal('dd-materials')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Tenure Status</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-tenure') === 'Others' ? getVal('tenure-other') : getVal('dd-tenure')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Electricity Source</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-electricity') === 'Others' ? getVal('elec-other') : getVal('dd-electricity')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Modifications for Child</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('modifications') === 'Yes' ? 'Yes - ' + getVal('mod-specify') : 'No'}</p>
+            </div>
+          </div>
+        </div>
 
-    <h3 class="review-section-header">
-      <span class="material-symbols-outlined text-[20px] text-brand-blue">account_balance_wallet</span>
-      8. Economic Capacity
-    </h3>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 review-group">
-      <div><div class="review-label">Primary Income Source</div><div class="review-value">${getVal('income-source')}</div></div>
-      <div><div class="review-label">Monthly Income</div><div class="review-value">₱${getVal('monthly-income')}</div></div>
-      <div><div class="review-label">Income Class</div><div class="review-value text-blue-600">${document.getElementById('income-class-display').innerText}</div></div>
-    </div>
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Water & Sanitation</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Water Source</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-water') === 'Others' ? getVal('water-other') : getVal('dd-water')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Toilet Facility</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-toilet') === 'Others' ? getVal('toilet-other') : getVal('dd-toilet')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Toilet Accessible</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('toilet-access')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Garbage Disposal</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-garbage') === 'Others' ? getVal('garbage-other') : getVal('dd-garbage')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <h3 class="review-section-header">
-      <span class="material-symbols-outlined text-[20px] text-brand-blue">handshake</span>
-      9. Service Availment
-    </h3>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 review-group">
-      <div><div class="review-label">Financial Assistance</div><div class="review-value">${getRadio('fin_assist')}</div></div>
-      <div><div class="review-label">Aware of Services</div><div class="review-value">${getRadio('aware_services')}</div></div>
-      <div><div class="review-label">Service Challenges</div><div class="review-value">${getVal('service-challenges') === 'Others' ? getVal('barrier-other') : getVal('service-challenges')}</div></div>
-    </div>
+    <!-- SECTION 6: HEALTH -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-red-600 text-[22px]">health_and_safety</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">6. Health</h3>
+      </div>
+      <div class="ml-12 space-y-3">
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">General Health</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Vaccinations Complete</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('vaccines')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Ongoing Health Conditions</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('health_cond') === 'Yes' ? 'Yes - ' + getVal('health-cond-specify') : 'No'}</p>
+            </div>
+          </div>
+        </div>
 
-    <h3 class="review-section-header">
-      <span class="material-symbols-outlined text-[20px] text-brand-blue">edit_note</span>
-      10. Assessment Notes
-    </h3>
-    <div class="grid grid-cols-1 gap-4 review-group">
-      <div><div class="review-label">Strengths</div><div class="review-value">${getVal('strengths')}</div></div>
-      <div><div class="review-label">Assessment</div><div class="review-value">${getVal('assessment')}</div></div>
-      <div><div class="review-label">Recommended Actions</div><div class="review-value">${getVal('recommendations')}</div></div>
-      <div><div class="review-label">Readiness Score</div><div class="review-value font-bold text-lg text-brand-blue">${getRadio('readiness').toUpperCase()}</div></div>
-    </div>
+        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-xs font-bold text-gray-700 uppercase mb-1">Total Monthly Health Expense</p>
+              <p class="text-xs text-gray-500">Sum of all health-related costs</p>
+            </div>
+            <p class="text-2xl font-extrabold text-brand-blue">₱${getVal('exp-total')}</p>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Access to Health Services</p>
+          <div class="grid grid-cols-1 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Availed Services (Past 6 Months)</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('avail_services') === 'Yes' ? 'Yes - ' + getVal('avail-specify') : 'No'}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Health Facility Accessible</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('facility_access')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Barriers to Healthcare</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('barriers') === 'Yes' ? 'Yes - ' + getVal('barrier-specify') : 'No'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7: EDUCATION -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-green-600 text-[22px]">school</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">7. Education</h3>
+      </div>
+      <div class="ml-12 space-y-3">
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Educational Status</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Currently Enrolled</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('enrolled') === 'Yes' ? 'Yes - Grade/Year: ' + getVal('grade-level') : 'No - Reason: ' + getVal('not-enrolled-reason')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">School Accessibility</p>
+          <div class="grid grid-cols-1 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Physical Accessibility Features</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('school_features') === 'Yes' ? 'Yes - ' + getVal('school-access-specify') : 'No'}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Special Education Programs</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('sped_prog') === 'Yes' ? 'Yes - ' + getVal('sped-specify') : 'No'}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Learning Support</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('learning_support') === 'Yes' ? 'Yes - ' + getVal('learn-supp-specify') : 'No'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 8: ECONOMIC CAPACITY -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-yellow-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-yellow-600 text-[22px]">account_balance_wallet</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">8. Economic Capacity</h3>
+      </div>
+      <div class="ml-12 space-y-3">
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Financial Information</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Primary Income Source</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('income-source')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Monthly Income</p>
+              <p class="text-sm font-semibold text-gray-900">₱${getVal('monthly-income')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div class="flex justify-between items-center">
+            <p class="text-xs font-bold text-gray-700 uppercase">Income Classification</p>
+            <p class="text-lg font-extrabold text-brand-blue">${document.getElementById('income-class-display').innerText}</p>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Employment</p>
+          <div>
+            <p class="text-xs text-gray-500 mb-1">Parents/Guardians Employed</p>
+            <p class="text-sm font-semibold text-gray-900">${getRadio('employed') === 'Yes' ? 'Yes - ' + getVal('emp-specify') : 'No'}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 9: SERVICE AVAILMENT -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-teal-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-teal-600 text-[22px]">handshake</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">9. Service Availment</h3>
+      </div>
+      <div class="ml-12 space-y-3">
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Social Services</p>
+          <div class="grid grid-cols-1 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Financial Assistance</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('fin_assist') === 'Yes' ? 'Yes - ' + getVal('fin-assist-specify') : 'No'}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Aware of Social Services</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('aware_services') === 'Yes' ? 'Yes - ' + getVal('aware-specify') : 'No'}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">Availed Services</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('availed_any') === 'Yes' ? 'Yes - ' + getVal('availed-specify') : 'No'}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Barriers</p>
+          <div>
+            <p class="text-xs text-gray-500 mb-1">Challenges in Availing Services</p>
+            <p class="text-sm font-semibold text-gray-900">${document.getElementById('service-challenges').value === 'Others' ? getVal('barrier-other') : document.getElementById('service-challenges').value}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 10: ASSESSMENT NOTES -->
+    <section class="mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-violet-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-violet-600 text-[22px]">edit_note</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">10. Assessment Notes</h3>
+      </div>
+      <div class="ml-12 space-y-3">
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">Strengths</p>
+          <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('strengths')}</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">Assessment</p>
+          <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('assessment')}</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">Recommended Actions/Interventions</p>
+          <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('recommendations')}</p>
+        </div>
+
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg p-5 text-white">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-xs font-bold opacity-90 uppercase mb-1">Readiness Score</p>
+              <p class="text-sm opacity-90">Final assessment classification</p>
+            </div>
+            <p class="text-3xl font-extrabold uppercase">${getRadio('readiness')}</p>
+          </div>
+        </div>
+      </div>
+    </section>
   `;
 
   document.getElementById('review-content').innerHTML = html;
