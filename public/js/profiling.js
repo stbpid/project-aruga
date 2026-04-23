@@ -56,12 +56,11 @@ function checkAuthentication() {
 function updateHeaderInfo() {
   const interviewerCode = sessionStorage.getItem('interviewer_code');
   const interviewerName = sessionStorage.getItem('interviewer_name');
-  
-  const codeElement = document.getElementById('header-interviewer-code');
-  if (codeElement && interviewerCode) {
-    codeElement.textContent = interviewerCode;
-    codeElement.title = interviewerName || interviewerCode;
-    console.log('✅ Header updated with:', interviewerCode);
+
+  const nameElement = document.getElementById('interviewer-code');
+  if (nameElement) {
+    nameElement.textContent = interviewerName || interviewerCode || '---';
+    nameElement.title = interviewerCode || '';
   }
 }
 
