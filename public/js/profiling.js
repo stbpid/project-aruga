@@ -17,10 +17,7 @@ let timerInterval;
 document.addEventListener('DOMContentLoaded', async function() {
   // Check if user came from index page
   checkAuthentication();
-  
-  // Display interviewer code
-  displayInterviewerCode();
-  
+
   // Initialize timer
   startSessionTimer();
   
@@ -43,20 +40,28 @@ document.addEventListener('DOMContentLoaded', async function() {
 // ============================================================================
 
 function checkAuthentication() {
-  const code = sessionStorage.getItem('interviewerCode');
+  const sessionId = sessionStorage.getItem('session_id');
+  const interviewerCode = sessionStorage.getItem('interviewer_code');
   const privacyAccepted = sessionStorage.getItem('privacyAccepted');
-  
-  if (!code || !privacyAccepted) {
-    // Redirect back to index if not authenticated
+
+  if (!sessionId || !interviewerCode || !privacyAccepted) {
     window.location.href = '/';
+    return;
   }
+
+  updateHeaderInfo();
 }
 
-function displayInterviewerCode() {
-  const code = sessionStorage.getItem('interviewerCode');
-  const codeElement = document.getElementById('interviewer-code');
-  if (codeElement && code) {
-    codeElement.textContent = code;
+// Update header with interviewer info
+function updateHeaderInfo() {
+  const interviewerCode = sessionStorage.getItem('interviewer_code');
+  const interviewerName = sessionStorage.getItem('interviewer_name');
+  
+  const codeElement = document.getElementById('header-interviewer-code');
+  if (codeElement && interviewerCode) {
+    codeElement.textContent = interviewerCode;
+    codeElement.title = interviewerName || interviewerCode;
+    console.log('✅ Header updated with:', interviewerCode);
   }
 }
 
