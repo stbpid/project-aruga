@@ -2032,12 +2032,12 @@ function getFamilyMemberCardHTML(num, isHead) {
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-bold text-brand-dark mb-1">Full Name</label>
-            <input type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Full Name">
+            <input type="text" data-field="full_name" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Full Name">
           </div>
           <div>
             <label class="block text-xs font-bold text-brand-dark mb-1">Relationship to Head</label>
             <div class="relative">
-              <select class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
+              <select data-field="relationship_to_head" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option>${isHead ? 'Head' : 'Spouse'}</option>
                 <option>Spouse</option>
                 <option>Child</option>
@@ -2057,11 +2057,11 @@ function getFamilyMemberCardHTML(num, isHead) {
             <div class="slide-toggle-container h-9 w-full">
               <div class="slide-toggle-slider"></div>
               <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                <input type="radio" name="solo-${num}" value="Yes" class="hidden"> 
+                <input type="radio" name="solo-${num}" value="Yes" data-field="is_solo_parent" class="hidden">
                 <span>Yes</span>
               </label>
               <label class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                <input type="radio" name="solo-${num}" value="No" class="hidden" checked> 
+                <input type="radio" name="solo-${num}" value="No" data-field="is_solo_parent" class="hidden" checked>
                 <span>No</span>
               </label>
             </div>
@@ -2072,7 +2072,7 @@ function getFamilyMemberCardHTML(num, isHead) {
           <div>
             <label class="block text-xs font-bold text-brand-dark mb-1">Civil Status</label>
             <div class="relative">
-              <select class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
+              <select data-field="civil_status" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>Select Status</option>
                 <option>Single</option>
                 <option>Married</option>
@@ -2087,18 +2087,18 @@ function getFamilyMemberCardHTML(num, isHead) {
           </div>
           <div>
             <label class="block text-xs font-bold text-brand-dark mb-1">Age</label>
-            <input type="text" maxlength="2" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Age" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <input type="text" data-field="age" maxlength="3" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Age" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
           </div>
           <div>
             <label class="block text-xs font-bold text-brand-dark mb-1">Sex</label>
             <div class="slide-toggle-container h-9 w-full">
               <div class="slide-toggle-slider"></div>
               <label class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                <input type="radio" name="sex-${num}" value="Male" class="hidden" checked> 
+                <input type="radio" name="sex-${num}" value="Male" data-field="member_sex" class="hidden" checked>
                 <span>Male</span>
               </label>
               <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                <input type="radio" name="sex-${num}" value="Female" class="hidden"> 
+                <input type="radio" name="sex-${num}" value="Female" data-field="member_sex" class="hidden">
                 <span>Female</span>
               </label>
             </div>
@@ -2677,14 +2677,241 @@ function generateReview() {
 // FORM SUBMISSION
 // ============================================================================
 
-function submitAssessment() {
-  // TODO: Implement actual submission to backend/Supabase
-  alert('Assessment submitted successfully! (Demo mode - no backend connected yet)');
-  
-  // For now, just show success and redirect
-  if (confirm('Assessment complete! Return to home page?')) {
-    sessionStorage.clear();
-    window.location.href = '/';
+function collectFormData() {
+  const getVal = (id) => {
+    const el = document.getElementById(id);
+    const v = el ? el.value.trim() : '';
+    return v !== '' ? v : null;
+  };
+  const getRadio = (name) => {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : null;
+  };
+  const getMulti = (containerId) => {
+    const container = document.getElementById(containerId);
+    if (!container) return [];
+    return Array.from(container.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+  };
+
+  const membershipVal  = getRadio('membership');
+  const religionVal    = getVal('dd-religion');
+  const ipVal          = getVal('dd-ip');
+  const eduVal         = getVal('dd-education');
+  const materialsVal   = getVal('dd-materials');
+  const tenureVal      = getVal('dd-tenure');
+  const elecVal        = getVal('dd-electricity');
+  const waterVal       = getVal('dd-water');
+  const toiletVal      = getVal('dd-toilet');
+  const garbageVal     = getVal('dd-garbage');
+  const healthCondVal  = getRadio('health_cond');
+  const availServVal   = getRadio('avail_services');
+  const barriersVal    = getRadio('barriers');
+  const enrolledVal    = getRadio('enrolled');
+  const schoolFeatVal  = getRadio('school_features');
+  const spedVal        = getRadio('sped_prog');
+  const learnSuppVal   = getRadio('learning_support');
+  const employedVal    = getRadio('employed');
+  const finAssistVal   = getRadio('fin_assist');
+  const awareServVal   = getRadio('aware_services');
+  const availedAnyVal  = getRadio('availed_any');
+  const readinessVal   = getRadio('readiness');
+
+  const serviceChalEl  = document.getElementById('service-challenges');
+  const serviceChalVal = serviceChalEl ? (serviceChalEl.value || null) : null;
+
+  const incomeClassEl  = document.getElementById('income-class-display');
+  const incomeClassTxt = incomeClassEl ? incomeClassEl.innerText : '';
+  const incomeClass    = (incomeClassTxt && incomeClassTxt !== 'Enter income to see classification') ? incomeClassTxt : null;
+
+  // Collect family members by DOM order, using data-field attributes
+  const familyMembers = [];
+  let memberIndex = 0;
+  document.querySelectorAll('.member-card').forEach((card) => {
+    memberIndex++;
+    const cardId  = card.id || '';
+    const origNum = parseInt(cardId.replace('member-card-', '')) || memberIndex;
+
+    const nameEl    = card.querySelector('[data-field="full_name"]');
+    const relEl     = card.querySelector('[data-field="relationship_to_head"]');
+    const civilEl   = card.querySelector('[data-field="civil_status"]');
+    const ageEl     = card.querySelector('[data-field="age"]');
+    const soloInput = card.querySelector('input[data-field="is_solo_parent"]:checked');
+    const sexInput  = card.querySelector('input[data-field="member_sex"]:checked');
+    const occEl     = document.getElementById(`dd-fam-occ-${origNum}`);
+    const classEl   = document.getElementById(`dd-fam-class-${origNum}`);
+    const disDiv    = document.getElementById(`dd-fam-dis-${origNum}`);
+    const illDiv    = document.getElementById(`dd-fam-ill-${origNum}`);
+
+    familyMembers.push({
+      member_number:        memberIndex,
+      full_name:            nameEl  ? nameEl.value.trim()  : '',
+      relationship_to_head: relEl   ? (relEl.value   || null) : null,
+      is_solo_parent:       soloInput ? soloInput.value === 'Yes' : false,
+      civil_status:         civilEl ? (civilEl.value || null) : null,
+      age:                  ageEl && ageEl.value ? (parseInt(ageEl.value) || null) : null,
+      sex:                  sexInput ? sexInput.value : null,
+      occupation:           occEl   ? (occEl.value   || null) : null,
+      occupation_class:     classEl ? (classEl.value || null) : null,
+      disabilities:         disDiv  ? Array.from(disDiv.querySelectorAll('input:checked')).map(cb => cb.value) : [],
+      critical_illnesses:   illDiv  ? Array.from(illDiv.querySelectorAll('input:checked')).map(cb => cb.value) : [],
+    });
+  });
+
+  return {
+    session_id:       sessionStorage.getItem('session_id'),
+    interviewer_id:   sessionStorage.getItem('interviewer_id'),
+    interviewer_code: sessionStorage.getItem('interviewer_code'),
+    readiness_score:  readinessVal,
+
+    pre_qualification: {
+      is_4ps_member: membershipVal === 'Yes',
+      household_id:  membershipVal === 'Yes' ? getVal('household-id') : null,
+    },
+
+    respondent: {
+      full_name:             getVal('resp-name') || '',
+      relationship_to_child: getVal('dd-relationship'),
+      email:                 getVal('resp-email'),
+      contact_number:        getVal('resp-contact'),
+    },
+
+    child: {
+      first_name:          getVal('child-fname') || '',
+      middle_name:         getVal('child-mname'),
+      last_name:           getVal('child-lname') || '',
+      name_extension:      getVal('dd-extension'),
+      region:              getVal('child-region'),
+      province:            getVal('child-province'),
+      city_municipality:   getVal('child-city'),
+      barangay:            getVal('child-barangay'),
+      street_address:      getVal('child-street'),
+      contact_number:      getVal('child-contact'),
+      date_of_birth:       getVal('child-dob'),
+      sex:                 getRadio('sex'),
+      religion:            religionVal !== 'Others' ? religionVal : null,
+      religion_other:      religionVal === 'Others' ? getVal('rel-other') : null,
+      ip_membership:       ipVal !== 'Others' ? ipVal : null,
+      ip_membership_other: ipVal === 'Others' ? getVal('ip-other') : null,
+    },
+
+    child_education_health: {
+      highest_education:       eduVal !== 'Others' ? eduVal : null,
+      highest_education_other: eduVal === 'Others' ? getVal('edu-other') : null,
+      disabilities:            getMulti('dd-disability'),
+      critical_illnesses:      getMulti('dd-illness'),
+      illness_other:           getVal('illness-other-input'),
+    },
+
+    family_members: familyMembers,
+
+    socio_economic: {
+      housing_materials:               materialsVal !== 'Others' ? materialsVal : null,
+      housing_materials_other:         materialsVal === 'Others' ? getVal('mat-other') : null,
+      tenure_status:                   tenureVal !== 'Others' ? tenureVal : null,
+      tenure_status_other:             tenureVal === 'Others' ? getVal('tenure-other') : null,
+      has_accessibility_modifications: getRadio('modifications') === 'Yes',
+      modification_details:            getRadio('modifications') === 'Yes' ? getVal('mod-specify') : null,
+      electricity_source:              elecVal !== 'Others' ? elecVal : null,
+      electricity_source_other:        elecVal === 'Others' ? getVal('elec-other') : null,
+      water_source:                    waterVal !== 'Others' ? waterVal : null,
+      water_source_other:              waterVal === 'Others' ? getVal('water-other') : null,
+      toilet_type:                     toiletVal !== 'Others' ? toiletVal : null,
+      toilet_type_other:               toiletVal === 'Others' ? getVal('toilet-other') : null,
+      is_toilet_accessible:            getRadio('toilet-access') === 'Yes',
+      garbage_disposal:                garbageVal !== 'Others' ? garbageVal : null,
+      garbage_disposal_other:          garbageVal === 'Others' ? getVal('garbage-other') : null,
+    },
+
+    health_info: {
+      has_all_vaccinations:         getRadio('vaccines') === 'Yes',
+      has_ongoing_health_conditions:healthCondVal === 'Yes',
+      health_conditions_details:    healthCondVal === 'Yes' ? getVal('health-cond-specify') : null,
+      expense_food:                 parseFloat(getVal('exp-food') || '0') || 0,
+      expense_medication:           parseFloat(getVal('exp-med') || '0') || 0,
+      expense_therapy:              parseFloat(getVal('exp-therapy') || '0') || 0,
+      expense_hygiene:              parseFloat(getVal('exp-hygiene') || '0') || 0,
+      expense_assistive_device:     parseFloat(getVal('exp-assist') || '0') || 0,
+      expense_other:                parseFloat(getVal('exp-other') || '0') || 0,
+      availed_services_6months:     availServVal === 'Yes',
+      availed_services_details:     availServVal === 'Yes' ? getVal('avail-specify') : null,
+      is_facility_accessible:       getRadio('facility_access') === 'Yes',
+      has_barriers_to_healthcare:   barriersVal === 'Yes',
+      healthcare_barriers_details:  barriersVal === 'Yes' ? getVal('barrier-specify') : null,
+    },
+
+    education_info: {
+      is_currently_enrolled:          enrolledVal === 'Yes',
+      grade_year_level:               enrolledVal === 'Yes' ? getVal('grade-level') : null,
+      not_enrolled_reason:            enrolledVal !== 'Yes' ? getVal('not-enrolled-reason') : null,
+      has_accessibility_features:     schoolFeatVal === 'Yes',
+      accessibility_features_details: schoolFeatVal === 'Yes' ? getVal('school-access-specify') : null,
+      has_sped_programs:              spedVal === 'Yes',
+      sped_programs_details:          spedVal === 'Yes' ? getVal('sped-specify') : null,
+      receives_learning_support:      learnSuppVal === 'Yes',
+      learning_support_details:       learnSuppVal === 'Yes' ? getVal('learn-supp-specify') : null,
+    },
+
+    economic_capacity: {
+      primary_income_source: getVal('income-source'),
+      monthly_income:        parseFloat(getVal('monthly-income') || '0') || null,
+      income_classification: incomeClass,
+      are_parents_employed:  employedVal === 'Yes',
+      employment_details:    employedVal === 'Yes' ? getVal('emp-specify') : null,
+    },
+
+    service_availment: {
+      receives_financial_assistance: finAssistVal === 'Yes',
+      financial_assistance_details:  finAssistVal === 'Yes' ? getVal('fin-assist-specify') : null,
+      is_aware_of_social_services:   awareServVal === 'Yes',
+      awareness_details:             awareServVal === 'Yes' ? getVal('aware-specify') : null,
+      has_availed_services:          availedAnyVal === 'Yes',
+      availed_services_details:      availedAnyVal === 'Yes' ? getVal('availed-specify') : null,
+      service_challenges:            serviceChalVal !== 'Others' ? serviceChalVal : null,
+      service_challenges_other:      serviceChalVal === 'Others' ? getVal('barrier-other') : null,
+    },
+
+    assessment_notes: {
+      strengths:            getVal('strengths'),
+      assessment_details:   getVal('assessment'),
+      recommended_actions:  getVal('recommendations'),
+      readiness_score:      readinessVal,
+    },
+  };
+}
+
+async function submitAssessment() {
+  const submitBtn = document.querySelector('#step-11 button[onclick="submitAssessment()"]');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]" style="animation:spin 1s linear infinite">progress_activity</span> Submitting...';
+  }
+
+  try {
+    const formData = collectFormData();
+
+    const response = await fetch('/api/submit-assessment.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      window.toast.success('Assessment has been saved to the database.', 'Submitted!', 5000);
+      setTimeout(() => {
+        sessionStorage.clear();
+        window.location.href = '/';
+      }, 2500);
+    } else {
+      throw new Error(result.message || 'Submission failed');
+    }
+  } catch (error) {
+    window.toast.error(error.message || 'Could not reach the server. Please try again.', 'Submission Error');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Submit Assessment';
+    }
   }
 }
 
