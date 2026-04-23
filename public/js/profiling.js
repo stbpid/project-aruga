@@ -2206,7 +2206,7 @@ function generateReview() {
   
   let html = `
     <!-- REVIEW INTRODUCTION -->
-    <div class="bg-gradient-to-r from-green-600 to-emerald-700 rounded-xl p-6 mb-6 text-white">
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-6 mb-6 text-white">
       <div class="flex items-center gap-3 mb-3">
         <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-[28px]">fact_check</span>
@@ -2241,8 +2241,8 @@ function generateReview() {
     <!-- SECTION 2: RESPONDENT PROFILE -->
     <section class="mb-6 pb-6 border-b border-gray-200">
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
-          <span class="material-symbols-outlined text-indigo-600 text-[22px]">account_circle</span>
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">account_circle</span>
         </div>
         <h3 class="text-lg font-bold text-brand-dark">2. Respondent Profile</h3>
       </div>
@@ -2269,8 +2269,8 @@ function generateReview() {
     <!-- SECTION 3: CHILD PROFILE -->
     <section class="mb-6 pb-6 border-b border-gray-200">
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
-          <span class="material-symbols-outlined text-purple-600 text-[22px]">face</span>
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">face</span>
         </div>
         <h3 class="text-lg font-bold text-brand-dark">3. Child Profile</h3>
       </div>
@@ -2360,8 +2360,8 @@ function generateReview() {
     <!-- SECTION 4: FAMILY PROFILE -->
     <section class="mb-6 pb-6 border-b border-gray-200">
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 bg-pink-50 rounded-lg flex items-center justify-center">
-          <span class="material-symbols-outlined text-pink-600 text-[22px]">family_restroom</span>
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">family_restroom</span>
         </div>
         <h3 class="text-lg font-bold text-brand-dark">4. Family Profile</h3>
       </div>
@@ -2407,8 +2407,8 @@ function generateReview() {
     <!-- SECTION 5: SOCIO ECONOMIC -->
     <section class="mb-6 pb-6 border-b border-gray-200">
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
-          <span class="material-symbols-outlined text-orange-600 text-[22px]">home</span>
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">home</span>
         </div>
         <h3 class="text-lg font-bold text-brand-dark">5. Socio Economic</h3>
       </div>
@@ -2462,8 +2462,8 @@ function generateReview() {
     <!-- SECTION 6: HEALTH -->
     <section class="mb-6 pb-6 border-b border-gray-200">
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
-          <span class="material-symbols-outlined text-red-600 text-[22px]">health_and_safety</span>
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">health_and_safety</span>
         </div>
         <h3 class="text-lg font-bold text-brand-dark">6. Health</h3>
       </div>
@@ -2515,8 +2515,8 @@ function generateReview() {
     <!-- SECTION 7: EDUCATION -->
     <section class="mb-6 pb-6 border-b border-gray-200">
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
-          <span class="material-symbols-outlined text-green-600 text-[22px]">school</span>
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">school</span>
         </div>
         <h3 class="text-lg font-bold text-brand-dark">7. Education</h3>
       </div>
@@ -2554,8 +2554,8 @@ function generateReview() {
     <!-- SECTION 8: ECONOMIC CAPACITY -->
     <section class="mb-6 pb-6 border-b border-gray-200">
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 bg-yellow-50 rounded-lg flex items-center justify-center">
-          <span class="material-symbols-outlined text-yellow-600 text-[22px]">account_balance_wallet</span>
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">account_balance_wallet</span>
         </div>
         <h3 class="text-lg font-bold text-brand-dark">8. Economic Capacity</h3>
       </div>
@@ -2594,8 +2594,8 @@ function generateReview() {
     <!-- SECTION 9: SERVICE AVAILMENT -->
     <section class="mb-6 pb-6 border-b border-gray-200">
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 bg-teal-50 rounded-lg flex items-center justify-center">
-          <span class="material-symbols-outlined text-teal-600 text-[22px]">handshake</span>
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">handshake</span>
         </div>
         <h3 class="text-lg font-bold text-brand-dark">9. Service Availment</h3>
       </div>
@@ -2631,8 +2631,8 @@ function generateReview() {
     <!-- SECTION 10: ASSESSMENT NOTES -->
     <section class="mb-6">
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 bg-violet-50 rounded-lg flex items-center justify-center">
-          <span class="material-symbols-outlined text-violet-600 text-[22px]">edit_note</span>
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">edit_note</span>
         </div>
         <h3 class="text-lg font-bold text-brand-dark">10. Assessment Notes</h3>
       </div>
