@@ -59,8 +59,6 @@ function setupSubmitButton() {
 }
 
 // Submit form and validate interviewer
-
-// Submit form and validate interviewer
 async function submitForm() {
   console.log('🔵 submitForm() called');
   
@@ -99,7 +97,7 @@ async function submitForm() {
 
   // Show processing state
   const originalText = submitButton.innerHTML;
-  submitButton.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Validating...</span>';
+  submitButton.innerHTML = 'Validating...';
   submitButton.disabled = true;
 
   try {
@@ -136,6 +134,7 @@ async function submitForm() {
       sessionStorage.setItem('loginTime', new Date().toISOString());
 
       console.log('✅ Session data stored in sessionStorage');
+      console.log('Session ID:', sessionStorage.getItem('session_id'));
 
       // Show success toast
       toast.success(`Welcome, ${result.data.full_name}!`, 'Login Successful');
@@ -143,8 +142,9 @@ async function submitForm() {
       // Update button
       submitButton.innerHTML = '✓ Success! Redirecting...';
       
-      // Redirect to profiling page
+      // Redirect to profiling page with .html extension
       setTimeout(() => {
+        console.log('🔵 Redirecting to profiling.html');
         window.location.href = '/profiling.html';
       }, 1000);
 
