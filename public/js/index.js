@@ -59,6 +59,8 @@ function setupSubmitButton() {
 }
 
 // Submit form and validate interviewer
+
+// Submit form and validate interviewer
 async function submitForm() {
   console.log('🔵 submitForm() called');
   
@@ -68,7 +70,7 @@ async function submitForm() {
 
   if (!codeInput || !submitButton || !agreeCheckbox) {
     console.error('❌ Form elements missing');
-    alert('Error: Form elements not found. Please refresh the page.');
+    toast.error('Form elements not found. Please refresh the page.');
     return;
   }
 
@@ -76,17 +78,19 @@ async function submitForm() {
 
   // Validate
   if (!interviewerCode) {
-    alert('Please enter your interviewer code');
+    toast.warning('Please enter your interviewer code', 'Missing Code');
+    codeInput.focus();
     return;
   }
 
   if (interviewerCode.length !== 8) {
-    alert('Interviewer code must be exactly 8 characters');
+    toast.warning('Interviewer code must be exactly 8 characters', 'Invalid Length');
+    codeInput.focus();
     return;
   }
 
   if (!agreeCheckbox.checked) {
-    alert('Please accept the Data Privacy terms');
+    toast.warning('Please accept the Data Privacy terms', 'Agreement Required');
     return;
   }
 
@@ -95,7 +99,7 @@ async function submitForm() {
 
   // Show processing state
   const originalText = submitButton.innerHTML;
-  submitButton.innerHTML = 'Validating...';
+  submitButton.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Validating...</span>';
   submitButton.disabled = true;
 
   try {
@@ -133,20 +137,26 @@ async function submitForm() {
 
       console.log('✅ Session data stored in sessionStorage');
 
-      // Show success message
-      submitButton.innerHTML = 'Success! Redirecting...';
+      // Show success toast
+      toast.success(`Welcome, ${result.data.full_name}!`, 'Login Successful');
+
+      // Update button
+      submitButton.innerHTML = '✓ Success! Redirecting...';
       
       // Redirect to profiling page
       setTimeout(() => {
         window.location.href = '/profiling';
-      }, 500);
+      }, 1000);
 
     } else {
       // Validation failed
       console.error('❌ Validation failed:', result.message);
       
-      // Show error message
-      alert(result.message || 'Invalid interviewer code. Please check and try again.');
+      // Show error toast
+      toast.error(
+        result.message || 'Invalid interviewer code. Please check and try again.',
+        'Authentication Failed'
+      );
       
       // Reset button
       submitButton.innerHTML = originalText;
@@ -160,8 +170,11 @@ async function submitForm() {
   } catch (error) {
     console.error('❌ Network error:', error);
     
-    // Show error message
-    alert('Connection error. Please check your internet and try again.');
+    // Show error toast
+    toast.error(
+      'Unable to connect to the server. Please check your internet connection and try again.',
+      'Connection Error'
+    );
     
     // Reset button
     submitButton.innerHTML = originalText;
