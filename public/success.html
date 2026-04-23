@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration Successful - Project Aruga</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { 'sans': ['Poppins', 'sans-serif'] },
+          colors: { brand: { dark: '#111811', blue: '#1152d4', blueHover: '#0d3fa3' } }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; background: #f0f4f8; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; }
+      .print-card { box-shadow: none !important; border: 1px solid #ddd !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- HEADER -->
+  <header class="w-full bg-white border-b border-gray-200 h-14 sticky top-0 z-50 shadow-sm no-print">
+    <div class="max-w-5xl mx-auto px-4 h-full flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <img src="https://lh3.googleusercontent.com/d/1PXQxz3l0uxl0zEo1Lw5R4Qrd41yXbQ6V" class="h-9 w-auto object-contain" alt="Logo">
+        <span class="font-bold text-brand-dark text-base">Project Aruga</span>
+      </div>
+      <button onclick="endSession()" class="text-red-600 text-xs font-semibold hover:underline">End Session</button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="flex-grow flex flex-col items-center justify-center px-4 py-10 space-y-6 max-w-xl mx-auto w-full">
+
+    <!-- SUCCESS ICON -->
+    <div class="flex flex-col items-center text-center space-y-2">
+      <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-1">
+        <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Registration Successful!</h1>
+      <p class="text-sm text-gray-500 max-w-sm">
+        Project Aruga has received the application for
+        <span id="display-name" class="font-bold text-gray-900"></span>.
+        All documents are currently being processed.
+      </p>
+    </div>
+
+    <!-- ID CARD WITH QR -->
+    <div class="w-full bg-white rounded-2xl border border-gray-200 shadow-md p-5 print-card">
+      <p class="text-[10px] font-bold text-brand-blue uppercase tracking-widest mb-3">Official ID</p>
+      <div class="flex items-center gap-4">
+
+        <!-- QR CODE -->
+        <div class="flex-shrink-0">
+          <div id="qr-code" class="w-24 h-24 sm:w-28 sm:h-28"></div>
+        </div>
+
+        <!-- ID INFO -->
+        <div class="flex flex-col justify-center min-w-0">
+          <p id="display-aruga-id" class="text-xl sm:text-2xl font-extrabold text-gray-900 leading-tight break-all"></p>
+          <p class="text-xs text-gray-500 mt-1 leading-snug">
+            Please save or print this QR code. This will be required for claiming benefits and future transactions within the Aruga network.
+          </p>
+          <!-- ACTION BUTTONS -->
+          <div class="flex gap-2 mt-3 flex-wrap no-print">
+            <button onclick="printQR()" class="flex items-center gap-1.5 bg-brand-blue text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-brand-blueHover transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+              </svg>
+              Print QR Code
+            </button>
+            <button onclick="saveQR()" class="flex items-center gap-1.5 bg-white border border-gray-300 text-gray-700 text-xs font-semibold px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              Save Digital Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIRMATION EMAIL -->
+    <div id="email-card" class="w-full bg-white rounded-2xl border border-gray-200 shadow-sm p-4 hidden no-print">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-brand-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-gray-900">Confirmation Sent</p>
+            <p class="text-xs text-gray-500">A confirmation message has been sent to your email</p>
+            <p id="display-email" class="text-xs font-semibold text-brand-blue mt-0.5"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ACTIONS -->
+    <div class="w-full grid grid-cols-2 gap-3 no-print">
+      <button onclick="window.location.href='/'" class="flex items-center justify-between bg-brand-blue text-white rounded-xl p-4 hover:bg-brand-blueHover transition-colors text-left">
+        <div>
+          <p class="text-xs font-bold">New Beneficiary</p>
+          <p class="text-[10px] opacity-75 mt-0.5">Start another application</p>
+        </div>
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <button onclick="window.location.href='/'" class="flex items-center justify-between bg-white border border-gray-200 text-gray-800 rounded-xl p-4 hover:bg-gray-50 transition-colors text-left">
+        <div>
+          <p class="text-xs font-bold">Go to Dashboard</p>
+          <p class="text-[10px] text-gray-500 mt-0.5">Return to main screen</p>
+        </div>
+        <svg class="w-4 h-4 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-gray-800 bg-gray-900 py-3 text-center no-print">
+    <p class="text-[10px] text-gray-400">© 2026 Department of Social Welfare Development - Social Technology Bureau</p>
+  </footer>
+
+  <script>
+    // ----------------------------------------------------------------
+    // Parse URL params
+    // ----------------------------------------------------------------
+    const params   = new URLSearchParams(window.location.search);
+    const arugaId  = params.get('arugaId')  || 'ARUGA-UNKNOWN';
+    const name     = params.get('name')     || 'Beneficiary';
+    const email    = params.get('email')    || '';
+
+    // ----------------------------------------------------------------
+    // Populate UI
+    // ----------------------------------------------------------------
+    document.getElementById('display-name').textContent    = name;
+    document.getElementById('display-aruga-id').textContent = arugaId;
+
+    if (email) {
+      document.getElementById('display-email').textContent = email;
+      document.getElementById('email-card').classList.remove('hidden');
+    }
+
+    // ----------------------------------------------------------------
+    // Generate QR code — encodes the profile URL
+    // ----------------------------------------------------------------
+    const profileUrl = window.location.origin + '/profile.html?id=' + encodeURIComponent(arugaId);
+    const qrEl = document.getElementById('qr-code');
+    new QRCode(qrEl, {
+      text:         profileUrl,
+      width:        112,
+      height:       112,
+      colorDark:    '#111827',
+      colorLight:   '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+
+    // ----------------------------------------------------------------
+    // Print
+    // ----------------------------------------------------------------
+    function printQR() { window.print(); }
+
+    // ----------------------------------------------------------------
+    // Save as PNG
+    // ----------------------------------------------------------------
+    function saveQR() {
+      const canvas = qrEl.querySelector('canvas');
+      if (!canvas) {
+        // qrcodejs may render an img on some browsers
+        const img = qrEl.querySelector('img');
+        if (img) {
+          const a = document.createElement('a');
+          a.href = img.src;
+          a.download = arugaId + '-QR.png';
+          a.click();
+        }
+        return;
+      }
+
+      // Add white padding + aruga_id text below QR
+      const pad    = 16;
+      const textH  = 28;
+      const out    = document.createElement('canvas');
+      out.width    = canvas.width  + pad * 2;
+      out.height   = canvas.height + pad * 2 + textH;
+      const ctx    = out.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, out.width, out.height);
+      ctx.drawImage(canvas, pad, pad);
+      ctx.fillStyle = '#111827';
+      ctx.font      = 'bold 13px Poppins, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(arugaId, out.width / 2, canvas.height + pad + textH - 6);
+
+      const a  = document.createElement('a');
+      a.href   = out.toDataURL('image/png');
+      a.download = arugaId + '-QR.png';
+      a.click();
+    }
+
+    function endSession() {
+      sessionStorage.clear();
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>

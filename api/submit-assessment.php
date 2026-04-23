@@ -19,10 +19,52 @@ function safe($arr, $key, $default = null) {
     return (isset($arr[$key]) && $arr[$key] !== '' && $arr[$key] !== null) ? $arr[$key] : $default;
 }
 
+function getRegionCode($region) {
+    if (!$region) return 'XX';
+    $map = [
+        'national capital' => 'NCR', 'ncr' => 'NCR',
+        'cordillera' => 'CAR',       'car' => 'CAR',
+        'bangsamoro' => 'BARMM',     'barmm' => 'BARMM',
+        'region i '  => 'R1',  'region 1'  => 'R1',
+        'region ii ' => 'R2',  'region 2'  => 'R2',
+        'region iii' => 'R3',  'region 3'  => 'R3',
+        'region iv-a'=> 'R4A', 'calabarzon'=> 'R4A',
+        'region iv-b'=> 'R4B', 'mimaropa'  => 'R4B',
+        'region iv'  => 'R4',  'region 4'  => 'R4',
+        'region v '  => 'R5',  'region 5'  => 'R5',  'bicol' => 'R5',
+        'region vi ' => 'R6',  'region 6'  => 'R6',
+        'region vii' => 'R7',  'region 7'  => 'R7',
+        'region viii'=> 'R8',  'region 8'  => 'R8',
+        'region ix ' => 'R9',  'region 9'  => 'R9',
+        'region x '  => 'R10', 'region 10' => 'R10',
+        'region xi ' => 'R11', 'region 11' => 'R11',
+        'region xii' => 'R12', 'region 12' => 'R12',
+        'caraga'     => 'R13', 'region xiii'=>'R13', 'region 13' => 'R13',
+    ];
+    $lower = strtolower(trim($region));
+    foreach ($map as $pattern => $code) {
+        if (strpos($lower, $pattern) !== false) return $code;
+    }
+    return 'XX';
+}
+
+function generateArugaId($regionCode) {
+    $year = date('Y');
+    $yearStart = urlencode($year . '-01-01T00:00:00.000Z');
+    $yearEnd   = urlencode(($year + 1) . '-01-01T00:00:00.000Z');
+    $countResult = supabaseRequest('GET', "assessments?select=id&created_at=gte.{$yearStart}&created_at=lt.{$yearEnd}");
+    $count = is_array($countResult['data']) ? count($countResult['data']) + 1 : 1;
+    return sprintf('ARUGA-%s-%s-%04d', $year, $regionCode, $count);
+}
+
 // ----------------------------------------------------------------
-// 1. Create assessment record
+// 1. Generate aruga_id then create assessment record
 // ----------------------------------------------------------------
+$childRegion   = safe($input['child'] ?? [], 'region');
+$regionCode    = getRegionCode($childRegion);
+$arugaId       = generateArugaId($regionCode);
 $readinessScore = safe($input, 'readiness_score');
+
 $assessmentData = [
     'session_id'          => safe($input, 'session_id'),
     'interviewer_id'      => safe($input, 'interviewer_id'),
@@ -32,6 +74,7 @@ $assessmentData = [
     'current_step'        => 11,
     'status'              => 'completed',
     'readiness_score'     => $readinessScore,
+    'aruga_id'            => $arugaId,
     'completed_at'        => date('c'),
     'submitted_at'        => date('c'),
 ];
@@ -232,4 +275,14 @@ supabaseRequest('POST', 'assessment_notes', [
     'readiness_score'    => safe($an, 'readiness_score'),
 ]);
 
-sendResponse(true, 'Assessment submitted successfully', ['assessment_id' => $assessmentId]);
+$child     = $input['child'] ?? [];
+$resp      = $input['respondent'] ?? [];
+$childName = trim(($child['first_name'] ?? '') . ' ' . ($child['last_name'] ?? ''));
+$email     = $resp['email'] ?? '';
+
+sendResponse(true, 'Assessment submitted successfully', [
+    'assessment_id' => $assessmentId,
+    'aruga_id'      => $arugaId,
+    'child_name'    => $childName,
+    'email'         => $email,
+]);

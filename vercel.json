@@ -22,6 +22,14 @@
       "dest": "/public/contact.html"
     },
     {
+      "src": "/success",
+      "dest": "/public/success.html"
+    },
+    {
+      "src": "/profile",
+      "dest": "/public/profile.html"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/$1"
     },

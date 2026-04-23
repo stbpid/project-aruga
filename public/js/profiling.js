@@ -2898,11 +2898,14 @@ async function submitAssessment() {
     const result = await response.json();
 
     if (result.success) {
-      window.toast.success('Assessment has been saved to the database.', 'Submitted!', 5000);
-      setTimeout(() => {
-        sessionStorage.clear();
-        window.location.href = '/';
-      }, 2500);
+      const d = result.data || {};
+      const params = new URLSearchParams({
+        name:    d.child_name || '',
+        arugaId: d.aruga_id   || '',
+        email:   d.email      || '',
+      });
+      sessionStorage.clear();
+      window.location.href = '/success.html?' + params.toString();
     } else {
       throw new Error(result.message || 'Submission failed');
     }
