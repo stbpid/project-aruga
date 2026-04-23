@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - Project Aruga</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'sans': ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              dark: '#111811',
+              blue: '#1152d4',
+              blueHover: '#0d3fa3',
+              bg: '#F0F4F8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Contact Page Custom Styles */
+    .contact-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1f2937;
+    }
+    
+    .contact-body {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.6;
+    }
+    
+    /* Keep links blue */
+    .contact-body a {
+      color: #1152d4;
+    }
+    
+    .contact-body a:hover {
+      color: #0d3fa3;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+  <!-- HEADER -->
+  <header class="w-full bg-[#f6f8f6f2] border-b border-[#e0e4e0] h-14 sticky top-0 z-50 backdrop-blur-sm">
+    <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+      
+      <div class="flex items-center gap-3">
+         <img src="https://lh3.googleusercontent.com/d/1PXQxz3l0uxl0zEo1Lw5R4Qrd41yXbQ6V" class="h-10 w-auto object-contain" alt="Logo">
+         <h2 class="font-bold text-brand-dark text-lg sm:text-xl">Project Aruga</h2>
+      </div>
+
+      <nav class="flex items-center gap-6">
+        <a href="/" class="text-xs font-medium text-brand-blue hover:text-brand-blueHover transition-colors flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          Back to Home
+        </a>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-grow py-8 px-4">
+    <div class="max-w-6xl mx-auto">
+      
+      <!-- HEADER SECTION -->
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-8 sm:p-12 mb-8 text-white shadow-xl">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined text-[28px]">support_agent</span>
+          </div>
+          <div>
+            <p class="text-sm opacity-90 font-medium">DSWD Social Technology Bureau</p>
+            <h1 class="text-3xl sm:text-4xl font-extrabold">Contact Us</h1>
+          </div>
+        </div>
+        <p class="text-lg opacity-95 mt-4 max-w-2xl">
+          We're here to help! Reach out to us for any questions, concerns, or assistance regarding Project Aruga and our services for children with disabilities.
+        </p>
+      </div>
+
+      <!-- INTRO TEXT -->
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-8">
+        <div class="flex items-start gap-4 mb-6">
+          <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-brand-blue text-[24px]">info</span>
+          </div>
+          <div>
+            <h2 class="contact-title mb-3" style="font-size: 16px;">GET IN TOUCH</h2>
+            <p class="contact-body mb-4">
+              The Social Technology Bureau is committed to providing accessible and responsive support to all our stakeholders. Whether you're a program beneficiary, partner agency, or concerned citizen, we welcome your inquiries and feedback.
+            </p>
+            <p class="contact-body">
+              Our dedicated team is available to assist you with technical support, program information, partnership opportunities, and general inquiries about Project Aruga and other social technology initiatives of DSWD.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTACT CARDS GRID -->
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+        
+        <!-- GENERAL INQUIRIES -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow">
+          <div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+              <span class="material-symbols-outlined text-white text-[24px]">help</span>
+            </div>
+            <h3 class="contact-title" style="font-size: 16px;">GENERAL INQUIRIES</h3>
+          </div>
+          
+          <p class="contact-body mb-6">
+            For questions about Project Aruga, program eligibility, or general information about our services.
+          </p>
+
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-brand-blue text-[20px] mt-0.5">mail</span>
+              <div>
+                <p class="contact-title mb-1" style="font-size: 12px; color: #6b7280;">EMAIL</p>
+                <a href="mailto:info.stb@dswd.gov.ph" class="contact-body" style="color: #1152d4; text-decoration: none; word-break: break-all;">
+                  info.stb@dswd.gov.ph
+                </a>
+              </div>
+            </div>
+            
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-brand-blue text-[20px] mt-0.5">phone</span>
+              <div>
+                <p class="contact-title mb-1" style="font-size: 12px; color: #6b7280;">HOTLINE</p>
+                <a href="tel:+6328931377" class="contact-body" style="color: #1152d4; text-decoration: none;">
+                  (02) 8931-8101 to 07
+                </a>
+                <p class="contact-body mt-1" style="font-size: 12px; color: #9ca3af;">Mon-Fri, 8:00 AM - 5:00 PM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TECHNICAL SUPPORT -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow">
+          <div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center">
+              <span class="material-symbols-outlined text-white text-[24px]">settings</span>
+            </div>
+            <h3 class="contact-title" style="font-size: 16px;">TECHNICAL SUPPORT</h3>
+          </div>
+          
+          <p class="contact-body mb-6">
+            Experiencing technical issues with the profiling tool? Need help navigating the system? We're here to assist you.
+          </p>
+
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-brand-blue text-[20px] mt-0.5">mail</span>
+              <div>
+                <p class="contact-title mb-1" style="font-size: 12px; color: #6b7280;">EMAIL</p>
+                <a href="mailto:support.stb@dswd.gov.ph" class="contact-body" style="color: #1152d4; text-decoration: none; word-break: break-all;">
+                  support.stb@dswd.gov.ph
+                </a>
+              </div>
+            </div>
+            
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-brand-blue text-[20px] mt-0.5">phone</span>
+              <div>
+                <p class="contact-title mb-1" style="font-size: 12px; color: #6b7280;">TECH SUPPORT LINE</p>
+                <a href="tel:+6328931377" class="contact-body" style="color: #1152d4; text-decoration: none;">
+                  (02) 8931-8108 local 1234
+                </a>
+                <p class="contact-body mt-1" style="font-size: 12px; color: #9ca3af;">Mon-Fri, 8:00 AM - 5:00 PM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PARTNERSHIPS -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow">
+          <div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+              <span class="material-symbols-outlined text-white text-[24px]">handshake</span>
+            </div>
+            <h3 class="contact-title" style="font-size: 16px;">PARTNERSHIPS & COLLABORATION</h3>
+          </div>
+          
+          <p class="contact-body mb-6">
+            Interested in partnering with DSWD-STB? Let's work together to support children with disabilities and their families.
+          </p>
+
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-brand-blue text-[20px] mt-0.5">mail</span>
+              <div>
+                <p class="contact-title mb-1" style="font-size: 12px; color: #6b7280;">EMAIL</p>
+                <a href="mailto:partnerships.stb@dswd.gov.ph" class="contact-body" style="color: #1152d4; text-decoration: none; word-break: break-all;">
+                  partnerships.stb@dswd.gov.ph
+                </a>
+              </div>
+            </div>
+            
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-brand-blue text-[20px] mt-0.5">phone</span>
+              <div>
+                <p class="contact-title mb-1" style="font-size: 12px; color: #6b7280;">PARTNERSHIPS LINE</p>
+                <a href="tel:+6328931377" class="contact-body" style="color: #1152d4; text-decoration: none;">
+                  (02) 8931-8109
+                </a>
+                <p class="contact-body mt-1" style="font-size: 12px; color: #9ca3af;">Mon-Fri, 8:00 AM - 5:00 PM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPLAINTS & FEEDBACK -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow">
+          <div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+            <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+              <span class="material-symbols-outlined text-white text-[24px]">feedback</span>
+            </div>
+            <h3 class="contact-title" style="font-size: 16px;">COMPLAINTS & FEEDBACK</h3>
+          </div>
+          
+          <p class="contact-body mb-6">
+            Your feedback helps us improve. Report issues, share suggestions, or file complaints about our services.
+          </p>
+
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-brand-blue text-[20px] mt-0.5">mail</span>
+              <div>
+                <p class="contact-title mb-1" style="font-size: 12px; color: #6b7280;">EMAIL</p>
+                <a href="mailto:feedback.stb@dswd.gov.ph" class="contact-body" style="color: #1152d4; text-decoration: none; word-break: break-all;">
+                  feedback.stb@dswd.gov.ph
+                </a>
+              </div>
+            </div>
+            
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-brand-blue text-[20px] mt-0.5">phone</span>
+              <div>
+                <p class="contact-title mb-1" style="font-size: 12px; color: #6b7280;">FEEDBACK HOTLINE</p>
+                <a href="tel:+6328931377" class="contact-body" style="color: #1152d4; text-decoration: none;">
+                  (02) 8931-DSWD (3793)
+                </a>
+                <p class="contact-body mt-1" style="font-size: 12px; color: #9ca3af;">24/7 Hotline Available</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- OFFICE LOCATION -->
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-8">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-white text-[24px]">location_on</span>
+          </div>
+          <div class="flex-grow">
+            <h3 class="contact-title mb-4" style="font-size: 16px;">VISIT OUR OFFICE</h3>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 class="contact-title mb-2 flex items-center gap-2">
+                  <span class="material-symbols-outlined text-brand-blue text-[18px]">business</span>
+                  Social Technology Bureau
+                </h4>
+                <p class="contact-body">
+                  DSWD Central Office<br>
+                  IBP Road, Constitution Hills<br>
+                  Batasan Pambansa Complex<br>
+                  Quezon City, Metro Manila 1126<br>
+                  Philippines
+                </p>
+              </div>
+              
+              <div>
+                <h4 class="contact-title mb-2 flex items-center gap-2">
+                  <span class="material-symbols-outlined text-brand-blue text-[18px]">schedule</span>
+                  Office Hours
+                </h4>
+                <div class="space-y-1">
+                  <p class="contact-body"><span class="contact-title">Monday - Friday:</span> 8:00 AM - 5:00 PM</p>
+                  <p class="contact-body"><span class="contact-title">Saturday - Sunday:</span> Closed</p>
+                  <p class="contact-body mt-2" style="font-size: 12px; color: #6b7280;">*Closed on national holidays</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Map Placeholder -->
+            <div class="mt-6 bg-gray-100 rounded-lg border border-gray-300 h-64 flex items-center justify-center">
+              <div class="text-center text-gray-500">
+                <span class="material-symbols-outlined text-[48px] mb-2">map</span>
+                <p class="contact-body">Interactive map coming soon</p>
+                <a href="https://maps.google.com/?q=DSWD+Central+Office+Batasan" target="_blank" class="contact-body mt-2 inline-block" style="color: #1152d4; text-decoration: none; font-size: 12px;">
+                  Open in Google Maps →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOCIAL MEDIA -->
+      <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-lg border border-blue-200 p-6 sm:p-8">
+        <div class="text-center mb-6">
+          <h3 class="contact-title mb-2" style="font-size: 16px;">CONNECT WITH US</h3>
+          <p class="contact-body">Stay updated with our latest programs and announcements</p>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-4">
+          <a href="https://www.facebook.com/DSWDPH" target="_blank" class="bg-white hover:bg-blue-50 transition-colors rounded-lg px-6 py-3 flex items-center gap-3 shadow-sm border border-gray-200">
+            <svg class="w-6 h-6 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            <span class="contact-title">Facebook</span>
+          </a>
+
+          <a href="https://twitter.com/DSWDPH" target="_blank" class="bg-white hover:bg-blue-50 transition-colors rounded-lg px-6 py-3 flex items-center gap-3 shadow-sm border border-gray-200">
+            <svg class="w-6 h-6 text-[#1DA1F2]" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+            </svg>
+            <span class="contact-title">Twitter</span>
+          </a>
+
+          <a href="https://www.dswd.gov.ph" target="_blank" class="bg-white hover:bg-blue-50 transition-colors rounded-lg px-6 py-3 flex items-center gap-3 shadow-sm border border-gray-200">
+            <span class="material-symbols-outlined text-brand-blue text-[24px]">language</span>
+            <span class="contact-title">Website</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-8 border-t border-gray-800 bg-gray-900 py-6 text-center px-4">
+    <p class="text-xs text-gray-300 font-light tracking-wide">
+      © 2026 Department of Social Welfare Development - Social Technology Bureau
+    </p>
+    <p class="text-xs text-gray-400 mt-2">
+      Committed to inclusive and responsive social services for all Filipinos
+    </p>
+  </footer>
+
+</body>
+</html>
