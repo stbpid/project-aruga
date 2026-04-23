@@ -145,7 +145,7 @@ async function submitForm() {
       
       // Redirect to profiling page
       setTimeout(() => {
-        window.location.href = '/profiling';
+        window.location.href = '/profiling.html';
       }, 1000);
 
     } else {

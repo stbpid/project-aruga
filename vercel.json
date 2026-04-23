@@ -38,7 +38,7 @@
       "dest": "/public/images/$1"
     },
     {
-      "src": "/(.*)",
+      "src": "/(.*\\..+)",
       "dest": "/public/$1"
     }
   ]
