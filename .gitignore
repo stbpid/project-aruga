@@ -1,1 +1,7 @@
+# Environment variables
+.env
+
+# Existing lines below
+node_modules/
+*.log
 .vercel
