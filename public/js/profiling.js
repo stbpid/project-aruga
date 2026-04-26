@@ -18,6 +18,13 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Check if user came from index page
   checkAuthentication();
 
+  // Intercept browser back button — show End Session modal instead of navigating away
+  history.pushState(null, '', location.href);
+  window.addEventListener('popstate', function() {
+    history.pushState(null, '', location.href);
+    showLogoutModal();
+  });
+
   // Initialize timer
   startSessionTimer();
   
@@ -2185,16 +2192,28 @@ function generateReview() {
     return el ? el.value : 'N/A'; 
   };
   
+  const readinessMap = {
+    severe:   { label: 'Severe: Immediate intervention needed',              color: 'bg-red-50 border-red-200 text-red-700' },
+    moderate: { label: 'Moderate: Address within a short period',            color: 'bg-orange-50 border-orange-200 text-orange-700' },
+    low:      { label: 'Low: No immediate action needed, but monitor regularly', color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+    stable:   { label: 'Stable: Meets all needs effectively',               color: 'bg-green-50 border-green-200 text-green-700' },
+  };
+  const readinessVal   = getRadio('readiness') || '';
+  const readinessInfo  = readinessMap[readinessVal] || { label: readinessVal || 'N/A', color: 'bg-gray-50 border-gray-200 text-gray-700' };
+
+  const incomeClassTxt = document.getElementById('income-class-display')?.innerText || '';
+  const incomeDisplay  = (incomeClassTxt && incomeClassTxt !== 'Enter income to see classification') ? incomeClassTxt : 'N/A';
+
   let html = `
     <!-- REVIEW INTRODUCTION -->
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-6 mb-6 text-white">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-          <span class="material-symbols-outlined text-[28px]">fact_check</span>
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-5 sm:p-6 mb-6 text-white" style="font-family:'Poppins',sans-serif">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-[24px] sm:text-[28px]">fact_check</span>
         </div>
         <div>
-          <h2 class="text-2xl font-extrabold">Assessment Review</h2>
-          <p class="text-sm opacity-90 mt-1">Please verify all information before final submission</p>
+          <h2 class="text-xl sm:text-2xl font-extrabold">Assessment Review</h2>
+          <p class="text-xs sm:text-sm opacity-90 mt-0.5">Please verify all information before final submission</p>
         </div>
       </div>
     </div>
@@ -2207,7 +2226,7 @@ function generateReview() {
         </div>
         <h3 class="text-lg font-bold text-brand-dark">1. Pre-Qualification</h3>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-12">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-0 sm:ml-12">
         <div>
           <p class="text-xs font-bold text-gray-500 uppercase mb-1">4Ps Member</p>
           <p class="text-sm font-semibold text-gray-900">${getRadio('membership')}</p>
@@ -2227,7 +2246,7 @@ function generateReview() {
         </div>
         <h3 class="text-lg font-bold text-brand-dark">2. Respondent Profile</h3>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-12">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-0 sm:ml-12">
         <div>
           <p class="text-xs font-bold text-gray-500 uppercase mb-1">Name</p>
           <p class="text-sm font-semibold text-gray-900">${getVal('resp-name')}</p>
@@ -2255,7 +2274,7 @@ function generateReview() {
         </div>
         <h3 class="text-lg font-bold text-brand-dark">3. Child Profile</h3>
       </div>
-      <div class="ml-12 space-y-4">
+      <div class="ml-0 sm:ml-12 space-y-4">
         <!-- Personal Information -->
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <p class="text-xs font-bold text-gray-500 uppercase mb-3">Personal Information</p>
@@ -2346,7 +2365,7 @@ function generateReview() {
         </div>
         <h3 class="text-lg font-bold text-brand-dark">4. Family Profile</h3>
       </div>
-      <div class="ml-12">
+      <div class="ml-0 sm:ml-12">
         <div class="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-4">
           <div class="flex justify-between items-center">
             <p class="text-sm font-bold text-brand-dark">Total Family Size</p>
@@ -2393,7 +2412,7 @@ function generateReview() {
         </div>
         <h3 class="text-lg font-bold text-brand-dark">5. Socio Economic</h3>
       </div>
-      <div class="ml-12 space-y-3">
+      <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <p class="text-xs font-bold text-gray-500 uppercase mb-3">Housing Condition</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2448,7 +2467,7 @@ function generateReview() {
         </div>
         <h3 class="text-lg font-bold text-brand-dark">6. Health</h3>
       </div>
-      <div class="ml-12 space-y-3">
+      <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <p class="text-xs font-bold text-gray-500 uppercase mb-3">General Health</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2501,7 +2520,7 @@ function generateReview() {
         </div>
         <h3 class="text-lg font-bold text-brand-dark">7. Education</h3>
       </div>
-      <div class="ml-12 space-y-3">
+      <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <p class="text-xs font-bold text-gray-500 uppercase mb-3">Educational Status</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2540,7 +2559,7 @@ function generateReview() {
         </div>
         <h3 class="text-lg font-bold text-brand-dark">8. Economic Capacity</h3>
       </div>
-      <div class="ml-12 space-y-3">
+      <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <p class="text-xs font-bold text-gray-500 uppercase mb-3">Financial Information</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2556,10 +2575,8 @@ function generateReview() {
         </div>
 
         <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-          <div class="flex justify-between items-center">
-            <p class="text-xs font-bold text-gray-700 uppercase">Income Classification</p>
-            <p class="text-lg font-extrabold text-brand-blue">${document.getElementById('income-class-display').innerText}</p>
-          </div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">Income Classification</p>
+          <p class="text-sm font-bold text-brand-blue">${incomeDisplay}</p>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -2580,7 +2597,7 @@ function generateReview() {
         </div>
         <h3 class="text-lg font-bold text-brand-dark">9. Service Availment</h3>
       </div>
-      <div class="ml-12 space-y-3">
+      <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <p class="text-xs font-bold text-gray-500 uppercase mb-3">Social Services</p>
           <div class="grid grid-cols-1 gap-3">
@@ -2617,7 +2634,7 @@ function generateReview() {
         </div>
         <h3 class="text-lg font-bold text-brand-dark">10. Assessment Notes</h3>
       </div>
-      <div class="ml-12 space-y-3">
+      <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <p class="text-xs font-bold text-gray-500 uppercase mb-2">Strengths</p>
           <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('strengths')}</p>
@@ -2633,20 +2650,17 @@ function generateReview() {
           <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('recommendations')}</p>
         </div>
 
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg p-5 text-white">
-          <div class="flex justify-between items-center">
-            <div>
-              <p class="text-xs font-bold opacity-90 uppercase mb-1">Readiness Score</p>
-              <p class="text-sm opacity-90">Final assessment classification</p>
-            </div>
-            <p class="text-3xl font-extrabold uppercase">${getRadio('readiness')}</p>
-          </div>
+        <div class="rounded-lg p-4 border ${readinessInfo.color}">
+          <p class="text-xs font-bold uppercase mb-2" style="opacity:0.7">Readiness Score</p>
+          <p class="text-sm font-bold">${readinessInfo.label}</p>
         </div>
       </div>
     </section>
   `;
 
-  document.getElementById('review-content').innerHTML = html;
+  const container = document.getElementById('review-content');
+  container.innerHTML = html;
+  container.style.fontFamily = "'Poppins', sans-serif";
   goToStep(11);
 }
 
