@@ -160,6 +160,24 @@ body {
   transition: color 0.3s ease;
 }
 
+/* Validation error state */
+.input-invalid,
+.input-invalid:focus {
+  border-color: #f87171 !important;
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.2) !important;
+  outline: none !important;
+}
+
+.field-error {
+  display: block;
+  color: #ef4444;
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 3px;
+  line-height: 1.4;
+  font-family: 'Poppins', sans-serif;
+}
+
 /* Ensure sections with absolute dropdowns never clip them */
 section, .member-card {
   overflow: visible !important;

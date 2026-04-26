@@ -208,6 +208,7 @@ function updateProgress(step) {
 // ============================================================================
 
 function goToStep(stepNumber) {
+  clearAllErrors();
   document.querySelectorAll('.step-section').forEach(el => {
     el.classList.add('hidden-step');
     el.style.opacity = 0;
@@ -298,15 +299,15 @@ function getStep1HTML() {
           <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Household ID</label>
           <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-1.5 h-9 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
             <span class="material-symbols-outlined text-[16px] text-gray-400">badge</span>
-            <input id="household-id" type="text" maxlength="18" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" placeholder="Enter 18-digit ID number">
+            <input id="household-id" type="text" maxlength="18" oninput="this.value=this.value.replace(/\D/g,'').slice(0,18)" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" placeholder="Enter 18-digit ID number">
           </div>
           <p class="text-[10px] sm:text-xs text-brand-blue mt-1">Found on your 4Ps ID card.</p>
         </div>
       </section>
       
       <div class="w-full flex justify-end pb-6">
-        <button onclick="goToStep(2)" class="w-full sm:w-auto px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover shadow-md transition-all flex items-center justify-center gap-2">
-          Next: Respondent Profile 
+        <button onclick="if(validateStep(1)) goToStep(2)" class="w-full sm:w-auto px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover shadow-md transition-all flex items-center justify-center gap-2">
+          Next: Respondent Profile
           <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
       </div>
@@ -376,7 +377,7 @@ function getStep2HTML() {
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">phone</span>
                 </div>
-                <input type="tel" id="resp-contact" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="0912 345 6789">
+                <input type="tel" id="resp-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="0912 345 6789">
               </div>
             </div>
           </div>
@@ -387,8 +388,8 @@ function getStep2HTML() {
         <button onclick="goToStep(1)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
-        <button onclick="goToStep(3)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          Next: Child Profile 
+        <button onclick="if(validateStep(2)) goToStep(3)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          Next: Child Profile
           <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
       </div>
@@ -501,7 +502,7 @@ function getStep3HTML() {
             </div>
             <div>
               <label class="block text-xs font-bold text-brand-dark mb-1">Contact Number</label>
-              <input type="tel" id="child-contact" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="09XX XXX XXXX">
+              <input type="tel" id="child-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="09XX XXX XXXX">
             </div>
           </div>
         </div>
@@ -622,8 +623,8 @@ function getStep3HTML() {
         <button onclick="goToStep(2)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
-        <button onclick="goToStep(4)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          Next: Family Profile 
+        <button onclick="if(validateStep(3)) goToStep(4)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          Next: Family Profile
           <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
       </div>
@@ -666,8 +667,8 @@ function getStep4HTML() {
         <button onclick="goToStep(3)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
-        <button onclick="goToStep(5)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Socio Economic</span> 
+        <button onclick="if(validateStep(4)) goToStep(5)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          <span>Next: Socio Economic</span>
           <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
       </div>
@@ -835,8 +836,8 @@ function getStep5HTML() {
         <button onclick="goToStep(4)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
-        <button onclick="goToStep(6)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Health</span> 
+        <button onclick="if(validateStep(5)) goToStep(6)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          <span>Next: Health</span>
           <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
       </div>
@@ -1036,8 +1037,8 @@ function getStep6HTML() {
         <button onclick="goToStep(5)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
-        <button onclick="goToStep(7)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Education</span> 
+        <button onclick="if(validateStep(6)) goToStep(7)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          <span>Next: Education</span>
           <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
       </div>
@@ -1165,8 +1166,8 @@ function getStep7HTML() {
         <button onclick="goToStep(6)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
-        <button onclick="goToStep(8)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Economic Capacity</span> 
+        <button onclick="if(validateStep(7)) goToStep(8)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          <span>Next: Economic Capacity</span>
           <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
       </div>
@@ -1250,8 +1251,8 @@ function getStep8HTML() {
         <button onclick="goToStep(7)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
-        <button onclick="goToStep(9)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Service Availment</span> 
+        <button onclick="if(validateStep(8)) goToStep(9)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          <span>Next: Service Availment</span>
           <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
       </div>
@@ -1372,8 +1373,8 @@ function getStep9HTML() {
         <button onclick="goToStep(8)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
-        <button onclick="goToStep(10)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Assessment</span> 
+        <button onclick="if(validateStep(9)) goToStep(10)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          <span>Next: Assessment</span>
           <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
         </button>
       </div>
@@ -1478,7 +1479,7 @@ function getStep10HTML() {
         <button onclick="goToStep(9)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
-        <button onclick="generateReview()" class="px-6 h-10 bg-green-600 rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-green-700 flex items-center gap-2 shadow-md transition-all">
+        <button onclick="if(validateStep(10)) generateReview()" class="px-6 h-10 bg-green-600 rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-green-700 flex items-center gap-2 shadow-md transition-all">
           <span class="material-symbols-outlined text-[16px]">check</span> Review Assessment
         </button>
       </div>
@@ -2175,6 +2176,350 @@ function toggleMemberVisibility(btn) {
 
 function updateTotalCount() {
   document.getElementById('total-family-size').value = memberCount;
+}
+
+// ============================================================================
+// FIELD VALIDATION ENGINE
+// ============================================================================
+
+function clearAllErrors() {
+  document.querySelectorAll('.field-error').forEach(e => e.remove());
+  document.querySelectorAll('.input-invalid').forEach(e => e.classList.remove('input-invalid'));
+}
+
+function getFieldContainer(el) {
+  let node = el;
+  for (let i = 0; i < 7; i++) {
+    node = node.parentElement;
+    if (!node || node === document.body) break;
+    if (node.querySelector(':scope > label')) return node;
+  }
+  return el.parentElement;
+}
+
+function _showErr(el, errId, message) {
+  if (!el) return;
+  document.getElementById(errId)?.remove();
+  const styleEl = (el.tagName === 'SELECT' && el.classList.contains('hidden'))
+    ? (el.parentElement?.querySelector('button') || el)
+    : el;
+  styleEl.classList.add('input-invalid');
+  const container = getFieldContainer(el);
+  if (!container) return;
+  const p = document.createElement('p');
+  p.id = errId;
+  p.className = 'field-error';
+  p.textContent = message;
+  container.appendChild(p);
+}
+
+function showFieldError(id, message) {
+  _showErr(document.getElementById(id), 'err-' + id, message);
+}
+
+function showElemError(el, errId, message) {
+  _showErr(el, errId, message);
+}
+
+function scrollToFirstError() {
+  const first = document.querySelector('.field-error');
+  if (first) first.closest('section, div[id^="step-"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function validateStep(step) {
+  clearAllErrors();
+  const validators = { 1: validateStep1, 2: validateStep2, 3: validateStep3,
+    4: validateStep4, 5: validateStep5, 6: validateStep6, 7: validateStep7,
+    8: validateStep8, 9: validateStep9, 10: validateStep10 };
+  const fn = validators[step];
+  if (!fn) return true;
+  const ok = fn();
+  if (!ok) {
+    scrollToFirstError();
+    if (typeof toast !== 'undefined') toast.warning('Please fix the highlighted errors before proceeding.', 'Validation Error');
+  }
+  return ok;
+}
+
+// --- Reusable validators ---
+function isValidName(v)    { return /^[A-Za-zÑñ\s\-']+$/.test(v); }
+function isValidEmail(v)   { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+function isValidPhone(v)   { const d = v.replace(/\D/g,''); return d.length === 11 && d.startsWith('09'); }
+function getRadioVal(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || null; }
+function getSelVal(id)     { return document.getElementById(id)?.value || ''; }
+function getMultiVals(id)  {
+  const c = document.getElementById(id);
+  return c ? Array.from(c.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value) : [];
+}
+function getMultiBtn(dropdownId) {
+  return document.getElementById(dropdownId)?.parentElement?.querySelector('button[type="button"]');
+}
+
+function chkDropdownOther(selectId, otherId, label) {
+  const v = getSelVal(selectId);
+  if (!v) { showFieldError(selectId, `Please select ${label}`); return false; }
+  if (v === 'Others' && otherId) {
+    const o = (document.getElementById(otherId)?.value || '').trim();
+    if (!o) { showFieldError(otherId, `Please specify ${label}`); return false; }
+    if (o.length > 255) { showFieldError(otherId, `${label} must not exceed 255 characters`); return false; }
+  }
+  return true;
+}
+
+function chkToggleSpecify(radioName, specifyId, label, maxLen = 500) {
+  if (getRadioVal(radioName) === 'Yes' && specifyId) {
+    const v = (document.getElementById(specifyId)?.value || '').trim();
+    if (!v) { showFieldError(specifyId, `Please specify ${label}`); return false; }
+    if (v.length > maxLen) { showFieldError(specifyId, `${label} must not exceed ${maxLen} characters`); return false; }
+  }
+  return true;
+}
+
+function chkMulti(dropdownId, errId, label) {
+  if (getMultiVals(dropdownId).length === 0) {
+    const btn = getMultiBtn(dropdownId);
+    if (btn) _showErr(btn, errId, label);
+    return false;
+  }
+  return true;
+}
+
+function chkName(id, label, min, max) {
+  const v = (document.getElementById(id)?.value || '').trim();
+  if (!v)              { showFieldError(id, `${label} is required`); return false; }
+  if (v.length < min)  { showFieldError(id, `${label} must be at least ${min} characters`); return false; }
+  if (v.length > max)  { showFieldError(id, `${label} must not exceed ${max} characters`); return false; }
+  if (!isValidName(v)) { showFieldError(id, `${label} can only contain letters, spaces, hyphens, and apostrophes`); return false; }
+  return true;
+}
+
+function chkPhone(id, label) {
+  const v = (document.getElementById(id)?.value || '').trim();
+  if (!v)               { showFieldError(id, `${label} is required`); return false; }
+  if (!isValidPhone(v)) { showFieldError(id, `${label} must be in format: 09XX XXX XXXX`); return false; }
+  return true;
+}
+
+// --- Step 1 ---
+function validateStep1() {
+  if (getRadioVal('membership') !== 'Yes') return true;
+  const v = (document.getElementById('household-id')?.value || '').trim();
+  if (!v)               { showFieldError('household-id', 'Household ID is required for 4Ps members'); return false; }
+  if (!/^\d{18}$/.test(v)) { showFieldError('household-id', 'Household ID must be exactly 18 digits (numbers only)'); return false; }
+  return true;
+}
+
+// --- Step 2 ---
+function validateStep2() {
+  let ok = true;
+  if (!chkName('resp-name', 'Name of Respondent', 2, 255)) ok = false;
+  if (!getSelVal('dd-relationship'))  { showFieldError('dd-relationship', 'Please select a relationship'); ok = false; }
+
+  const email = (document.getElementById('resp-email')?.value || '').trim();
+  if (!email)              { showFieldError('resp-email', 'Email address is required'); ok = false; }
+  else if (!isValidEmail(email)) { showFieldError('resp-email', 'Please enter a valid email (e.g., name@example.com)'); ok = false; }
+  else if (email.length > 255)   { showFieldError('resp-email', 'Email must not exceed 255 characters'); ok = false; }
+
+  if (!chkPhone('resp-contact', 'Contact number')) ok = false;
+  return ok;
+}
+
+// --- Step 3 ---
+function validateStep3() {
+  let ok = true;
+  if (!chkName('child-fname', 'First Name', 2, 100)) ok = false;
+  const mn = (document.getElementById('child-mname')?.value || '').trim();
+  if (mn && mn.length > 100)   { showFieldError('child-mname', 'Middle Name must not exceed 100 characters'); ok = false; }
+  else if (mn && !isValidName(mn)) { showFieldError('child-mname', 'Middle Name can only contain letters, spaces, and hyphens'); ok = false; }
+  if (!chkName('child-lname', 'Last Name', 2, 100)) ok = false;
+
+  ['child-region','child-province','child-city','child-barangay'].forEach(id => {
+    if (!getSelVal(id)) { showFieldError(id, `Please select a ${id.replace('child-','').replace('-',' ')}`); ok = false; }
+  });
+
+  const st = (document.getElementById('child-street')?.value || '').trim();
+  if (!st)             { showFieldError('child-street', 'Street address is required'); ok = false; }
+  else if (st.length < 5)   { showFieldError('child-street', 'Street address must be at least 5 characters'); ok = false; }
+  else if (st.length > 255) { showFieldError('child-street', 'Street address must not exceed 255 characters'); ok = false; }
+
+  if (!chkPhone('child-contact', 'Contact number')) ok = false;
+
+  const dob = (document.getElementById('child-dob')?.value || '');
+  if (!dob) { showFieldError('child-dob', 'Date of birth is required'); ok = false; }
+  else {
+    const d = new Date(dob), min = new Date('2008-01-01'), today = new Date();
+    today.setHours(0,0,0,0);
+    if (d < min)    { showFieldError('child-dob', 'Child must be born in 2008 or later (18 years or younger)'); ok = false; }
+    else if (d > today) { showFieldError('child-dob', 'Date of birth cannot be in the future'); ok = false; }
+  }
+
+  const rel = getSelVal('dd-religion');
+  if (!rel) { showFieldError('dd-religion', 'Please select a religion'); ok = false; }
+  else if (rel === 'Others') {
+    const v = (document.getElementById('rel-other')?.value || '').trim();
+    if (!v) { showFieldError('rel-other', 'Please specify religion'); ok = false; }
+  }
+
+  const ip = getSelVal('dd-ip');
+  if (!ip) { showFieldError('dd-ip', 'Please select IP membership status'); ok = false; }
+  else if (ip === 'Others') {
+    const v = (document.getElementById('ip-other')?.value || '').trim();
+    if (!v) { showFieldError('ip-other', 'Please specify IP group'); ok = false; }
+  }
+
+  const edu = getSelVal('dd-education');
+  if (!edu) { showFieldError('dd-education', 'Please select educational attainment'); ok = false; }
+  else if (edu === 'Others') {
+    const v = (document.getElementById('edu-other')?.value || '').trim();
+    if (!v) { showFieldError('edu-other', 'Please specify educational attainment'); ok = false; }
+  }
+
+  if (!chkMulti('dd-disability', 'err-dd-disability', 'Please select at least one disability/special need')) ok = false;
+
+  const illVals = getMultiVals('dd-illness');
+  if (illVals.length === 0) {
+    chkMulti('dd-illness', 'err-dd-illness', 'Please select at least one critical illness (or select "None")');
+    ok = false;
+  } else if (illVals.includes('Others')) {
+    const v = (document.getElementById('illness-other-input')?.value || '').trim();
+    if (!v) { showFieldError('illness-other-input', 'Please specify the critical illness'); ok = false; }
+  }
+
+  return ok;
+}
+
+// --- Step 4 ---
+function validateStep4() {
+  let ok = true;
+  document.querySelectorAll('.member-card').forEach((card, i) => {
+    const n = i + 1;
+    const origNum = parseInt((card.id || '').replace('member-card-','')) || n;
+
+    const nameEl = card.querySelector('[data-field="full_name"]');
+    const nameVal = (nameEl?.value || '').trim();
+    if (!nameVal)             { showElemError(nameEl, `err-fam-name-${n}`, `Member #${n}: Full name is required`); ok = false; }
+    else if (nameVal.length < 2) { showElemError(nameEl, `err-fam-name-${n}`, `Member #${n}: Name must be at least 2 characters`); ok = false; }
+    else if (!isValidName(nameVal)) { showElemError(nameEl, `err-fam-name-${n}`, `Member #${n}: Name can only contain letters, spaces, and hyphens`); ok = false; }
+
+    const relEl = card.querySelector('[data-field="relationship_to_head"]');
+    if (!relEl?.value) { showElemError(relEl, `err-fam-rel-${n}`, `Member #${n}: Relationship is required`); ok = false; }
+
+    const civEl = card.querySelector('[data-field="civil_status"]');
+    if (!civEl?.value) { showElemError(civEl, `err-fam-civ-${n}`, `Member #${n}: Civil status is required`); ok = false; }
+
+    const ageEl = card.querySelector('[data-field="age"]');
+    const ageV  = parseInt(ageEl?.value || '');
+    if (!ageEl?.value.trim()) { showElemError(ageEl, `err-fam-age-${n}`, `Member #${n}: Age is required`); ok = false; }
+    else if (isNaN(ageV) || ageV < 0 || ageV > 150) { showElemError(ageEl, `err-fam-age-${n}`, `Member #${n}: Age must be 0–150`); ok = false; }
+
+    const occEl   = document.getElementById(`dd-fam-occ-${origNum}`);
+    const classEl = document.getElementById(`dd-fam-class-${origNum}`);
+    if (!occEl?.value)   { if (occEl)   showFieldError(`dd-fam-occ-${origNum}`,   `Member #${n}: Occupation is required`);       ok = false; }
+    if (!classEl?.value) { if (classEl) showFieldError(`dd-fam-class-${origNum}`, `Member #${n}: Occupation class is required`); ok = false; }
+
+    if (!chkMulti(`dd-fam-dis-${origNum}`, `err-fam-dis-${n}`, `Member #${n}: Select at least one disability/special need`)) ok = false;
+    if (!chkMulti(`dd-fam-ill-${origNum}`, `err-fam-ill-${n}`, `Member #${n}: Select at least one critical illness`)) ok = false;
+  });
+  return ok;
+}
+
+// --- Step 5 ---
+function validateStep5() {
+  let ok = true;
+  ok = chkDropdownOther('dd-materials',    'mat-other',    'housing materials')      && ok;
+  ok = chkDropdownOther('dd-tenure',       'tenure-other', 'tenure status')          && ok;
+  ok = chkToggleSpecify('modifications',   'mod-specify',  'modification details')   && ok;
+  ok = chkDropdownOther('dd-electricity',  'elec-other',   'electricity source')     && ok;
+  ok = chkDropdownOther('dd-water',        'water-other',  'water source')           && ok;
+  ok = chkDropdownOther('dd-toilet',       'toilet-other', 'toilet type')            && ok;
+  ok = chkDropdownOther('dd-garbage',      'garbage-other','garbage disposal system')&& ok;
+  return ok;
+}
+
+// --- Step 6 ---
+function validateStep6() {
+  let ok = true;
+  ok = chkToggleSpecify('health_cond',    'health-cond-specify', 'health condition details')    && ok;
+  ok = chkToggleSpecify('avail_services', 'avail-specify',       'services availed in 6 months') && ok;
+  ok = chkToggleSpecify('barriers',       'barrier-specify',     'healthcare barrier details')   && ok;
+  return ok;
+}
+
+// --- Step 7 ---
+function validateStep7() {
+  let ok = true;
+  const enrolled = getRadioVal('enrolled');
+  if (enrolled === 'Yes') {
+    const grade = (document.getElementById('grade-level')?.value || '').trim();
+    if (!grade)            { showFieldError('grade-level', 'Grade/Year level is required for enrolled children'); ok = false; }
+    else if (grade.length > 50) { showFieldError('grade-level', 'Grade/Year level must not exceed 50 characters'); ok = false; }
+    ok = chkToggleSpecify('school_features',  'school-access-specify', 'accessibility feature details') && ok;
+    ok = chkToggleSpecify('sped_prog',        'sped-specify',          'SPED program details')          && ok;
+    ok = chkToggleSpecify('learning_support', 'learn-supp-specify',    'learning support details')      && ok;
+  } else if (enrolled === 'No') {
+    const r = (document.getElementById('not-enrolled-reason')?.value || '').trim();
+    if (!r)           { showFieldError('not-enrolled-reason', 'Please provide a reason for not being enrolled'); ok = false; }
+    else if (r.length > 500) { showFieldError('not-enrolled-reason', 'Reason must not exceed 500 characters'); ok = false; }
+  }
+  return ok;
+}
+
+// --- Step 8 ---
+function validateStep8() {
+  let ok = true;
+  const src = (document.getElementById('income-source')?.value || '').trim();
+  if (!src)             { showFieldError('income-source', 'Primary income source is required'); ok = false; }
+  else if (src.length < 3)   { showFieldError('income-source', 'Income source must be at least 3 characters'); ok = false; }
+  else if (src.length > 255) { showFieldError('income-source', 'Income source must not exceed 255 characters'); ok = false; }
+
+  const inc = (document.getElementById('monthly-income')?.value || '').trim();
+  if (!inc)                  { showFieldError('monthly-income', 'Monthly income is required'); ok = false; }
+  else if (!/^\d+$/.test(inc)) { showFieldError('monthly-income', 'Monthly income must be a whole number'); ok = false; }
+
+  ok = chkToggleSpecify('employed', 'emp-specify', 'employment details') && ok;
+  return ok;
+}
+
+// --- Step 9 ---
+function validateStep9() {
+  let ok = true;
+  ok = chkToggleSpecify('fin_assist',    'fin-assist-specify', 'financial assistance details') && ok;
+  ok = chkToggleSpecify('aware_services','aware-specify',       'service awareness details')   && ok;
+  ok = chkToggleSpecify('availed_any',   'availed-specify',     'availed services details')    && ok;
+  if (!chkDropdownOther('service-challenges', 'barrier-other', 'service challenge')) ok = false;
+  return ok;
+}
+
+// --- Step 10 ---
+function validateStep10() {
+  let ok = true;
+  [['strengths','Strengths'],['assessment','Assessment'],['recommendations','Recommendations']].forEach(([id, label]) => {
+    const v = (document.getElementById(id)?.value || '').trim();
+    if (!v)              { showFieldError(id, `${label} is required`); ok = false; }
+    else if (v.length < 10)   { showFieldError(id, `${label} must be at least 10 characters`); ok = false; }
+    else if (v.length > 2000) { showFieldError(id, `${label} must not exceed 2000 characters`); ok = false; }
+  });
+  if (!getRadioVal('readiness')) {
+    const section = document.querySelector('input[name="readiness"]')?.closest('section');
+    if (section) {
+      document.getElementById('err-readiness')?.remove();
+      const p = document.createElement('p');
+      p.id = 'err-readiness'; p.className = 'field-error mt-2';
+      p.textContent = 'Please select a readiness score';
+      section.querySelector('.space-y-3')?.appendChild(p);
+    }
+    ok = false;
+  }
+  return ok;
+}
+
+// --- Phone auto-formatter ---
+function formatPhone(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length > 11) v = v.slice(0, 11);
+  if (v.length > 7)      v = v.slice(0,4) + ' ' + v.slice(4,7) + ' ' + v.slice(7);
+  else if (v.length > 4) v = v.slice(0,4) + ' ' + v.slice(4);
+  input.value = v;
 }
 
 // ============================================================================
