@@ -5,17 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registration Successful - Project Aruga</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { 'sans': ['Poppins', 'sans-serif'] },
-          colors: { brand: { dark: '#111811', blue: '#1152d4', blueHover: '#0d3fa3' } }
-        }
-      }
-    }
-  </script>
+  <link rel="stylesheet" href="/css/tailwind.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     body { font-family: 'Poppins', sans-serif; background: #f0f4f8; }
@@ -60,21 +50,21 @@
     <!-- ID CARD WITH QR -->
     <div class="w-full bg-white rounded-2xl border border-gray-200 shadow-md p-5 print-card">
       <p class="text-[10px] font-bold text-brand-blue uppercase tracking-widest mb-3">Official ID</p>
-      <div class="flex items-center gap-4">
+      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
 
         <!-- QR CODE -->
-        <div class="flex-shrink-0">
-          <div id="qr-code" class="w-24 h-24 sm:w-28 sm:h-28"></div>
+        <div class="flex-shrink-0 self-center">
+          <div id="qr-code" class="w-28 h-28"></div>
         </div>
 
         <!-- ID INFO -->
-        <div class="flex flex-col justify-center min-w-0">
-          <p id="display-aruga-id" class="text-xl sm:text-2xl font-extrabold text-gray-900 leading-tight break-all"></p>
+        <div class="flex flex-col justify-center min-w-0 w-full text-center sm:text-left">
+          <p id="display-aruga-id" class="text-lg sm:text-2xl font-extrabold text-gray-900 leading-tight break-all"></p>
           <p class="text-xs text-gray-500 mt-1 leading-snug">
             Please save or print this QR code. This will be required for claiming benefits and future transactions within the Aruga network.
           </p>
           <!-- ACTION BUTTONS -->
-          <div class="flex gap-2 mt-3 flex-wrap no-print">
+          <div class="flex gap-2 mt-3 flex-wrap justify-center sm:justify-start no-print">
             <button onclick="printQR()" class="flex items-center gap-1.5 bg-brand-blue text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-brand-blueHover transition-colors">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
@@ -111,7 +101,7 @@
     </div>
 
     <!-- BOTTOM ACTIONS -->
-    <div class="w-full grid grid-cols-2 gap-3 no-print">
+    <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 no-print">
       <button onclick="window.location.href='/'" class="flex items-center justify-between bg-brand-blue text-white rounded-xl p-4 hover:bg-brand-blueHover transition-colors text-left">
         <div>
           <p class="text-xs font-bold">New Beneficiary</p>

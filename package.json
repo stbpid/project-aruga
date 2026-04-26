@@ -1,0 +1,11 @@
+{
+  "name": "project-aruga",
+  "version": "1.0.0",
+  "scripts": {
+    "build:css": "tailwindcss -i ./public/css/input.css -o ./public/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./public/css/input.css -o ./public/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

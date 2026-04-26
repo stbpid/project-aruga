@@ -5,27 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Project Aruga - Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/tailwind.css">
   <link rel="stylesheet" href="/css/styles.css">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            'sans': ['Poppins', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              dark: '#111811',
-              blue: '#1152d4',
-              blueHover: '#0d3fa3',
-              bg: '#F0F4F8'
-            }
-          }
-        }
-      }
-    }
-  </script>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
@@ -53,7 +34,7 @@
   <main class="flex-grow flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-5xl flex flex-col lg:flex-row overflow-hidden border border-[#e0e4e0]">
       
-      <aside class="relative w-full h-40 lg:h-auto lg:w-5/12 bg-gray-900">
+      <aside class="relative w-full h-48 sm:h-56 lg:h-auto lg:w-5/12 bg-gray-900">
       <img id="img-hero" src="/images/hero.webp" alt="Project Aruga Hero" class="absolute inset-0 w-full h-full object-cover opacity-60">  
       </aside>
 

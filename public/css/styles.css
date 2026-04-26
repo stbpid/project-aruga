@@ -160,6 +160,17 @@ body {
   transition: color 0.3s ease;
 }
 
+/* Ensure sections with absolute dropdowns never clip them */
+section, .member-card {
+  overflow: visible !important;
+}
+
+/* Prevent slide toggle from shrinking below a readable size */
+.slide-toggle-container {
+  flex-shrink: 0;
+  min-width: 5rem;
+}
+
 /* Review Page Styles */
 .review-group { 
   border-bottom: 1px solid #f3f4f6;

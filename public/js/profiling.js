@@ -411,20 +411,20 @@ function getStep3HTML() {
         </div>
         
         <div class="space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div class="sm:col-span-1">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div>
               <label class="block text-xs font-bold text-brand-dark mb-1">First Name</label>
               <input type="text" id="child-fname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="First Name">
             </div>
-            <div class="sm:col-span-1">
+            <div>
               <label class="block text-xs font-bold text-brand-dark mb-1">Middle Name</label>
               <input type="text" id="child-mname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Middle Name">
             </div>
-            <div class="sm:col-span-1">
+            <div>
               <label class="block text-xs font-bold text-brand-dark mb-1">Last Name</label>
               <input type="text" id="child-lname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Last Name">
             </div>
-            <div class="sm:col-span-1">
+            <div>
               <label class="block text-xs font-bold text-brand-dark mb-1">Extension</label>
               <div class="relative">
                 <select id="dd-extension" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
@@ -904,7 +904,7 @@ function getStep6HTML() {
         </div>
         
         <div class="space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
               <label class="block text-[10px] font-bold text-gray-500 mb-1">Food</label>
               <div class="relative">
@@ -926,9 +926,6 @@ function getStep6HTML() {
                 <input type="text" id="exp-therapy" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
-          </div>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label class="block text-[10px] font-bold text-gray-500 mb-1">Hygiene-related needs</label>
               <div class="relative">
@@ -2010,7 +2007,7 @@ function getFamilyMemberCardHTML(num, isHead) {
       
       <div class="p-5 sm:p-6 space-y-4 member-content">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
+          <div class="sm:col-span-2">
             <label class="block text-xs font-bold text-brand-dark mb-1">Full Name</label>
             <input type="text" data-field="full_name" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Full Name">
           </div>
@@ -2048,7 +2045,7 @@ function getFamilyMemberCardHTML(num, isHead) {
           </div>
         </div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-bold text-brand-dark mb-1">Civil Status</label>
             <div class="relative">
