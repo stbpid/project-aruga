@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Initialize page
 function initializePage() {
-  console.log('✅ Page initialized - images loading from /images/ directory');
 }
 
 // Form validation logic
@@ -20,7 +19,6 @@ function setupFormValidation() {
   const submitButton = document.getElementById('btn-submit');
 
   if (!codeInput || !agreeCheckbox || !submitButton) {
-    console.error('❌ Form elements not found!');
     return;
   }
 
@@ -47,27 +45,22 @@ function setupSubmitButton() {
   const submitButton = document.getElementById('btn-submit');
   
   if (!submitButton) {
-    console.error('❌ Submit button not found!');
     return;
   }
 
   submitButton.addEventListener('click', function(e) {
     e.preventDefault();
-    console.log('🔵 Submit button clicked');
     submitForm();
   });
 }
 
 // Submit form and validate interviewer
 async function submitForm() {
-  console.log('🔵 submitForm() called');
-  
   const codeInput = document.getElementById('code');
   const submitButton = document.getElementById('btn-submit');
   const agreeCheckbox = document.getElementById('agree');
 
   if (!codeInput || !submitButton || !agreeCheckbox) {
-    console.error('❌ Form elements missing');
     toast.error('Form elements not found. Please refresh the page.');
     return;
   }
@@ -92,18 +85,12 @@ async function submitForm() {
     return;
   }
 
-  console.log('✅ Validation passed');
-  console.log('Interviewer Code:', interviewerCode);
-
   // Show processing state
   const originalText = submitButton.innerHTML;
   submitButton.innerHTML = 'Validating...';
   submitButton.disabled = true;
 
   try {
-    // Call validation API
-    console.log('🔵 Calling validation API...');
-    
     const response = await fetch('/api/validate-interviewer.php', {
       method: 'POST',
       headers: {
@@ -115,11 +102,8 @@ async function submitForm() {
     });
 
     const result = await response.json();
-    console.log('API Response:', result);
 
     if (result.success && result.data) {
-      console.log('✅ Validation successful');
-      
       // Store session data in sessionStorage
       sessionStorage.setItem('session_id', result.data.session_id);
       sessionStorage.setItem('interviewer_id', result.data.interviewer_id);
@@ -133,9 +117,6 @@ async function submitForm() {
       sessionStorage.setItem('privacyAccepted', 'true');
       sessionStorage.setItem('loginTime', new Date().toISOString());
 
-      console.log('✅ Session data stored in sessionStorage');
-      console.log('Session ID:', sessionStorage.getItem('session_id'));
-
       // Show success toast
       toast.success(`Welcome, ${result.data.full_name}!`, 'Login Successful');
 
@@ -144,14 +125,10 @@ async function submitForm() {
       
       // Redirect to profiling page with .html extension
       setTimeout(() => {
-        console.log('🔵 Redirecting to profiling.html');
         window.location.href = '/profiling.html';
       }, 1000);
 
     } else {
-      // Validation failed
-      console.error('❌ Validation failed:', result.message);
-      
       // Show error toast
       toast.error(
         result.message || 'Invalid interviewer code. Please check and try again.',
@@ -168,8 +145,6 @@ async function submitForm() {
     }
 
   } catch (error) {
-    console.error('❌ Network error:', error);
-    
     // Show error toast
     toast.error(
       'Unable to connect to the server. Please check your internet connection and try again.',

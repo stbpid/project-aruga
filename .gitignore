@@ -3,6 +3,7 @@
 .env.local
 .env.production
 .env.development
+.env.example
 
 # Google Apps Script credentials
 appsscript.json
