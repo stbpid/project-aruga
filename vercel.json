@@ -30,6 +30,10 @@
       "dest": "/public/profile.html"
     },
     {
+      "src": "/docs",
+      "dest": "/public/docs.html"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/$1"
     },

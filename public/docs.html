@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Guide - Project Aruga</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <link rel="icon" href="/images/logo.webp" type="image/webp">
+  <link rel="stylesheet" href="/css/tailwind.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .doc-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1f2937;
+    }
+    .doc-body {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.7;
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: #1152d4;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .tip-box {
+      background-color: #eff6ff;
+      border-left: 4px solid #1152d4;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+    }
+    .warning-box {
+      background-color: #fefce8;
+      border-left: 4px solid #f59e0b;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+  <!-- HEADER -->
+  <header class="w-full bg-[#f6f8f6f2] border-b border-[#e0e4e0] h-14 sticky top-0 z-50 backdrop-blur-sm">
+    <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="/images/logo.webp" alt="Project Aruga Logo" class="h-10 w-auto object-contain">
+        <h2 class="font-bold text-brand-dark text-lg sm:text-xl">Project Aruga</h2>
+      </div>
+      <nav class="flex items-center gap-6">
+        <a href="/" class="text-xs font-medium text-brand-blue hover:text-brand-blueHover transition-colors flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          Back to Home
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-grow py-8 px-4">
+    <div class="max-w-5xl mx-auto">
+
+      <!-- HEADER SECTION -->
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-8 sm:p-12 mb-8 text-white shadow-xl">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined text-[28px]">menu_book</span>
+          </div>
+          <div>
+            <p class="text-sm opacity-90 font-medium">DSWD Social Technology Bureau</p>
+            <h1 class="text-3xl sm:text-4xl font-extrabold">User Guide</h1>
+          </div>
+        </div>
+        <p class="opacity-95 mt-4 max-w-2xl" style="font-size:16px">
+          A simple, step-by-step guide to help DSWD social workers and interviewers use the Project Aruga profiling system with ease and confidence.
+        </p>
+      </div>
+
+      <!-- TABLE OF CONTENTS -->
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-8">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="material-symbols-outlined text-brand-blue text-[24px]">format_list_bulleted</span>
+          <h3 class="doc-title" style="font-size:16px">WHAT'S IN THIS GUIDE</h3>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-2">
+          <a href="#getting-started" class="flex items-center gap-2 p-3 rounded-lg hover:bg-blue-50 transition-colors group">
+            <span class="material-symbols-outlined text-brand-blue text-[18px]">login</span>
+            <span class="doc-body text-brand-blue group-hover:underline">1. Getting Started</span>
+          </a>
+          <a href="#logging-in" class="flex items-center gap-2 p-3 rounded-lg hover:bg-blue-50 transition-colors group">
+            <span class="material-symbols-outlined text-brand-blue text-[18px]">key</span>
+            <span class="doc-body text-brand-blue group-hover:underline">2. How to Log In</span>
+          </a>
+          <a href="#profiling-steps" class="flex items-center gap-2 p-3 rounded-lg hover:bg-blue-50 transition-colors group">
+            <span class="material-symbols-outlined text-brand-blue text-[18px]">assignment</span>
+            <span class="doc-body text-brand-blue group-hover:underline">3. Filling Out the Profiling Form</span>
+          </a>
+          <a href="#submitting" class="flex items-center gap-2 p-3 rounded-lg hover:bg-blue-50 transition-colors group">
+            <span class="material-symbols-outlined text-brand-blue text-[18px]">check_circle</span>
+            <span class="doc-body text-brand-blue group-hover:underline">4. Reviewing &amp; Submitting</span>
+          </a>
+          <a href="#qr-code" class="flex items-center gap-2 p-3 rounded-lg hover:bg-blue-50 transition-colors group">
+            <span class="material-symbols-outlined text-brand-blue text-[18px]">qr_code</span>
+            <span class="doc-body text-brand-blue group-hover:underline">5. The Aruga ID &amp; QR Code</span>
+          </a>
+          <a href="#tips" class="flex items-center gap-2 p-3 rounded-lg hover:bg-blue-50 transition-colors group">
+            <span class="material-symbols-outlined text-brand-blue text-[18px]">lightbulb</span>
+            <span class="doc-body text-brand-blue group-hover:underline">6. Tips &amp; Common Questions</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- SECTION 1: GETTING STARTED -->
+      <div id="getting-started" class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-8">
+
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-symbols-outlined text-brand-blue text-[24px]">login</span>
+          <h2 class="doc-title" style="font-size:18px">1. Getting Started</h2>
+        </div>
+
+        <p class="doc-body mb-4">
+          Before you begin conducting home visits and profiling beneficiaries, make sure you have the following ready:
+        </p>
+
+        <div class="space-y-3 mb-6">
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-green-600 text-[20px] mt-0.5">check_circle</span>
+            <div>
+              <p class="doc-title mb-0.5">Your Interviewer Code</p>
+              <p class="doc-body">This is the 8-character code assigned to you by your supervisor. You will need this every time you log in. It looks like this: <span class="font-bold text-brand-blue">AB12CD34</span></p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-green-600 text-[20px] mt-0.5">check_circle</span>
+            <div>
+              <p class="doc-title mb-0.5">A Device with Internet Connection</p>
+              <p class="doc-body">The system works on smartphones, tablets, and computers. Use a modern browser like Google Chrome or Microsoft Edge for the best experience.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-green-600 text-[20px] mt-0.5">check_circle</span>
+            <div>
+              <p class="doc-title mb-0.5">The Beneficiary's Information</p>
+              <p class="doc-body">Have the household's 4Ps ID ready (if applicable), along with the child's personal details, health records, and family information.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-green-600 text-[20px] mt-0.5">check_circle</span>
+            <div>
+              <p class="doc-title mb-0.5">Enough Time</p>
+              <p class="doc-body">Each profiling session takes about 15–20 minutes. The system has a <span class="font-semibold text-brand-dark">20-minute session timer</span>. If time runs out, you will be logged out automatically.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <div class="flex items-start gap-2">
+            <span class="material-symbols-outlined text-brand-blue text-[18px] mt-0.5">info</span>
+            <p class="doc-body"><span class="font-semibold text-brand-dark">Good to know:</span> The system is designed for one beneficiary per session. After submitting, you can start a new session for the next beneficiary.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: LOGGING IN -->
+      <div id="logging-in" class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-8">
+
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-symbols-outlined text-brand-blue text-[24px]">key</span>
+          <h2 class="doc-title" style="font-size:18px">2. How to Log In</h2>
+        </div>
+
+        <p class="doc-body mb-6">Follow these simple steps to access the profiling tool:</p>
+
+        <div class="space-y-5">
+          <div class="flex items-start gap-4">
+            <span class="step-badge mt-0.5">1</span>
+            <div>
+              <p class="doc-title mb-1">Open the Project Aruga website</p>
+              <p class="doc-body">Visit the system on your browser. You will see the login page with a <span class="font-semibold text-brand-dark">Data Privacy Agreement</span> on the right side.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <span class="step-badge mt-0.5">2</span>
+            <div>
+              <p class="doc-title mb-1">Read and accept the Data Privacy Agreement</p>
+              <p class="doc-body">Scroll through the agreement text, then check the box that says <em>"I accept the Data Privacy terms and conditions for data processing."</em> This is required before you can proceed.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <span class="step-badge mt-0.5">3</span>
+            <div>
+              <p class="doc-title mb-1">Enter your Interviewer Code</p>
+              <p class="doc-body">Type your 8-character code in the field labeled <span class="font-semibold text-brand-dark">Interviewer Code</span>. The code will appear in uppercase automatically.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <span class="step-badge mt-0.5">4</span>
+            <div>
+              <p class="doc-title mb-1">Click "Submit and Proceed"</p>
+              <p class="doc-body">The system will verify your code. If correct, you will be taken directly to the profiling tool. If you see an error, double-check your code and try again.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="warning-box mt-6">
+          <div class="flex items-start gap-2">
+            <span class="material-symbols-outlined text-amber-600 text-[18px] mt-0.5">warning</span>
+            <p class="doc-body"><span class="font-semibold text-brand-dark">Important:</span> Do not share your Interviewer Code with anyone. Each code is linked to your account and all submitted records will be tagged under your name.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: PROFILING STEPS -->
+      <div id="profiling-steps" class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-8">
+
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-symbols-outlined text-brand-blue text-[24px]">assignment</span>
+          <h2 class="doc-title" style="font-size:18px">3. Filling Out the Profiling Form</h2>
+        </div>
+
+        <p class="doc-body mb-2">The profiling form is divided into <span class="font-semibold text-brand-dark">10 steps</span>. You must complete each step before moving to the next. Here is what each step covers:</p>
+        <p class="doc-body mb-6">Use the <span class="font-semibold text-brand-dark">Next</span> button at the bottom of each step to go forward, and the <span class="font-semibold text-brand-dark">Back</span> button to return to the previous step.</p>
+
+        <div class="space-y-4">
+
+          <!-- Step 1 -->
+          <div class="bg-gray-50 rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="step-badge">1</span>
+              <h3 class="doc-title">Pre-Qualification</h3>
+            </div>
+            <p class="doc-body ml-10">This step asks if the beneficiary is a member of the 4Ps program. If yes, you will need to enter their 18-digit Household ID (found on their 4Ps ID card). If no, just select "No" and continue.</p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="bg-gray-50 rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="step-badge">2</span>
+              <h3 class="doc-title">Respondent Profile</h3>
+            </div>
+            <p class="doc-body ml-10">Enter the details of the <span class="font-semibold text-brand-dark">person you are interviewing</span> — this is usually a parent or guardian of the child. Fill in their name, relationship to the child, email address, and contact number.</p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="bg-gray-50 rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="step-badge">3</span>
+              <h3 class="doc-title">Child Profile</h3>
+            </div>
+            <p class="doc-body ml-10">This is the most detailed step. You will enter the child's complete name, home address (region down to barangay), date of birth, religion, IP group membership, educational level, disabilities, and any critical illnesses. Take your time to fill this in accurately.</p>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="bg-gray-50 rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="step-badge">4</span>
+              <h3 class="doc-title">Family Profile</h3>
+            </div>
+            <p class="doc-body ml-10">List all the people living in the household, starting with the head of the family. For each person, fill in their name, age, sex, civil status, occupation, and any disabilities or illnesses. Click <span class="font-semibold text-brand-dark">"Add Another Family Member"</span> to add more.</p>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="bg-gray-50 rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="step-badge">5</span>
+              <h3 class="doc-title">Socio Economic</h3>
+            </div>
+            <p class="doc-body ml-10">Describe the family's living situation — what the house is made of, whether they own or rent, their source of electricity and water, toilet facilities, and how they dispose of garbage. If you select "Others" for any item, a text box will appear for you to specify.</p>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="bg-gray-50 rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="step-badge">6</span>
+              <h3 class="doc-title">Health</h3>
+            </div>
+            <p class="doc-body ml-10">Answer questions about the child's health — vaccinations, ongoing conditions, and monthly health expenses (food, medicine, therapy, etc.). You will also note whether the child has been able to visit health facilities recently and if there are any barriers to getting care.</p>
+          </div>
+
+          <!-- Step 7 -->
+          <div class="bg-gray-50 rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="step-badge">7</span>
+              <h3 class="doc-title">Education</h3>
+            </div>
+            <p class="doc-body ml-10">Indicate whether the child is currently enrolled in school and what grade or year level. If not enrolled, explain why. If enrolled, answer whether the school has accessibility features, special education programs, and if the child receives any learning support.</p>
+          </div>
+
+          <!-- Step 8 -->
+          <div class="bg-gray-50 rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="step-badge">8</span>
+              <h3 class="doc-title">Economic Capacity</h3>
+            </div>
+            <p class="doc-body ml-10">Enter the family's approximate monthly income and its source. The system will automatically classify the family's income level. Also indicate whether the parents or guardians are employed or running a small business.</p>
+          </div>
+
+          <!-- Step 9 -->
+          <div class="bg-gray-50 rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="step-badge">9</span>
+              <h3 class="doc-title">Service Availment</h3>
+            </div>
+            <p class="doc-body ml-10">Record whether the family currently receives financial assistance, if they are aware of available social services, and which services they have already used. Also identify any challenges they face in accessing those services.</p>
+          </div>
+
+          <!-- Step 10 -->
+          <div class="bg-gray-50 rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="step-badge">10</span>
+              <h3 class="doc-title">Assessment Notes</h3>
+            </div>
+            <p class="doc-body ml-10">This is where you write your professional observations. Fill in the child and family's <span class="font-semibold text-brand-dark">Strengths</span>, your overall <span class="font-semibold text-brand-dark">Assessment</span>, and your <span class="font-semibold text-brand-dark">Recommended Actions</span>. Finally, select a <span class="font-semibold text-brand-dark">Readiness Score</span> from the four options — this tells us how urgently the family needs intervention.</p>
+          </div>
+        </div>
+
+        <div class="tip-box mt-6">
+          <div class="flex items-start gap-2">
+            <span class="material-symbols-outlined text-brand-blue text-[18px] mt-0.5">info</span>
+            <p class="doc-body"><span class="font-semibold text-brand-dark">Validation:</span> If you miss a required field, the system will highlight it in red and show a message telling you what to fill in. Fix all errors before moving to the next step.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: REVIEWING & SUBMITTING -->
+      <div id="submitting" class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-8">
+
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-symbols-outlined text-brand-blue text-[24px]">check_circle</span>
+          <h2 class="doc-title" style="font-size:18px">4. Reviewing &amp; Submitting the Assessment</h2>
+        </div>
+
+        <p class="doc-body mb-6">After completing all 10 steps, you will be taken to the <span class="font-semibold text-brand-dark">Review Page</span>. This shows a full summary of everything you have entered. Take a moment to read through it carefully.</p>
+
+        <div class="space-y-4">
+          <div class="flex items-start gap-4">
+            <span class="step-badge mt-0.5">1</span>
+            <div>
+              <p class="doc-title mb-1">Check the Summary</p>
+              <p class="doc-body">Scroll through the review page and make sure all the information is correct — names, dates, answers to questions, and your assessment notes.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <span class="step-badge mt-0.5">2</span>
+            <div>
+              <p class="doc-title mb-1">Go Back if Needed</p>
+              <p class="doc-body">If you notice a mistake, click <span class="font-semibold text-brand-dark">"Edit Forms"</span> to go back and make corrections. You can return to the review page by completing the step again.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <span class="step-badge mt-0.5">3</span>
+            <div>
+              <p class="doc-title mb-1">Click "Submit Assessment"</p>
+              <p class="doc-body">Once you are satisfied, click the blue <span class="font-semibold text-brand-dark">"Submit Assessment"</span> button. The system will save the record and take you to the Success page.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="warning-box mt-6">
+          <div class="flex items-start gap-2">
+            <span class="material-symbols-outlined text-amber-600 text-[18px] mt-0.5">warning</span>
+            <p class="doc-body"><span class="font-semibold text-brand-dark">Once submitted, you cannot edit the record.</span> Please double-check all information on the review page before clicking Submit.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: QR CODE -->
+      <div id="qr-code" class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-8">
+
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-symbols-outlined text-brand-blue text-[24px]">qr_code</span>
+          <h2 class="doc-title" style="font-size:18px">5. The Aruga ID &amp; QR Code</h2>
+        </div>
+
+        <p class="doc-body mb-4">After a successful submission, the system will generate a unique <span class="font-semibold text-brand-dark">Aruga ID</span> and a <span class="font-semibold text-brand-dark">QR Code</span> for the beneficiary. This serves as their official digital record in the Project Aruga system.</p>
+
+        <div class="space-y-4 mb-6">
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-brand-blue text-[20px] mt-0.5">print</span>
+            <div>
+              <p class="doc-title mb-1">Print the QR Code</p>
+              <p class="doc-body">Click the <span class="font-semibold text-brand-dark">"Print QR Code"</span> button to print it directly. Give the printout to the beneficiary's family for safekeeping.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-brand-blue text-[20px] mt-0.5">download</span>
+            <div>
+              <p class="doc-title mb-1">Save a Digital Copy</p>
+              <p class="doc-body">Click <span class="font-semibold text-brand-dark">"Save Digital Copy"</span> to download the QR code as an image file. This can be sent to the family via messaging apps.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-brand-blue text-[20px] mt-0.5">qr_code_scanner</span>
+            <div>
+              <p class="doc-title mb-1">How the QR Code is Used</p>
+              <p class="doc-body">When the QR code is scanned, it opens the beneficiary's verified profile page showing their Aruga ID and registration date. This can be used for future benefit claims and transactions within the system.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <div class="flex items-start gap-2">
+            <span class="material-symbols-outlined text-brand-blue text-[18px] mt-0.5">info</span>
+            <p class="doc-body"><span class="font-semibold text-brand-dark">New Beneficiary:</span> Once done, click <span class="font-semibold text-brand-dark">"New Beneficiary"</span> on the success page to start a fresh session for the next family on your list.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 6: TIPS -->
+      <div id="tips" class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-8">
+
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-symbols-outlined text-brand-blue text-[24px]">lightbulb</span>
+          <h2 class="doc-title" style="font-size:18px">6. Tips &amp; Common Questions</h2>
+        </div>
+
+        <div class="space-y-5">
+
+          <div class="pb-5 border-b border-gray-100">
+            <p class="doc-title mb-2 flex items-center gap-2">
+              <span class="material-symbols-outlined text-amber-500 text-[18px]">help</span>
+              What happens if the session timer runs out?
+            </p>
+            <p class="doc-body ml-7">A warning window will appear when the 20-minute limit is reached. If you confirm, you will be logged out and all unsaved data will be lost. It is best to prepare your information beforehand so you can fill out the form quickly.</p>
+          </div>
+
+          <div class="pb-5 border-b border-gray-100">
+            <p class="doc-title mb-2 flex items-center gap-2">
+              <span class="material-symbols-outlined text-amber-500 text-[18px]">help</span>
+              What if I press the back button on my phone?
+            </p>
+            <p class="doc-body ml-7">The system will show an "End Session?" warning when you press the browser back button. This is to prevent you from accidentally losing your work. If you want to continue filling out the form, simply close the warning and continue.</p>
+          </div>
+
+          <div class="pb-5 border-b border-gray-100">
+            <p class="doc-title mb-2 flex items-center gap-2">
+              <span class="material-symbols-outlined text-amber-500 text-[18px]">help</span>
+              A required field is highlighted red — what do I do?
+            </p>
+            <p class="doc-body ml-7">Red fields mean a required answer is missing or incorrectly formatted. Read the error message below the field (shown in red text), fix the input, and click Next again. All red fields must be resolved before you can proceed.</p>
+          </div>
+
+          <div class="pb-5 border-b border-gray-100">
+            <p class="doc-title mb-2 flex items-center gap-2">
+              <span class="material-symbols-outlined text-amber-500 text-[18px]">help</span>
+              The dropdown is empty / not loading?
+            </p>
+            <p class="doc-body ml-7">This usually means the system is still loading data. Wait a few seconds and try again. Make sure you have a stable internet connection. If the problem continues, try refreshing the page (note: refreshing will clear the current session).</p>
+          </div>
+
+          <div class="pb-5 border-b border-gray-100">
+            <p class="doc-title mb-2 flex items-center gap-2">
+              <span class="material-symbols-outlined text-amber-500 text-[18px]">help</span>
+              Can I profile the same beneficiary twice?
+            </p>
+            <p class="doc-body ml-7">The system will create a new record each time a form is submitted. Please coordinate with your supervisor to avoid duplicate submissions for the same beneficiary.</p>
+          </div>
+
+          <div>
+            <p class="doc-title mb-2 flex items-center gap-2">
+              <span class="material-symbols-outlined text-amber-500 text-[18px]">help</span>
+              I need help — who do I contact?
+            </p>
+            <p class="doc-body ml-7">Reach out to the DSWD Social Technology Bureau for technical support at <a href="mailto:stb_projectaruga@dswd.gov.ph" class="text-brand-blue hover:underline">stb_projectaruga@dswd.gov.ph</a> or call <span class="font-semibold text-brand-dark">(02) 8931-8108 local 1234</span>. You can also visit the <a href="/contact.html" class="text-brand-blue hover:underline">Contact Us</a> page for more details.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- FOOTER CARD -->
+      <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-lg border border-blue-200 p-6 sm:p-8">
+        <div class="flex items-start gap-4 mb-4">
+          <div class="w-12 h-12 bg-brand-blue rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-white text-[24px]">support_agent</span>
+          </div>
+          <div>
+            <h3 class="doc-title mb-1" style="font-size:16px">Need More Help?</h3>
+            <p class="doc-body">Our support team is ready to assist you. Don't hesitate to reach out if you have questions not covered in this guide.</p>
+          </div>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4 mt-4">
+          <a href="/contact.html" class="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow flex items-center gap-3">
+            <span class="material-symbols-outlined text-brand-blue text-[22px]">contact_support</span>
+            <div>
+              <p class="doc-title" style="font-size:13px">Contact Us</p>
+              <p class="doc-body" style="font-size:12px">Get in touch with support</p>
+            </div>
+          </a>
+          <a href="/privacy.html" class="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow flex items-center gap-3">
+            <span class="material-symbols-outlined text-brand-blue text-[22px]">policy</span>
+            <div>
+              <p class="doc-title" style="font-size:13px">Privacy Policy</p>
+              <p class="doc-body" style="font-size:12px">Learn how we protect your data</p>
+            </div>
+          </a>
+        </div>
+        <div class="mt-6 pt-6 border-t border-blue-200">
+          <p class="doc-body text-center" style="font-size:12px; color:#6b7280">
+            <span class="material-symbols-outlined text-[14px] align-middle">event</span>
+            Last Updated: April 2026 &nbsp;·&nbsp; Version 1.0
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-8 border-t border-gray-800 bg-gray-900 py-6 text-center px-4">
+    <p class="text-xs text-gray-300 font-light tracking-wide">
+      © 2026 Department of Social Welfare Development - Social Technology Bureau
+    </p>
+  </footer>
+
+</body>
+</html>
