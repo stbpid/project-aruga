@@ -21,8 +21,19 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Intercept browser back button — show End Session modal instead of navigating away
   history.pushState(null, '', location.href);
   window.addEventListener('popstate', function() {
+    if (!sessionStorage.getItem('session_id')) {
+      window.location.replace('/');
+      return;
+    }
     history.pushState(null, '', location.href);
     showLogoutModal();
+  });
+
+  // Handle back/forward cache — re-check auth when page is restored from bfcache
+  window.addEventListener('pageshow', function(e) {
+    if (e.persisted) {
+      checkAuthentication();
+    }
   });
 
   // Initialize timer
@@ -52,7 +63,7 @@ function checkAuthentication() {
   const privacyAccepted = sessionStorage.getItem('privacyAccepted');
 
   if (!sessionId || !interviewerCode || !privacyAccepted) {
-    window.location.href = '/';
+    window.location.replace('/');
     return;
   }
 
@@ -108,7 +119,7 @@ function hideLogoutModal() {
 
 function confirmLogout() {
   sessionStorage.clear();
-  window.location.href = '/';
+  window.location.replace('/');
 }
 
 // ============================================================================
