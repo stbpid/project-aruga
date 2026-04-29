@@ -79,12 +79,6 @@ function startSessionTimer() {
   const timerEl = document.getElementById('session-timer');
   
   timerInterval = setInterval(() => {
-    if (totalSeconds >= MAX_SECONDS) {
-      clearInterval(timerInterval);
-      showLogoutModal();
-      return;
-    }
-
     totalSeconds++;
     
     const minutes = Math.floor(totalSeconds / 60);
