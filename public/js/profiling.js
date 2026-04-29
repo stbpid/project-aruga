@@ -301,7 +301,7 @@ function getStep1HTML() {
         </fieldset>
         
         <div id="id-container" class="transition-opacity duration-300">
-          <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Household ID</label>
+          <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Household ID <span class="text-red-500">*</span></label>
           <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-1.5 h-9 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
             <span class="material-symbols-outlined text-[16px] text-gray-400">badge</span>
             <input id="household-id" type="text" maxlength="18" oninput="this.value=this.value.replace(/\D/g,'').slice(0,18)" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" placeholder="Enter 18-digit ID number">
@@ -343,7 +343,7 @@ function getStep2HTML() {
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Name of Respondent</label>
+              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Name of Respondent <span class="text-red-500">*</span></label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">person</span>
@@ -353,7 +353,7 @@ function getStep2HTML() {
             </div>
             
             <div>
-              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Relationship to the Child</label>
+              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Relationship to the Child <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-relationship" class="google-dropdown-style w-full h-9 pl-3 pr-10 text-xs sm:text-sm outline-none bg-white text-gray-800 invalid:text-gray-400">
                   <option value="" disabled selected>Loading...</option>
@@ -367,7 +367,7 @@ function getStep2HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Email Address</label>
+              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Email Address <span class="text-red-500">*</span></label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">mail</span>
@@ -377,7 +377,7 @@ function getStep2HTML() {
             </div>
             
             <div>
-              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Contact Number</label>
+              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Contact Number <span class="text-red-500">*</span></label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">phone</span>
@@ -426,7 +426,7 @@ function getStep3HTML() {
         <div class="space-y-4">
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">First Name</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">First Name <span class="text-red-500">*</span></label>
               <input type="text" id="child-fname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="First Name">
             </div>
             <div>
@@ -434,7 +434,7 @@ function getStep3HTML() {
               <input type="text" id="child-mname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Middle Name">
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Last Name</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">Last Name <span class="text-red-500">*</span></label>
               <input type="text" id="child-lname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Last Name">
             </div>
             <div>
@@ -452,7 +452,7 @@ function getStep3HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Region</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">Region <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-region" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateProvinces()">
                   <option value="" disabled selected>Select Region</option>
@@ -463,7 +463,7 @@ function getStep3HTML() {
               </div>
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Province</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">Province <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-province" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateCities()" disabled>
                   <option value="" disabled selected>Select Province</option>
@@ -477,7 +477,7 @@ function getStep3HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">City/Municipality</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">City/Municipality <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-city" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateBarangays()" disabled>
                   <option value="" disabled selected>Select City</option>
@@ -488,7 +488,7 @@ function getStep3HTML() {
               </div>
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Barangay</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">Barangay <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-barangay" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" disabled>
                   <option value="" disabled selected>Select Barangay</option>
@@ -502,7 +502,7 @@ function getStep3HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Street Address</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">Street Address <span class="text-red-500">*</span></label>
               <input type="text" id="child-street" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="House No., Street">
             </div>
             <div>
@@ -525,7 +525,7 @@ function getStep3HTML() {
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Date of Birth</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">Date of Birth <span class="text-red-500">*</span></label>
               <div class="relative">
                 <input type="date" id="child-dob" min="2008-01-01" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none text-gray-600">
               </div>
@@ -549,7 +549,7 @@ function getStep3HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Religion</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">Religion <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-religion" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'rel-other')">
                   <option value="" disabled selected>Loading...</option>
@@ -561,7 +561,7 @@ function getStep3HTML() {
               <input id="rel-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">IP Membership</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">IP Membership <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-ip" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'ip-other')">
                   <option value="" disabled selected>Loading...</option>
@@ -587,7 +587,7 @@ function getStep3HTML() {
         
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Highest Educational Attainment</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">Highest Educational Attainment <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-education" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'edu-other')">
                 <option value="" disabled selected>Loading...</option>
@@ -704,7 +704,7 @@ function getStep5HTML() {
         
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">What type of construction materials are the roofs and outer walls made of?</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">What type of construction materials are the roofs and outer walls made of? <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-materials" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'mat-other')">
                 <option value="" disabled selected>Select Materials</option>
@@ -717,7 +717,7 @@ function getStep5HTML() {
           </div>
           
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">What is the tenure status of the house and lot does the family have?</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">What is the tenure status of the house and lot does the family have? <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-tenure" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'tenure-other')">
                 <option value="" disabled selected>Select Status</option>
@@ -746,7 +746,7 @@ function getStep5HTML() {
           </div>
           
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">What is the main source of electricity in the dwelling place?</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">What is the main source of electricity in the dwelling place? <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-electricity" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'elec-other')">
                 <option value="" disabled selected>Select Source</option>
@@ -770,7 +770,7 @@ function getStep5HTML() {
         </div>
         
         <div>
-          <label class="block text-xs font-bold text-brand-dark mb-1">What is your family's main source of water supply?</label>
+          <label class="block text-xs font-bold text-brand-dark mb-1">What is your family's main source of water supply? <span class="text-red-500">*</span></label>
           <div class="relative">
             <select id="dd-water" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'water-other')">
               <option value="" disabled selected>Select Water Source</option>
@@ -795,7 +795,7 @@ function getStep5HTML() {
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Main type of toilet facility</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">Main type of toilet facility <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-toilet" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'toilet-other')">
                   <option value="" disabled selected>Select Toilet Type</option>
@@ -823,7 +823,7 @@ function getStep5HTML() {
           </div>
           
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Main system of garbage disposal</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">Main system of garbage disposal <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-garbage" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'garbage-other')">
                 <option value="" disabled selected>Select System</option>
@@ -1090,11 +1090,11 @@ function getStep7HTML() {
             </div>
             
             <div id="enrollment-yes" class="">
-              <label class="block text-xs font-bold text-brand-dark mb-1">Grade/Year Level</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">Grade/Year Level <span class="text-red-500">*</span></label>
               <input type="text" id="grade-level" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Grade/Year Level">
             </div>
             <div id="enrollment-no" class="hidden">
-              <label class="block text-xs font-bold text-brand-dark mb-1">Why not?</label>
+              <label class="block text-xs font-bold text-brand-dark mb-1">Why not? <span class="text-red-500">*</span></label>
               <input type="text" id="not-enrolled-reason" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
             </div>
           </div>
@@ -1203,12 +1203,12 @@ function getStep8HTML() {
         
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">What is the primary source of income for the family?</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">What is the primary source of income for the family? <span class="text-red-500">*</span></label>
             <input type="text" id="income-source" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="e.g., Employment, Business, Remittance">
           </div>
           
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">How much is the approximate monthly income of the family?</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">How much is the approximate monthly income of the family? <span class="text-red-500">*</span></label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
               <input type="text" id="monthly-income" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="0" oninput="calculateIncomeClass(this)">
@@ -1354,7 +1354,7 @@ function getStep9HTML() {
         
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">What are the challenges faced in availing these services?</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">What are the challenges faced in availing these services? <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="service-challenges" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'barrier-other')">
                 <option value="" disabled selected>Select Challenge</option>
@@ -1410,15 +1410,15 @@ function getStep10HTML() {
         
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Strengths</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">Strengths <span class="text-red-500">*</span></label>
             <textarea id="strengths" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Enter key strengths..."></textarea>
           </div>
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Assessment</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">Assessment <span class="text-red-500">*</span></label>
             <textarea id="assessment" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Provide assessment details..."></textarea>
           </div>
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Recommended Actions/Interventions</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">Recommended Actions/Interventions <span class="text-red-500">*</span></label>
             <textarea id="recommendations" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Suggest interventions..."></textarea>
           </div>
         </div>
@@ -2021,7 +2021,7 @@ function getFamilyMemberCardHTML(num, isHead) {
       <div class="p-5 sm:p-6 space-y-4 member-content">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="sm:col-span-2">
-            <label class="block text-xs font-bold text-brand-dark mb-1">Full Name</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">Full Name <span class="text-red-500">*</span></label>
             <input type="text" data-field="full_name" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Full Name">
           </div>
           <div>
@@ -2060,7 +2060,7 @@ function getFamilyMemberCardHTML(num, isHead) {
         
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Civil Status</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">Civil Status <span class="text-red-500">*</span></label>
             <div class="relative">
               <select data-field="civil_status" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>Select Status</option>
@@ -2076,7 +2076,7 @@ function getFamilyMemberCardHTML(num, isHead) {
             </div>
           </div>
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Age</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">Age <span class="text-red-500">*</span></label>
             <input type="text" data-field="age" maxlength="3" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Age" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
           </div>
           <div>
@@ -2097,7 +2097,7 @@ function getFamilyMemberCardHTML(num, isHead) {
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Occupation</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">Occupation <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-fam-occ-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>Loading...</option>
@@ -2108,7 +2108,7 @@ function getFamilyMemberCardHTML(num, isHead) {
             </div>
           </div>
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Occupation Class</label>
+            <label class="block text-xs font-bold text-brand-dark mb-1">Occupation Class <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-fam-class-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>Loading...</option>

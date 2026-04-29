@@ -163,9 +163,10 @@ body {
 /* Validation error state */
 .input-invalid,
 .input-invalid:focus {
-  border-color: #f87171 !important;
-  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.2) !important;
-  outline: none !important;
+  border-color: #ef4444 !important;
+  box-shadow: none !important;
+  outline: 2px solid #ef4444 !important;
+  outline-offset: 0px !important;
 }
 
 .field-error {
