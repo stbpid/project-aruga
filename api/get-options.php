@@ -4,6 +4,7 @@ header('Content-Type: application/json');
 
 $options = [
     'List_Religion' => [
+        'No Religion',
         'Roman Catholic',
         'Islam',
         'Iglesia ni Cristo',
@@ -49,6 +50,7 @@ $options = [
         'Foster Parent'
     ],
     'List_Disability' => [
+        'None',
         'Visual Impairment',
         'Hearing Impairment',
         'Speech Impairment',

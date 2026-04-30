@@ -2211,7 +2211,11 @@ function _showErr(el, errId, message) {
   const styleEl = (el.tagName === 'SELECT' && el.classList.contains('hidden'))
     ? (el.parentElement?.querySelector('button') || el)
     : el;
-  styleEl.classList.add('input-invalid');
+  // If input is inside a flex wrapper div (no own border), highlight the wrapper instead
+  const wrapperDiv = styleEl.tagName === 'INPUT' && styleEl.parentElement?.classList.contains('flex')
+    ? styleEl.parentElement
+    : styleEl;
+  wrapperDiv.classList.add('input-invalid');
   const container = getFieldContainer(el);
   if (!container) return;
   const p = document.createElement('p');
@@ -2535,14 +2539,14 @@ function formatPhone(input) {
 // ============================================================================
 
 function generateReview() {
-  const getVal = (id) => { 
-    const el = document.getElementById(id); 
-    return (el && el.value.trim() !== "") ? el.value : 'N/A'; 
+  const getVal = (id) => {
+    const el = document.getElementById(id);
+    return (el && el.value.trim() !== "") ? el.value : '-';
   };
-  
-  const getRadio = (name) => { 
-    const el = document.querySelector(`input[name="${name}"]:checked`); 
-    return el ? el.value : 'N/A'; 
+
+  const getRadio = (name) => {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : '-';
   };
   
   const readinessMap = {
@@ -2552,10 +2556,10 @@ function generateReview() {
     stable:   { label: 'Stable: Meets all needs effectively',               color: 'bg-green-50 border-green-200 text-green-700' },
   };
   const readinessVal   = getRadio('readiness') || '';
-  const readinessInfo  = readinessMap[readinessVal] || { label: readinessVal || 'N/A', color: 'bg-gray-50 border-gray-200 text-gray-700' };
+  const readinessInfo  = readinessMap[readinessVal] || { label: readinessVal || '-', color: 'bg-gray-50 border-gray-200 text-gray-700' };
 
   const incomeClassTxt = document.getElementById('income-class-display')?.innerText || '';
-  const incomeDisplay  = (incomeClassTxt && incomeClassTxt !== 'Enter income to see classification') ? incomeClassTxt : 'N/A';
+  const incomeDisplay  = (incomeClassTxt && incomeClassTxt !== 'Enter income to see classification') ? incomeClassTxt : '-';
 
   let html = `
     <!-- REVIEW INTRODUCTION -->
@@ -2634,11 +2638,11 @@ function generateReview() {
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <p class="text-xs text-gray-500 mb-1">Full Name</p>
-              <p class="text-sm font-semibold text-gray-900">${getVal('child-fname')} ${getVal('child-mname')} ${getVal('child-lname')} ${getVal('dd-extension')}</p>
+              <p class="text-sm font-semibold text-gray-900">${[document.getElementById('child-fname')?.value?.trim(), document.getElementById('child-mname')?.value?.trim(), document.getElementById('child-lname')?.value?.trim(), document.getElementById('dd-extension')?.value?.trim()].filter(Boolean).join(' ') || '-'}</p>
             </div>
             <div>
               <p class="text-xs text-gray-500 mb-1">Date of Birth / Sex</p>
-              <p class="text-sm font-semibold text-gray-900">${getVal('child-dob')} / ${getRadio('sex')}</p>
+              <p class="text-sm font-semibold text-gray-900">${(() => { const d = document.getElementById('child-dob')?.value; if (!d) return '-'; const dt = new Date(d + 'T00:00:00'); return dt.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }); })()} / ${getRadio('sex')}</p>
             </div>
           </div>
         </div>
@@ -2699,11 +2703,11 @@ function generateReview() {
             </div>
             <div>
               <p class="text-xs text-gray-500 mb-1">Disability or Special Needs</p>
-              <p class="text-sm font-semibold text-gray-900">${document.getElementById('disability-display') ? document.getElementById('disability-display').innerText : 'N/A'}</p>
+              <p class="text-sm font-semibold text-gray-900">${document.getElementById('disability-display') ? document.getElementById('disability-display').innerText : '-'}</p>
             </div>
             <div>
               <p class="text-xs text-gray-500 mb-1">Critical Illness</p>
-              <p class="text-sm font-semibold text-gray-900">${document.getElementById('illness-display') ? document.getElementById('illness-display').innerText : 'N/A'}</p>
+              <p class="text-sm font-semibold text-gray-900">${document.getElementById('illness-display') ? document.getElementById('illness-display').innerText : '-'}</p>
             </div>
           </div>
         </div>
@@ -2841,7 +2845,7 @@ function generateReview() {
               <p class="text-xs font-bold text-gray-700 uppercase mb-1">Total Monthly Health Expense</p>
               <p class="text-xs text-gray-500">Sum of all health-related costs</p>
             </div>
-            <p class="text-2xl font-extrabold text-brand-blue">₱${getVal('exp-total')}</p>
+            <p class="text-2xl font-extrabold text-brand-blue"><span style="font-family:'Poppins',sans-serif">₱</span>${getVal('exp-total')}</p>
           </div>
         </div>
 
@@ -2929,7 +2933,7 @@ function generateReview() {
 
         <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
           <p class="text-xs font-bold text-gray-500 uppercase mb-2">Income Classification</p>
-          <p class="text-sm font-bold text-brand-blue">${incomeDisplay}</p>
+          <p class="text-sm font-bold ${incomeDisplay.includes('Below') || incomeDisplay.includes('Low') ? 'text-red-600' : 'text-brand-blue'}">${incomeDisplay}</p>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
