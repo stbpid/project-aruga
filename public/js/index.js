@@ -124,7 +124,7 @@ async function submitForm() {
       submitButton.innerHTML = '✓ Success! Redirecting...';
       
       setTimeout(() => {
-        window.location.href = '/profiling';
+        window.location.href = '/profiling.html';
       }, 1000);
 
     } else {

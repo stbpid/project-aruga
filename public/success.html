@@ -153,7 +153,7 @@
     // ----------------------------------------------------------------
     // Generate QR code — encodes the profile URL
     // ----------------------------------------------------------------
-    const profileUrl = window.location.origin + '/profile?id=' + encodeURIComponent(arugaId);
+    const profileUrl = window.location.origin + '/profile.html?id=' + encodeURIComponent(arugaId);
     const qrEl = document.getElementById('qr-code');
     new QRCode(qrEl, {
       text:         profileUrl,
