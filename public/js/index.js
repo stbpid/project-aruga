@@ -123,9 +123,8 @@ async function submitForm() {
       // Update button
       submitButton.innerHTML = '✓ Success! Redirecting...';
       
-      // Redirect to profiling page with .html extension
       setTimeout(() => {
-        window.location.href = '/profiling.html';
+        window.location.href = '/profiling';
       }, 1000);
 
     } else {
