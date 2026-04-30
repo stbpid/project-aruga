@@ -15,6 +15,10 @@ let timerInterval;
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', async function() {
+  // Set max date on DOB to today
+  const dobEl = document.getElementById('child-dob');
+  if (dobEl) dobEl.max = new Date().toISOString().split('T')[0];
+
   // Check if user came from index page
   checkAuthentication();
 
@@ -527,9 +531,8 @@ function getStep3HTML() {
             <div>
               <label class="block text-xs font-bold text-brand-dark mb-1">Date of Birth <span class="text-red-500">*</span></label>
               <div class="relative">
-                <input type="date" id="child-dob" min="2008-01-01" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none text-gray-600">
+                <input type="date" id="child-dob" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none text-gray-600">
               </div>
-              <p class="text-[10px] text-gray-400 mt-1 ml-1">Must be year 2008 or later.</p>
             </div>
             <div>
               <label class="block text-xs font-bold text-brand-dark mb-1">Sex</label>
@@ -2321,11 +2324,11 @@ function validateStep2() {
   if (!getSelVal('dd-relationship'))  { showFieldError('dd-relationship', 'Please select a relationship'); ok = false; }
 
   const email = (document.getElementById('resp-email')?.value || '').trim();
-  if (!email)              { showFieldError('resp-email', 'Email address is required'); ok = false; }
-  else if (!isValidEmail(email)) { showFieldError('resp-email', 'Please enter a valid email (e.g., name@example.com)'); ok = false; }
-  else if (email.length > 255)   { showFieldError('resp-email', 'Email must not exceed 255 characters'); ok = false; }
+  if (email && !isValidEmail(email)) { showFieldError('resp-email', 'Please enter a valid email (e.g., name@example.com)'); ok = false; }
+  else if (email && email.length > 255) { showFieldError('resp-email', 'Email must not exceed 255 characters'); ok = false; }
 
-  if (!chkPhone('resp-contact', 'Contact number')) ok = false;
+  const respContact = (document.getElementById('resp-contact')?.value || '').trim();
+  if (respContact && !isValidPhone(respContact)) { showFieldError('resp-contact', 'Contact number must be 11 digits starting with 09'); ok = false; }
   return ok;
 }
 
@@ -2347,15 +2350,15 @@ function validateStep3() {
   else if (st.length < 5)   { showFieldError('child-street', 'Street address must be at least 5 characters'); ok = false; }
   else if (st.length > 255) { showFieldError('child-street', 'Street address must not exceed 255 characters'); ok = false; }
 
-  if (!chkPhone('child-contact', 'Contact number')) ok = false;
+  const childContact = (document.getElementById('child-contact')?.value || '').trim();
+  if (childContact && !isValidPhone(childContact)) { showFieldError('child-contact', 'Contact number must be 11 digits starting with 09'); ok = false; }
 
   const dob = (document.getElementById('child-dob')?.value || '');
   if (!dob) { showFieldError('child-dob', 'Date of birth is required'); ok = false; }
   else {
-    const d = new Date(dob), min = new Date('2008-01-01'), today = new Date();
+    const d = new Date(dob), today = new Date();
     today.setHours(0,0,0,0);
-    if (d < min)    { showFieldError('child-dob', 'Child must be born in 2008 or later (18 years or younger)'); ok = false; }
-    else if (d > today) { showFieldError('child-dob', 'Date of birth cannot be in the future'); ok = false; }
+    if (d > today) { showFieldError('child-dob', 'Date of birth cannot be in the future'); ok = false; }
   }
 
   const rel = getSelVal('dd-religion');
