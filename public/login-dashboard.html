@@ -51,7 +51,13 @@
   </script>
 
   <main class="flex-grow flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-md border border-[#e0e4e0] p-6 sm:p-8">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-5xl flex flex-col lg:flex-row overflow-hidden border border-[#e0e4e0]">
+
+      <aside class="relative w-full h-48 sm:h-56 lg:h-auto lg:w-5/12 bg-gray-900">
+        <img src="/images/hero.webp" alt="Project Aruga Hero" class="absolute inset-0 w-full h-full object-cover opacity-60">
+      </aside>
+
+      <section class="w-full lg:w-7/12 p-6 sm:p-8 flex flex-col justify-center">
 
       <div class="mb-4">
         <img src="/images/form-logo.webp" alt="DSWD Logo" class="h-10 sm:h-12 w-auto object-contain">
@@ -76,6 +82,8 @@
       <p class="text-center text-[11px] text-gray-400 mt-4">
         Looking for the profiling tool? <a href="/" class="text-brand-blue font-semibold hover:underline">Click here</a>
       </p>
+
+      </section>
     </div>
   </main>
 
