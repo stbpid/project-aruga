@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Project Aruga</title>
+  <link rel="icon" href="/images/logo.webp" type="image/webp">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+<div class="dash-layout">
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="dash-sidebar" id="dash-sidebar">
+    <div class="sidebar-brand">
+      <img src="/images/logo.webp" alt="Project Aruga">
+      <div>
+        <div class="sidebar-brand-name">Project Aruga</div>
+        <div class="sidebar-brand-sub">Admin Dashboard</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="/dashboard-admin.html" class="nav-item active">
+        <span class="material-symbols-outlined">dashboard</span>Overview
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-symbols-outlined">group</span>Beneficiaries
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-symbols-outlined">assignment</span>Assessments
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-symbols-outlined">bar_chart</span>Analytics
+      </a>
+
+      <div class="nav-section-label">Management</div>
+      <a href="#" class="nav-item">
+        <span class="material-symbols-outlined">badge</span>Interviewers
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-symbols-outlined">map</span>Regions
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-symbols-outlined">settings</span>System Settings
+      </a>
+      <a href="#" class="nav-item">
+        <span class="material-symbols-outlined">history</span>Audit Logs
+      </a>
+
+      <div class="nav-section-label">Views</div>
+      <a href="/dashboard-central.html" class="nav-item">
+        <span class="material-symbols-outlined">corporate_fare</span>Central Office
+      </a>
+      <a href="/dashboard-stu-head.html" class="nav-item">
+        <span class="material-symbols-outlined">manage_accounts</span>STU Head
+      </a>
+      <a href="/dashboard-field-officer.html" class="nav-item">
+        <span class="material-symbols-outlined">person_pin_circle</span>Field Officer
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="dash-user-avatar">SA</div>
+        <div class="user-info">
+          <div class="user-name" id="dash-user-name">System Admin</div>
+          <div class="user-role" id="dash-user-role">Administrator</div>
+        </div>
+        <button onclick="dashLogout()" title="Logout" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:0.25rem;border-radius:0.25rem;" onmouseenter="this.style.color='#ef4444'" onmouseleave="this.style.color='#9ca3af'">
+          <span class="material-symbols-outlined" style="font-size:1.125rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="dash-main">
+
+    <!-- Header -->
+    <header class="dash-header">
+      <button class="hamburger" id="hamburger-btn">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <div class="dash-header-title">System Admin — Overview</div>
+      <div class="dash-header-actions">
+        <div style="position:relative;">
+          <button class="icon-btn" id="notif-btn" title="Notifications">
+            <span class="material-symbols-outlined">notifications</span>
+            <span class="notif-badge">5</span>
+          </button>
+          <div class="notif-dropdown" id="notif-dropdown">
+            <div class="notif-dropdown-header">
+              <span class="notif-dropdown-title">Notifications</span>
+              <button class="btn btn-ghost btn-sm">Mark all read</button>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-icon" style="background:rgba(17,82,212,0.1);color:#1152d4;"><span class="material-symbols-outlined">person_add</span></div>
+              <div class="notif-text">
+                <div class="notif-msg">New interviewer registered in Region V</div>
+                <div class="notif-time">2 minutes ago</div>
+              </div>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-icon" style="background:rgba(245,158,11,0.1);color:#d97706;"><span class="material-symbols-outlined">warning</span></div>
+              <div class="notif-text">
+                <div class="notif-msg">3 assessments pending review in NCR</div>
+                <div class="notif-time">15 minutes ago</div>
+              </div>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-icon" style="background:rgba(16,185,129,0.1);color:#059669;"><span class="material-symbols-outlined">check_circle</span></div>
+              <div class="notif-text">
+                <div class="notif-msg">Monthly report generated successfully</div>
+                <div class="notif-time">1 hour ago</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon" style="background:rgba(239,68,68,0.1);color:#dc2626;"><span class="material-symbols-outlined">error</span></div>
+              <div class="notif-text">
+                <div class="notif-msg">System backup completed with warnings</div>
+                <div class="notif-time">3 hours ago</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon" style="background:rgba(17,82,212,0.1);color:#1152d4;"><span class="material-symbols-outlined">info</span></div>
+              <div class="notif-text">
+                <div class="notif-msg">Database maintenance scheduled tonight</div>
+                <div class="notif-time">5 hours ago</div>
+              </div>
+            </div>
+            <div style="padding:0.625rem 1rem;border-top:1px solid #f3f4f6;">
+              <a href="#" style="font-size:0.75rem;color:#1152d4;font-weight:600;text-decoration:none;">View all notifications</a>
+            </div>
+          </div>
+        </div>
+        <img src="/images/form-logo.webp" alt="DSWD" style="height:1.75rem;width:auto;object-fit:contain;opacity:0.8;">
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="dash-content">
+      <div class="page-title">System Overview</div>
+      <div class="page-subtitle">Real-time monitoring across all regions — as of May 2026</div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">groups</span></div>
+          <div class="stat-body">
+            <div class="stat-value">12,847</div>
+            <div class="stat-label">Total Beneficiaries</div>
+            <div class="stat-change up">↑ 8.3% this month</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><span class="material-symbols-outlined">assignment_turned_in</span></div>
+          <div class="stat-body">
+            <div class="stat-value">9,214</div>
+            <div class="stat-label">Completed Assessments</div>
+            <div class="stat-change up">↑ 12.1% this month</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><span class="material-symbols-outlined">pending_actions</span></div>
+          <div class="stat-body">
+            <div class="stat-value">3,633</div>
+            <div class="stat-label">Pending Assessments</div>
+            <div class="stat-change down">↑ 4.2% backlog</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div>
+          <div class="stat-body">
+            <div class="stat-value">248</div>
+            <div class="stat-label">Active Interviewers</div>
+            <div class="stat-change up">↑ 3 new this week</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">map</span></div>
+          <div class="stat-body">
+            <div class="stat-value">17</div>
+            <div class="stat-label">Regions Covered</div>
+            <div class="stat-change up">100% coverage</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><span class="material-symbols-outlined">trending_up</span></div>
+          <div class="stat-body">
+            <div class="stat-value">71.7%</div>
+            <div class="stat-label">Completion Rate</div>
+            <div class="stat-change up">↑ 2.4% vs last month</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 1: Chart + Activity -->
+      <div class="grid-3-1" style="margin-bottom:1rem;">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Monthly Assessments</div>
+              <div class="card-subtitle">Jan – May 2026</div>
+            </div>
+            <button class="btn btn-secondary btn-sm">
+              <span class="material-symbols-outlined">download</span>Export
+            </button>
+          </div>
+          <div class="bar-chart" id="monthly-bars"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Assessment Status</div>
+              <div class="card-subtitle">Current distribution</div>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <svg id="donut-status" class="donut-chart" viewBox="0 0 120 120"></svg>
+            <div class="donut-legend">
+              <div class="donut-legend-item"><div class="donut-dot" style="background:#1152d4"></div><span class="donut-legend-label">Completed</span><span class="donut-legend-val">71.7%</span></div>
+              <div class="donut-legend-item"><div class="donut-dot" style="background:#f59e0b"></div><span class="donut-legend-label">Pending</span><span class="donut-legend-val">24.8%</span></div>
+              <div class="donut-legend-item"><div class="donut-dot" style="background:#ef4444"></div><span class="donut-legend-label">Incomplete</span><span class="donut-legend-val">3.5%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Region Coverage + Recent Activity -->
+      <div class="grid-2" style="margin-bottom:1rem;">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Coverage by Region</div>
+              <div class="card-subtitle">Top 6 regions by assessments</div>
+            </div>
+            <span class="badge badge-blue">17 Regions</span>
+          </div>
+          <div>
+            <div class="region-row">
+              <div class="region-info"><span class="region-name">NCR</span><span class="region-count">2,341</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:82%"></div></div>
+            </div>
+            <div class="region-row">
+              <div class="region-info"><span class="region-name">Region IV-A (CALABARZON)</span><span class="region-count">1,892</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:66%"></div></div>
+            </div>
+            <div class="region-row">
+              <div class="region-info"><span class="region-name">Region III (Central Luzon)</span><span class="region-count">1,654</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:58%"></div></div>
+            </div>
+            <div class="region-row">
+              <div class="region-info"><span class="region-name">Region VII (Central Visayas)</span><span class="region-count">1,203</span></div>
+              <div class="progress-bar"><div class="progress-fill green" style="width:42%"></div></div>
+            </div>
+            <div class="region-row">
+              <div class="region-info"><span class="region-name">Region V (Bicol)</span><span class="region-count">987</span></div>
+              <div class="progress-bar"><div class="progress-fill green" style="width:35%"></div></div>
+            </div>
+            <div class="region-row">
+              <div class="region-info"><span class="region-name">Region XI (Davao)</span><span class="region-count">876</span></div>
+              <div class="progress-bar"><div class="progress-fill orange" style="width:31%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Recent Activity</div>
+              <div class="card-subtitle">System-wide events</div>
+            </div>
+          </div>
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#1152d4"></div>
+              <div class="activity-text">
+                <div class="activity-main">New assessment submitted — NCR, Marikina</div>
+                <div class="activity-time">2 minutes ago · R1001JAA</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#10b981"></div>
+              <div class="activity-text">
+                <div class="activity-main">Beneficiary profile updated — Region V</div>
+                <div class="activity-time">8 minutes ago · R5001MAR</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#f59e0b"></div>
+              <div class="activity-text">
+                <div class="activity-main">Assessment flagged for review — Davao</div>
+                <div class="activity-time">23 minutes ago · R11003DAV</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#1152d4"></div>
+              <div class="activity-text">
+                <div class="activity-main">New interviewer activated — Region III</div>
+                <div class="activity-time">1 hour ago · Admin</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#10b981"></div>
+              <div class="activity-text">
+                <div class="activity-main">Monthly report exported — May 2026</div>
+                <div class="activity-time">2 hours ago · System</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:#8b5cf6"></div>
+              <div class="activity-text">
+                <div class="activity-main">Database backup completed</div>
+                <div class="activity-time">3 hours ago · System</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Beneficiaries Table -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Recent Beneficiaries</div>
+            <div class="card-subtitle">Latest entries across all regions</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <div class="search-bar" style="width:200px;">
+              <span class="material-symbols-outlined">search</span>
+              <input type="text" placeholder="Search...">
+            </div>
+            <button class="btn btn-primary btn-sm">
+              <span class="material-symbols-outlined">download</span>Export
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Beneficiary</th>
+                <th>Age</th>
+                <th>Disability</th>
+                <th>Region</th>
+                <th>Interviewer</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div style="font-weight:600;color:#111811;">Juan Dela Cruz</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00001</div></td>
+                <td>8</td>
+                <td><span class="badge badge-purple">Physical</span></td>
+                <td>NCR</td>
+                <td>R1001JAA</td>
+                <td>May 2, 2026</td>
+                <td><span class="badge badge-green">Complete</span></td>
+                <td><button class="btn btn-ghost btn-sm"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+              </tr>
+              <tr>
+                <td><div style="font-weight:600;color:#111811;">Maria Santos</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00002</div></td>
+                <td>12</td>
+                <td><span class="badge badge-blue">Visual</span></td>
+                <td>Region IV-A</td>
+                <td>R4001MAS</td>
+                <td>May 2, 2026</td>
+                <td><span class="badge badge-yellow">Pending</span></td>
+                <td><button class="btn btn-ghost btn-sm"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+              </tr>
+              <tr>
+                <td><div style="font-weight:600;color:#111811;">Pedro Reyes</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00003</div></td>
+                <td>6</td>
+                <td><span class="badge badge-orange" style="background:rgba(245,158,11,0.1);color:#d97706;">Hearing</span></td>
+                <td>Region V</td>
+                <td>R5001JAA</td>
+                <td>May 1, 2026</td>
+                <td><span class="badge badge-green">Complete</span></td>
+                <td><button class="btn btn-ghost btn-sm"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+              </tr>
+              <tr>
+                <td><div style="font-weight:600;color:#111811;">Ana Bautista</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00004</div></td>
+                <td>10</td>
+                <td><span class="badge badge-red">Intellectual</span></td>
+                <td>Region III</td>
+                <td>R3002ABA</td>
+                <td>May 1, 2026</td>
+                <td><span class="badge badge-yellow">Pending</span></td>
+                <td><button class="btn btn-ghost btn-sm"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+              </tr>
+              <tr>
+                <td><div style="font-weight:600;color:#111811;">Carlo Lim</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00005</div></td>
+                <td>9</td>
+                <td><span class="badge badge-purple">Multiple</span></td>
+                <td>Region VII</td>
+                <td>R7001CLM</td>
+                <td>Apr 30, 2026</td>
+                <td><span class="badge badge-green">Complete</span></td>
+                <td><button class="btn btn-ghost btn-sm"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;">
+          <span style="font-size:0.75rem;color:#6b7280;">Showing 5 of 12,847 beneficiaries</span>
+          <div style="display:flex;gap:0.375rem;">
+            <button class="btn btn-secondary btn-sm">Previous</button>
+            <button class="btn btn-primary btn-sm">Next</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dash-content -->
+  </div><!-- /dash-main -->
+</div><!-- /dash-layout -->
+
+<script src="/js/dashboard-auth.js"></script>
+<script src="/js/dashboard-common.js"></script>
+<script>
+  dashRequireAuth();
+
+  document.addEventListener('DOMContentLoaded', function() {
+    dashPopulateUser();
+
+    drawDonut('donut-status', [71.7, 24.8, 3.5], ['#1152d4', '#f59e0b', '#ef4444']);
+
+    drawBars('monthly-bars', [
+      { label: 'Jan', value: 1420 },
+      { label: 'Feb', value: 1680 },
+      { label: 'Mar', value: 1950 },
+      { label: 'Apr', value: 2100 },
+      { label: 'May', value: 2064 },
+    ]);
+  });
+</script>
+</body>
+</html>

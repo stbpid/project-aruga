@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Field Officer Dashboard — Project Aruga</title>
+  <link rel="icon" href="/images/logo.webp" type="image/webp">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+<div class="dash-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <aside class="dash-sidebar" id="dash-sidebar">
+    <div class="sidebar-brand">
+      <img src="/images/logo.webp" alt="Project Aruga">
+      <div>
+        <div class="sidebar-brand-name">Project Aruga</div>
+        <div class="sidebar-brand-sub">Field Officer</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">My Work</div>
+      <a href="/dashboard-field-officer.html" class="nav-item active"><span class="material-symbols-outlined">dashboard</span>My Dashboard</a>
+      <a href="#" class="nav-item"><span class="material-symbols-outlined">group</span>My Beneficiaries</a>
+      <a href="#" class="nav-item"><span class="material-symbols-outlined">add_circle</span>New Assessment</a>
+      <a href="#" class="nav-item"><span class="material-symbols-outlined">history</span>My Submissions</a>
+
+      <div class="nav-section-label">Tools</div>
+      <a href="/profiling.html" class="nav-item"><span class="material-symbols-outlined">edit_note</span>Profiling Tool</a>
+      <a href="#" class="nav-item"><span class="material-symbols-outlined">qr_code_scanner</span>Scan QR Code</a>
+      <a href="#" class="nav-item"><span class="material-symbols-outlined">help</span>Help & Guide</a>
+
+      <div class="nav-section-label">Switch View</div>
+      <a href="/dashboard-admin.html" class="nav-item"><span class="material-symbols-outlined">shield_person</span>Admin</a>
+      <a href="/dashboard-central.html" class="nav-item"><span class="material-symbols-outlined">corporate_fare</span>Central Office</a>
+      <a href="/dashboard-stu-head.html" class="nav-item"><span class="material-symbols-outlined">manage_accounts</span>STU Head</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="dash-user-avatar">FO</div>
+        <div class="user-info">
+          <div class="user-name" id="dash-user-name">Field Officer</div>
+          <div class="user-role" id="dash-user-role">Interviewer</div>
+        </div>
+        <button onclick="dashLogout()" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:0.25rem;" onmouseenter="this.style.color='#ef4444'" onmouseleave="this.style.color='#9ca3af'">
+          <span class="material-symbols-outlined" style="font-size:1.125rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="dash-main">
+    <header class="dash-header">
+      <button class="hamburger" id="hamburger-btn"><span class="material-symbols-outlined">menu</span></button>
+      <div class="dash-header-title">Field Officer — My Dashboard</div>
+      <div class="dash-header-actions">
+        <a href="/profiling.html" class="btn btn-primary btn-sm">
+          <span class="material-symbols-outlined">add</span>New Assessment
+        </a>
+        <div style="position:relative;">
+          <button class="icon-btn" id="notif-btn"><span class="material-symbols-outlined">notifications</span><span class="notif-badge">1</span></button>
+          <div class="notif-dropdown" id="notif-dropdown">
+            <div class="notif-dropdown-header">
+              <span class="notif-dropdown-title">Notifications</span>
+              <button class="btn btn-ghost btn-sm">Mark all read</button>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-icon" style="background:rgba(245,158,11,0.1);color:#d97706;"><span class="material-symbols-outlined">warning</span></div>
+              <div class="notif-text"><div class="notif-msg">Assessment BEN-2026-00441 requires correction</div><div class="notif-time">1 hour ago</div></div>
+            </div>
+          </div>
+        </div>
+        <img src="/images/form-logo.webp" alt="DSWD" style="height:1.75rem;width:auto;object-fit:contain;opacity:0.8;">
+      </div>
+    </header>
+
+    <div class="dash-content">
+
+      <!-- Welcome Banner -->
+      <div style="background:linear-gradient(135deg,#1152d4 0%,#2563eb 100%);border-radius:0.75rem;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+        <div>
+          <div style="font-size:0.625rem;color:rgba(255,255,255,0.7);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;">Welcome back</div>
+          <div style="font-size:1.125rem;font-weight:700;color:white;" id="welcome-name">Field Officer</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:0.25rem;" id="welcome-sub">Code: · Region V (Bicol)</div>
+        </div>
+        <a href="/profiling.html" style="background:white;color:#1152d4;border:none;border-radius:0.5rem;padding:0.5rem 1rem;font-family:'Poppins',sans-serif;font-size:0.8125rem;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:0.375rem;">
+          <span class="material-symbols-outlined" style="font-size:1rem;">edit_note</span>
+          Start Assessment
+        </a>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">assignment</span></div>
+          <div class="stat-body"><div class="stat-value">124</div><div class="stat-label">Total Submitted</div><div class="stat-change up">My assessments</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><span class="material-symbols-outlined">check_circle</span></div>
+          <div class="stat-body"><div class="stat-value">112</div><div class="stat-label">Accepted</div><div class="stat-change up">90.3% approval rate</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><span class="material-symbols-outlined">pending</span></div>
+          <div class="stat-body"><div class="stat-value">11</div><div class="stat-label">Under Review</div><div class="stat-change down">Awaiting approval</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><span class="material-symbols-outlined">cancel</span></div>
+          <div class="stat-body"><div class="stat-value">1</div><div class="stat-label">Needs Correction</div><div class="stat-change down">Action required</div></div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:1rem;">
+
+        <!-- My Beneficiaries -->
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">My Recent Beneficiaries</div><div class="card-subtitle">Latest submissions</div></div>
+            <div class="search-bar" style="width:150px;">
+              <span class="material-symbols-outlined">search</span>
+              <input type="text" placeholder="Search...">
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead><tr><th>Name</th><th>Age</th><th>Municipality</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><div style="font-weight:600;color:#111811;">Pedro M. Lim</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00512</div></td>
+                  <td>7</td><td>Naga City</td><td><span class="badge badge-green">Accepted</span></td>
+                </tr>
+                <tr>
+                  <td><div style="font-weight:600;color:#111811;">Rosa G. Santos</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00503</div></td>
+                  <td>11</td><td>Legazpi City</td><td><span class="badge badge-green">Accepted</span></td>
+                </tr>
+                <tr>
+                  <td><div style="font-weight:600;color:#111811;">Carlos R. Cruz</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00498</div></td>
+                  <td>9</td><td>Daraga</td><td><span class="badge badge-yellow">Pending</span></td>
+                </tr>
+                <tr>
+                  <td><div style="font-weight:600;color:#111811;">Maria T. Garcia</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00441</div></td>
+                  <td>14</td><td>Pili</td><td><span class="badge badge-red">Correction</span></td>
+                </tr>
+                <tr>
+                  <td><div style="font-weight:600;color:#111811;">Jose A. Reyes</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00432</div></td>
+                  <td>6</td><td>Iriga City</td><td><span class="badge badge-green">Accepted</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="padding-top:0.75rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;">
+            <a href="#" style="font-size:0.75rem;color:#1152d4;font-weight:600;text-decoration:none;">View all 124 beneficiaries →</a>
+          </div>
+        </div>
+
+        <!-- Personal Stats -->
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Monthly Progress</div><div class="card-subtitle">May 2026 target: 30 assessments</div></div>
+            </div>
+            <div style="text-align:center;margin-bottom:0.75rem;">
+              <div style="font-size:2rem;font-weight:800;color:#1152d4;">18</div>
+              <div style="font-size:0.75rem;color:#6b7280;">of 30 target this month</div>
+            </div>
+            <div class="progress-bar" style="height:0.75rem;margin-bottom:0.5rem;"><div class="progress-fill" style="width:60%"></div></div>
+            <div style="font-size:0.7rem;color:#6b7280;text-align:center;">60% — 12 more to reach target</div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Action Required</div></div>
+            </div>
+            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:0.5rem;padding:0.875rem;display:flex;gap:0.75rem;align-items:flex-start;">
+              <span class="material-symbols-outlined" style="color:#dc2626;font-size:1.125rem;flex-shrink:0;">error</span>
+              <div>
+                <div style="font-size:0.8125rem;font-weight:600;color:#dc2626;margin-bottom:0.25rem;">BEN-2026-00441 needs correction</div>
+                <div style="font-size:0.75rem;color:#6b7280;line-height:1.4;">Incomplete household information. Please update the family composition section.</div>
+                <button style="margin-top:0.625rem;background:#dc2626;color:white;border:none;border-radius:0.375rem;padding:0.375rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;">Fix Now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">My Performance</div><div class="card-subtitle">All-time stats</div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8125rem;">
+                <span style="color:#6b7280;">Approval Rate</span><span style="font-weight:700;color:#10b981;">90.3%</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8125rem;">
+                <span style="color:#6b7280;">Avg. Completion Time</span><span style="font-weight:700;color:#374151;">48 mins</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8125rem;">
+                <span style="color:#6b7280;">Data Quality Score</span><span style="font-weight:700;color:#1152d4;">87/100</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8125rem;">
+                <span style="color:#6b7280;">Active Days (May)</span><span style="font-weight:700;color:#374151;">15 days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="/js/dashboard-auth.js"></script>
+<script src="/js/dashboard-common.js"></script>
+<script>
+  dashRequireAuth();
+  document.addEventListener('DOMContentLoaded', function() {
+    dashPopulateUser();
+    const user = dashGetUser();
+    const wName = document.getElementById('welcome-name');
+    const wSub = document.getElementById('welcome-sub');
+    if (wName) wName.textContent = user.name || 'Field Officer';
+    if (wSub) wSub.textContent = `Code: ${user.code} · ${user.region || 'Region V (Bicol)'}`;
+  });
+</script>
+</body>
+</html>

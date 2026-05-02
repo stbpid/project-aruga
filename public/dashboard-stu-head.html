@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STU Head Dashboard — Project Aruga</title>
+  <link rel="icon" href="/images/logo.webp" type="image/webp">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+<div class="dash-layout">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <aside class="dash-sidebar" id="dash-sidebar">
+    <div class="sidebar-brand">
+      <img src="/images/logo.webp" alt="Project Aruga">
+      <div>
+        <div class="sidebar-brand-name">Project Aruga</div>
+        <div class="sidebar-brand-sub">STU Head</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">My Unit</div>
+      <a href="/dashboard-stu-head.html" class="nav-item active"><span class="material-symbols-outlined">dashboard</span>Overview</a>
+      <a href="#" class="nav-item"><span class="material-symbols-outlined">group</span>Beneficiaries</a>
+      <a href="#" class="nav-item"><span class="material-symbols-outlined">assignment</span>Assessments</a>
+      <a href="#" class="nav-item"><span class="material-symbols-outlined">badge</span>My Interviewers</a>
+      <a href="#" class="nav-item"><span class="material-symbols-outlined">bar_chart</span>Unit Reports</a>
+
+      <div class="nav-section-label">Operations</div>
+      <a href="#" class="nav-item"><span class="material-symbols-outlined">task_alt</span>Pending Reviews</a>
+      <a href="#" class="nav-item"><span class="material-symbols-outlined">calendar_month</span>Schedule</a>
+      <a href="#" class="nav-item"><span class="material-symbols-outlined">notifications</span>Alerts</a>
+
+      <div class="nav-section-label">Switch View</div>
+      <a href="/dashboard-admin.html" class="nav-item"><span class="material-symbols-outlined">shield_person</span>Admin</a>
+      <a href="/dashboard-central.html" class="nav-item"><span class="material-symbols-outlined">corporate_fare</span>Central Office</a>
+      <a href="/dashboard-field-officer.html" class="nav-item"><span class="material-symbols-outlined">person_pin_circle</span>Field Officer</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="dash-user-avatar">SH</div>
+        <div class="user-info">
+          <div class="user-name" id="dash-user-name">STU Head</div>
+          <div class="user-role" id="dash-user-role">Unit Head</div>
+        </div>
+        <button onclick="dashLogout()" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:0.25rem;" onmouseenter="this.style.color='#ef4444'" onmouseleave="this.style.color='#9ca3af'">
+          <span class="material-symbols-outlined" style="font-size:1.125rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="dash-main">
+    <header class="dash-header">
+      <button class="hamburger" id="hamburger-btn"><span class="material-symbols-outlined">menu</span></button>
+      <div class="dash-header-title">STU Head — Unit Overview</div>
+      <div class="dash-header-actions">
+        <div style="position:relative;">
+          <button class="icon-btn" id="notif-btn"><span class="material-symbols-outlined">notifications</span><span class="notif-badge">2</span></button>
+          <div class="notif-dropdown" id="notif-dropdown">
+            <div class="notif-dropdown-header">
+              <span class="notif-dropdown-title">Notifications</span>
+              <button class="btn btn-ghost btn-sm">Mark all read</button>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-icon" style="background:rgba(245,158,11,0.1);color:#d97706;"><span class="material-symbols-outlined">assignment_late</span></div>
+              <div class="notif-text"><div class="notif-msg">2 assessments pending your review</div><div class="notif-time">30 minutes ago</div></div>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-icon" style="background:rgba(17,82,212,0.1);color:#1152d4;"><span class="material-symbols-outlined">person</span></div>
+              <div class="notif-text"><div class="notif-msg">Interviewer R5004 submitted 5 new entries</div><div class="notif-time">2 hours ago</div></div>
+            </div>
+          </div>
+        </div>
+        <img src="/images/form-logo.webp" alt="DSWD" style="height:1.75rem;width:auto;object-fit:contain;opacity:0.8;">
+      </div>
+    </header>
+
+    <div class="dash-content">
+      <div class="page-title">Unit Overview</div>
+      <div class="page-subtitle">STU-V-01 · Region V (Bicol) · May 2026</div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">groups</span></div>
+          <div class="stat-body"><div class="stat-value">987</div><div class="stat-label">Unit Beneficiaries</div><div class="stat-change up">↑ 23 this week</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><span class="material-symbols-outlined">check_circle</span></div>
+          <div class="stat-body"><div class="stat-value">609</div><div class="stat-label">Completed</div><div class="stat-change up">61.7% rate</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><span class="material-symbols-outlined">pending_actions</span></div>
+          <div class="stat-body"><div class="stat-value">378</div><div class="stat-label">Pending</div><div class="stat-change down">38.3% remaining</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div>
+          <div class="stat-body"><div class="stat-value">10</div><div class="stat-label">Interviewers</div><div class="stat-change up">8 active today</div></div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="tabs">
+          <div class="tab-item active" onclick="switchTab(this,'tab-interviewers')">My Interviewers</div>
+          <div class="tab-item" onclick="switchTab(this,'tab-pending')">Pending Reviews</div>
+          <div class="tab-item" onclick="switchTab(this,'tab-recent')">Recent Submissions</div>
+        </div>
+
+        <div id="tab-interviewers">
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead><tr><th>Interviewer</th><th>Code</th><th>Province</th><th>Submitted</th><th>Pending</th><th>Last Active</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td style="font-weight:600;">Juan A. Alcantara</td><td style="font-family:monospace;font-size:0.75rem;">R5001JAA</td><td>Camarines Sur</td><td>124</td><td>12</td><td>Today, 2:34 PM</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td style="font-weight:600;">Maria R. Santos</td><td style="font-family:monospace;font-size:0.75rem;">R5002MRS</td><td>Albay</td><td>98</td><td>8</td><td>Today, 1:15 PM</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td style="font-weight:600;">Pedro C. Cruz</td><td style="font-family:monospace;font-size:0.75rem;">R5003PCC</td><td>Sorsogon</td><td>87</td><td>15</td><td>Today, 11:00 AM</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td style="font-weight:600;">Ana M. Bautista</td><td style="font-family:monospace;font-size:0.75rem;">R5004AMB</td><td>Catanduanes</td><td>76</td><td>5</td><td>Yesterday</td><td><span class="badge badge-yellow">Idle</span></td></tr>
+                <tr><td style="font-weight:600;">Carlo D. Reyes</td><td style="font-family:monospace;font-size:0.75rem;">R5005CDR</td><td>Masbate</td><td>63</td><td>20</td><td>Yesterday</td><td><span class="badge badge-yellow">Idle</span></td></tr>
+                <tr><td style="font-weight:600;">Liza P. Mendoza</td><td style="font-family:monospace;font-size:0.75rem;">R5006LPM</td><td>Camarines Norte</td><td>41</td><td>0</td><td>3 days ago</td><td><span class="badge badge-gray">Offline</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="tab-pending" style="display:none;">
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead><tr><th>Beneficiary</th><th>Interviewer</th><th>Submitted</th><th>Issue</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr><td style="font-weight:600;">Maria T. Garcia<br><span style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00441</span></td><td>R5001JAA</td><td>May 2, 2026</td><td><span class="badge badge-yellow">Incomplete data</span></td><td><button class="btn btn-primary btn-sm">Review</button></td></tr>
+                <tr><td style="font-weight:600;">Jose B. Ramos<br><span style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00438</span></td><td>R5003PCC</td><td>May 1, 2026</td><td><span class="badge badge-red">Flagged</span></td><td><button class="btn btn-primary btn-sm">Review</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="tab-recent" style="display:none;">
+          <div class="activity-list">
+            <div class="activity-item"><div class="activity-dot" style="background:#10b981"></div><div class="activity-text"><div class="activity-main">Pedro Cruz submitted assessment — Sorsogon</div><div class="activity-time">Today 2:45 PM · BEN-2026-00512</div></div></div>
+            <div class="activity-item"><div class="activity-dot" style="background:#1152d4"></div><div class="activity-text"><div class="activity-main">Juan Alcantara submitted 3 assessments — CamSur</div><div class="activity-time">Today 1:30 PM · Batch</div></div></div>
+            <div class="activity-item"><div class="activity-dot" style="background:#10b981"></div><div class="activity-text"><div class="activity-main">Maria Santos submitted assessment — Albay</div><div class="activity-time">Today 12:10 PM · BEN-2026-00509</div></div></div>
+            <div class="activity-item"><div class="activity-dot" style="background:#f59e0b"></div><div class="activity-text"><div class="activity-main">Ana Bautista assessment flagged for review</div><div class="activity-time">Yesterday · BEN-2026-00441</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress vs Target -->
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Monthly Progress vs Target</div><div class="card-subtitle">STU-V-01 performance tracking</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.875rem;">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:0.8125rem;margin-bottom:0.375rem;">
+              <span style="font-weight:600;color:#374151;">Overall Completion</span>
+              <span style="font-weight:700;color:#1152d4;">609 / 987 (61.7%)</span>
+            </div>
+            <div class="progress-bar" style="height:0.75rem;"><div class="progress-fill" style="width:61.7%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:0.8125rem;margin-bottom:0.375rem;">
+              <span style="font-weight:600;color:#374151;">Monthly Target (May)</span>
+              <span style="font-weight:700;color:#10b981;">178 / 200 (89%)</span>
+            </div>
+            <div class="progress-bar" style="height:0.75rem;"><div class="progress-fill green" style="width:89%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:0.8125rem;margin-bottom:0.375rem;">
+              <span style="font-weight:600;color:#374151;">Data Quality Score</span>
+              <span style="font-weight:700;color:#f59e0b;">78 / 100</span>
+            </div>
+            <div class="progress-bar" style="height:0.75rem;"><div class="progress-fill orange" style="width:78%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/dashboard-auth.js"></script>
+<script src="/js/dashboard-common.js"></script>
+<script>
+  dashRequireAuth();
+  document.addEventListener('DOMContentLoaded', dashPopulateUser);
+
+  function switchTab(el, tabId) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    ['tab-interviewers','tab-pending','tab-recent'].forEach(id => {
+      document.getElementById(id).style.display = id === tabId ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
