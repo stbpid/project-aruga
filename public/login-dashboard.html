@@ -3,188 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Aruga — Dashboard Login</title>
+  <title>Project Aruga - Dashboard Login</title>
   <link rel="icon" href="/images/logo.webp" type="image/webp">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/tailwind.css">
   <link rel="stylesheet" href="/css/styles.css">
-  <link rel="stylesheet" href="/css/dashboard.css">
-  <style>
-    .login-bg { background: linear-gradient(135deg, #0d1b4b 0%, #1152d4 60%, #2563eb 100%); }
-    .login-card { max-width: 420px; width: 100%; }
-    .code-input-wrap { position: relative; }
-    .code-input-wrap .icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9ca3af; }
-    .code-input-wrap input { padding-left: 2.5rem; }
-    .char-boxes { display: flex; gap: 0.375rem; margin-bottom: 0.75rem; pointer-events: none; }
-    .char-box {
-      flex: 1;
-      height: 2.5rem;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 0.375rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9375rem;
-      font-weight: 700;
-      color: #1f2937;
-      background: #f9fafb;
-      transition: all 0.15s;
-      font-family: 'Poppins', monospace;
-    }
-    .char-box.filled { border-color: #1152d4; background: rgba(17,82,212,0.05); color: #1152d4; }
-    .char-box.cursor { border-color: #1152d4; box-shadow: 0 0 0 2px rgba(17,82,212,0.2); }
-    .real-input {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      opacity: 0;
-      z-index: 10;
-      cursor: text;
-      font-size: 16px;
-    }
-    .char-boxes-wrap { position: relative; }
-    .role-pills { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 1.25rem; }
-    .role-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.65rem;
-      font-weight: 600;
-      background: rgba(17,82,212,0.08);
-      color: #1152d4;
-      border: 1px solid rgba(17,82,212,0.15);
-    }
-  </style>
 </head>
-<body style="background:#f0f4f8;min-height:100vh;display:flex;flex-direction:column;">
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-  <header class="w-full sticky top-0 z-50" style="background:#f6f8f6f2;border-bottom:1px solid #e0e4e0;backdrop-filter:blur(8px);">
-    <div style="max-width:1280px;margin:0 auto;padding:0 1rem;height:56px;display:flex;align-items:center;justify-content:space-between;">
-      <div style="display:flex;align-items:center;gap:0.625rem;">
-        <img src="/images/logo.webp" alt="Project Aruga Logo" style="height:2.5rem;width:auto;object-fit:contain;">
-        <div>
-          <div style="font-weight:700;font-size:0.9375rem;color:#111811;line-height:1.2;">Project Aruga</div>
-          <div style="font-size:0.6rem;color:#9ca3af;font-weight:500;">Dashboard Portal</div>
-        </div>
+  <header class="w-full bg-[#f6f8f6f2] border-b border-[#e0e4e0] sticky top-0 z-50 backdrop-blur-sm">
+    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+
+      <div class="flex items-center gap-3">
+        <img src="/images/logo.webp" alt="Project Aruga Logo" class="h-10 w-auto object-contain">
+        <h2 class="font-bold text-brand-dark text-lg sm:text-xl">Project Aruga</h2>
       </div>
-      <a href="/" style="font-size:0.75rem;font-weight:500;color:#6b7280;text-decoration:none;display:flex;align-items:center;gap:0.25rem;" class="hover-blue">
-        <span class="material-symbols-outlined" style="font-size:0.875rem;">arrow_back</span>
-        Back to Profiling Tool
-      </a>
+
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="/privacy.html" class="text-xs font-medium text-gray-600 hover:text-brand-blue transition-colors">Privacy Policy</a>
+        <a href="/docs.html" class="text-xs font-medium text-gray-600 hover:text-brand-blue transition-colors">Documentation</a>
+        <a href="/contact.html" class="text-xs font-medium text-gray-600 hover:text-brand-blue transition-colors">Contact us</a>
+      </nav>
+
+      <button id="mobile-menu-btn" class="md:hidden text-gray-600 focus:outline-none p-1" onclick="toggleMobileMenu()">
+        <svg id="menu-icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        <svg id="menu-icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden border-t border-[#e0e4e0] bg-white px-4 py-3 space-y-1">
+      <a href="/privacy.html" class="block py-2.5 px-3 text-sm font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Privacy Policy</a>
+      <a href="/docs.html" class="block py-2.5 px-3 text-sm font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Documentation</a>
+      <a href="/contact.html" class="block py-2.5 px-3 text-sm font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Contact us</a>
     </div>
   </header>
 
-  <main style="flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;">
-    <div class="login-card">
+  <script>
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const iconOpen = document.getElementById('menu-icon-open');
+      const iconClose = document.getElementById('menu-icon-close');
+      const isHidden = menu.classList.contains('hidden');
+      menu.classList.toggle('hidden', !isHidden);
+      iconOpen.classList.toggle('hidden', isHidden);
+      iconClose.classList.toggle('hidden', !isHidden);
+    }
+  </script>
 
-      <div style="text-align:center;margin-bottom:1.75rem;">
-        <img src="/images/form-logo.webp" alt="DSWD Logo" style="height:3.5rem;width:auto;object-fit:contain;margin:0 auto 1rem;display:block;">
-        <h1 style="font-size:1.25rem;font-weight:800;color:#111811;margin:0 0 0.25rem;">Dashboard Access</h1>
-        <p style="font-size:0.8125rem;color:#6b7280;margin:0;">Enter your interviewer code to access the dashboard</p>
+  <main class="flex-grow flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md border border-[#e0e4e0] p-6 sm:p-8">
+
+      <div class="mb-4">
+        <img src="/images/form-logo.webp" alt="DSWD Logo" class="h-10 sm:h-12 w-auto object-contain">
       </div>
 
-      <div style="background:white;border:1px solid #dce0e5;border-radius:0.75rem;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.06);">
+      <h1 class="font-bold text-xl mb-6 text-brand-dark">Dashboard Login</h1>
 
-        <div class="role-pills">
-          <span class="role-pill"><span class="material-symbols-outlined" style="font-size:0.75rem;">shield_person</span>Admin</span>
-          <span class="role-pill"><span class="material-symbols-outlined" style="font-size:0.75rem;">corporate_fare</span>Central</span>
-          <span class="role-pill"><span class="material-symbols-outlined" style="font-size:0.75rem;">manage_accounts</span>STU Head</span>
-          <span class="role-pill"><span class="material-symbols-outlined" style="font-size:0.75rem;">badge</span>Field Officer</span>
-        </div>
-
-        <label style="display:block;font-size:0.8125rem;font-weight:700;color:#111811;margin-bottom:0.5rem;">
-          Interviewer Code
-        </label>
-
-        <div class="char-boxes-wrap" style="margin-bottom:1.25rem;">
-          <div class="char-boxes" id="char-boxes">
-            <div class="char-box" id="cb0"></div>
-            <div class="char-box" id="cb1"></div>
-            <div class="char-box" id="cb2"></div>
-            <div class="char-box" id="cb3"></div>
-            <div class="char-box" id="cb4"></div>
-            <div class="char-box" id="cb5"></div>
-            <div class="char-box" id="cb6"></div>
-            <div class="char-box" id="cb7"></div>
-          </div>
-          <input type="text" id="code-input" class="real-input" maxlength="8" autocomplete="off" spellcheck="false" placeholder="Enter code">
-          <p style="font-size:0.7rem;color:#9ca3af;margin:0.25rem 0 0;text-align:center;">8-character alphanumeric code (e.g. R5001JAA)</p>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1.25rem;">
-          <input type="checkbox" id="agree" style="width:1rem;height:1rem;cursor:pointer;accent-color:#1152d4;">
-          <label for="agree" style="font-size:0.75rem;font-weight:500;color:#374151;cursor:pointer;user-select:none;line-height:1.4;">
-            I acknowledge that this is an authorized access to the DSWD monitoring system.
-          </label>
-        </div>
-
-        <button id="btn-submit"
-          style="width:100%;height:2.5rem;background:#1152d4;color:white;border:none;border-radius:0.5rem;font-family:'Poppins',sans-serif;font-size:0.875rem;font-weight:700;cursor:not-allowed;opacity:0.5;transition:all 0.15s;box-shadow:0 2px 8px rgba(17,82,212,0.3);display:flex;align-items:center;justify-content:center;gap:0.5rem;"
-          disabled>
-          <span class="material-symbols-outlined" style="font-size:1rem;">login</span>
-          Access Dashboard
-        </button>
-
-        <div id="error-msg" style="display:none;margin-top:0.75rem;padding:0.75rem;background:#fef2f2;border:1px solid #fecaca;border-radius:0.5rem;font-size:0.75rem;color:#dc2626;font-weight:500;display:none;align-items:center;gap:0.5rem;">
-          <span class="material-symbols-outlined" style="font-size:0.875rem;">error</span>
-          <span id="error-text"></span>
-        </div>
+      <label class="block font-bold text-sm mb-1 text-brand-dark">Interviewer Code</label>
+      <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-2 h-10 mb-4 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+        <input id="code" type="text" maxlength="8" class="w-full text-sm outline-none text-gray-800 placeholder-gray-400" placeholder="Enter 8-digit code">
       </div>
 
-      <p style="text-align:center;font-size:0.7rem;color:#9ca3af;margin-top:1rem;">
-        Looking for the profiling tool? <a href="/" style="color:#1152d4;font-weight:600;text-decoration:none;">Click here</a>
+      <button id="btn-submit" class="w-full h-10 bg-brand-blue text-white rounded-lg font-bold hover:bg-brand-blueHover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md" disabled>
+        Submit and Proceed
+      </button>
+
+      <div id="error-msg" class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600 font-medium">
+        <span id="error-text"></span>
+      </div>
+
+      <p class="text-center text-[11px] text-gray-400 mt-4">
+        Looking for the profiling tool? <a href="/" class="text-brand-blue font-semibold hover:underline">Click here</a>
       </p>
     </div>
   </main>
 
-  <footer style="padding:1rem;text-align:center;">
-    <p style="font-size:0.6875rem;color:#9ca3af;margin:0;">© 2026 Department of Social Welfare and Development — Social Technology Bureau</p>
+  <footer class="w-full py-4 text-center px-4">
+    <p class="text-[10px] sm:text-xs text-gray-400">
+      © 2026 Department of Social Welfare Development - Social Technology Bureau
+    </p>
   </footer>
 
+  <script src="/js/toast.js"></script>
   <script>
-    const codeInput = document.getElementById('code-input');
+    const codeInput = document.getElementById('code');
     const btnSubmit = document.getElementById('btn-submit');
-    const agreeChk = document.getElementById('agree');
     const errorMsg = document.getElementById('error-msg');
     const errorText = document.getElementById('error-text');
 
-    function updateBoxes(val) {
-      for (let i = 0; i < 8; i++) {
-        const box = document.getElementById('cb' + i);
-        box.textContent = val[i] || '';
-        box.classList.toggle('filled', i < val.length);
-        box.classList.toggle('cursor', i === val.length && document.activeElement === codeInput);
-      }
-    }
-
-    function validateForm() {
-      const ok = codeInput.value.length === 8 && agreeChk.checked;
-      btnSubmit.disabled = !ok;
-      btnSubmit.style.opacity = ok ? '1' : '0.5';
-      btnSubmit.style.cursor = ok ? 'pointer' : 'not-allowed';
-    }
-
     codeInput.addEventListener('input', function() {
       this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 8);
-      updateBoxes(this.value);
-      validateForm();
+      btnSubmit.disabled = this.value.length !== 8;
     });
 
-    codeInput.addEventListener('focus', () => updateBoxes(codeInput.value));
-    codeInput.addEventListener('blur', () => updateBoxes(codeInput.value));
-    agreeChk.addEventListener('change', validateForm);
-
-    document.getElementById('char-boxes').addEventListener('click', () => codeInput.focus());
-
     function showError(msg) {
-      errorMsg.style.display = 'flex';
+      errorMsg.classList.remove('hidden');
       errorText.textContent = msg;
     }
 
     function hideError() {
-      errorMsg.style.display = 'none';
+      errorMsg.classList.add('hidden');
     }
 
     btnSubmit.addEventListener('click', async function() {
@@ -192,8 +111,8 @@
       const code = codeInput.value.trim().toUpperCase();
       if (code.length !== 8) { showError('Please enter a valid 8-character code.'); return; }
 
-      const orig = btnSubmit.innerHTML;
-      btnSubmit.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;animation:spin 1s linear infinite">progress_activity</span> Validating...';
+      const orig = btnSubmit.textContent;
+      btnSubmit.textContent = 'Validating...';
       btnSubmit.disabled = true;
 
       try {
@@ -219,34 +138,25 @@
           sessionStorage.setItem('loginTime', new Date().toISOString());
           sessionStorage.setItem('dashboard_role', d.position || 'field_officer');
 
-          btnSubmit.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">check_circle</span> Access Granted!';
-          btnSubmit.style.background = '#10b981';
+          toast.success(`Welcome, ${d.full_name}!`, 'Login Successful');
+          btnSubmit.textContent = '✓ Success! Redirecting...';
 
-          setTimeout(() => { window.location.href = '/dashboard-admin.html'; }, 900);
+          setTimeout(() => { window.location.href = '/dashboard-admin.html'; }, 1000);
         } else {
-          showError(result.message || 'Invalid interviewer code. Please try again.');
-          btnSubmit.innerHTML = orig;
+          toast.error(result.message || 'Invalid interviewer code. Please check and try again.', 'Authentication Failed');
+          btnSubmit.textContent = orig;
           btnSubmit.disabled = false;
-          btnSubmit.style.opacity = '1';
           codeInput.value = '';
-          updateBoxes('');
-          validateForm();
+          codeInput.focus();
         }
       } catch {
-        showError('Unable to connect. Please check your internet connection.');
-        btnSubmit.innerHTML = orig;
+        toast.error('Unable to connect to the server. Please check your internet connection and try again.', 'Connection Error');
+        btnSubmit.textContent = orig;
         btnSubmit.disabled = false;
-        btnSubmit.style.opacity = '1';
       }
     });
 
-    // Focus input on page load
     window.addEventListener('load', () => codeInput.focus());
   </script>
-
-  <style>
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    a:hover { color: #0d3fa3 !important; }
-  </style>
 </body>
 </html>
