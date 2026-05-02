@@ -5,7 +5,7 @@ const DASH_SESSION_KEYS = ['session_id', 'interviewer_code', 'privacyAccepted'];
 function dashCheckAuth() {
   const missing = DASH_SESSION_KEYS.some(k => !sessionStorage.getItem(k));
   if (missing) {
-    window.location.href = '/login-dashboard.html';
+    window.location.href = '/dashboard.html';
     return false;
   }
   return true;
@@ -26,7 +26,7 @@ function dashGetUser() {
 
 function dashLogout() {
   sessionStorage.clear();
-  window.location.href = '/login-dashboard.html';
+  window.location.href = '/dashboard.html';
 }
 
 // Populate user info elements if present

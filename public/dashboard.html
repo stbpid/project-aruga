@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Aruga - Dashboard Login</title>
+  <link rel="icon" href="/images/logo.webp" type="image/webp">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tailwind.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+  <header class="w-full bg-[#f6f8f6f2] border-b border-[#e0e4e0] sticky top-0 z-50 backdrop-blur-sm">
+    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+
+      <div class="flex items-center gap-3">
+        <img src="/images/logo.webp" alt="Project Aruga Logo" class="h-10 w-auto object-contain">
+        <h2 class="font-bold text-brand-dark text-lg sm:text-xl">Project Aruga</h2>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="/privacy.html" class="text-xs font-medium text-gray-600 hover:text-brand-blue transition-colors">Privacy Policy</a>
+        <a href="/docs.html" class="text-xs font-medium text-gray-600 hover:text-brand-blue transition-colors">Documentation</a>
+        <a href="/contact.html" class="text-xs font-medium text-gray-600 hover:text-brand-blue transition-colors">Contact us</a>
+      </nav>
+
+      <button id="mobile-menu-btn" class="md:hidden text-gray-600 focus:outline-none p-1" onclick="toggleMobileMenu()">
+        <svg id="menu-icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        <svg id="menu-icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden border-t border-[#e0e4e0] bg-white px-4 py-3 space-y-1">
+      <a href="/privacy.html" class="block py-2.5 px-3 text-sm font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Privacy Policy</a>
+      <a href="/docs.html" class="block py-2.5 px-3 text-sm font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Documentation</a>
+      <a href="/contact.html" class="block py-2.5 px-3 text-sm font-medium text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Contact us</a>
+    </div>
+  </header>
+
+  <script>
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const iconOpen = document.getElementById('menu-icon-open');
+      const iconClose = document.getElementById('menu-icon-close');
+      const isHidden = menu.classList.contains('hidden');
+      menu.classList.toggle('hidden', !isHidden);
+      iconOpen.classList.toggle('hidden', isHidden);
+      iconClose.classList.toggle('hidden', !isHidden);
+    }
+  </script>
+
+  <main class="flex-grow flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-5xl flex flex-col lg:flex-row overflow-hidden border border-[#e0e4e0]">
+
+      <aside class="relative w-full h-48 sm:h-56 lg:h-auto lg:w-5/12 bg-gray-900 order-first">
+        <img src="/images/hero.webp" alt="Project Aruga Hero" class="absolute inset-0 w-full h-full object-cover opacity-60">
+      </aside>
+
+      <section class="w-full lg:w-7/12 p-6 sm:p-8 flex flex-col justify-center">
+
+      <div class="mb-4">
+        <img src="/images/form-logo.webp" alt="DSWD Logo" class="h-10 sm:h-12 w-auto object-contain">
+      </div>
+
+      <h1 class="font-bold text-xl mb-6 text-brand-dark">Dashboard Login</h1>
+
+      <label class="block font-bold text-sm mb-1 text-brand-dark">Interviewer Code</label>
+      <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-2 h-10 mb-4 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+        <input id="code" type="text" maxlength="8" class="w-full text-sm outline-none text-gray-800 placeholder-gray-400" placeholder="Enter 8-digit code">
+      </div>
+
+      <button id="btn-submit" class="w-full h-10 bg-brand-blue text-white rounded-lg font-bold hover:bg-brand-blueHover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md" disabled>
+        Submit and Proceed
+      </button>
+
+      <div id="error-msg" class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600 font-medium">
+        <span id="error-text"></span>
+      </div>
+
+      <p class="text-center text-[9px] text-gray-400 mt-4">
+        Looking for the profiling tool? <a href="/" class="text-brand-blue font-semibold hover:underline">Click here</a>
+      </p>
+
+      </section>
+    </div>
+  </main>
+
+  <footer class="w-full py-4 text-center px-4">
+    <p class="text-[10px] sm:text-xs text-gray-400">
+      © 2026 Department of Social Welfare Development - Social Technology Bureau
+    </p>
+  </footer>
+
+  <script src="/js/toast.js"></script>
+  <script>
+    const codeInput = document.getElementById('code');
+    const btnSubmit = document.getElementById('btn-submit');
+    const errorMsg = document.getElementById('error-msg');
+    const errorText = document.getElementById('error-text');
+
+    codeInput.addEventListener('input', function() {
+      this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 8);
+      btnSubmit.disabled = this.value.length !== 8;
+    });
+
+    function showError(msg) {
+      errorMsg.classList.remove('hidden');
+      errorText.textContent = msg;
+    }
+
+    function hideError() {
+      errorMsg.classList.add('hidden');
+    }
+
+    btnSubmit.addEventListener('click', async function() {
+      hideError();
+      const code = codeInput.value.trim().toUpperCase();
+      if (code.length !== 8) { showError('Please enter a valid 8-character code.'); return; }
+
+      const orig = btnSubmit.textContent;
+      btnSubmit.textContent = 'Validating...';
+      btnSubmit.disabled = true;
+
+      try {
+        const res = await fetch('/api/validate-interviewer.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ interviewer_code: code })
+        });
+        const result = await res.json();
+
+        if (result.success && result.data) {
+          const d = result.data;
+          sessionStorage.setItem('session_id', d.session_id);
+          sessionStorage.setItem('interviewer_id', d.interviewer_id);
+          sessionStorage.setItem('interviewer_code', d.interviewer_code);
+          sessionStorage.setItem('interviewer_name', d.full_name);
+          sessionStorage.setItem('interviewer_region', d.region);
+          sessionStorage.setItem('interviewer_province', d.province || '');
+          sessionStorage.setItem('interviewer_office', d.office || '');
+          sessionStorage.setItem('interviewer_position', d.position || '');
+          sessionStorage.setItem('session_started_at', d.started_at);
+          sessionStorage.setItem('privacyAccepted', 'true');
+          sessionStorage.setItem('loginTime', new Date().toISOString());
+          sessionStorage.setItem('dashboard_role', d.position || 'field_officer');
+
+          toast.success(`Welcome, ${d.full_name}!`, 'Login Successful');
+          btnSubmit.textContent = '✓ Success! Redirecting...';
+
+          setTimeout(() => { window.location.href = '/dashboard-admin.html'; }, 1000);
+        } else {
+          toast.error(result.message || 'Invalid interviewer code. Please check and try again.', 'Authentication Failed');
+          btnSubmit.textContent = orig;
+          btnSubmit.disabled = false;
+          codeInput.value = '';
+          codeInput.focus();
+        }
+      } catch {
+        toast.error('Unable to connect to the server. Please check your internet connection and try again.', 'Connection Error');
+        btnSubmit.textContent = orig;
+        btnSubmit.disabled = false;
+      }
+    });
+
+    window.addEventListener('load', () => codeInput.focus());
+  </script>
+</body>
+</html>
