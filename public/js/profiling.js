@@ -371,7 +371,7 @@ function getStep2HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Email Address <span class="text-red-500">*</span></label>
+              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Email Address</label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">mail</span>
@@ -381,7 +381,7 @@ function getStep2HTML() {
             </div>
             
             <div>
-              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Contact Number <span class="text-red-500">*</span></label>
+              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Contact Number</label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">phone</span>
