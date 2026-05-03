@@ -363,7 +363,7 @@ function getStep2HTML() {
                   class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400"
                   placeholder="Relationship to the Child">
                 <input type="hidden" id="dd-relationship">
-                <span class="material-symbols-outlined text-[18px] text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none select-none">expand_more</span>
+                <span class="material-symbols-outlined pointer-events-none select-none" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:18px;color:#9ca3af;">expand_more</span>
                 <ul id="dd-relationship-list"
                   class="fixed z-50 bg-white border border-gray-300 rounded shadow-lg overflow-y-auto hidden text-xs sm:text-sm">
                 </ul>
@@ -2004,7 +2004,8 @@ function initGoogleSelects() {
     wrapper.appendChild(input);
 
     const icon = document.createElement('span');
-    icon.className = 'material-symbols-outlined text-[18px] text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none select-none';
+    icon.className = 'material-symbols-outlined pointer-events-none select-none';
+    icon.style.cssText = 'position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:18px;color:#9ca3af;';
     icon.innerText = 'expand_more';
     wrapper.appendChild(icon);
 
