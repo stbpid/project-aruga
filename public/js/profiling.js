@@ -1716,15 +1716,22 @@ function populateSelect(id, items, placeholder) {
 }
 
 function populateMulti(cid, items, did, oid = null) {
-  const c = document.getElementById(cid);
+  let c = document.getElementById(cid);
   if (!c) return;
-  
+
+  // Move menu to body for fixed positioning if not already there
+  if (c.parentElement !== document.body) {
+    c._anchorId = cid + '-btn-anchor';
+    document.body.appendChild(c);
+  }
+
   c.innerHTML = "";
-  c.className = "hidden absolute z-10 w-full google-menu dropdown-scroll max-h-60 overflow-y-auto";
+  c.className = "hidden fixed google-menu dropdown-scroll overflow-y-auto";
+  c.style.zIndex = '9999';
   let hasOthers = false;
-  
+
   (items || []).forEach(x => {
-    if (x === "Others" || x === "Other" || x === "Others (Specify)") {
+    if (x === "Others" || x === "Other" || x === "Others (Specify)" || x === "Other (specify)") {
       hasOthers = true;
       return;
     }
@@ -1740,7 +1747,7 @@ function populateMulti(cid, items, did, oid = null) {
     l.appendChild(s);
     c.appendChild(l);
   });
-  
+
   if (oid || hasOthers) {
     const l = document.createElement('label');
     l.className = "google-menu-item";
@@ -1903,9 +1910,43 @@ function toggleOther(selectEl, inputId) {
   }
 }
 
+function positionFixedMenu(menu, anchor) {
+  const rect = anchor.getBoundingClientRect();
+  const vh = window.innerHeight;
+  const maxH = 240;
+  const spaceBelow = vh - rect.bottom;
+  const spaceAbove = rect.top;
+  menu.style.position = 'fixed';
+  menu.style.width = rect.width + 'px';
+  menu.style.left = rect.left + 'px';
+  menu.style.zIndex = '9999';
+  if (spaceBelow >= Math.min(maxH, 80) || spaceBelow >= spaceAbove) {
+    menu.style.top = rect.bottom + 'px';
+    menu.style.bottom = 'auto';
+    menu.style.maxHeight = Math.min(maxH, spaceBelow - 4) + 'px';
+  } else {
+    menu.style.bottom = (vh - rect.top) + 'px';
+    menu.style.top = 'auto';
+    menu.style.maxHeight = Math.min(maxH, spaceAbove - 4) + 'px';
+  }
+}
+
 function toggleDropdown(id) {
   const dropdown = document.getElementById(id);
-  dropdown.classList.toggle('hidden');
+  const isHidden = dropdown.classList.contains('hidden');
+  document.querySelectorAll('.google-menu, .google-menu-custom').forEach(m => m.classList.add('hidden'));
+  if (isHidden) {
+    const anchor = document.querySelector(`[onclick="toggleDropdown('${id}')"]`);
+    dropdown.classList.remove('hidden');
+    if (anchor) {
+      positionFixedMenu(dropdown, anchor);
+      if (!dropdown._reposBound) {
+        dropdown._reposBound = true;
+        window.addEventListener('scroll', () => { if (!dropdown.classList.contains('hidden')) positionFixedMenu(dropdown, anchor); }, true);
+        window.addEventListener('resize', () => { if (!dropdown.classList.contains('hidden')) positionFixedMenu(dropdown, anchor); });
+      }
+    }
+  }
 }
 
 function updateMultiSelect(cid, did) {
@@ -1980,8 +2021,7 @@ function calculateIncomeClass(input) {
 // Close dropdowns when clicking outside
 window.addEventListener('click', function(e) {
   document.querySelectorAll('.google-menu-custom, .google-menu').forEach(menu => {
-    const btn = menu.previousElementSibling;
-    if (!menu.contains(e.target) && btn && !btn.contains(e.target)) {
+    if (!menu.contains(e.target) && !e.target.closest('[onclick^="toggleDropdown"]')) {
       menu.classList.add('hidden');
     }
   });
@@ -1991,32 +2031,58 @@ function initGoogleSelects() {
   document.querySelectorAll('select.google-dropdown-style').forEach(select => {
     if (select.dataset.customized) return;
     select.dataset.customized = "true";
-    
+
     const wrapper = document.createElement('div');
     wrapper.className = 'relative w-full';
     select.parentNode.insertBefore(wrapper, select);
     wrapper.appendChild(select);
     select.classList.add('hidden');
-    
+
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = "w-full h-9 px-3 text-left bg-white border border-gray-300 rounded flex justify-between items-center text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none transition-all";
-    
+
     const textSpan = document.createElement('span');
     textSpan.className = 'truncate text-gray-500';
-    
+
     const icon = document.createElement('span');
     icon.className = 'material-symbols-outlined text-[18px] text-gray-500 ml-2 flex-shrink-0';
     icon.innerText = 'expand_more';
-    
+
     btn.appendChild(textSpan);
     btn.appendChild(icon);
     wrapper.appendChild(btn);
-    
+
     const menu = document.createElement('div');
-    menu.className = 'hidden absolute z-10 w-full bg-white border border-gray-200 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto dropdown-scroll py-1 google-menu-custom';
-    wrapper.appendChild(menu);
-    
+    menu.className = 'hidden fixed bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden google-menu-custom';
+    menu.style.zIndex = '9999';
+    document.body.appendChild(menu);
+
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Search...';
+    searchInput.className = 'w-full px-3 py-2 text-xs sm:text-sm border-b border-gray-200 outline-none focus:bg-blue-50';
+    menu.appendChild(searchInput);
+
+    const listContainer = document.createElement('div');
+    listContainer.className = 'overflow-y-auto dropdown-scroll';
+    listContainer.style.maxHeight = '200px';
+    menu.appendChild(listContainer);
+
+    let activeIndex = -1;
+
+    const getItems = () => listContainer.querySelectorAll('div[data-val]');
+
+    const setActive = (idx) => {
+      const items = getItems();
+      items.forEach(i => i.classList.remove('bg-blue-100'));
+      activeIndex = Math.max(0, Math.min(idx, items.length - 1));
+      if (items[activeIndex]) {
+        items[activeIndex].classList.add('bg-blue-100');
+        items[activeIndex].scrollIntoView({ block: 'nearest' });
+      }
+    };
+
     const syncText = () => {
       const opt = select.options[select.selectedIndex];
       if (opt) {
@@ -2029,39 +2095,81 @@ function initGoogleSelects() {
       }
     };
     syncText();
-    
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      const isHidden = menu.classList.contains('hidden');
-      document.querySelectorAll('.google-menu-custom, .google-menu').forEach(m => m.classList.add('hidden'));
-      if (isHidden && !select.disabled) {
-        menu.classList.remove('hidden');
+
+    const renderItems = (filter) => {
+      const q = (filter || '').toLowerCase();
+      listContainer.innerHTML = '';
+      activeIndex = -1;
+      const opts = Array.from(select.options).filter(o => !o.disabled && o.text.toLowerCase().includes(q));
+      if (opts.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'px-3 py-2 text-xs text-gray-400 italic';
+        empty.textContent = 'No match found';
+        listContainer.appendChild(empty);
+      } else {
+        opts.forEach(opt => {
+          const item = document.createElement('div');
+          item.className = 'px-3 py-2 text-sm text-gray-800 hover:bg-gray-100 cursor-pointer transition-colors';
+          item.dataset.val = opt.value;
+          item.innerText = opt.text;
+          item.addEventListener('mousedown', e => {
+            e.preventDefault();
+            select.value = opt.value;
+            syncText();
+            menu.classList.add('hidden');
+            searchInput.value = '';
+            select.dispatchEvent(new Event('change'));
+          });
+          listContainer.appendChild(item);
+        });
       }
     };
-    
-    const syncOptions = () => {
-      menu.innerHTML = '';
-      Array.from(select.options).forEach(opt => {
-        if (opt.disabled) return;
-        const item = document.createElement('div');
-        item.className = 'px-3 py-2 text-sm text-gray-800 hover:bg-gray-100 cursor-pointer transition-colors';
-        item.innerText = opt.text;
-        item.onclick = (e) => {
-          e.stopPropagation();
-          select.value = opt.value;
+
+    const openMenu = () => {
+      if (select.disabled) return;
+      document.querySelectorAll('.google-menu-custom, .google-menu').forEach(m => m.classList.add('hidden'));
+      renderItems('');
+      menu.classList.remove('hidden');
+      positionFixedMenu(menu, btn);
+      listContainer.style.maxHeight = menu.style.maxHeight
+        ? (parseInt(menu.style.maxHeight) - 40) + 'px'
+        : '200px';
+      searchInput.value = '';
+      searchInput.focus();
+    };
+
+    btn.addEventListener('click', e => { e.stopPropagation(); openMenu(); });
+
+    searchInput.addEventListener('input', () => {
+      renderItems(searchInput.value);
+    });
+
+    searchInput.addEventListener('keydown', e => {
+      const items = getItems();
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(activeIndex < 0 ? 0 : activeIndex + 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(activeIndex <= 0 ? 0 : activeIndex - 1); }
+      else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeIndex >= 0 && items[activeIndex]) {
+          select.value = items[activeIndex].dataset.val;
           syncText();
           menu.classList.add('hidden');
+          searchInput.value = '';
           select.dispatchEvent(new Event('change'));
-        };
-        menu.appendChild(item);
-      });
-      syncText();
-    };
-    syncOptions();
-    
-    const observer = new MutationObserver(syncOptions);
+        }
+      } else if (e.key === 'Escape') {
+        menu.classList.add('hidden');
+        btn.focus();
+      }
+    });
+
+    searchInput.addEventListener('blur', () => {
+      setTimeout(() => menu.classList.add('hidden'), 150);
+    });
+
+    const observer = new MutationObserver(() => { syncText(); });
     observer.observe(select, { childList: true });
-    
+
     const handleDisable = () => {
       if (select.disabled) {
         btn.classList.add('bg-gray-50', 'opacity-70', 'cursor-not-allowed');
@@ -2070,9 +2178,12 @@ function initGoogleSelects() {
       }
     };
     handleDisable();
-    
+
     const disableObserver = new MutationObserver(handleDisable);
     disableObserver.observe(select, { attributes: true, attributeFilter: ['disabled'] });
+
+    window.addEventListener('scroll', () => { if (!menu.classList.contains('hidden')) positionFixedMenu(menu, btn); }, true);
+    window.addEventListener('resize', () => { if (!menu.classList.contains('hidden')) positionFixedMenu(menu, btn); });
   });
 }
 
