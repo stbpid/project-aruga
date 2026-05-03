@@ -367,7 +367,7 @@ function getStep2HTML() {
                   <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
                 </div>
                 <ul id="dd-relationship-list"
-                  class="absolute z-50 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto hidden text-xs sm:text-sm">
+                  class="fixed z-50 bg-white border border-gray-300 rounded shadow-lg overflow-y-auto hidden text-xs sm:text-sm">
                 </ul>
               </div>
             </div>
@@ -1550,9 +1550,44 @@ function initRelationshipCombobox(options) {
   const list = document.getElementById('dd-relationship-list');
   if (!input || !list) return;
 
+  let activeIndex = -1;
+
+  function getItems() { return list.querySelectorAll('li[data-option]'); }
+
+  function setActive(idx) {
+    const items = getItems();
+    items.forEach(li => li.classList.remove('bg-blue-100'));
+    activeIndex = Math.max(0, Math.min(idx, items.length - 1));
+    if (items[activeIndex]) {
+      items[activeIndex].classList.add('bg-blue-100');
+      items[activeIndex].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function positionList() {
+    const rect = input.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const maxH = 192;
+    list.style.position = 'fixed';
+    list.style.width = rect.width + 'px';
+    list.style.left = rect.left + 'px';
+    if (spaceBelow >= Math.min(maxH, 80) || spaceBelow >= spaceAbove) {
+      list.style.top = rect.bottom + 'px';
+      list.style.bottom = 'auto';
+      list.style.maxHeight = Math.min(maxH, spaceBelow - 4) + 'px';
+    } else {
+      list.style.bottom = (viewportHeight - rect.top) + 'px';
+      list.style.top = 'auto';
+      list.style.maxHeight = Math.min(maxH, spaceAbove - 4) + 'px';
+    }
+  }
+
   function renderList(filter) {
     const q = (filter || '').toLowerCase();
     const matched = q ? options.filter(o => o.toLowerCase().includes(q)) : options.slice();
+    activeIndex = -1;
     list.innerHTML = '';
     if (matched.length === 0) {
       const li = document.createElement('li');
@@ -1563,6 +1598,7 @@ function initRelationshipCombobox(options) {
       matched.forEach(o => {
         const li = document.createElement('li');
         li.className = 'px-3 py-2 cursor-pointer hover:bg-blue-50';
+        li.dataset.option = o;
         li.textContent = o;
         li.addEventListener('mousedown', e => {
           e.preventDefault();
@@ -1573,6 +1609,7 @@ function initRelationshipCombobox(options) {
         list.appendChild(li);
       });
     }
+    positionList();
   }
 
   input.addEventListener('focus', () => {
@@ -1586,10 +1623,35 @@ function initRelationshipCombobox(options) {
     list.classList.remove('hidden');
   });
 
+  input.addEventListener('keydown', e => {
+    if (list.classList.contains('hidden')) return;
+    const items = getItems();
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActive(activeIndex < 0 ? 0 : activeIndex + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive(activeIndex <= 0 ? 0 : activeIndex - 1);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeIndex >= 0 && items[activeIndex]) {
+        const val = items[activeIndex].dataset.option;
+        input.value = val;
+        hidden.value = val;
+        list.classList.add('hidden');
+      }
+    } else if (e.key === 'Escape') {
+      list.classList.add('hidden');
+    }
+  });
+
   input.addEventListener('blur', () => {
     setTimeout(() => list.classList.add('hidden'), 150);
     if (!hidden.value) input.value = '';
   });
+
+  window.addEventListener('scroll', () => { if (!list.classList.contains('hidden')) positionList(); }, true);
+  window.addEventListener('resize', () => { if (!list.classList.contains('hidden')) positionList(); });
 }
 
 function populateAllDropdowns() {
