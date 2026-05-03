@@ -361,7 +361,7 @@ function getStep2HTML() {
               <div class="relative" id="relationship-combobox">
                 <input type="text" id="dd-relationship-input" autocomplete="off"
                   class="google-dropdown-style w-full h-9 pl-3 pr-10 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400"
-                  placeholder="Type to search...">
+                  placeholder="Relationship to the Child">
                 <input type="hidden" id="dd-relationship">
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
@@ -1552,7 +1552,7 @@ function initRelationshipCombobox(options) {
 
   function renderList(filter) {
     const q = (filter || '').toLowerCase();
-    const matched = options.filter(o => o.toLowerCase().includes(q));
+    const matched = q ? options.filter(o => o.toLowerCase().includes(q)) : options.slice();
     list.innerHTML = '';
     if (matched.length === 0) {
       const li = document.createElement('li');
