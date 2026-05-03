@@ -2005,12 +2005,13 @@ function initGoogleSelects() {
     input.autocomplete = 'off';
     input.placeholder = placeholderText;
     input.className = 'google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400';
-    // Give input the select's id so label for= resolves to the visible element
+    // Give input the select's id/name so label for= resolves to the visible element
+    // Keep select's name with a prefix so the hidden select is still a valid form field
     if (select.id) {
       input.id = select.id;
       input.name = select.name || select.id;
-      select.removeAttribute('id');
-      select.removeAttribute('name');
+      select.id = '_hidden-' + select.id;
+      select.name = '_hidden-' + (select.name || input.id);
     }
     wrapper.appendChild(input);
 
