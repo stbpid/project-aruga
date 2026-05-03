@@ -177,7 +177,7 @@ $locations = [
             ]
         ]
     ],
-    'MIMAROPA' => [
+    'Region IV-A (MIMAROPA)' => [
         'Palawan' => [
             'Puerto Princesa City' => [
                 'Bagong Bayan',

@@ -358,13 +358,17 @@ function getStep2HTML() {
             
             <div>
               <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Relationship to the Child <span class="text-red-500">*</span></label>
-              <div class="relative">
-                <select id="dd-relationship" class="google-dropdown-style w-full h-9 pl-3 pr-10 text-xs sm:text-sm outline-none bg-white text-gray-800 invalid:text-gray-400">
-                  <option value="" disabled selected>Loading...</option>
-                </select>
+              <div class="relative" id="relationship-combobox">
+                <input type="text" id="dd-relationship-input" autocomplete="off"
+                  class="google-dropdown-style w-full h-9 pl-3 pr-10 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400"
+                  placeholder="Type to search...">
+                <input type="hidden" id="dd-relationship">
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
                 </div>
+                <ul id="dd-relationship-list"
+                  class="absolute z-50 w-full bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto hidden text-xs sm:text-sm">
+                </ul>
               </div>
             </div>
           </div>
@@ -1540,6 +1544,54 @@ function initializeAllSteps() {
   setTimeout(initGoogleSelects, 500);
 }
 
+function initRelationshipCombobox(options) {
+  const input = document.getElementById('dd-relationship-input');
+  const hidden = document.getElementById('dd-relationship');
+  const list = document.getElementById('dd-relationship-list');
+  if (!input || !list) return;
+
+  function renderList(filter) {
+    const q = (filter || '').toLowerCase();
+    const matched = options.filter(o => o.toLowerCase().includes(q));
+    list.innerHTML = '';
+    if (matched.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'px-3 py-2 text-gray-400 italic';
+      li.textContent = 'No match found';
+      list.appendChild(li);
+    } else {
+      matched.forEach(o => {
+        const li = document.createElement('li');
+        li.className = 'px-3 py-2 cursor-pointer hover:bg-blue-50';
+        li.textContent = o;
+        li.addEventListener('mousedown', e => {
+          e.preventDefault();
+          input.value = o;
+          hidden.value = o;
+          list.classList.add('hidden');
+        });
+        list.appendChild(li);
+      });
+    }
+  }
+
+  input.addEventListener('focus', () => {
+    renderList(input.value);
+    list.classList.remove('hidden');
+  });
+
+  input.addEventListener('input', () => {
+    hidden.value = '';
+    renderList(input.value);
+    list.classList.remove('hidden');
+  });
+
+  input.addEventListener('blur', () => {
+    setTimeout(() => list.classList.add('hidden'), 150);
+    if (!hidden.value) input.value = '';
+  });
+}
+
 function populateAllDropdowns() {
   if (!globalData || Object.keys(globalData).length === 0) {
     setTimeout(populateAllDropdowns, 1000);
@@ -1547,7 +1599,7 @@ function populateAllDropdowns() {
   }
 
   // Step 2
-  populateSelect('dd-relationship', globalData.List_Relationship, "Select Relationship");
+  initRelationshipCombobox(globalData.List_Relationship);
   
   // Step 3
   populateSelect('dd-extension', globalData.List_Extension, "None");
@@ -2325,7 +2377,7 @@ function validateStep1() {
 function validateStep2() {
   let ok = true;
   if (!chkName('resp-name', 'Name of Respondent', 2, 255)) ok = false;
-  if (!getSelVal('dd-relationship'))  { showFieldError('dd-relationship', 'Please select a relationship'); ok = false; }
+  if (!getSelVal('dd-relationship'))  { showFieldError('dd-relationship-input', 'Please select a relationship'); ok = false; }
 
   const email = (document.getElementById('resp-email')?.value || '').trim();
   if (email && !isValidEmail(email)) { showFieldError('resp-email', 'Please enter a valid email (e.g., name@example.com)'); ok = false; }
