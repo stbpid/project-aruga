@@ -360,9 +360,10 @@ function getStep2HTML() {
               <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Relationship to the Child <span class="text-red-500">*</span></label>
               <div class="relative" id="relationship-combobox">
                 <input type="text" id="dd-relationship-input" autocomplete="off"
-                  class="google-dropdown-style w-full h-9 pl-3 pr-3 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400"
+                  class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400"
                   placeholder="Relationship to the Child">
                 <input type="hidden" id="dd-relationship">
+                <span class="material-symbols-outlined text-[18px] text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none select-none">expand_more</span>
                 <ul id="dd-relationship-list"
                   class="fixed z-50 bg-white border border-gray-300 rounded shadow-lg overflow-y-auto hidden text-xs sm:text-sm">
                 </ul>
@@ -583,6 +584,7 @@ function getStep3HTML() {
             <label class="block text-xs font-bold text-brand-dark mb-1">Disability or Special Needs (Select all that apply)</label>
             <button type="button" onclick="toggleDropdown('dd-disability')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
               <span id="disability-display" class="truncate text-gray-400">Select options...</span>
+              <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-disability" class="hidden absolute z-10 w-full google-menu mt-1 max-h-60 overflow-y-auto dropdown-scroll">
               <!-- Will be populated by JavaScript -->
@@ -593,6 +595,7 @@ function getStep3HTML() {
             <label class="block text-xs font-bold text-brand-dark mb-1">Critical Illness (Select all that apply)</label>
             <button type="button" onclick="toggleDropdown('dd-illness')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
               <span id="illness-display" class="truncate text-gray-400">Select options...</span>
+              <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-illness" class="hidden absolute z-10 w-full google-menu mt-1 max-h-60 overflow-y-auto dropdown-scroll">
               <!-- Will be populated by JavaScript -->
@@ -1997,8 +2000,13 @@ function initGoogleSelects() {
     input.type = 'text';
     input.autocomplete = 'off';
     input.placeholder = placeholderText;
-    input.className = 'google-dropdown-style w-full h-9 pl-3 pr-3 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400';
+    input.className = 'google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400';
     wrapper.appendChild(input);
+
+    const icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined text-[18px] text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none select-none';
+    icon.innerText = 'expand_more';
+    wrapper.appendChild(icon);
 
     const list = document.createElement('ul');
     list.className = 'hidden fixed bg-white border border-gray-200 rounded-md shadow-lg overflow-y-auto dropdown-scroll google-menu-custom';
@@ -2282,6 +2290,7 @@ function getFamilyMemberCardHTML(num, isHead) {
             <label class="block text-xs font-bold text-brand-dark mb-1">Disability/Special Needs</label>
             <button type="button" onclick="toggleDropdown('dd-fam-dis-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
               <span id="disp-fam-dis-${num}" class="truncate text-gray-500">Select...</span>
+              <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-fam-dis-${num}" class="hidden absolute z-10 w-full google-menu mt-1 max-h-40 overflow-y-auto dropdown-scroll">
               <div class="p-2 text-gray-400 text-xs">Loading...</div>
@@ -2291,6 +2300,7 @@ function getFamilyMemberCardHTML(num, isHead) {
             <label class="block text-xs font-bold text-brand-dark mb-1">Critical Illness</label>
             <button type="button" onclick="toggleDropdown('dd-fam-ill-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
               <span id="disp-fam-ill-${num}" class="truncate text-gray-500">Select...</span>
+              <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-fam-ill-${num}" class="hidden absolute z-10 w-full google-menu mt-1 max-h-40 overflow-y-auto dropdown-scroll">
               <div class="p-2 text-gray-400 text-xs">Loading...</div>
