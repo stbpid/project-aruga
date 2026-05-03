@@ -288,7 +288,7 @@ function getStep1HTML() {
         
         <fieldset class="space-y-3 mb-5">
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-1 cursor-pointer hover:border-blue-300 transition-all select-none">
-            <input type="radio" name="membership" value="Yes" class="peer sr-only" onchange="toggleId(true)" checked>
+            <input type="radio" id="membership-yes" name="membership" value="Yes" class="peer sr-only" onchange="toggleId(true)" checked>
             <div class="p-2 flex flex-col border-transparent transition-all">
               <span class="font-bold text-brand-dark block text-xs sm:text-sm">Yes</span>
               <span class="text-[10px] sm:text-xs text-gray-500">I am a member of the 4Ps Program</span>
@@ -296,7 +296,7 @@ function getStep1HTML() {
           </label>
           
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-1 cursor-pointer hover:border-blue-300 transition-all select-none">
-            <input type="radio" name="membership" value="No" class="peer sr-only" onchange="toggleId(false)">
+            <input type="radio" id="membership-no" name="membership" value="No" class="peer sr-only" onchange="toggleId(false)">
             <div class="p-2 flex flex-col border-transparent transition-all">
               <span class="font-bold text-brand-dark block text-xs sm:text-sm">No</span>
               <span class="text-[10px] sm:text-xs text-gray-500">I am not a 4Ps member</span>
@@ -347,19 +347,19 @@ function getStep2HTML() {
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Name of Respondent <span class="text-red-500">*</span></label>
+              <label for="resp-name" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Name of Respondent <span class="text-red-500">*</span></label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">person</span>
                 </div>
-                <input type="text" id="resp-name" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter full name">
+                <input type="text" id="resp-name" name="resp-name" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter full name">
               </div>
             </div>
             
             <div>
-              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Relationship to the Child <span class="text-red-500">*</span></label>
+              <label for="dd-relationship-input" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Relationship to the Child <span class="text-red-500">*</span></label>
               <div class="relative" id="relationship-combobox">
-                <input type="text" id="dd-relationship-input" autocomplete="off"
+                <input type="text" id="dd-relationship-input" name="dd-relationship-input" autocomplete="off"
                   class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400"
                   placeholder="Relationship to the Child">
                 <input type="hidden" id="dd-relationship">
@@ -373,22 +373,22 @@ function getStep2HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Email Address</label>
+              <label for="resp-email" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Email Address</label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">mail</span>
                 </div>
-                <input type="email" id="resp-email" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="name@example.com">
+                <input type="email" id="resp-email" name="resp-email" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="name@example.com">
               </div>
             </div>
             
             <div>
-              <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Contact Number</label>
+              <label for="resp-contact" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Contact Number</label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">phone</span>
                 </div>
-                <input type="tel" id="resp-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="0912 345 6789">
+                <input type="tel" id="resp-contact" name="resp-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="0912 345 6789">
               </div>
             </div>
           </div>
@@ -432,21 +432,21 @@ function getStep3HTML() {
         <div class="space-y-4">
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">First Name <span class="text-red-500">*</span></label>
-              <input type="text" id="child-fname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="First Name">
+              <label for="child-fname" class="block text-xs font-bold text-brand-dark mb-1">First Name <span class="text-red-500">*</span></label>
+              <input type="text" id="child-fname" name="child-fname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="First Name">
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Middle Name</label>
-              <input type="text" id="child-mname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Middle Name">
+              <label for="child-mname" class="block text-xs font-bold text-brand-dark mb-1">Middle Name</label>
+              <input type="text" id="child-mname" name="child-mname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Middle Name">
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Last Name <span class="text-red-500">*</span></label>
-              <input type="text" id="child-lname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Last Name">
+              <label for="child-lname" class="block text-xs font-bold text-brand-dark mb-1">Last Name <span class="text-red-500">*</span></label>
+              <input type="text" id="child-lname" name="child-lname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Last Name">
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Extension</label>
+              <label for="dd-extension" class="block text-xs font-bold text-brand-dark mb-1">Extension</label>
               <div class="relative">
-                <select id="dd-extension" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
+                <select id="dd-extension" name="dd-extension" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                   <option value="" disabled selected>Loading...</option>
                 </select>
               </div>
@@ -455,17 +455,17 @@ function getStep3HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Region <span class="text-red-500">*</span></label>
+              <label for="child-region" class="block text-xs font-bold text-brand-dark mb-1">Region <span class="text-red-500">*</span></label>
               <div class="relative">
-                <select id="child-region" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateProvinces()">
+                <select id="child-region" name="child-region" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateProvinces()">
                   <option value="" disabled selected>Select Region</option>
                 </select>
               </div>
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Province <span class="text-red-500">*</span></label>
+              <label for="child-province" class="block text-xs font-bold text-brand-dark mb-1">Province <span class="text-red-500">*</span></label>
               <div class="relative">
-                <select id="child-province" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateCities()" disabled>
+                <select id="child-province" name="child-province" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateCities()" disabled>
                   <option value="" disabled selected>Select Province</option>
                 </select>
               </div>
@@ -474,17 +474,17 @@ function getStep3HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">City/Municipality <span class="text-red-500">*</span></label>
+              <label for="child-city" class="block text-xs font-bold text-brand-dark mb-1">City/Municipality <span class="text-red-500">*</span></label>
               <div class="relative">
-                <select id="child-city" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateBarangays()" disabled>
+                <select id="child-city" name="child-city" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateBarangays()" disabled>
                   <option value="" disabled selected>Select City</option>
                 </select>
               </div>
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Barangay <span class="text-red-500">*</span></label>
+              <label for="child-barangay" class="block text-xs font-bold text-brand-dark mb-1">Barangay <span class="text-red-500">*</span></label>
               <div class="relative">
-                <select id="child-barangay" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" disabled>
+                <select id="child-barangay" name="child-barangay" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" disabled>
                   <option value="" disabled selected>Select Barangay</option>
                 </select>
               </div>
@@ -493,12 +493,12 @@ function getStep3HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Street Address <span class="text-red-500">*</span></label>
-              <input type="text" id="child-street" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="House No., Street">
+              <label for="child-street" class="block text-xs font-bold text-brand-dark mb-1">Street Address <span class="text-red-500">*</span></label>
+              <input type="text" id="child-street" name="child-street" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="House No., Street">
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Contact Number</label>
-              <input type="tel" id="child-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="09XX XXX XXXX">
+              <label for="resp-contact" class="block text-xs font-bold text-brand-dark mb-1">Contact Number</label>
+              <input type="tel" id="child-contact" name="child-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="09XX XXX XXXX">
             </div>
           </div>
         </div>
@@ -516,21 +516,21 @@ function getStep3HTML() {
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Date of Birth <span class="text-red-500">*</span></label>
+              <label for="child-dob" class="block text-xs font-bold text-brand-dark mb-1">Date of Birth <span class="text-red-500">*</span></label>
               <div class="relative">
-                <input type="date" id="child-dob" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none text-gray-600">
+                <input type="date" id="child-dob" name="child-dob" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none text-gray-600">
               </div>
             </div>
             <div>
               <label class="block text-xs font-bold text-brand-dark mb-1">Sex</label>
               <div class="slide-toggle-container h-9 w-full sm:w-2/3">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                  <input type="radio" name="sex" value="Male" class="hidden" checked> 
+                <label for="sex-male" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                  <input type="radio" id="sex-male" name="sex" value="Male" class="hidden" checked> 
                   <span>Male</span>
                 </label>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                  <input type="radio" name="sex" value="Female" class="hidden"> 
+                <label for="sex-female" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                  <input type="radio" id="sex-female" name="sex" value="Female" class="hidden"> 
                   <span>Female</span>
                 </label>
               </div>
@@ -539,22 +539,22 @@ function getStep3HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Religion <span class="text-red-500">*</span></label>
+              <label for="dd-religion" class="block text-xs font-bold text-brand-dark mb-1">Religion <span class="text-red-500">*</span></label>
               <div class="relative">
-                <select id="dd-religion" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'rel-other')">
+                <select id="dd-religion" name="dd-religion" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'rel-other')">
                   <option value="" disabled selected>Loading...</option>
                 </select>
               </div>
-              <input id="rel-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+              <input id="rel-other" name="rel-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">IP Membership <span class="text-red-500">*</span></label>
+              <label for="dd-ip" class="block text-xs font-bold text-brand-dark mb-1">IP Membership <span class="text-red-500">*</span></label>
               <div class="relative">
-                <select id="dd-ip" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'ip-other')">
+                <select id="dd-ip" name="dd-ip" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'ip-other')">
                   <option value="" disabled selected>Loading...</option>
                 </select>
               </div>
-              <input id="ip-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+              <input id="ip-other" name="ip-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
             </div>
           </div>
         </div>
@@ -571,13 +571,13 @@ function getStep3HTML() {
         
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Highest Educational Attainment <span class="text-red-500">*</span></label>
+            <label for="dd-education" class="block text-xs font-bold text-brand-dark mb-1">Highest Educational Attainment <span class="text-red-500">*</span></label>
             <div class="relative">
-              <select id="dd-education" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'edu-other')">
+              <select id="dd-education" name="dd-education" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'edu-other')">
                 <option value="" disabled selected>Loading...</option>
               </select>
             </div>
-            <input id="edu-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="edu-other" name="edu-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
           
           <div class="relative">
@@ -600,7 +600,7 @@ function getStep3HTML() {
             <div id="dd-illness" class="hidden absolute z-10 w-full google-menu mt-1 max-h-60 overflow-y-auto dropdown-scroll">
               <!-- Will be populated by JavaScript -->
             </div>
-            <input id="illness-other-input" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="illness-other-input" name="illness-other-input" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
         </div>
       </section>
@@ -685,49 +685,49 @@ function getStep5HTML() {
         
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">What type of construction materials are the roofs and outer walls made of? <span class="text-red-500">*</span></label>
+            <label for="dd-materials" class="block text-xs font-bold text-brand-dark mb-1">What type of construction materials are the roofs and outer walls made of? <span class="text-red-500">*</span></label>
             <div class="relative">
-              <select id="dd-materials" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'mat-other')">
+              <select id="dd-materials" name="dd-materials" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'mat-other')">
                 <option value="" disabled selected>Select Materials</option>
               </select>
             </div>
-            <input id="mat-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="mat-other" name="mat-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
           
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">What is the tenure status of the house and lot does the family have? <span class="text-red-500">*</span></label>
+            <label for="dd-tenure" class="block text-xs font-bold text-brand-dark mb-1">What is the tenure status of the house and lot does the family have? <span class="text-red-500">*</span></label>
             <div class="relative">
-              <select id="dd-tenure" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'tenure-other')">
+              <select id="dd-tenure" name="dd-tenure" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'tenure-other')">
                 <option value="" disabled selected>Select Status</option>
               </select>
             </div>
-            <input id="tenure-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="tenure-other" name="tenure-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
           
           <div>
             <label class="block text-xs font-bold text-brand-dark mb-1">Are there any modifications in the house to accommodate the child's disability?</label>
             <div class="slide-toggle-container h-8 w-full sm:w-1/3 mb-2">
               <div class="slide-toggle-slider"></div>
-              <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.remove('hidden')">
-                <input type="radio" name="modifications" value="Yes" class="hidden"> 
+              <label for="modifications-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.remove('hidden')">
+                <input type="radio" id="modifications-yes" name="modifications" value="Yes" class="hidden"> 
                 <span>Yes</span>
               </label>
-              <label class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.add('hidden')">
-                <input type="radio" name="modifications" value="No" class="hidden" checked> 
+              <label for="modifications-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.add('hidden')">
+                <input type="radio" id="modifications-no" name="modifications" value="No" class="hidden" checked> 
                 <span>No</span>
               </label>
             </div>
-            <input id="mod-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="mod-specify" name="mod-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
           
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">What is the main source of electricity in the dwelling place? <span class="text-red-500">*</span></label>
+            <label for="dd-electricity" class="block text-xs font-bold text-brand-dark mb-1">What is the main source of electricity in the dwelling place? <span class="text-red-500">*</span></label>
             <div class="relative">
-              <select id="dd-electricity" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'elec-other')">
+              <select id="dd-electricity" name="dd-electricity" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'elec-other')">
                 <option value="" disabled selected>Select Source</option>
               </select>
             </div>
-            <input id="elec-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="elec-other" name="elec-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
         </div>
       </section>
@@ -742,13 +742,13 @@ function getStep5HTML() {
         </div>
         
         <div>
-          <label class="block text-xs font-bold text-brand-dark mb-1">What is your family's main source of water supply? <span class="text-red-500">*</span></label>
+          <label for="dd-water" class="block text-xs font-bold text-brand-dark mb-1">What is your family's main source of water supply? <span class="text-red-500">*</span></label>
           <div class="relative">
-            <select id="dd-water" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'water-other')">
+            <select id="dd-water" name="dd-water" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'water-other')">
               <option value="" disabled selected>Select Water Source</option>
             </select>
           </div>
-          <input id="water-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+          <input id="water-other" name="water-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
         </div>
       </section>
       
@@ -764,24 +764,24 @@ function getStep5HTML() {
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Main type of toilet facility <span class="text-red-500">*</span></label>
+              <label for="dd-toilet" class="block text-xs font-bold text-brand-dark mb-1">Main type of toilet facility <span class="text-red-500">*</span></label>
               <div class="relative">
-                <select id="dd-toilet" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'toilet-other')">
+                <select id="dd-toilet" name="dd-toilet" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'toilet-other')">
                   <option value="" disabled selected>Select Toilet Type</option>
                 </select>
               </div>
-              <input id="toilet-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+              <input id="toilet-other" name="toilet-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
             </div>
             <div>
               <label class="block text-xs font-bold text-brand-dark mb-1">Is the toilet accessible for the child?</label>
               <div class="slide-toggle-container h-9 w-full">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                  <input type="radio" name="toilet-access" value="Yes" class="hidden" checked> 
+                <label for="toilet-access-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                  <input type="radio" id="toilet-access-yes" name="toilet-access" value="Yes" class="hidden" checked> 
                   <span>Yes</span>
                 </label>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                  <input type="radio" name="toilet-access" value="No" class="hidden"> 
+                <label for="toilet-access-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                  <input type="radio" id="toilet-access-no" name="toilet-access" value="No" class="hidden"> 
                   <span>No</span>
                 </label>
               </div>
@@ -789,13 +789,13 @@ function getStep5HTML() {
           </div>
           
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Main system of garbage disposal <span class="text-red-500">*</span></label>
+            <label for="dd-garbage" class="block text-xs font-bold text-brand-dark mb-1">Main system of garbage disposal <span class="text-red-500">*</span></label>
             <div class="relative">
-              <select id="dd-garbage" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'garbage-other')">
+              <select id="dd-garbage" name="dd-garbage" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'garbage-other')">
                 <option value="" disabled selected>Select System</option>
               </select>
             </div>
-            <input id="garbage-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="garbage-other" name="garbage-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
         </div>
       </section>
@@ -839,12 +839,12 @@ function getStep6HTML() {
             <label class="text-xs font-bold text-brand-dark flex-1">Has the child received all recommended vaccinations?</label>
             <div class="slide-toggle-container h-8 w-32">
               <div class="slide-toggle-slider"></div>
-              <label class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                <input type="radio" name="vaccines" value="Yes" class="hidden" checked> 
+              <label for="vaccines-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                <input type="radio" id="vaccines-yes" name="vaccines" value="Yes" class="hidden" checked> 
                 <span>Yes</span>
               </label>
-              <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                <input type="radio" name="vaccines" value="No" class="hidden"> 
+              <label for="vaccines-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                <input type="radio" id="vaccines-no" name="vaccines" value="No" class="hidden"> 
                 <span>No</span>
               </label>
             </div>
@@ -855,17 +855,17 @@ function getStep6HTML() {
               <label class="text-xs font-bold text-brand-dark flex-1">Does the child have any ongoing health conditions?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.remove('hidden')">
-                  <input type="radio" name="health_cond" value="Yes" class="hidden"> 
+                <label for="health_cond-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.remove('hidden')">
+                  <input type="radio" id="health_cond-yes" name="health_cond" value="Yes" class="hidden"> 
                   <span>Yes</span>
                 </label>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.add('hidden')">
-                  <input type="radio" name="health_cond" value="No" class="hidden" checked> 
+                <label for="health_cond-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.add('hidden')">
+                  <input type="radio" id="health_cond-no" name="health_cond" value="No" class="hidden" checked> 
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="health-cond-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="health-cond-specify" name="health-cond-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
         </div>
       </section>
@@ -882,45 +882,45 @@ function getStep6HTML() {
         <div class="space-y-4">
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
-              <label class="block text-[10px] font-bold text-gray-500 mb-1">Food</label>
+              <label for="exp-food" class="block text-[10px] font-bold text-gray-500 mb-1">Food</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
-                <input type="text" id="exp-food" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
+                <input type="text" id="exp-food" name="exp-food" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-gray-500 mb-1">Medication</label>
+              <label for="exp-med" class="block text-[10px] font-bold text-gray-500 mb-1">Medication</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
-                <input type="text" id="exp-med" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
+                <input type="text" id="exp-med" name="exp-med" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-gray-500 mb-1">Therapy</label>
+              <label for="exp-therapy" class="block text-[10px] font-bold text-gray-500 mb-1">Therapy</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
-                <input type="text" id="exp-therapy" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
+                <input type="text" id="exp-therapy" name="exp-therapy" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-gray-500 mb-1">Hygiene-related needs</label>
+              <label for="exp-hygiene" class="block text-[10px] font-bold text-gray-500 mb-1">Hygiene-related needs</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
-                <input type="text" id="exp-hygiene" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
+                <input type="text" id="exp-hygiene" name="exp-hygiene" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-gray-500 mb-1">Assistive Device Maint.</label>
+              <label for="exp-assist" class="block text-[10px] font-bold text-gray-500 mb-1">Assistive Device Maint.</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
-                <input type="text" id="exp-assist" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
+                <input type="text" id="exp-assist" name="exp-assist" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-gray-500 mb-1">Other health needs</label>
+              <label for="exp-other" class="block text-[10px] font-bold text-gray-500 mb-1">Other health needs</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
-                <input type="text" id="exp-other" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
+                <input type="text" id="exp-other" name="exp-other" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
           </div>
@@ -953,29 +953,29 @@ function getStep6HTML() {
               <label class="text-xs font-bold text-brand-dark flex-1">Has the child availed health services in the past 6 months?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.remove('hidden')">
-                  <input type="radio" name="avail_services" value="Yes" class="hidden"> 
+                <label for="avail_services-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.remove('hidden')">
+                  <input type="radio" id="avail_services-yes" name="avail_services" value="Yes" class="hidden"> 
                   <span>Yes</span>
                 </label>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.add('hidden')">
-                  <input type="radio" name="avail_services" value="No" class="hidden" checked> 
+                <label for="avail_services-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.add('hidden')">
+                  <input type="radio" id="avail_services-no" name="avail_services" value="No" class="hidden" checked> 
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="avail-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="avail-specify" name="avail-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
           
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <label class="text-xs font-bold text-brand-dark flex-1">Is the health facility accessible for the child?</label>
             <div class="slide-toggle-container h-8 w-32">
               <div class="slide-toggle-slider"></div>
-              <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                <input type="radio" name="facility_access" value="Yes" class="hidden"> 
+              <label for="facility_access-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                <input type="radio" id="facility_access-yes" name="facility_access" value="Yes" class="hidden"> 
                 <span>Yes</span>
               </label>
-              <label class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                <input type="radio" name="facility_access" value="No" class="hidden" checked> 
+              <label for="facility_access-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                <input type="radio" id="facility_access-no" name="facility_access" value="No" class="hidden" checked> 
                 <span>No</span>
               </label>
             </div>
@@ -986,17 +986,17 @@ function getStep6HTML() {
               <label class="text-xs font-bold text-brand-dark flex-1">Are there any barriers to accessing health care services?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.remove('hidden')">
-                  <input type="radio" name="barriers" value="Yes" class="hidden"> 
+                <label for="barriers-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.remove('hidden')">
+                  <input type="radio" id="barriers-yes" name="barriers" value="Yes" class="hidden"> 
                   <span>Yes</span>
                 </label>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.add('hidden')">
-                  <input type="radio" name="barriers" value="No" class="hidden" checked> 
+                <label for="barriers-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.add('hidden')">
+                  <input type="radio" id="barriers-no" name="barriers" value="No" class="hidden" checked> 
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="barrier-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="barrier-specify" name="barrier-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
         </div>
       </section>
@@ -1041,24 +1041,24 @@ function getStep7HTML() {
               <label class="text-xs font-bold text-brand-dark flex-1">Is the child currently enrolled in school?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this); toggleEnrollment(true)">
-                  <input type="radio" name="enrolled" value="Yes" class="hidden" checked> 
+                <label for="enrolled-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this); toggleEnrollment(true)">
+                  <input type="radio" id="enrolled-yes" name="enrolled" value="Yes" class="hidden" checked> 
                   <span>Yes</span>
                 </label>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); toggleEnrollment(false)">
-                  <input type="radio" name="enrolled" value="No" class="hidden"> 
+                <label for="enrolled-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); toggleEnrollment(false)">
+                  <input type="radio" id="enrolled-no" name="enrolled" value="No" class="hidden"> 
                   <span>No</span>
                 </label>
               </div>
             </div>
             
             <div id="enrollment-yes" class="">
-              <label class="block text-xs font-bold text-brand-dark mb-1">Grade/Year Level <span class="text-red-500">*</span></label>
-              <input type="text" id="grade-level" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Grade/Year Level">
+              <label for="grade-level" class="block text-xs font-bold text-brand-dark mb-1">Grade/Year Level <span class="text-red-500">*</span></label>
+              <input type="text" id="grade-level" name="grade-level" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Grade/Year Level">
             </div>
             <div id="enrollment-no" class="hidden">
-              <label class="block text-xs font-bold text-brand-dark mb-1">Why not? <span class="text-red-500">*</span></label>
-              <input type="text" id="not-enrolled-reason" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+              <label for="not-enrolled-reason" class="block text-xs font-bold text-brand-dark mb-1">Why not? <span class="text-red-500">*</span></label>
+              <input type="text" id="not-enrolled-reason" name="not-enrolled-reason" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
             </div>
           </div>
         </div>
@@ -1079,17 +1079,17 @@ function getStep7HTML() {
               <label class="text-xs font-bold text-brand-dark flex-1">Is the school equipped with physically accessibility features?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.remove('hidden')">
-                  <input type="radio" name="school_features" value="Yes" class="hidden"> 
+                <label for="school_features-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.remove('hidden')">
+                  <input type="radio" id="school_features-yes" name="school_features" value="Yes" class="hidden"> 
                   <span>Yes</span>
                 </label>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.add('hidden')">
-                  <input type="radio" name="school_features" value="No" class="hidden" checked> 
+                <label for="school_features-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.add('hidden')">
+                  <input type="radio" id="school_features-no" name="school_features" value="No" class="hidden" checked> 
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="school-access-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="school-access-specify" name="school-access-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
           
           <div>
@@ -1097,17 +1097,17 @@ function getStep7HTML() {
               <label class="text-xs font-bold text-brand-dark flex-1">Are there special education programs available?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.remove('hidden')">
-                  <input type="radio" name="sped_prog" value="Yes" class="hidden"> 
+                <label for="sped_prog-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.remove('hidden')">
+                  <input type="radio" id="sped_prog-yes" name="sped_prog" value="Yes" class="hidden"> 
                   <span>Yes</span>
                 </label>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.add('hidden')">
-                  <input type="radio" name="sped_prog" value="No" class="hidden" checked> 
+                <label for="sped_prog-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.add('hidden')">
+                  <input type="radio" id="sped_prog-no" name="sped_prog" value="No" class="hidden" checked> 
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="sped-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="sped-specify" name="sped-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
           
           <div>
@@ -1115,17 +1115,17 @@ function getStep7HTML() {
               <label class="text-xs font-bold text-brand-dark flex-1">Does the child receive any learning support?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.remove('hidden')">
-                  <input type="radio" name="learning_support" value="Yes" class="hidden"> 
+                <label for="learning_support-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.remove('hidden')">
+                  <input type="radio" id="learning_support-yes" name="learning_support" value="Yes" class="hidden"> 
                   <span>Yes</span>
                 </label>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.add('hidden')">
-                  <input type="radio" name="learning_support" value="No" class="hidden" checked> 
+                <label for="learning_support-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.add('hidden')">
+                  <input type="radio" id="learning_support-no" name="learning_support" value="No" class="hidden" checked> 
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="learn-supp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="learn-supp-specify" name="learn-supp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
         </div>
       </section>
@@ -1166,15 +1166,15 @@ function getStep8HTML() {
         
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">What is the primary source of income for the family? <span class="text-red-500">*</span></label>
-            <input type="text" id="income-source" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="e.g., Employment, Business, Remittance">
+            <label for="income-source" class="block text-xs font-bold text-brand-dark mb-1">What is the primary source of income for the family? <span class="text-red-500">*</span></label>
+            <input type="text" id="income-source" name="income-source" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="e.g., Employment, Business, Remittance">
           </div>
           
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">How much is the approximate monthly income of the family? <span class="text-red-500">*</span></label>
+            <label for="monthly-income" class="block text-xs font-bold text-brand-dark mb-1">How much is the approximate monthly income of the family? <span class="text-red-500">*</span></label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
-              <input type="text" id="monthly-income" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="0" oninput="calculateIncomeClass(this)">
+              <input type="text" id="monthly-income" name="monthly-income" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="0" oninput="calculateIncomeClass(this)">
             </div>
           </div>
           
@@ -1200,17 +1200,17 @@ function getStep8HTML() {
               <label class="text-xs font-bold text-brand-dark flex-1">Are the parents/guardians employed or have entrepreneurial activities?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.remove('hidden')">
-                  <input type="radio" name="employed" value="Yes" class="hidden"> 
+                <label for="employed-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.remove('hidden')">
+                  <input type="radio" id="employed-yes" name="employed" value="Yes" class="hidden"> 
                   <span>Yes</span>
                 </label>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.add('hidden')">
-                  <input type="radio" name="employed" value="No" class="hidden" checked> 
+                <label for="employed-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.add('hidden')">
+                  <input type="radio" id="employed-no" name="employed" value="No" class="hidden" checked> 
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="emp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="emp-specify" name="emp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
         </div>
       </section>
@@ -1255,17 +1255,17 @@ function getStep9HTML() {
               <label class="text-xs font-bold text-brand-dark flex-1">Does the family receive any form of financial assistance?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('fin-assist-specify').classList.remove('hidden')">
-                  <input type="radio" name="fin_assist" value="Yes" class="hidden"> 
+                <label for="fin_assist-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('fin-assist-specify').classList.remove('hidden')">
+                  <input type="radio" id="fin_assist-yes" name="fin_assist" value="Yes" class="hidden"> 
                   <span>Yes</span>
                 </label>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('fin-assist-specify').classList.add('hidden')">
-                  <input type="radio" name="fin_assist" value="No" class="hidden" checked> 
+                <label for="fin_assist-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('fin-assist-specify').classList.add('hidden')">
+                  <input type="radio" id="fin_assist-no" name="fin_assist" value="No" class="hidden" checked> 
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="fin-assist-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="fin-assist-specify" name="fin-assist-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
           
           <div>
@@ -1273,17 +1273,17 @@ function getStep9HTML() {
               <label class="text-xs font-bold text-brand-dark flex-1">Is the family aware of available social services for children with disabilities?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('aware-specify').classList.remove('hidden')">
-                  <input type="radio" name="aware_services" value="Yes" class="hidden"> 
+                <label for="aware_services-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('aware-specify').classList.remove('hidden')">
+                  <input type="radio" id="aware_services-yes" name="aware_services" value="Yes" class="hidden"> 
                   <span>Yes</span>
                 </label>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('aware-specify').classList.add('hidden')">
-                  <input type="radio" name="aware_services" value="No" class="hidden" checked> 
+                <label for="aware_services-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('aware-specify').classList.add('hidden')">
+                  <input type="radio" id="aware_services-no" name="aware_services" value="No" class="hidden" checked> 
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="aware-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="aware-specify" name="aware-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
           
           <div>
@@ -1291,17 +1291,17 @@ function getStep9HTML() {
               <label class="text-xs font-bold text-brand-dark flex-1">Has the family availed of any services?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
-                <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('availed-specify').classList.remove('hidden')">
-                  <input type="radio" name="availed_any" value="Yes" class="hidden"> 
+                <label for="availed_any-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('availed-specify').classList.remove('hidden')">
+                  <input type="radio" id="availed_any-yes" name="availed_any" value="Yes" class="hidden"> 
                   <span>Yes</span>
                 </label>
-                <label class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('availed-specify').classList.add('hidden')">
-                  <input type="radio" name="availed_any" value="No" class="hidden" checked> 
+                <label for="availed_any-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('availed-specify').classList.add('hidden')">
+                  <input type="radio" id="availed_any-no" name="availed_any" value="No" class="hidden" checked> 
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="availed-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="availed-specify" name="availed-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
         </div>
       </section>
@@ -1319,7 +1319,7 @@ function getStep9HTML() {
           <div>
             <label class="block text-xs font-bold text-brand-dark mb-1">What are the challenges faced in availing these services? <span class="text-red-500">*</span></label>
             <div class="relative">
-              <select id="service-challenges" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'barrier-other')">
+              <select id="service-challenges" name="service-challenges" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'barrier-other')">
                 <option value="" disabled selected>Select Challenge</option>
                 <option>Lack of awareness</option>
                 <option>Financial constraints</option>
@@ -1329,7 +1329,7 @@ function getStep9HTML() {
                 <option>None</option>
               </select>
             </div>
-            <input id="barrier-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="barrier-other" name="barrier-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
         </div>
       </section>
@@ -1371,15 +1371,15 @@ function getStep10HTML() {
         <div class="space-y-4">
           <div>
             <label class="block text-xs font-bold text-brand-dark mb-1">Strengths <span class="text-red-500">*</span></label>
-            <textarea id="strengths" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Enter key strengths..."></textarea>
+            <textarea id="strengths" name="strengths" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Enter key strengths..."></textarea>
           </div>
           <div>
             <label class="block text-xs font-bold text-brand-dark mb-1">Assessment <span class="text-red-500">*</span></label>
-            <textarea id="assessment" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Provide assessment details..."></textarea>
+            <textarea id="assessment" name="assessment" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Provide assessment details..."></textarea>
           </div>
           <div>
             <label class="block text-xs font-bold text-brand-dark mb-1">Recommended Actions/Interventions <span class="text-red-500">*</span></label>
-            <textarea id="recommendations" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Suggest interventions..."></textarea>
+            <textarea id="recommendations" name="recommendations" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Suggest interventions..."></textarea>
           </div>
         </div>
       </section>
@@ -1395,7 +1395,7 @@ function getStep10HTML() {
         
         <div class="space-y-3">
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
-            <input type="radio" name="readiness" value="severe" class="peer sr-only">
+            <input type="radio" id="readiness-severe" name="readiness" value="severe" class="peer sr-only">
             <div class="flex flex-col">
               <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold">1</span>
@@ -1406,7 +1406,7 @@ function getStep10HTML() {
           </label>
           
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
-            <input type="radio" name="readiness" value="moderate" class="peer sr-only">
+            <input type="radio" id="readiness-moderate" name="readiness" value="moderate" class="peer sr-only">
             <div class="flex flex-col">
               <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold">2</span>
@@ -1417,7 +1417,7 @@ function getStep10HTML() {
           </label>
           
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
-            <input type="radio" name="readiness" value="low" class="peer sr-only">
+            <input type="radio" id="readiness-low" name="readiness" value="low" class="peer sr-only">
             <div class="flex flex-col">
               <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xs font-bold">3</span>
@@ -1428,7 +1428,7 @@ function getStep10HTML() {
           </label>
           
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
-            <input type="radio" name="readiness" value="stable" class="peer sr-only">
+            <input type="radio" id="readiness-stable" name="readiness" value="stable" class="peer sr-only">
             <div class="flex flex-col">
               <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">4</span>
@@ -2221,12 +2221,12 @@ function getFamilyMemberCardHTML(num, isHead) {
             <label class="block text-xs font-bold text-brand-dark mb-1">Solo Parent</label>
             <div class="slide-toggle-container h-9 w-full">
               <div class="slide-toggle-slider"></div>
-              <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                <input type="radio" name="solo-${num}" value="Yes" data-field="is_solo_parent" class="hidden">
+              <label for="solo-${num}-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                <input type="radio" name="solo-${num}" id="solo-${num}-yes" value="Yes" data-field="is_solo_parent" class="hidden">
                 <span>Yes</span>
               </label>
-              <label class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                <input type="radio" name="solo-${num}" value="No" data-field="is_solo_parent" class="hidden" checked>
+              <label for="solo-${num}-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                <input type="radio" name="solo-${num}" id="solo-${num}-no" value="No" data-field="is_solo_parent" class="hidden" checked>
                 <span>No</span>
               </label>
             </div>
@@ -2255,12 +2255,12 @@ function getFamilyMemberCardHTML(num, isHead) {
             <label class="block text-xs font-bold text-brand-dark mb-1">Sex</label>
             <div class="slide-toggle-container h-9 w-full">
               <div class="slide-toggle-slider"></div>
-              <label class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                <input type="radio" name="sex-${num}" value="Male" data-field="member_sex" class="hidden" checked>
+              <label for="sex-${num}-male" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                <input type="radio" name="sex-${num}" id="sex-${num}-male" value="Male" data-field="member_sex" class="hidden" checked>
                 <span>Male</span>
               </label>
-              <label class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                <input type="radio" name="sex-${num}" value="Female" data-field="member_sex" class="hidden">
+              <label for="sex-${num}-female" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                <input type="radio" name="sex-${num}" id="sex-${num}-female" value="Female" data-field="member_sex" class="hidden">
                 <span>Female</span>
               </label>
             </div>
