@@ -360,12 +360,9 @@ function getStep2HTML() {
               <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Relationship to the Child <span class="text-red-500">*</span></label>
               <div class="relative" id="relationship-combobox">
                 <input type="text" id="dd-relationship-input" autocomplete="off"
-                  class="google-dropdown-style w-full h-9 pl-3 pr-10 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400"
+                  class="google-dropdown-style w-full h-9 pl-3 pr-3 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400"
                   placeholder="Relationship to the Child">
                 <input type="hidden" id="dd-relationship">
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-                </div>
                 <ul id="dd-relationship-list"
                   class="fixed z-50 bg-white border border-gray-300 rounded shadow-lg overflow-y-auto hidden text-xs sm:text-sm">
                 </ul>
@@ -451,9 +448,6 @@ function getStep3HTML() {
                 <select id="dd-extension" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                   <option value="" disabled selected>Loading...</option>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-                </div>
               </div>
             </div>
           </div>
@@ -465,9 +459,6 @@ function getStep3HTML() {
                 <select id="child-region" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateProvinces()">
                   <option value="" disabled selected>Select Region</option>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-                </div>
               </div>
             </div>
             <div>
@@ -476,9 +467,6 @@ function getStep3HTML() {
                 <select id="child-province" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateCities()" disabled>
                   <option value="" disabled selected>Select Province</option>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-                </div>
               </div>
             </div>
           </div>
@@ -490,9 +478,6 @@ function getStep3HTML() {
                 <select id="child-city" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateBarangays()" disabled>
                   <option value="" disabled selected>Select City</option>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-                </div>
               </div>
             </div>
             <div>
@@ -501,9 +486,6 @@ function getStep3HTML() {
                 <select id="child-barangay" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" disabled>
                   <option value="" disabled selected>Select Barangay</option>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-                </div>
               </div>
             </div>
           </div>
@@ -561,9 +543,6 @@ function getStep3HTML() {
                 <select id="dd-religion" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'rel-other')">
                   <option value="" disabled selected>Loading...</option>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-                </div>
               </div>
               <input id="rel-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
             </div>
@@ -573,9 +552,6 @@ function getStep3HTML() {
                 <select id="dd-ip" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'ip-other')">
                   <option value="" disabled selected>Loading...</option>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-                </div>
               </div>
               <input id="ip-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
             </div>
@@ -599,9 +575,6 @@ function getStep3HTML() {
               <select id="dd-education" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'edu-other')">
                 <option value="" disabled selected>Loading...</option>
               </select>
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-              </div>
             </div>
             <input id="edu-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
@@ -610,7 +583,6 @@ function getStep3HTML() {
             <label class="block text-xs font-bold text-brand-dark mb-1">Disability or Special Needs (Select all that apply)</label>
             <button type="button" onclick="toggleDropdown('dd-disability')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
               <span id="disability-display" class="truncate text-gray-400">Select options...</span>
-              <span class="material-symbols-outlined text-[18px] text-gray-500 ml-2 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-disability" class="hidden absolute z-10 w-full google-menu mt-1 max-h-60 overflow-y-auto dropdown-scroll">
               <!-- Will be populated by JavaScript -->
@@ -621,7 +593,6 @@ function getStep3HTML() {
             <label class="block text-xs font-bold text-brand-dark mb-1">Critical Illness (Select all that apply)</label>
             <button type="button" onclick="toggleDropdown('dd-illness')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
               <span id="illness-display" class="truncate text-gray-400">Select options...</span>
-              <span class="material-symbols-outlined text-[18px] text-gray-500 ml-2 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-illness" class="hidden absolute z-10 w-full google-menu mt-1 max-h-60 overflow-y-auto dropdown-scroll">
               <!-- Will be populated by JavaScript -->
@@ -716,9 +687,6 @@ function getStep5HTML() {
               <select id="dd-materials" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'mat-other')">
                 <option value="" disabled selected>Select Materials</option>
               </select>
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-              </div>
             </div>
             <input id="mat-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
@@ -729,9 +697,6 @@ function getStep5HTML() {
               <select id="dd-tenure" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'tenure-other')">
                 <option value="" disabled selected>Select Status</option>
               </select>
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-              </div>
             </div>
             <input id="tenure-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
@@ -758,9 +723,6 @@ function getStep5HTML() {
               <select id="dd-electricity" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'elec-other')">
                 <option value="" disabled selected>Select Source</option>
               </select>
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-              </div>
             </div>
             <input id="elec-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
@@ -782,9 +744,6 @@ function getStep5HTML() {
             <select id="dd-water" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'water-other')">
               <option value="" disabled selected>Select Water Source</option>
             </select>
-            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-            </div>
           </div>
           <input id="water-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
         </div>
@@ -807,9 +766,6 @@ function getStep5HTML() {
                 <select id="dd-toilet" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'toilet-other')">
                   <option value="" disabled selected>Select Toilet Type</option>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-                </div>
               </div>
               <input id="toilet-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
             </div>
@@ -835,9 +791,6 @@ function getStep5HTML() {
               <select id="dd-garbage" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'garbage-other')">
                 <option value="" disabled selected>Select System</option>
               </select>
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-              </div>
             </div>
             <input id="garbage-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
@@ -1372,9 +1325,6 @@ function getStep9HTML() {
                 <option value="Others">Others (Specify)</option>
                 <option>None</option>
               </select>
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-              </div>
             </div>
             <input id="barrier-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
           </div>
@@ -2047,13 +1997,8 @@ function initGoogleSelects() {
     input.type = 'text';
     input.autocomplete = 'off';
     input.placeholder = placeholderText;
-    input.className = 'google-dropdown-style w-full h-9 pl-3 pr-10 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400';
+    input.className = 'google-dropdown-style w-full h-9 pl-3 pr-3 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400';
     wrapper.appendChild(input);
-
-    const icon = document.createElement('span');
-    icon.className = 'material-symbols-outlined text-[18px] text-gray-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none';
-    icon.innerText = 'expand_more';
-    wrapper.appendChild(icon);
 
     const list = document.createElement('ul');
     list.className = 'hidden fixed bg-white border border-gray-200 rounded-md shadow-lg overflow-y-auto dropdown-scroll google-menu-custom';
@@ -2261,9 +2206,6 @@ function getFamilyMemberCardHTML(num, isHead) {
                 <option>Grandchild</option>
                 <option>Other Relative</option>
               </select>
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-              </div>
             </div>
           </div>
           <div>
@@ -2294,9 +2236,6 @@ function getFamilyMemberCardHTML(num, isHead) {
                 <option>Separated</option>
                 <option>Live-in</option>
               </select>
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-              </div>
             </div>
           </div>
           <div>
@@ -2326,9 +2265,6 @@ function getFamilyMemberCardHTML(num, isHead) {
               <select id="dd-fam-occ-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>Loading...</option>
               </select>
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-              </div>
             </div>
           </div>
           <div>
@@ -2337,9 +2273,6 @@ function getFamilyMemberCardHTML(num, isHead) {
               <select id="dd-fam-class-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>Loading...</option>
               </select>
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <span class="material-symbols-outlined text-[18px] text-gray-500">expand_more</span>
-              </div>
             </div>
           </div>
         </div>
@@ -2349,7 +2282,6 @@ function getFamilyMemberCardHTML(num, isHead) {
             <label class="block text-xs font-bold text-brand-dark mb-1">Disability/Special Needs</label>
             <button type="button" onclick="toggleDropdown('dd-fam-dis-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
               <span id="disp-fam-dis-${num}" class="truncate text-gray-500">Select...</span>
-              <span class="material-symbols-outlined text-[18px] text-gray-500 ml-2 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-fam-dis-${num}" class="hidden absolute z-10 w-full google-menu mt-1 max-h-40 overflow-y-auto dropdown-scroll">
               <div class="p-2 text-gray-400 text-xs">Loading...</div>
@@ -2359,7 +2291,6 @@ function getFamilyMemberCardHTML(num, isHead) {
             <label class="block text-xs font-bold text-brand-dark mb-1">Critical Illness</label>
             <button type="button" onclick="toggleDropdown('dd-fam-ill-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
               <span id="disp-fam-ill-${num}" class="truncate text-gray-500">Select...</span>
-              <span class="material-symbols-outlined text-[18px] text-gray-500 ml-2 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-fam-ill-${num}" class="hidden absolute z-10 w-full google-menu mt-1 max-h-40 overflow-y-auto dropdown-scroll">
               <div class="p-2 text-gray-400 text-xs">Loading...</div>
