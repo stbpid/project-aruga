@@ -23,13 +23,15 @@ document.addEventListener('DOMContentLoaded', async function() {
   checkAuthentication();
 
   // Intercept browser back button — show End Session modal instead of navigating away
-  history.pushState(null, '', location.href);
-  window.addEventListener('popstate', function() {
+  // Use replaceState (not pushState) to avoid creating skippable history entries
+  history.replaceState({ profilingPage: true }, '', location.href);
+  window.addEventListener('popstate', function(e) {
     if (!sessionStorage.getItem('session_id')) {
       window.location.replace('/');
       return;
     }
-    history.pushState(null, '', location.href);
+    // Re-anchor current entry without adding a new one
+    history.replaceState({ profilingPage: true }, '', location.href);
     showLogoutModal();
   });
 
@@ -305,10 +307,10 @@ function getStep1HTML() {
         </fieldset>
         
         <div id="id-container" class="transition-opacity duration-300">
-          <label class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Household ID <span class="text-red-500">*</span></label>
+          <label for="household-id" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Household ID <span class="text-red-500">*</span></label>
           <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-1.5 h-9 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
             <span class="material-symbols-outlined text-[16px] text-gray-400">badge</span>
-            <input id="household-id" type="text" maxlength="18" oninput="this.value=this.value.replace(/\D/g,'').slice(0,18)" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" placeholder="Enter 18-digit ID number">
+            <input id="household-id" name="household-id" type="text" maxlength="18" oninput="this.value=this.value.replace(/\D/g,'').slice(0,18)" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" placeholder="Enter 18-digit ID number">
           </div>
           <p class="text-[10px] sm:text-xs text-brand-blue mt-1">Found on your 4Ps ID card.</p>
         </div>
@@ -522,7 +524,7 @@ function getStep3HTML() {
               </div>
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Sex</label>
+              <label for="sex-male" class="block text-xs font-bold text-brand-dark mb-1">Sex</label>
               <div class="slide-toggle-container h-9 w-full sm:w-2/3">
                 <div class="slide-toggle-slider"></div>
                 <label for="sex-male" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
@@ -581,7 +583,7 @@ function getStep3HTML() {
           </div>
           
           <div class="relative">
-            <label class="block text-xs font-bold text-brand-dark mb-1">Disability or Special Needs (Select all that apply)</label>
+            <label for="dd-disability" class="block text-xs font-bold text-brand-dark mb-1">Disability or Special Needs (Select all that apply)</label>
             <button type="button" onclick="toggleDropdown('dd-disability')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
               <span id="disability-display" class="truncate text-gray-400">Select options...</span>
               <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
@@ -592,7 +594,7 @@ function getStep3HTML() {
           </div>
           
           <div class="relative">
-            <label class="block text-xs font-bold text-brand-dark mb-1">Critical Illness (Select all that apply)</label>
+            <label for="dd-illness" class="block text-xs font-bold text-brand-dark mb-1">Critical Illness (Select all that apply)</label>
             <button type="button" onclick="toggleDropdown('dd-illness')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
               <span id="illness-display" class="truncate text-gray-400">Select options...</span>
               <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
@@ -705,7 +707,7 @@ function getStep5HTML() {
           </div>
           
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Are there any modifications in the house to accommodate the child's disability?</label>
+            <label for="modifications-yes" class="block text-xs font-bold text-brand-dark mb-1">Are there any modifications in the house to accommodate the child's disability?</label>
             <div class="slide-toggle-container h-8 w-full sm:w-1/3 mb-2">
               <div class="slide-toggle-slider"></div>
               <label for="modifications-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.remove('hidden')">
@@ -773,7 +775,7 @@ function getStep5HTML() {
               <input id="toilet-other" name="toilet-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
             </div>
             <div>
-              <label class="block text-xs font-bold text-brand-dark mb-1">Is the toilet accessible for the child?</label>
+              <label for="toilet-access-yes" class="block text-xs font-bold text-brand-dark mb-1">Is the toilet accessible for the child?</label>
               <div class="slide-toggle-container h-9 w-full">
                 <div class="slide-toggle-slider"></div>
                 <label for="toilet-access-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
@@ -836,7 +838,7 @@ function getStep6HTML() {
         
         <div class="space-y-4">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <label class="text-xs font-bold text-brand-dark flex-1">Has the child received all recommended vaccinations?</label>
+            <label for="vaccines-yes" class="text-xs font-bold text-brand-dark flex-1">Has the child received all recommended vaccinations?</label>
             <div class="slide-toggle-container h-8 w-32">
               <div class="slide-toggle-slider"></div>
               <label for="vaccines-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
@@ -852,7 +854,7 @@ function getStep6HTML() {
           
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label class="text-xs font-bold text-brand-dark flex-1">Does the child have any ongoing health conditions?</label>
+              <label for="health_cond-yes" class="text-xs font-bold text-brand-dark flex-1">Does the child have any ongoing health conditions?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="health_cond-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.remove('hidden')">
@@ -950,7 +952,7 @@ function getStep6HTML() {
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label class="text-xs font-bold text-brand-dark flex-1">Has the child availed health services in the past 6 months?</label>
+              <label for="avail_services-yes" class="text-xs font-bold text-brand-dark flex-1">Has the child availed health services in the past 6 months?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="avail_services-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.remove('hidden')">
@@ -967,7 +969,7 @@ function getStep6HTML() {
           </div>
           
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <label class="text-xs font-bold text-brand-dark flex-1">Is the health facility accessible for the child?</label>
+            <label for="facility_access-yes" class="text-xs font-bold text-brand-dark flex-1">Is the health facility accessible for the child?</label>
             <div class="slide-toggle-container h-8 w-32">
               <div class="slide-toggle-slider"></div>
               <label for="facility_access-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
@@ -983,7 +985,7 @@ function getStep6HTML() {
           
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label class="text-xs font-bold text-brand-dark flex-1">Are there any barriers to accessing health care services?</label>
+              <label for="barriers-yes" class="text-xs font-bold text-brand-dark flex-1">Are there any barriers to accessing health care services?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="barriers-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.remove('hidden')">
@@ -1038,7 +1040,7 @@ function getStep7HTML() {
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label class="text-xs font-bold text-brand-dark flex-1">Is the child currently enrolled in school?</label>
+              <label for="enrolled-yes" class="text-xs font-bold text-brand-dark flex-1">Is the child currently enrolled in school?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="enrolled-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this); toggleEnrollment(true)">
@@ -1076,7 +1078,7 @@ function getStep7HTML() {
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label class="text-xs font-bold text-brand-dark flex-1">Is the school equipped with physically accessibility features?</label>
+              <label for="school_features-yes" class="text-xs font-bold text-brand-dark flex-1">Is the school equipped with physically accessibility features?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="school_features-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.remove('hidden')">
@@ -1094,7 +1096,7 @@ function getStep7HTML() {
           
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label class="text-xs font-bold text-brand-dark flex-1">Are there special education programs available?</label>
+              <label for="sped_prog-yes" class="text-xs font-bold text-brand-dark flex-1">Are there special education programs available?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="sped_prog-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.remove('hidden')">
@@ -1112,7 +1114,7 @@ function getStep7HTML() {
           
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label class="text-xs font-bold text-brand-dark flex-1">Does the child receive any learning support?</label>
+              <label for="learning_support-yes" class="text-xs font-bold text-brand-dark flex-1">Does the child receive any learning support?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="learning_support-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.remove('hidden')">
@@ -1197,7 +1199,7 @@ function getStep8HTML() {
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label class="text-xs font-bold text-brand-dark flex-1">Are the parents/guardians employed or have entrepreneurial activities?</label>
+              <label for="employed-yes" class="text-xs font-bold text-brand-dark flex-1">Are the parents/guardians employed or have entrepreneurial activities?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="employed-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.remove('hidden')">
@@ -1252,7 +1254,7 @@ function getStep9HTML() {
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label class="text-xs font-bold text-brand-dark flex-1">Does the family receive any form of financial assistance?</label>
+              <label for="fin_assist-yes" class="text-xs font-bold text-brand-dark flex-1">Does the family receive any form of financial assistance?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="fin_assist-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('fin-assist-specify').classList.remove('hidden')">
@@ -1270,7 +1272,7 @@ function getStep9HTML() {
           
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label class="text-xs font-bold text-brand-dark flex-1">Is the family aware of available social services for children with disabilities?</label>
+              <label for="aware_services-yes" class="text-xs font-bold text-brand-dark flex-1">Is the family aware of available social services for children with disabilities?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="aware_services-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('aware-specify').classList.remove('hidden')">
@@ -1288,7 +1290,7 @@ function getStep9HTML() {
           
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label class="text-xs font-bold text-brand-dark flex-1">Has the family availed of any services?</label>
+              <label for="availed_any-yes" class="text-xs font-bold text-brand-dark flex-1">Has the family availed of any services?</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="availed_any-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('availed-specify').classList.remove('hidden')">
@@ -1317,7 +1319,7 @@ function getStep9HTML() {
         
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">What are the challenges faced in availing these services? <span class="text-red-500">*</span></label>
+            <label for="service-challenges" class="block text-xs font-bold text-brand-dark mb-1">What are the challenges faced in availing these services? <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="service-challenges" name="service-challenges" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'barrier-other')">
                 <option value="" disabled selected>Select Challenge</option>
@@ -1370,15 +1372,15 @@ function getStep10HTML() {
         
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Strengths <span class="text-red-500">*</span></label>
+            <label for="strengths" class="block text-xs font-bold text-brand-dark mb-1">Strengths <span class="text-red-500">*</span></label>
             <textarea id="strengths" name="strengths" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Enter key strengths..."></textarea>
           </div>
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Assessment <span class="text-red-500">*</span></label>
+            <label for="assessment" class="block text-xs font-bold text-brand-dark mb-1">Assessment <span class="text-red-500">*</span></label>
             <textarea id="assessment" name="assessment" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Provide assessment details..."></textarea>
           </div>
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Recommended Actions/Interventions <span class="text-red-500">*</span></label>
+            <label for="recommendations" class="block text-xs font-bold text-brand-dark mb-1">Recommended Actions/Interventions <span class="text-red-500">*</span></label>
             <textarea id="recommendations" name="recommendations" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Suggest interventions..."></textarea>
           </div>
         </div>
@@ -2199,13 +2201,13 @@ function getFamilyMemberCardHTML(num, isHead) {
       <div class="p-5 sm:p-6 space-y-4 member-content">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="sm:col-span-2">
-            <label class="block text-xs font-bold text-brand-dark mb-1">Full Name <span class="text-red-500">*</span></label>
-            <input type="text" data-field="full_name" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Full Name">
+            <label for="fam-full-name-${num}" class="block text-xs font-bold text-brand-dark mb-1">Full Name <span class="text-red-500">*</span></label>
+            <input type="text" id="fam-full-name-${num}" name="fam-full-name-${num}" data-field="full_name" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Full Name">
           </div>
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Relationship to Head</label>
+            <label for="fam-rel-${num}" class="block text-xs font-bold text-brand-dark mb-1">Relationship to Head</label>
             <div class="relative">
-              <select data-field="relationship_to_head" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
+              <select id="fam-rel-${num}" name="fam-rel-${num}" data-field="relationship_to_head" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option>${isHead ? 'Head' : 'Spouse'}</option>
                 <option>Spouse</option>
                 <option>Child</option>
@@ -2218,7 +2220,7 @@ function getFamilyMemberCardHTML(num, isHead) {
             </div>
           </div>
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Solo Parent</label>
+            <label for="solo-${num}-yes" class="block text-xs font-bold text-brand-dark mb-1">Solo Parent</label>
             <div class="slide-toggle-container h-9 w-full">
               <div class="slide-toggle-slider"></div>
               <label for="solo-${num}-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
@@ -2235,9 +2237,9 @@ function getFamilyMemberCardHTML(num, isHead) {
         
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Civil Status <span class="text-red-500">*</span></label>
+            <label for="fam-civil-${num}" class="block text-xs font-bold text-brand-dark mb-1">Civil Status <span class="text-red-500">*</span></label>
             <div class="relative">
-              <select data-field="civil_status" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
+              <select id="fam-civil-${num}" name="fam-civil-${num}" data-field="civil_status" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>Select Status</option>
                 <option>Single</option>
                 <option>Married</option>
@@ -2248,11 +2250,11 @@ function getFamilyMemberCardHTML(num, isHead) {
             </div>
           </div>
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Age <span class="text-red-500">*</span></label>
-            <input type="text" data-field="age" maxlength="3" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Age" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <label for="fam-age-${num}" class="block text-xs font-bold text-brand-dark mb-1">Age <span class="text-red-500">*</span></label>
+            <input type="text" id="fam-age-${num}" name="fam-age-${num}" data-field="age" maxlength="3" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Age" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
           </div>
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Sex</label>
+            <label for="sex-male" class="block text-xs font-bold text-brand-dark mb-1">Sex</label>
             <div class="slide-toggle-container h-9 w-full">
               <div class="slide-toggle-slider"></div>
               <label for="sex-${num}-male" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
@@ -2269,17 +2271,17 @@ function getFamilyMemberCardHTML(num, isHead) {
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Occupation <span class="text-red-500">*</span></label>
+            <label for="dd-fam-occ-${num}" class="block text-xs font-bold text-brand-dark mb-1">Occupation <span class="text-red-500">*</span></label>
             <div class="relative">
-              <select id="dd-fam-occ-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
+              <select id="dd-fam-occ-${num}" name="dd-fam-occ-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>Loading...</option>
               </select>
             </div>
           </div>
           <div>
-            <label class="block text-xs font-bold text-brand-dark mb-1">Occupation Class <span class="text-red-500">*</span></label>
+            <label for="dd-fam-class-${num}" class="block text-xs font-bold text-brand-dark mb-1">Occupation Class <span class="text-red-500">*</span></label>
             <div class="relative">
-              <select id="dd-fam-class-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
+              <select id="dd-fam-class-${num}" name="dd-fam-class-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>Loading...</option>
               </select>
             </div>
@@ -2288,8 +2290,8 @@ function getFamilyMemberCardHTML(num, isHead) {
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="relative">
-            <label class="block text-xs font-bold text-brand-dark mb-1">Disability/Special Needs</label>
-            <button type="button" onclick="toggleDropdown('dd-fam-dis-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
+            <label for="dd-fam-dis-${num}-btn" class="block text-xs font-bold text-brand-dark mb-1">Disability/Special Needs</label>
+            <button type="button" id="dd-fam-dis-${num}-btn" onclick="toggleDropdown('dd-fam-dis-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
               <span id="disp-fam-dis-${num}" class="truncate text-gray-500">Select...</span>
               <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
@@ -2298,8 +2300,8 @@ function getFamilyMemberCardHTML(num, isHead) {
             </div>
           </div>
           <div class="relative">
-            <label class="block text-xs font-bold text-brand-dark mb-1">Critical Illness</label>
-            <button type="button" onclick="toggleDropdown('dd-fam-ill-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
+            <label for="dd-illness" class="block text-xs font-bold text-brand-dark mb-1">Critical Illness</label>
+            <button type="button" id="dd-fam-ill-${num}-btn" onclick="toggleDropdown('dd-fam-ill-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
               <span id="disp-fam-ill-${num}" class="truncate text-gray-500">Select...</span>
               <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
