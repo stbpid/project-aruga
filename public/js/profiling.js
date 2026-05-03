@@ -446,7 +446,7 @@ function getStep3HTML() {
               <input type="text" id="child-lname" name="child-lname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Last Name">
             </div>
             <div>
-              <label for="dd-extension-input" class="block text-xs font-bold text-brand-dark mb-1">Extension</label>
+              <label for="dd-extension" class="block text-xs font-bold text-brand-dark mb-1">Extension</label>
               <div class="relative">
                 <select id="dd-extension" name="dd-extension" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                   <option value="" disabled selected>Loading...</option>
@@ -457,7 +457,7 @@ function getStep3HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="child-region-input" class="block text-xs font-bold text-brand-dark mb-1">Region <span class="text-red-500">*</span></label>
+              <label for="child-region" class="block text-xs font-bold text-brand-dark mb-1">Region <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-region" name="child-region" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateProvinces()">
                   <option value="" disabled selected>Select Region</option>
@@ -465,7 +465,7 @@ function getStep3HTML() {
               </div>
             </div>
             <div>
-              <label for="child-province-input" class="block text-xs font-bold text-brand-dark mb-1">Province <span class="text-red-500">*</span></label>
+              <label for="child-province" class="block text-xs font-bold text-brand-dark mb-1">Province <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-province" name="child-province" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateCities()" disabled>
                   <option value="" disabled selected>Select Province</option>
@@ -476,7 +476,7 @@ function getStep3HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="child-city-input" class="block text-xs font-bold text-brand-dark mb-1">City/Municipality <span class="text-red-500">*</span></label>
+              <label for="child-city" class="block text-xs font-bold text-brand-dark mb-1">City/Municipality <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-city" name="child-city" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateBarangays()" disabled>
                   <option value="" disabled selected>Select City</option>
@@ -484,7 +484,7 @@ function getStep3HTML() {
               </div>
             </div>
             <div>
-              <label for="child-barangay-input" class="block text-xs font-bold text-brand-dark mb-1">Barangay <span class="text-red-500">*</span></label>
+              <label for="child-barangay" class="block text-xs font-bold text-brand-dark mb-1">Barangay <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-barangay" name="child-barangay" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" disabled>
                   <option value="" disabled selected>Select Barangay</option>
@@ -541,7 +541,7 @@ function getStep3HTML() {
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="dd-religion-input" class="block text-xs font-bold text-brand-dark mb-1">Religion <span class="text-red-500">*</span></label>
+              <label for="dd-religion" class="block text-xs font-bold text-brand-dark mb-1">Religion <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-religion" name="dd-religion" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'rel-other')">
                   <option value="" disabled selected>Loading...</option>
@@ -550,7 +550,7 @@ function getStep3HTML() {
               <input id="rel-other" name="rel-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
             </div>
             <div>
-              <label for="dd-ip-input" class="block text-xs font-bold text-brand-dark mb-1">IP Membership <span class="text-red-500">*</span></label>
+              <label for="dd-ip" class="block text-xs font-bold text-brand-dark mb-1">IP Membership <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-ip" name="dd-ip" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'ip-other')">
                   <option value="" disabled selected>Loading...</option>
@@ -573,7 +573,7 @@ function getStep3HTML() {
         
         <div class="space-y-4">
           <div>
-            <label for="dd-education-input" class="block text-xs font-bold text-brand-dark mb-1">Highest Educational Attainment <span class="text-red-500">*</span></label>
+            <label for="dd-education" class="block text-xs font-bold text-brand-dark mb-1">Highest Educational Attainment <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-education" name="dd-education" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'edu-other')">
                 <option value="" disabled selected>Loading...</option>
@@ -687,7 +687,7 @@ function getStep5HTML() {
         
         <div class="space-y-4">
           <div>
-            <label for="dd-materials-input" class="block text-xs font-bold text-brand-dark mb-1">What type of construction materials are the roofs and outer walls made of? <span class="text-red-500">*</span></label>
+            <label for="dd-materials" class="block text-xs font-bold text-brand-dark mb-1">What type of construction materials are the roofs and outer walls made of? <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-materials" name="dd-materials" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'mat-other')">
                 <option value="" disabled selected>Select Materials</option>
@@ -697,7 +697,7 @@ function getStep5HTML() {
           </div>
           
           <div>
-            <label for="dd-tenure-input" class="block text-xs font-bold text-brand-dark mb-1">What is the tenure status of the house and lot does the family have? <span class="text-red-500">*</span></label>
+            <label for="dd-tenure" class="block text-xs font-bold text-brand-dark mb-1">What is the tenure status of the house and lot does the family have? <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-tenure" name="dd-tenure" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'tenure-other')">
                 <option value="" disabled selected>Select Status</option>
@@ -723,7 +723,7 @@ function getStep5HTML() {
           </div>
           
           <div>
-            <label for="dd-electricity-input" class="block text-xs font-bold text-brand-dark mb-1">What is the main source of electricity in the dwelling place? <span class="text-red-500">*</span></label>
+            <label for="dd-electricity" class="block text-xs font-bold text-brand-dark mb-1">What is the main source of electricity in the dwelling place? <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-electricity" name="dd-electricity" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'elec-other')">
                 <option value="" disabled selected>Select Source</option>
@@ -744,7 +744,7 @@ function getStep5HTML() {
         </div>
         
         <div>
-          <label for="dd-water-input" class="block text-xs font-bold text-brand-dark mb-1">What is your family's main source of water supply? <span class="text-red-500">*</span></label>
+          <label for="dd-water" class="block text-xs font-bold text-brand-dark mb-1">What is your family's main source of water supply? <span class="text-red-500">*</span></label>
           <div class="relative">
             <select id="dd-water" name="dd-water" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'water-other')">
               <option value="" disabled selected>Select Water Source</option>
@@ -766,7 +766,7 @@ function getStep5HTML() {
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="dd-toilet-input" class="block text-xs font-bold text-brand-dark mb-1">Main type of toilet facility <span class="text-red-500">*</span></label>
+              <label for="dd-toilet" class="block text-xs font-bold text-brand-dark mb-1">Main type of toilet facility <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-toilet" name="dd-toilet" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'toilet-other')">
                   <option value="" disabled selected>Select Toilet Type</option>
@@ -791,7 +791,7 @@ function getStep5HTML() {
           </div>
           
           <div>
-            <label for="dd-garbage-input" class="block text-xs font-bold text-brand-dark mb-1">Main system of garbage disposal <span class="text-red-500">*</span></label>
+            <label for="dd-garbage" class="block text-xs font-bold text-brand-dark mb-1">Main system of garbage disposal <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-garbage" name="dd-garbage" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'garbage-other')">
                 <option value="" disabled selected>Select System</option>
@@ -1319,7 +1319,7 @@ function getStep9HTML() {
         
         <div class="space-y-4">
           <div>
-            <label for="service-challenges-input" class="block text-xs font-bold text-brand-dark mb-1">What are the challenges faced in availing these services? <span class="text-red-500">*</span></label>
+            <label for="service-challenges" class="block text-xs font-bold text-brand-dark mb-1">What are the challenges faced in availing these services? <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="service-challenges" name="service-challenges" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'barrier-other')">
                 <option value="" disabled selected>Select Challenge</option>
@@ -2005,11 +2005,12 @@ function initGoogleSelects() {
     input.autocomplete = 'off';
     input.placeholder = placeholderText;
     input.className = 'google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400';
-    // Give input a companion id/name so label for= resolves to the visible element
+    // Give input the select's id so label for= resolves to the visible element
     if (select.id) {
-      input.id = select.id + '-input';
+      input.id = select.id;
       input.name = select.name || select.id;
-      input.setAttribute('aria-labelledby', select.id + '-label');
+      select.removeAttribute('id');
+      select.removeAttribute('name');
     }
     wrapper.appendChild(input);
 
@@ -2072,6 +2073,7 @@ function initGoogleSelects() {
             e.preventDefault();
             select.value = opt.value;
             input.value = opt.text;
+            input.dataset.value = opt.value;
             input.classList.remove('text-gray-400');
             input.classList.add('text-gray-800');
             committed = true;
@@ -2095,6 +2097,7 @@ function initGoogleSelects() {
     input.addEventListener('input', () => {
       committed = false;
       select.value = '';
+      delete input.dataset.value;
       renderList(input.value);
       list.classList.remove('hidden');
     });
@@ -2111,6 +2114,7 @@ function initGoogleSelects() {
           const text = items[activeIndex].textContent;
           select.value = val;
           input.value = text;
+          input.dataset.value = val;
           committed = true;
           list.classList.add('hidden');
           select.dispatchEvent(new Event('change'));
@@ -2124,7 +2128,7 @@ function initGoogleSelects() {
     input.addEventListener('blur', () => {
       setTimeout(() => {
         list.classList.add('hidden');
-        if (!committed) input.value = '';
+        if (!committed) { input.value = ''; delete input.dataset.value; }
       }, 150);
     });
 
@@ -2134,9 +2138,11 @@ function initGoogleSelects() {
       const opt = select.options[select.selectedIndex];
       if (opt && opt.value) {
         input.value = opt.text;
+        input.dataset.value = opt.value;
         committed = true;
       } else {
         input.value = '';
+        delete input.dataset.value;
         committed = false;
       }
     });
@@ -2213,7 +2219,7 @@ function getFamilyMemberCardHTML(num, isHead) {
             <input type="text" id="fam-full-name-${num}" name="fam-full-name-${num}" data-field="full_name" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Full Name">
           </div>
           <div>
-            <label for="fam-rel-${num}-input" class="block text-xs font-bold text-brand-dark mb-1">Relationship to Head</label>
+            <label for="fam-rel-${num}" class="block text-xs font-bold text-brand-dark mb-1">Relationship to Head</label>
             <div class="relative">
               <select id="fam-rel-${num}" name="fam-rel-${num}" data-field="relationship_to_head" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option>${isHead ? 'Head' : 'Spouse'}</option>
@@ -2245,7 +2251,7 @@ function getFamilyMemberCardHTML(num, isHead) {
         
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
-            <label for="fam-civil-${num}-input" class="block text-xs font-bold text-brand-dark mb-1">Civil Status <span class="text-red-500">*</span></label>
+            <label for="fam-civil-${num}" class="block text-xs font-bold text-brand-dark mb-1">Civil Status <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="fam-civil-${num}" name="fam-civil-${num}" data-field="civil_status" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>Select Status</option>
@@ -2279,7 +2285,7 @@ function getFamilyMemberCardHTML(num, isHead) {
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="dd-fam-occ-${num}-input" class="block text-xs font-bold text-brand-dark mb-1">Occupation <span class="text-red-500">*</span></label>
+            <label for="dd-fam-occ-${num}" class="block text-xs font-bold text-brand-dark mb-1">Occupation <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-fam-occ-${num}" name="dd-fam-occ-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>Loading...</option>
@@ -2287,7 +2293,7 @@ function getFamilyMemberCardHTML(num, isHead) {
             </div>
           </div>
           <div>
-            <label for="dd-fam-class-${num}-input" class="block text-xs font-bold text-brand-dark mb-1">Occupation Class <span class="text-red-500">*</span></label>
+            <label for="dd-fam-class-${num}" class="block text-xs font-bold text-brand-dark mb-1">Occupation Class <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-fam-class-${num}" name="dd-fam-class-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>Loading...</option>
@@ -2431,7 +2437,7 @@ function isValidName(v)    { return /^[A-Za-zÑñ\s\-']+$/.test(v); }
 function isValidEmail(v)   { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
 function isValidPhone(v)   { const d = v.replace(/\D/g,''); return d.length === 11 && d.startsWith('09'); }
 function getRadioVal(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || null; }
-function getSelVal(id)     { return document.getElementById(id)?.value || ''; }
+function getSelVal(id)     { const el = document.getElementById(id); if (!el) return ''; return el.dataset.value !== undefined ? el.dataset.value : (el.value || ''); }
 function getMultiVals(id)  {
   const c = document.getElementById(id);
   return c ? Array.from(c.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value) : [];
