@@ -51,16 +51,16 @@ $options = [
     ],
     'List_Disability' => [
         'None',
-        'Visual Impairment',
-        'Hearing Impairment',
-        'Speech Impairment',
-        'Physical Disability',
-        'Intellectual Disability',
+        'Visual Disability',
+        'Hearing Disability',
+        'Speech and Language Impairment',
+        'Orthopedic / Physical Disability',
+        'Mental / Intellectual Disability',
         'Learning Disability',
-        'Autism Spectrum Disorder',
         'Psychosocial Disability',
+        'Disability Resulting from a Chronic Illness',
         'Multiple Disabilities',
-        'Others'
+        'Other (specify)'
     ],
     'List_Illness' => [
         'None',
