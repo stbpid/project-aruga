@@ -2021,7 +2021,7 @@ function calculateIncomeClass(input) {
 // Close dropdowns when clicking outside
 window.addEventListener('click', function(e) {
   document.querySelectorAll('.google-menu-custom, .google-menu').forEach(menu => {
-    if (!menu.contains(e.target) && !e.target.closest('[onclick^="toggleDropdown"]')) {
+    if (!menu.contains(e.target) && !e.target.closest('[onclick^="toggleDropdown"]') && !e.target.classList.contains('google-dropdown-style')) {
       menu.classList.add('hidden');
     }
   });
@@ -2038,40 +2038,32 @@ function initGoogleSelects() {
     wrapper.appendChild(select);
     select.classList.add('hidden');
 
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = "w-full h-9 px-3 text-left bg-white border border-gray-300 rounded flex justify-between items-center text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none transition-all";
+    // Placeholder text from the disabled option
+    const placeholderOpt = Array.from(select.options).find(o => o.disabled);
+    const placeholderText = placeholderOpt ? placeholderOpt.text : 'Select...';
 
-    const textSpan = document.createElement('span');
-    textSpan.className = 'truncate text-gray-500';
+    // Text input acts as the visible field
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.autocomplete = 'off';
+    input.placeholder = placeholderText;
+    input.className = 'google-dropdown-style w-full h-9 pl-3 pr-10 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400';
+    wrapper.appendChild(input);
 
     const icon = document.createElement('span');
-    icon.className = 'material-symbols-outlined text-[18px] text-gray-500 ml-2 flex-shrink-0';
+    icon.className = 'material-symbols-outlined text-[18px] text-gray-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none';
     icon.innerText = 'expand_more';
+    wrapper.appendChild(icon);
 
-    btn.appendChild(textSpan);
-    btn.appendChild(icon);
-    wrapper.appendChild(btn);
-
-    const menu = document.createElement('div');
-    menu.className = 'hidden fixed bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden google-menu-custom';
-    menu.style.zIndex = '9999';
-    document.body.appendChild(menu);
-
-    const searchInput = document.createElement('input');
-    searchInput.type = 'text';
-    searchInput.placeholder = 'Search...';
-    searchInput.className = 'w-full px-3 py-2 text-xs sm:text-sm border-b border-gray-200 outline-none focus:bg-blue-50';
-    menu.appendChild(searchInput);
-
-    const listContainer = document.createElement('div');
-    listContainer.className = 'overflow-y-auto dropdown-scroll';
-    listContainer.style.maxHeight = '200px';
-    menu.appendChild(listContainer);
+    const list = document.createElement('ul');
+    list.className = 'hidden fixed bg-white border border-gray-200 rounded-md shadow-lg overflow-y-auto dropdown-scroll google-menu-custom';
+    list.style.zIndex = '9999';
+    document.body.appendChild(list);
 
     let activeIndex = -1;
+    let committed = false;
 
-    const getItems = () => listContainer.querySelectorAll('div[data-val]');
+    const getItems = () => list.querySelectorAll('li[data-val]');
 
     const setActive = (idx) => {
       const items = getItems();
@@ -2083,107 +2075,111 @@ function initGoogleSelects() {
       }
     };
 
-    const syncText = () => {
-      const opt = select.options[select.selectedIndex];
-      if (opt) {
-        textSpan.innerText = opt.text;
-        if (opt.disabled || !opt.value) {
-          textSpan.classList.replace('text-gray-900', 'text-gray-500');
-        } else {
-          textSpan.classList.replace('text-gray-500', 'text-gray-900');
-        }
+    const syncDisabled = () => {
+      if (select.disabled) {
+        input.disabled = true;
+        input.classList.add('bg-gray-50', 'opacity-70', 'cursor-not-allowed');
+      } else {
+        input.disabled = false;
+        input.classList.remove('bg-gray-50', 'opacity-70', 'cursor-not-allowed');
       }
     };
-    syncText();
+    syncDisabled();
 
-    const renderItems = (filter) => {
+    const renderList = (filter) => {
       const q = (filter || '').toLowerCase();
-      listContainer.innerHTML = '';
+      const opts = q
+        ? Array.from(select.options).filter(o => !o.disabled && o.text.toLowerCase().includes(q))
+        : Array.from(select.options).filter(o => !o.disabled);
       activeIndex = -1;
-      const opts = Array.from(select.options).filter(o => !o.disabled && o.text.toLowerCase().includes(q));
+      list.innerHTML = '';
       if (opts.length === 0) {
-        const empty = document.createElement('div');
-        empty.className = 'px-3 py-2 text-xs text-gray-400 italic';
-        empty.textContent = 'No match found';
-        listContainer.appendChild(empty);
+        const li = document.createElement('li');
+        li.className = 'px-3 py-2 text-xs text-gray-400 italic';
+        li.textContent = 'No match found';
+        list.appendChild(li);
       } else {
         opts.forEach(opt => {
-          const item = document.createElement('div');
-          item.className = 'px-3 py-2 text-sm text-gray-800 hover:bg-gray-100 cursor-pointer transition-colors';
-          item.dataset.val = opt.value;
-          item.innerText = opt.text;
-          item.addEventListener('mousedown', e => {
+          const li = document.createElement('li');
+          li.className = 'px-3 py-2 text-xs sm:text-sm text-gray-800 hover:bg-gray-100 cursor-pointer';
+          li.dataset.val = opt.value;
+          li.textContent = opt.text;
+          li.addEventListener('mousedown', e => {
             e.preventDefault();
             select.value = opt.value;
-            syncText();
-            menu.classList.add('hidden');
-            searchInput.value = '';
+            input.value = opt.text;
+            input.classList.remove('text-gray-400');
+            input.classList.add('text-gray-800');
+            committed = true;
+            list.classList.add('hidden');
             select.dispatchEvent(new Event('change'));
           });
-          listContainer.appendChild(item);
+          list.appendChild(li);
         });
       }
+      positionFixedMenu(list, input);
     };
 
-    const openMenu = () => {
+    input.addEventListener('focus', () => {
       if (select.disabled) return;
       document.querySelectorAll('.google-menu-custom, .google-menu').forEach(m => m.classList.add('hidden'));
-      renderItems('');
-      menu.classList.remove('hidden');
-      positionFixedMenu(menu, btn);
-      listContainer.style.maxHeight = menu.style.maxHeight
-        ? (parseInt(menu.style.maxHeight) - 40) + 'px'
-        : '200px';
-      searchInput.value = '';
-      searchInput.focus();
-    };
-
-    btn.addEventListener('click', e => { e.stopPropagation(); openMenu(); });
-
-    searchInput.addEventListener('input', () => {
-      renderItems(searchInput.value);
+      committed = false;
+      renderList(input.value);
+      list.classList.remove('hidden');
     });
 
-    searchInput.addEventListener('keydown', e => {
+    input.addEventListener('input', () => {
+      committed = false;
+      select.value = '';
+      renderList(input.value);
+      list.classList.remove('hidden');
+    });
+
+    input.addEventListener('keydown', e => {
+      if (list.classList.contains('hidden')) return;
       const items = getItems();
       if (e.key === 'ArrowDown') { e.preventDefault(); setActive(activeIndex < 0 ? 0 : activeIndex + 1); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(activeIndex <= 0 ? 0 : activeIndex - 1); }
       else if (e.key === 'Enter') {
         e.preventDefault();
         if (activeIndex >= 0 && items[activeIndex]) {
-          select.value = items[activeIndex].dataset.val;
-          syncText();
-          menu.classList.add('hidden');
-          searchInput.value = '';
+          const val = items[activeIndex].dataset.val;
+          const text = items[activeIndex].textContent;
+          select.value = val;
+          input.value = text;
+          committed = true;
+          list.classList.add('hidden');
           select.dispatchEvent(new Event('change'));
         }
       } else if (e.key === 'Escape') {
-        menu.classList.add('hidden');
-        btn.focus();
+        list.classList.add('hidden');
+        input.blur();
       }
     });
 
-    searchInput.addEventListener('blur', () => {
-      setTimeout(() => menu.classList.add('hidden'), 150);
+    input.addEventListener('blur', () => {
+      setTimeout(() => {
+        list.classList.add('hidden');
+        if (!committed) input.value = '';
+      }, 150);
     });
 
-    const observer = new MutationObserver(() => { syncText(); });
-    observer.observe(select, { childList: true });
-
-    const handleDisable = () => {
-      if (select.disabled) {
-        btn.classList.add('bg-gray-50', 'opacity-70', 'cursor-not-allowed');
+    // Sync input when select value changes externally (e.g. reset)
+    const observer = new MutationObserver(() => {
+      syncDisabled();
+      const opt = select.options[select.selectedIndex];
+      if (opt && opt.value) {
+        input.value = opt.text;
+        committed = true;
       } else {
-        btn.classList.remove('bg-gray-50', 'opacity-70', 'cursor-not-allowed');
+        input.value = '';
+        committed = false;
       }
-    };
-    handleDisable();
+    });
+    observer.observe(select, { childList: true, attributes: true, attributeFilter: ['disabled'] });
 
-    const disableObserver = new MutationObserver(handleDisable);
-    disableObserver.observe(select, { attributes: true, attributeFilter: ['disabled'] });
-
-    window.addEventListener('scroll', () => { if (!menu.classList.contains('hidden')) positionFixedMenu(menu, btn); }, true);
-    window.addEventListener('resize', () => { if (!menu.classList.contains('hidden')) positionFixedMenu(menu, btn); });
+    window.addEventListener('scroll', () => { if (!list.classList.contains('hidden')) positionFixedMenu(list, input); }, true);
+    window.addEventListener('resize', () => { if (!list.classList.contains('hidden')) positionFixedMenu(list, input); });
   });
 }
 
