@@ -322,6 +322,9 @@
           <div class="page-title" style="margin:0;">Interviewers</div>
           <div class="page-subtitle" style="margin:0;">All registered interviewers in the system</div>
         </div>
+        <button class="btn btn-primary btn-sm" style="margin-left:auto;" onclick="openAddInterviewerModal()">
+          <span class="material-symbols-outlined">person_add</span>Add Interviewer
+        </button>
       </div>
       <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
         <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
@@ -347,10 +350,11 @@
                 <th>Province</th>
                 <th>Position</th>
                 <th>Office</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody id="int-tbody">
-              <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -360,6 +364,89 @@
         </div>
       </div>
     </div><!-- /view-interviewers -->
+
+    <!-- Edit Interviewer Modal -->
+    <div id="edit-int-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
+      <div style="background:white;border-radius:1.25rem;width:100%;max-width:480px;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden;">
+        <div style="padding:1.5rem 1.75rem 0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+            <div>
+              <div style="font-size:1rem;font-weight:800;color:var(--dark);">Edit Interviewer</div>
+              <div style="font-size:0.75rem;color:var(--gray-400);">Update interviewer details</div>
+            </div>
+            <button onclick="closeIntModal('edit')" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;"><span class="material-symbols-outlined">close</span></button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <div><label class="settings-label">Full Name</label><input type="text" id="edit-int-name" class="settings-input" placeholder="Full name"></div>
+              <div><label class="settings-label">Code</label><input type="text" id="edit-int-code" class="settings-input" placeholder="Interviewer code" readonly style="background:var(--gray-50);"></div>
+            </div>
+            <div><label class="settings-label">Region</label><input type="text" id="edit-int-region" class="settings-input" placeholder="Region"></div>
+            <div><label class="settings-label">Province</label><input type="text" id="edit-int-province" class="settings-input" placeholder="Province"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <div><label class="settings-label">Position</label><input type="text" id="edit-int-position" class="settings-input" placeholder="Position"></div>
+              <div><label class="settings-label">Office</label><input type="text" id="edit-int-office" class="settings-input" placeholder="Office"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);margin-top:1.5rem;">
+          <button onclick="closeIntModal('edit')" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
+          <button onclick="confirmEditInterviewer()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Update</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Interviewer Modal -->
+    <div id="add-int-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
+      <div style="background:white;border-radius:1.25rem;width:100%;max-width:480px;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden;">
+        <div style="padding:1.5rem 1.75rem 0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+            <div>
+              <div style="font-size:1rem;font-weight:800;color:var(--dark);">Add Interviewer</div>
+              <div style="font-size:0.75rem;color:var(--gray-400);">Register a new field interviewer</div>
+            </div>
+            <button onclick="closeIntModal('add')" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;"><span class="material-symbols-outlined">close</span></button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <div><label class="settings-label">Full Name</label><input type="text" id="add-int-name" class="settings-input" placeholder="e.g. Juan dela Cruz"></div>
+              <div>
+                <label class="settings-label">Code</label>
+                <div style="display:flex;gap:0.375rem;">
+                  <input type="text" id="add-int-code" class="settings-input" placeholder="Auto-generate" readonly style="flex:1;background:var(--gray-50);font-family:monospace;font-weight:700;color:var(--blue);">
+                  <button onclick="genAddIntCode()" style="background:var(--gray-100);border:1px solid var(--border);border-radius:0.5rem;cursor:pointer;padding:0 0.5rem;display:flex;align-items:center;" title="Generate"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--gray-600);">refresh</span></button>
+                </div>
+              </div>
+            </div>
+            <div><label class="settings-label">Region</label><select id="add-int-region" class="settings-input">
+              <option value="">Select region...</option>
+              <option>NCR – Metro Manila</option><option>Region I – Ilocos Region</option><option>Region II – Cagayan Valley</option>
+              <option>Region III – Central Luzon</option><option>Region IV-A – CALABARZON</option><option>Region IV-B – MIMAROPA</option>
+              <option>Region V – Bicol Region</option><option>Region VI – Western Visayas</option><option>Region VII – Central Visayas</option>
+              <option>Region VIII – Eastern Visayas</option><option>Region IX – Zamboanga Peninsula</option><option>Region X – Northern Mindanao</option>
+              <option>Region XI – Davao Region</option><option>Region XII – SOCCSKSARGEN</option><option>Region XIII – Caraga</option>
+              <option>CAR – Cordillera</option><option>BARMM</option>
+            </select></div>
+            <div><label class="settings-label">Province</label><input type="text" id="add-int-province" class="settings-input" placeholder="e.g. Cebu"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <div><label class="settings-label">Position</label><input type="text" id="add-int-position" class="settings-input" placeholder="e.g. SWO II"></div>
+              <div><label class="settings-label">Office</label><input type="text" id="add-int-office" class="settings-input" placeholder="e.g. DSWD FO VII"></div>
+            </div>
+            <div id="add-int-err" style="display:none;font-size:0.75rem;color:#dc2626;font-weight:600;"></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);margin-top:1.5rem;">
+          <button onclick="closeIntModal('add')" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
+          <button onclick="confirmAddInterviewer()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Add Interviewer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interviewer Success Toast -->
+    <div id="int-success-toast" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:10000;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:0.75rem;padding:0.875rem 1.25rem;font-size:0.8125rem;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:flex;align-items:center;gap:0.5rem;animation:fadeInUp 0.25s ease;">
+      <span class="material-symbols-outlined" style="font-size:1.125rem;">check_circle</span>
+      <span id="int-success-msg"></span>
+    </div>
 
     <!-- Analytics View -->
     <div class="dash-content" id="view-analytics" style="display:none;">
@@ -1923,7 +2010,7 @@
 
   async function loadInterviewers() {
     if (intLoaded) return;
-    document.getElementById('int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    document.getElementById('int-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
       const json = await (await fetch('/api/get-interviewers.php')).json();
       intData = json.success ? json.data : [];
@@ -1933,7 +2020,7 @@
       regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o); });
       intFiltered = intData; intPage = 0; renderInterviewers();
     } catch(e) {
-      document.getElementById('int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+      document.getElementById('int-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
     }
   }
 
@@ -1955,17 +2042,92 @@
     const page  = intFiltered.slice(start, end);
     document.getElementById('int-count').textContent = total + ' interviewer' + (total !== 1 ? 's' : '');
     document.getElementById('int-tbody').innerHTML = page.length
-      ? page.map(r => `<tr class="table-row-hover">
+      ? page.map((r, i) => `<tr class="table-row-hover">
           <td><div style="font-weight:600;color:#111811;">${r.name}</div></td>
           <td><span style="font-family:monospace;font-size:0.8rem;font-weight:700;color:var(--blue);">${r.code}</span></td>
           <td>${r.region}</td>
           <td>${r.province}</td>
           <td>${r.position}</td>
           <td>${r.office}</td>
+          <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openEditInterviewerModal(${start + i})" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
         </tr>`).join('')
-      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
+      : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
     document.getElementById('int-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} interviewers` : 'No results';
     buildPagination('int-pagination', intPage, totalPages, p => { intPage = p; renderInterviewers(); });
+  }
+
+  let editIntIndex = null;
+
+  function openEditInterviewerModal(filteredIndex) {
+    const r = intFiltered[filteredIndex];
+    if (!r) return;
+    editIntIndex = intData.indexOf(r);
+    document.getElementById('edit-int-name').value     = r.name     || '';
+    document.getElementById('edit-int-code').value     = r.code     || '';
+    document.getElementById('edit-int-region').value   = r.region   || '';
+    document.getElementById('edit-int-province').value = r.province || '';
+    document.getElementById('edit-int-position').value = r.position || '';
+    document.getElementById('edit-int-office').value   = r.office   || '';
+    const modal = document.getElementById('edit-int-modal');
+    modal.style.display = 'flex';
+  }
+
+  function confirmEditInterviewer() {
+    if (editIntIndex === null) return;
+    const r = intData[editIntIndex];
+    r.name     = document.getElementById('edit-int-name').value.trim()     || r.name;
+    r.region   = document.getElementById('edit-int-region').value.trim()   || r.region;
+    r.province = document.getElementById('edit-int-province').value.trim() || r.province;
+    r.position = document.getElementById('edit-int-position').value.trim() || r.position;
+    r.office   = document.getElementById('edit-int-office').value.trim()   || r.office;
+    closeIntModal('edit');
+    filterInterviewers();
+    showIntToast(r.name + ' updated successfully.');
+  }
+
+  function openAddInterviewerModal() {
+    ['add-int-name','add-int-province','add-int-position','add-int-office'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('add-int-region').value = '';
+    document.getElementById('add-int-code').value = '';
+    document.getElementById('add-int-err').style.display = 'none';
+    genAddIntCode();
+    document.getElementById('add-int-modal').style.display = 'flex';
+  }
+
+  function genAddIntCode() {
+    const year = new Date().getFullYear();
+    const seq = String(intData.length + Math.floor(Math.random()*10) + 1).padStart(3,'0');
+    document.getElementById('add-int-code').value = `IVR-${year}-${seq}`;
+  }
+
+  function confirmAddInterviewer() {
+    const name     = document.getElementById('add-int-name').value.trim();
+    const code     = document.getElementById('add-int-code').value.trim();
+    const region   = document.getElementById('add-int-region').value;
+    const province = document.getElementById('add-int-province').value.trim();
+    const position = document.getElementById('add-int-position').value.trim();
+    const office   = document.getElementById('add-int-office').value.trim();
+    const errEl    = document.getElementById('add-int-err');
+    if (!name || !region) { errEl.textContent = 'Name and Region are required.'; errEl.style.display = ''; return; }
+    errEl.style.display = 'none';
+    const newInt = { name, code, region, province, position, office };
+    intData.unshift(newInt);
+    intLoaded = true;
+    closeIntModal('add');
+    filterInterviewers();
+    showIntToast(name + ' added as a new interviewer.');
+  }
+
+  function closeIntModal(type) {
+    document.getElementById(type + '-int-modal').style.display = 'none';
+  }
+
+  function showIntToast(msg) {
+    const toast = document.getElementById('int-success-toast');
+    document.getElementById('int-success-msg').textContent = msg;
+    toast.style.display = 'flex';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => { toast.style.display = 'none'; }, 3500);
   }
 
   // ── View switcher ──────────────────────────────────────────────
@@ -1993,7 +2155,7 @@
 
   async function loadAuditLogs() {
     if (auditLoaded) return;
-    document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
       const json = await (await fetch('/api/get-audit-logs.php')).json();
       if (json.success && json.data) {
