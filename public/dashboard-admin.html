@@ -138,38 +138,46 @@
       <!-- Row 1: Chart + Activity -->
       <div class="grid-3-1" style="margin-bottom:1rem;">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="flex-wrap:wrap;gap:0.5rem;">
             <div>
               <div class="card-title">Monthly Assessments</div>
               <div class="card-subtitle" id="monthly-subtitle">Loading...</div>
             </div>
-            <div style="display:flex;align-items:center;gap:0.375rem;">
-              <button class="btn btn-secondary btn-sm" id="monthly-prev" title="Previous year">
-                <span class="material-symbols-outlined">chevron_left</span>
-              </button>
-              <span id="monthly-year" style="font-size:0.8125rem;font-weight:700;color:var(--dark);min-width:2.5rem;text-align:center;"></span>
-              <button class="btn btn-secondary btn-sm" id="monthly-next" title="Next year">
-                <span class="material-symbols-outlined">chevron_right</span>
-              </button>
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+              <!-- View mode tabs -->
+              <div style="display:flex;border:1px solid var(--border);border-radius:0.375rem;overflow:hidden;">
+                <button id="view-monthly" class="chart-view-btn active" data-view="monthly">Monthly</button>
+                <button id="view-quarterly" class="chart-view-btn" data-view="quarterly">Quarterly</button>
+                <button id="view-yearly" class="chart-view-btn" data-view="yearly">Yearly</button>
+              </div>
+              <!-- Year nav (hidden in yearly multi-year mode) -->
+              <div style="display:flex;align-items:center;gap:0.25rem;" id="year-nav">
+                <button class="btn btn-secondary btn-sm" id="monthly-prev" title="Previous">
+                  <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <span id="monthly-year" style="font-size:0.8125rem;font-weight:700;color:var(--dark);min-width:2.75rem;text-align:center;"></span>
+                <button class="btn btn-secondary btn-sm" id="monthly-next" title="Next">
+                  <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="bar-chart" id="monthly-bars"></div>
+          <div class="bar-chart" id="monthly-bars" style="margin-top:0.5rem;"></div>
         </div>
 
         <div class="card">
           <div class="card-header">
             <div>
               <div class="card-title">Assessment Status</div>
-              <div class="card-subtitle">Current distribution</div>
+              <div class="card-subtitle">Status breakdown</div>
             </div>
           </div>
-          <div class="donut-wrap">
-            <svg id="donut-status" class="donut-chart" viewBox="0 0 120 120"></svg>
-            <div class="donut-legend">
-              <div class="donut-legend-item"><div class="donut-dot" style="background:#1152d4"></div><span class="donut-legend-label">Completed</span><span class="donut-legend-val">71.7%</span></div>
-              <div class="donut-legend-item"><div class="donut-dot" style="background:#f59e0b"></div><span class="donut-legend-label">Pending</span><span class="donut-legend-val">24.8%</span></div>
-              <div class="donut-legend-item"><div class="donut-dot" style="background:#ef4444"></div><span class="donut-legend-label">Incomplete</span><span class="donut-legend-val">3.5%</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;gap:0.75rem;text-align:center;">
+            <div style="width:3rem;height:3rem;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;">
+              <span class="material-symbols-outlined" style="color:var(--blue);font-size:1.5rem;">construction</span>
             </div>
+            <div style="font-size:0.875rem;font-weight:700;color:var(--dark);">Coming Soon</div>
+            <div style="font-size:0.75rem;color:var(--gray-400);line-height:1.5;max-width:180px;">Assessment status breakdown chart is currently under development and will be available in a future update.</div>
           </div>
         </div>
       </div>
@@ -180,35 +188,12 @@
           <div class="card-header">
             <div>
               <div class="card-title">Coverage by Region</div>
-              <div class="card-subtitle">Top 6 regions by assessments</div>
+              <div class="card-subtitle" id="region-subtitle">Loading...</div>
             </div>
-            <span class="badge badge-blue">17 Regions</span>
+            <span class="badge badge-blue" id="region-badge">—</span>
           </div>
-          <div>
-            <div class="region-row">
-              <div class="region-info"><span class="region-name">NCR</span><span class="region-count">2,341</span></div>
-              <div class="progress-bar"><div class="progress-fill" style="width:82%"></div></div>
-            </div>
-            <div class="region-row">
-              <div class="region-info"><span class="region-name">Region IV-A (CALABARZON)</span><span class="region-count">1,892</span></div>
-              <div class="progress-bar"><div class="progress-fill" style="width:66%"></div></div>
-            </div>
-            <div class="region-row">
-              <div class="region-info"><span class="region-name">Region III (Central Luzon)</span><span class="region-count">1,654</span></div>
-              <div class="progress-bar"><div class="progress-fill" style="width:58%"></div></div>
-            </div>
-            <div class="region-row">
-              <div class="region-info"><span class="region-name">Region VII (Central Visayas)</span><span class="region-count">1,203</span></div>
-              <div class="progress-bar"><div class="progress-fill green" style="width:42%"></div></div>
-            </div>
-            <div class="region-row">
-              <div class="region-info"><span class="region-name">Region V (Bicol)</span><span class="region-count">987</span></div>
-              <div class="progress-bar"><div class="progress-fill green" style="width:35%"></div></div>
-            </div>
-            <div class="region-row">
-              <div class="region-info"><span class="region-name">Region XI (Davao)</span><span class="region-count">876</span></div>
-              <div class="progress-bar"><div class="progress-fill orange" style="width:31%"></div></div>
-            </div>
+          <div id="region-rows">
+            <div style="padding:2rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Loading region data...</div>
           </div>
         </div>
 
@@ -371,23 +356,123 @@
 
   const NOW = new Date();
   const CURRENT_YEAR = NOW.getFullYear();
-  const CURRENT_MONTH = NOW.getMonth() + 1; // 1-12
-  let monthlyYear = CURRENT_YEAR;
+  const CURRENT_MONTH = NOW.getMonth() + 1;
+  let chartView = 'monthly'; // monthly | quarterly | yearly
+  let chartYear = CURRENT_YEAR;
+  // Cache fetched year data
+  const yearCache = {};
 
   document.addEventListener('DOMContentLoaded', function() {
     dashPopulateUser();
-    drawDonut('donut-status', [71.7, 24.8, 3.5], ['#1152d4', '#f59e0b', '#ef4444']);
     loadDashboardStats();
-    loadMonthlyChart(monthlyYear);
+    loadRegionCoverage();
+    loadChart();
 
-    document.getElementById('monthly-prev').addEventListener('click', function() {
-      monthlyYear--;
-      loadMonthlyChart(monthlyYear);
-    });
-    document.getElementById('monthly-next').addEventListener('click', function() {
-      if (monthlyYear < CURRENT_YEAR) { monthlyYear++; loadMonthlyChart(monthlyYear); }
+    document.getElementById('monthly-prev').addEventListener('click', () => { chartYear--; loadChart(); });
+    document.getElementById('monthly-next').addEventListener('click', () => { if (chartYear < CURRENT_YEAR) { chartYear++; loadChart(); } });
+
+    document.querySelectorAll('.chart-view-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.chart-view-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        chartView = this.dataset.view;
+        loadChart();
+      });
     });
   });
+
+  async function fetchYearData(year) {
+    if (yearCache[year]) return yearCache[year];
+    const res = await fetch('/api/get-monthly-assessments.php?year=' + year);
+    const json = await res.json();
+    if (json.success) { yearCache[year] = json.data; return json.data; }
+    return null;
+  }
+
+  async function loadChart() {
+    document.getElementById('monthly-next').disabled = chartYear >= CURRENT_YEAR;
+    document.getElementById('monthly-year').textContent = chartYear;
+    const yearNav = document.getElementById('year-nav');
+
+    if (chartView === 'monthly') {
+      yearNav.style.display = 'flex';
+      await renderMonthly(chartYear);
+    } else if (chartView === 'quarterly') {
+      yearNav.style.display = 'flex';
+      await renderQuarterly(chartYear);
+    } else {
+      yearNav.style.display = 'none';
+      await renderYearly();
+    }
+  }
+
+  async function renderMonthly(year) {
+    document.getElementById('monthly-subtitle').textContent = 'All 12 months — ' + year;
+    const data = await fetchYearData(year);
+    if (!data) { document.getElementById('monthly-subtitle').textContent = 'Failed to load'; return; }
+    const maxVal = Math.max(...data.map(d => d.value), 1);
+    renderBars(data.map(d => {
+      const isCurrent = year === CURRENT_YEAR && d.month === CURRENT_MONTH;
+      const isPrev2   = year === CURRENT_YEAR && (d.month === CURRENT_MONTH - 1 || d.month === CURRENT_MONTH - 2);
+      const isFuture  = year === CURRENT_YEAR && d.month > CURRENT_MONTH;
+      return {
+        label: d.label,
+        value: d.value,
+        color: isCurrent ? '#1152d4' : isPrev2 ? '#60a5fa' : isFuture ? '#e2e8f0' : '#93c5fd',
+        highlight: isCurrent,
+        maxVal
+      };
+    }));
+  }
+
+  async function renderQuarterly(year) {
+    document.getElementById('monthly-subtitle').textContent = 'By quarter — ' + year;
+    const data = await fetchYearData(year);
+    if (!data) { document.getElementById('monthly-subtitle').textContent = 'Failed to load'; return; }
+    const quarters = [
+      { label: 'Q1 (Jan–Mar)', months: [1,2,3] },
+      { label: 'Q2 (Apr–Jun)', months: [4,5,6] },
+      { label: 'Q3 (Jul–Sep)', months: [7,8,9] },
+      { label: 'Q4 (Oct–Dec)', months: [10,11,12] },
+    ];
+    const currentQ = Math.ceil(CURRENT_MONTH / 3);
+    const bars = quarters.map((q, i) => {
+      const value = q.months.reduce((s, m) => s + (data.find(d => d.month === m)?.value || 0), 0);
+      const isCurrentQ = year === CURRENT_YEAR && (i + 1) === currentQ;
+      const isPrevQ    = year === CURRENT_YEAR && (i + 1) === currentQ - 1;
+      const isFutureQ  = year === CURRENT_YEAR && (i + 1) > currentQ;
+      return { label: 'Q'+(i+1), value, color: isCurrentQ ? '#1152d4' : isPrevQ ? '#60a5fa' : isFutureQ ? '#e2e8f0' : '#93c5fd', highlight: isCurrentQ, maxVal: 0 };
+    });
+    const maxVal = Math.max(...bars.map(b => b.value), 1);
+    renderBars(bars.map(b => ({ ...b, maxVal })));
+  }
+
+  async function renderYearly() {
+    document.getElementById('monthly-subtitle').textContent = 'Last 5 years';
+    const years = [CURRENT_YEAR - 4, CURRENT_YEAR - 3, CURRENT_YEAR - 2, CURRENT_YEAR - 1, CURRENT_YEAR];
+    const totals = await Promise.all(years.map(async y => {
+      const data = await fetchYearData(y);
+      return { label: String(y), value: data ? data.reduce((s, d) => s + d.value, 0) : 0, color: y === CURRENT_YEAR ? '#1152d4' : '#93c5fd', highlight: y === CURRENT_YEAR, maxVal: 0 };
+    }));
+    const maxVal = Math.max(...totals.map(t => t.value), 1);
+    renderBars(totals.map(t => ({ ...t, maxVal })));
+  }
+
+  function renderBars(bars) {
+    const container = document.getElementById('monthly-bars');
+    container.innerHTML = '';
+    bars.forEach(b => {
+      const heightPx = Math.max((b.value / b.maxVal) * 120, b.value > 0 ? 4 : 2);
+      const col = document.createElement('div');
+      col.className = 'bar-col';
+      col.innerHTML = `
+        <div style="font-size:0.55rem;font-weight:700;color:${b.highlight ? '#1152d4' : '#9ca3af'};margin-bottom:2px;text-align:center;">${b.value > 0 ? b.value : ''}</div>
+        <div class="bar-fill" style="height:${heightPx}px;background:${b.color};opacity:1;" title="${b.label}: ${b.value}"></div>
+        <span class="bar-label" style="font-weight:${b.highlight ? '700' : '500'};color:${b.highlight ? '#1152d4' : '#6b7280'};">${b.label}</span>
+      `;
+      container.appendChild(col);
+    });
+  }
 
   async function loadDashboardStats() {
     try {
@@ -409,41 +494,34 @@
     }
   }
 
-  async function loadMonthlyChart(year) {
-    document.getElementById('monthly-year').textContent = year;
-    document.getElementById('monthly-subtitle').textContent = 'All months — ' + year;
-    document.getElementById('monthly-next').disabled = year >= CURRENT_YEAR;
-
+  async function loadRegionCoverage() {
     try {
-      const res = await fetch('/api/get-monthly-assessments.php?year=' + year);
+      const res = await fetch('/api/get-region-coverage.php');
       const json = await res.json();
-      if (!json.success) return;
-
-      const container = document.getElementById('monthly-bars');
-      container.innerHTML = '';
-
-      const maxVal = Math.max(...json.data.map(d => d.value), 1);
-
-      json.data.forEach(d => {
-        const isCurrent = year === CURRENT_YEAR && d.month === CURRENT_MONTH;
-        const isPrev2 = year === CURRENT_YEAR && (d.month === CURRENT_MONTH - 1 || d.month === CURRENT_MONTH - 2);
-        const isFuture = year === CURRENT_YEAR && d.month > CURRENT_MONTH;
-
-        const barColor = isCurrent ? '#1152d4' : isPrev2 ? '#60a5fa' : isFuture ? '#e5e7eb' : '#93c5fd';
-        const heightPx = Math.max((d.value / maxVal) * 120, d.value > 0 ? 4 : 2);
-
-        const col = document.createElement('div');
-        col.className = 'bar-col';
-        col.style.position = 'relative';
-        col.innerHTML = `
-          <div style="font-size:0.55rem;font-weight:700;color:${isCurrent ? '#1152d4' : '#9ca3af'};margin-bottom:2px;text-align:center;">${d.value > 0 ? d.value : ''}</div>
-          <div class="bar-fill" style="height:${heightPx}px;background:${barColor};opacity:1;" title="${d.label}: ${d.value}"></div>
-          <span class="bar-label" style="font-weight:${isCurrent ? '700' : '500'};color:${isCurrent ? '#1152d4' : '#6b7280'};">${d.label}</span>
-        `;
-        container.appendChild(col);
-      });
+      const container = document.getElementById('region-rows');
+      if (!json.success || !json.data.length) {
+        container.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No region data available.</div>';
+        document.getElementById('region-badge').textContent = '0 Regions';
+        document.getElementById('region-subtitle').textContent = 'No data yet';
+        return;
+      }
+      const data = json.data;
+      const total = data.reduce((s, r) => s + r.count, 0);
+      const maxCount = data[0].count;
+      document.getElementById('region-badge').textContent = data.length + ' Region' + (data.length !== 1 ? 's' : '');
+      document.getElementById('region-subtitle').textContent = 'All regions with submitted assessments';
+      const colorClass = (i) => i === 0 ? '' : i === 1 ? 'green' : i >= 2 ? 'orange' : '';
+      container.innerHTML = data.map((r, i) => `
+        <div class="region-row">
+          <div class="region-info">
+            <span class="region-name">${r.region}</span>
+            <span class="region-count">${r.count.toLocaleString()}</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill ${colorClass(i)}" style="width:${Math.round((r.count/maxCount)*100)}%"></div></div>
+        </div>
+      `).join('');
     } catch(e) {
-      document.getElementById('monthly-subtitle').textContent = 'Failed to load';
+      document.getElementById('region-rows').innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Failed to load region data.</div>';
     }
   }
 </script>

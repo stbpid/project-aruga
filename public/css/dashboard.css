@@ -837,6 +837,22 @@ table.dash-table {
   to { transform: translateX(400px); opacity: 0; }
 }
 
+/* ── Chart View Toggle ───────────────────── */
+.chart-view-btn {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: white;
+  color: var(--gray-500);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.chart-view-btn:hover { background: var(--gray-50); color: var(--dark); }
+.chart-view-btn.active { background: var(--blue); color: white; }
+
 /* ── Material Symbols ────────────────────── */
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
