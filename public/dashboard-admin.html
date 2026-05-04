@@ -37,10 +37,10 @@
 
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
-      <a href="/dashboard-admin.html" class="nav-item active" title="Overview">
+      <a href="#" class="nav-item active" id="nav-overview" title="Overview" onclick="showView('overview');return false;">
         <span class="material-symbols-outlined">dashboard</span><span class="nav-label">Overview</span>
       </a>
-      <a href="#" class="nav-item" title="Beneficiaries">
+      <a href="#" class="nav-item" id="nav-beneficiaries" title="Beneficiaries" onclick="showView('beneficiaries');return false;">
         <span class="material-symbols-outlined">group</span><span class="nav-label">Beneficiaries</span>
       </a>
       <a href="#" class="nav-item" title="Assessments">
@@ -94,8 +94,9 @@
   <!-- Main -->
   <div class="dash-main">
 
-    <!-- Content -->
-    <div class="dash-content">
+    <!-- Views -->
+    <!-- Overview View -->
+    <div class="dash-content" id="view-overview">
       <div class="page-title">System Overview</div>
       <div class="page-subtitle">Real-time monitoring across all regions — as of May 2026</div>
 
@@ -198,52 +199,11 @@
           <div class="card-header">
             <div>
               <div class="card-title">Recent Activity</div>
-              <div class="card-subtitle">System-wide events</div>
+              <div class="card-subtitle">Interviewer login sessions</div>
             </div>
           </div>
-          <div class="activity-list">
-            <div class="activity-item">
-              <div class="activity-dot" style="background:#1152d4"></div>
-              <div class="activity-text">
-                <div class="activity-main">New assessment submitted — NCR, Marikina</div>
-                <div class="activity-time">2 minutes ago · R1001JAA</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-dot" style="background:#10b981"></div>
-              <div class="activity-text">
-                <div class="activity-main">Beneficiary profile updated — Region V</div>
-                <div class="activity-time">8 minutes ago · R5001MAR</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-dot" style="background:#f59e0b"></div>
-              <div class="activity-text">
-                <div class="activity-main">Assessment flagged for review — Davao</div>
-                <div class="activity-time">23 minutes ago · R11003DAV</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-dot" style="background:#1152d4"></div>
-              <div class="activity-text">
-                <div class="activity-main">New interviewer activated — Region III</div>
-                <div class="activity-time">1 hour ago · Admin</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-dot" style="background:#10b981"></div>
-              <div class="activity-text">
-                <div class="activity-main">Monthly report exported — May 2026</div>
-                <div class="activity-time">2 hours ago · System</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-dot" style="background:#8b5cf6"></div>
-              <div class="activity-text">
-                <div class="activity-main">Database backup completed</div>
-                <div class="activity-time">3 hours ago · System</div>
-              </div>
-            </div>
+          <div class="activity-list" id="activity-list">
+            <div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Loading...</div>
           </div>
         </div>
       </div>
@@ -288,7 +248,61 @@
         </div>
       </div>
 
-    </div><!-- /dash-content -->
+    </div><!-- /view-overview -->
+
+    <!-- Beneficiaries View -->
+    <div class="dash-content" id="view-beneficiaries" style="display:none;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <div>
+          <div class="page-title" style="margin:0;">Beneficiaries</div>
+          <div class="page-subtitle" style="margin:0;">All submitted assessments across all regions</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
+        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+          <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" id="all-ben-search" placeholder="Search name, ID, interviewer..." aria-label="Search">
+          </div>
+          <select id="all-ben-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+            <option value="">All Regions</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" id="all-ben-reset">Reset</button>
+          <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="all-ben-count">—</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Beneficiary</th>
+                <th>Age</th>
+                <th>Disability</th>
+                <th>Region</th>
+                <th>Interviewer</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="all-ben-tbody">
+              <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <span style="font-size:0.75rem;color:#6b7280;" id="all-ben-page-info">—</span>
+          <div style="display:flex;gap:0.375rem;">
+            <button class="btn btn-secondary btn-sm" id="all-ben-prev">Previous</button>
+            <button class="btn btn-primary btn-sm" id="all-ben-next">Next</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /view-beneficiaries -->
+
   </div><!-- /dash-main -->
 </div><!-- /dash-layout -->
 
@@ -309,6 +323,7 @@
     loadDashboardStats();
     loadRegionCoverage();
     loadRecentBeneficiaries();
+    loadRecentActivity();
     loadChart();
 
     document.getElementById('monthly-prev').addEventListener('click', () => { chartYear--; loadChart(); });
@@ -486,33 +501,159 @@
     }
   }
 
+  // ── Recent Beneficiaries (dashboard) ──────────────────────────
+  let recentBenData = [];
+
   async function loadRecentBeneficiaries() {
     const tbody = document.getElementById('beneficiaries-tbody');
     const countEl = document.getElementById('beneficiaries-count');
     try {
       const res = await fetch('/api/get-recent-beneficiaries.php');
       const json = await res.json();
+      recentBenData = json.success ? json.data : [];
+      renderRecentBen(recentBenData);
+      if (countEl) countEl.textContent = 'Showing ' + recentBenData.length + ' most recent beneficiaries';
+    } catch(e) {
+      document.getElementById('beneficiaries-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+    }
+  }
+
+  function renderRecentBen(data) {
+    const tbody = document.getElementById('beneficiaries-tbody');
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No beneficiaries found.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(r => benRow(r)).join('');
+  }
+
+  // Search filter on recent beneficiaries table
+  document.getElementById('admin-search').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    if (!q) { renderRecentBen(recentBenData); return; }
+    renderRecentBen(recentBenData.filter(r =>
+      (r.name + r.aruga_id + r.interviewer + r.region + r.disability).toLowerCase().includes(q)
+    ));
+  });
+
+  // ── Recent Activity (Sessions) ─────────────────────────────────
+  async function loadRecentActivity() {
+    const list = document.getElementById('activity-list');
+    try {
+      const res = await fetch('/api/get-recent-sessions.php');
+      const json = await res.json();
       if (!json.success || !json.data.length) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No beneficiaries found.</td></tr>';
-        if (countEl) countEl.textContent = 'No data available';
+        list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No recent sessions.</div>';
         return;
       }
-      const disabilityColors = { 'Physical':'badge-purple','Visual':'badge-blue','Hearing':'badge-orange','Intellectual':'badge-red','Multiple':'badge-purple','Psychosocial':'badge-blue','Speech':'badge-green' };
-      tbody.innerHTML = json.data.map(r => {
-        const dc = disabilityColors[r.disability] || 'badge-blue';
-        return `<tr class="table-row-hover">
-          <td><div style="font-weight:600;color:#111811;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
-          <td>${r.age}</td>
-          <td><span class="badge ${dc}">${r.disability}</span></td>
-          <td>${r.region}</td>
-          <td>${r.interviewer}</td>
-          <td>${r.date}</td>
-          <td><button class="btn btn-ghost btn-sm table-action-btn"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
-        </tr>`;
-      }).join('');
-      if (countEl) countEl.textContent = 'Showing ' + json.data.length + ' most recent beneficiaries';
+      list.innerHTML = json.data.map(s => `
+        <div class="activity-item">
+          <div class="activity-dot" style="background:#1152d4;"></div>
+          <div class="activity-text">
+            <div class="activity-main">${s.name} logged in — ${s.region}</div>
+            <div class="activity-time">${s.time} · ${s.code}</div>
+          </div>
+        </div>
+      `).join('');
     } catch(e) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load beneficiaries.</td></tr>';
+      list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Failed to load sessions.</div>';
+    }
+  }
+
+  // ── All Beneficiaries View ─────────────────────────────────────
+  const DIS_COLORS = { 'Physical':'badge-purple','Visual':'badge-blue','Hearing':'badge-orange','Intellectual':'badge-red','Multiple':'badge-purple','Psychosocial':'badge-blue','Speech':'badge-green' };
+
+  function benRow(r) {
+    const dc = DIS_COLORS[r.disability] || 'badge-blue';
+    return `<tr class="table-row-hover">
+      <td><div style="font-weight:600;color:#111811;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
+      <td>${r.age}</td>
+      <td><span class="badge ${dc}">${r.disability}</span></td>
+      <td>${r.region}</td>
+      <td>${r.interviewer}</td>
+      <td>${r.date}</td>
+      <td><button class="btn btn-ghost btn-sm table-action-btn"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+    </tr>`;
+  }
+
+  let allBenData = [];
+  let allBenFiltered = [];
+  let allBenPage = 0;
+  const ALL_BEN_PER_PAGE = 20;
+  let allBenLoaded = false;
+
+  async function loadAllBeneficiaries() {
+    if (allBenLoaded) return;
+    const tbody = document.getElementById('all-ben-tbody');
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    try {
+      const res = await fetch('/api/get-all-beneficiaries.php?limit=10000&offset=0');
+      const json = await res.json();
+      allBenData = json.success ? json.data : [];
+      allBenLoaded = true;
+
+      // Populate region filter
+      const regions = [...new Set(allBenData.map(r => r.region).filter(r => r && r !== '—'))].sort();
+      const sel = document.getElementById('all-ben-region');
+      regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o); });
+
+      allBenFiltered = allBenData;
+      allBenPage = 0;
+      renderAllBen();
+    } catch(e) {
+      document.getElementById('all-ben-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+    }
+  }
+
+  function filterAllBen() {
+    const q = document.getElementById('all-ben-search').value.toLowerCase();
+    const region = document.getElementById('all-ben-region').value;
+    allBenFiltered = allBenData.filter(r => {
+      const matchQ = !q || (r.name + r.aruga_id + r.interviewer + r.region + r.disability).toLowerCase().includes(q);
+      const matchR = !region || r.region === region;
+      return matchQ && matchR;
+    });
+    allBenPage = 0;
+    renderAllBen();
+  }
+
+  function renderAllBen() {
+    const tbody = document.getElementById('all-ben-tbody');
+    const total = allBenFiltered.length;
+    const start = allBenPage * ALL_BEN_PER_PAGE;
+    const end   = Math.min(start + ALL_BEN_PER_PAGE, total);
+    const page  = allBenFiltered.slice(start, end);
+    if (!page.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
+    } else {
+      tbody.innerHTML = page.map(r => benRow(r)).join('');
+    }
+    document.getElementById('all-ben-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} beneficiaries` : 'No results';
+    document.getElementById('all-ben-prev').disabled = allBenPage === 0;
+    document.getElementById('all-ben-next').disabled = end >= total;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('all-ben-search').addEventListener('input', filterAllBen);
+    document.getElementById('all-ben-region').addEventListener('change', filterAllBen);
+    document.getElementById('all-ben-reset').addEventListener('click', () => {
+      document.getElementById('all-ben-search').value = '';
+      document.getElementById('all-ben-region').value = '';
+      filterAllBen();
+    });
+    document.getElementById('all-ben-prev').addEventListener('click', () => { if (allBenPage > 0) { allBenPage--; renderAllBen(); } });
+    document.getElementById('all-ben-next').addEventListener('click', () => { allBenPage++; renderAllBen(); });
+  });
+
+  // ── View switcher ──────────────────────────────────────────────
+  function showView(view) {
+    document.getElementById('view-overview').style.display = view === 'overview' ? '' : 'none';
+    document.getElementById('view-beneficiaries').style.display = view === 'beneficiaries' ? '' : 'none';
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (view === 'overview') document.getElementById('nav-overview')?.classList.add('active');
+    if (view === 'beneficiaries') {
+      document.getElementById('nav-beneficiaries')?.classList.add('active');
+      loadAllBeneficiaries();
     }
   }
 </script>
