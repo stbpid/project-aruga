@@ -1727,9 +1727,9 @@ function populateMulti(cid, items, did, oid = null) {
 }
 
 function initializeLocationDropdowns() {
-  const regionSelect = document.getElementById('child-region');
+  const regionSelect = getLocationSelect('child-region');
   if (!regionSelect) return;
-  
+
   regionSelect.innerHTML = '<option value="" disabled selected>Select Region</option>';
   Object.keys(locationData).forEach(region => {
     const opt = document.createElement('option');
@@ -1739,17 +1739,33 @@ function initializeLocationDropdowns() {
   });
 }
 
+function getLocationSelect(id) {
+  return document.getElementById('_hidden-' + id) || document.getElementById(id);
+}
+
+function getLocationValue(id) {
+  const hidden = document.getElementById('_hidden-' + id);
+  if (hidden) return hidden.value;
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
 function updateProvinces() {
-  const region = document.getElementById('child-region').value;
-  const provSelect = document.getElementById('child-province');
-  
+  const region = getLocationValue('child-region');
+  const provSelect = getLocationSelect('child-province');
+  const citySelect = getLocationSelect('child-city');
+  const brgySelect = getLocationSelect('child-barangay');
+
   provSelect.innerHTML = '<option value="" disabled selected>Select Province</option>';
-  document.getElementById('child-city').innerHTML = '<option value="" disabled selected>Select City</option>';
-  document.getElementById('child-barangay').innerHTML = '<option value="" disabled selected>Select Barangay</option>';
+  citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
+  brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>';
   provSelect.disabled = true;
-  document.getElementById('child-city').disabled = true;
-  document.getElementById('child-barangay').disabled = true;
-  
+  citySelect.disabled = true;
+  brgySelect.disabled = true;
+  provSelect.dispatchEvent(new Event('change'));
+  citySelect.dispatchEvent(new Event('change'));
+  brgySelect.dispatchEvent(new Event('change'));
+
   if (region && locationData[region]) {
     const provinces = Object.keys(locationData[region]);
     provinces.forEach(prov => {
@@ -1759,20 +1775,24 @@ function updateProvinces() {
       provSelect.appendChild(opt);
     });
     provSelect.disabled = false;
+    provSelect.dispatchEvent(new Event('change'));
   }
 }
 
 function updateCities() {
-  const region = document.getElementById('child-region').value;
-  const province = document.getElementById('child-province').value;
-  const citySelect = document.getElementById('child-city');
-  
+  const region = getLocationValue('child-region');
+  const province = getLocationValue('child-province');
+  const citySelect = getLocationSelect('child-city');
+  const brgySelect = getLocationSelect('child-barangay');
+
   citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
-  document.getElementById('child-barangay').innerHTML = '<option value="" disabled selected>Select Barangay</option>';
+  brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>';
   citySelect.disabled = true;
-  document.getElementById('child-barangay').disabled = true;
-  
-  if (region && province && locationData[region][province]) {
+  brgySelect.disabled = true;
+  citySelect.dispatchEvent(new Event('change'));
+  brgySelect.dispatchEvent(new Event('change'));
+
+  if (region && province && locationData[region] && locationData[region][province]) {
     const cities = Object.keys(locationData[region][province]);
     cities.forEach(city => {
       const opt = document.createElement('option');
@@ -1781,19 +1801,21 @@ function updateCities() {
       citySelect.appendChild(opt);
     });
     citySelect.disabled = false;
+    citySelect.dispatchEvent(new Event('change'));
   }
 }
 
 function updateBarangays() {
-  const region = document.getElementById('child-region').value;
-  const province = document.getElementById('child-province').value;
-  const city = document.getElementById('child-city').value;
-  const brgySelect = document.getElementById('child-barangay');
-  
+  const region = getLocationValue('child-region');
+  const province = getLocationValue('child-province');
+  const city = getLocationValue('child-city');
+  const brgySelect = getLocationSelect('child-barangay');
+
   brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>';
   brgySelect.disabled = true;
-  
-  if (region && province && city && locationData[region][province][city]) {
+  brgySelect.dispatchEvent(new Event('change'));
+
+  if (region && province && city && locationData[region] && locationData[region][province] && locationData[region][province][city]) {
     const barangays = locationData[region][province][city];
     barangays.forEach(brgy => {
       const opt = document.createElement('option');
@@ -1802,6 +1824,7 @@ function updateBarangays() {
       brgySelect.appendChild(opt);
     });
     brgySelect.disabled = false;
+    brgySelect.dispatchEvent(new Event('change'));
   }
 }
 
