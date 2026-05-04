@@ -323,10 +323,7 @@
       </div>
       <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
         <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-          <button class="btn btn-primary btn-sm" onclick="openAddInterviewerModal()" style="flex-shrink:0;">
-            <span class="material-symbols-outlined">person_add</span>Add Interviewer
-          </button>
-          <div class="search-bar" style="margin-left:auto;min-width:180px;max-width:320px;">
+          <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;">
             <span class="material-symbols-outlined">search</span>
             <input type="text" id="int-search" placeholder="Search name, code, region..." aria-label="Search interviewers">
           </div>
@@ -334,6 +331,9 @@
             <option value="">All Regions</option>
           </select>
           <button class="btn btn-secondary btn-sm" id="int-reset">Reset</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddInterviewerModal()" style="flex-shrink:0;margin-left:auto;">
+            <span class="material-symbols-outlined">person_add</span>Add Interviewer
+          </button>
         </div>
       </div>
       <div class="card">
@@ -437,7 +437,7 @@
     </div>
 
     <!-- Interviewer Success Toast -->
-    <div id="int-success-toast" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:10000;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:0.75rem;padding:0.875rem 1.25rem;font-size:0.8125rem;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.12);display:flex;align-items:center;gap:0.5rem;animation:fadeInUp 0.25s ease;">
+    <div id="int-success-toast" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:10000;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:0.75rem;padding:0.875rem 1.25rem;font-size:0.8125rem;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.12);align-items:center;gap:0.5rem;display:none;">
       <span class="material-symbols-outlined" style="font-size:1.125rem;">check_circle</span>
       <span id="int-success-msg"></span>
     </div>
@@ -2138,7 +2138,7 @@
     document.getElementById('int-success-msg').textContent = msg;
     toast.style.display = 'flex';
     clearTimeout(toast._t);
-    toast._t = setTimeout(() => { toast.style.display = 'none'; }, 3500);
+    toast._t = setTimeout(() => { toast.style.display = 'none'; }, 3000);
   }
 
   // ── View switcher ──────────────────────────────────────────────
