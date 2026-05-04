@@ -104,49 +104,33 @@
         <div class="stat-card">
           <div class="stat-icon blue"><span class="material-symbols-outlined">groups</span></div>
           <div class="stat-body">
-            <div class="stat-value">12,847</div>
+            <div class="stat-value" id="stat-total-beneficiaries">—</div>
             <div class="stat-label">Total Beneficiaries</div>
-            <div class="stat-change up">↑ 8.3% this month</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon green"><span class="material-symbols-outlined">assignment_turned_in</span></div>
-          <div class="stat-body">
-            <div class="stat-value">9,214</div>
-            <div class="stat-label">Completed Assessments</div>
-            <div class="stat-change up">↑ 12.1% this month</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon orange"><span class="material-symbols-outlined">pending_actions</span></div>
-          <div class="stat-body">
-            <div class="stat-value">3,633</div>
-            <div class="stat-label">Pending Assessments</div>
-            <div class="stat-change down">↑ 4.2% backlog</div>
+            <div class="stat-change up" id="stat-beneficiaries-sub">Loading...</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div>
           <div class="stat-body">
-            <div class="stat-value">248</div>
+            <div class="stat-value" id="stat-active-interviewers">—</div>
             <div class="stat-label">Active Interviewers</div>
-            <div class="stat-change up">↑ 3 new this week</div>
+            <div class="stat-change up" id="stat-interviewers-sub">Loading...</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon blue"><span class="material-symbols-outlined">map</span></div>
           <div class="stat-body">
-            <div class="stat-value">17</div>
+            <div class="stat-value" id="stat-regions-covered">—</div>
             <div class="stat-label">Regions Covered</div>
-            <div class="stat-change up">100% coverage</div>
+            <div class="stat-change up" id="stat-regions-sub">Loading...</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon green"><span class="material-symbols-outlined">trending_up</span></div>
           <div class="stat-body">
-            <div class="stat-value">71.7%</div>
+            <div class="stat-value" id="stat-completion-rate">—</div>
             <div class="stat-label">Completion Rate</div>
-            <div class="stat-change up">↑ 2.4% vs last month</div>
+            <div class="stat-change up" id="stat-completion-sub">Loading...</div>
           </div>
         </div>
       </div>
@@ -391,7 +375,33 @@
       { label: 'Apr', value: 2100 },
       { label: 'May', value: 2064 },
     ]);
+
+    loadDashboardStats();
   });
+
+  async function loadDashboardStats() {
+    try {
+      const res = await fetch('/api/get-dashboard-stats.php');
+      const json = await res.json();
+      if (!json.success) return;
+      const d = json.data;
+
+      document.getElementById('stat-total-beneficiaries').textContent = d.total_beneficiaries.toLocaleString();
+      document.getElementById('stat-beneficiaries-sub').textContent = 'Total records in system';
+
+      document.getElementById('stat-active-interviewers').textContent = d.active_interviewers.toLocaleString();
+      document.getElementById('stat-interviewers-sub').textContent = 'Currently active';
+
+      document.getElementById('stat-regions-covered').textContent = d.regions_covered;
+      document.getElementById('stat-regions-sub').textContent = 'Regions with data';
+
+      document.getElementById('stat-completion-rate').textContent = d.completion_rate + '%';
+      document.getElementById('stat-completion-sub').textContent = 'Completed vs total';
+    } catch (e) {
+      ['stat-beneficiaries-sub','stat-interviewers-sub','stat-regions-sub','stat-completion-sub']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.textContent = 'Failed to load'; });
+    }
+  }
 </script>
 </body>
 </html>
