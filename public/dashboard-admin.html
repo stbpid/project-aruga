@@ -43,7 +43,7 @@
       <a href="#" class="nav-item" id="nav-beneficiaries" title="Beneficiaries" onclick="showView('beneficiaries');return false;">
         <span class="material-symbols-outlined">group</span><span class="nav-label">Beneficiaries</span>
       </a>
-      <a href="#" class="nav-item" title="Assessments">
+      <a href="#" class="nav-item" id="nav-assessments" title="Assessments" onclick="showView('assessments');return false;">
         <span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span>
       </a>
       <a href="#" class="nav-item" title="Analytics">
@@ -51,7 +51,7 @@
       </a>
 
       <div class="nav-section-label">Management</div>
-      <a href="#" class="nav-item" title="Interviewers">
+      <a href="#" class="nav-item" id="nav-interviewers" title="Interviewers" onclick="showView('interviewers');return false;">
         <span class="material-symbols-outlined">badge</span><span class="nav-label">Interviewers</span>
       </a>
       <a href="#" class="nav-item" title="Regions">
@@ -295,13 +295,71 @@
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
           <span style="font-size:0.75rem;color:#6b7280;" id="all-ben-page-info">—</span>
-          <div style="display:flex;gap:0.375rem;">
-            <button class="btn btn-secondary btn-sm" id="all-ben-prev">Previous</button>
-            <button class="btn btn-primary btn-sm" id="all-ben-next">Next</button>
-          </div>
+          <div class="pagination" id="all-ben-pagination"></div>
         </div>
       </div>
     </div><!-- /view-beneficiaries -->
+
+    <!-- Assessments View -->
+    <div class="dash-content" id="view-assessments" style="display:none;">
+      <div class="page-title">Assessments</div>
+      <div class="page-subtitle">Assessment records across all regions</div>
+      <div class="card" style="margin-top:1.5rem;">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:1rem;text-align:center;">
+          <div style="width:4rem;height:4rem;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;">
+            <span class="material-symbols-outlined" style="color:var(--blue);font-size:2rem;">construction</span>
+          </div>
+          <div style="font-size:1.125rem;font-weight:800;color:var(--dark);">Coming Soon</div>
+          <div style="font-size:0.875rem;color:var(--gray-400);line-height:1.7;max-width:360px;">The Assessments module is currently under development. It will provide a full view of all assessment records, statuses, and detailed reports. Check back in a future update.</div>
+        </div>
+      </div>
+    </div><!-- /view-assessments -->
+
+    <!-- Interviewers View -->
+    <div class="dash-content" id="view-interviewers" style="display:none;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <div>
+          <div class="page-title" style="margin:0;">Interviewers</div>
+          <div class="page-subtitle" style="margin:0;">All registered interviewers in the system</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
+        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+          <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" id="int-search" placeholder="Search name, code, region..." aria-label="Search interviewers">
+          </div>
+          <select id="int-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+            <option value="">All Regions</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" id="int-reset">Reset</button>
+          <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="int-count">—</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Region</th>
+                <th>Province</th>
+                <th>Position</th>
+                <th>Office</th>
+              </tr>
+            </thead>
+            <tbody id="int-tbody">
+              <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <span style="font-size:0.75rem;color:#6b7280;" id="int-page-info">—</span>
+          <div class="pagination" id="int-pagination"></div>
+        </div>
+      </div>
+    </div><!-- /view-interviewers -->
 
   </div><!-- /dash-main -->
 </div><!-- /dash-layout -->
@@ -560,8 +618,39 @@
     }
   }
 
-  // ── All Beneficiaries View ─────────────────────────────────────
+  // ── Shared helpers ─────────────────────────────────────────────
   const DIS_COLORS = { 'Physical':'badge-purple','Visual':'badge-blue','Hearing':'badge-orange','Intellectual':'badge-red','Multiple':'badge-purple','Psychosocial':'badge-blue','Speech':'badge-green' };
+  const PER_PAGE = 20;
+
+  function buildPagination(containerId, currentPage, totalPages, onPageClick) {
+    const c = document.getElementById(containerId);
+    if (!c) return;
+    c.innerHTML = '';
+    if (totalPages <= 1) return;
+
+    const mkBtn = (label, page, active, disabled) => {
+      const b = document.createElement('button');
+      b.className = 'page-btn' + (active ? ' active' : '');
+      b.textContent = label;
+      b.disabled = !!disabled;
+      if (!disabled && !active) b.addEventListener('click', () => onPageClick(page));
+      return b;
+    };
+
+    const ellipsis = () => { const s = document.createElement('span'); s.className = 'page-ellipsis'; s.textContent = '…'; return s; };
+
+    c.appendChild(mkBtn('‹', currentPage - 1, false, currentPage === 0));
+
+    const range = new Set([0, totalPages - 1, currentPage, currentPage - 1, currentPage + 1].filter(p => p >= 0 && p < totalPages));
+    let prev = -1;
+    [...range].sort((a,b) => a-b).forEach(p => {
+      if (prev !== -1 && p - prev > 1) c.appendChild(ellipsis());
+      c.appendChild(mkBtn(p + 1, p, p === currentPage, false));
+      prev = p;
+    });
+
+    c.appendChild(mkBtn('›', currentPage + 1, false, currentPage >= totalPages - 1));
+  }
 
   function benRow(r) {
     const dc = DIS_COLORS[r.disability] || 'badge-blue';
@@ -576,30 +665,20 @@
     </tr>`;
   }
 
-  let allBenData = [];
-  let allBenFiltered = [];
-  let allBenPage = 0;
-  const ALL_BEN_PER_PAGE = 20;
-  let allBenLoaded = false;
+  // ── All Beneficiaries View ─────────────────────────────────────
+  let allBenData = [], allBenFiltered = [], allBenPage = 0, allBenLoaded = false;
 
   async function loadAllBeneficiaries() {
     if (allBenLoaded) return;
-    const tbody = document.getElementById('all-ben-tbody');
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    document.getElementById('all-ben-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
-      const res = await fetch('/api/get-all-beneficiaries.php?limit=10000&offset=0');
-      const json = await res.json();
+      const json = await (await fetch('/api/get-all-beneficiaries.php?limit=10000&offset=0')).json();
       allBenData = json.success ? json.data : [];
       allBenLoaded = true;
-
-      // Populate region filter
       const regions = [...new Set(allBenData.map(r => r.region).filter(r => r && r !== '—'))].sort();
       const sel = document.getElementById('all-ben-region');
       regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o); });
-
-      allBenFiltered = allBenData;
-      allBenPage = 0;
-      renderAllBen();
+      allBenFiltered = allBenData; allBenPage = 0; renderAllBen();
     } catch(e) {
       document.getElementById('all-ben-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
     }
@@ -610,27 +689,22 @@
     const region = document.getElementById('all-ben-region').value;
     allBenFiltered = allBenData.filter(r => {
       const matchQ = !q || (r.name + r.aruga_id + r.interviewer + r.region + r.disability).toLowerCase().includes(q);
-      const matchR = !region || r.region === region;
-      return matchQ && matchR;
+      return matchQ && (!region || r.region === region);
     });
-    allBenPage = 0;
-    renderAllBen();
+    allBenPage = 0; renderAllBen();
   }
 
   function renderAllBen() {
-    const tbody = document.getElementById('all-ben-tbody');
     const total = allBenFiltered.length;
-    const start = allBenPage * ALL_BEN_PER_PAGE;
-    const end   = Math.min(start + ALL_BEN_PER_PAGE, total);
+    const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+    const start = allBenPage * PER_PAGE;
+    const end   = Math.min(start + PER_PAGE, total);
     const page  = allBenFiltered.slice(start, end);
-    if (!page.length) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
-    } else {
-      tbody.innerHTML = page.map(r => benRow(r)).join('');
-    }
+    document.getElementById('all-ben-tbody').innerHTML = page.length
+      ? page.map(r => benRow(r)).join('')
+      : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
     document.getElementById('all-ben-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} beneficiaries` : 'No results';
-    document.getElementById('all-ben-prev').disabled = allBenPage === 0;
-    document.getElementById('all-ben-next').disabled = end >= total;
+    buildPagination('all-ben-pagination', allBenPage, totalPages, p => { allBenPage = p; renderAllBen(); });
   }
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -641,20 +715,77 @@
       document.getElementById('all-ben-region').value = '';
       filterAllBen();
     });
-    document.getElementById('all-ben-prev').addEventListener('click', () => { if (allBenPage > 0) { allBenPage--; renderAllBen(); } });
-    document.getElementById('all-ben-next').addEventListener('click', () => { allBenPage++; renderAllBen(); });
+    document.getElementById('int-search').addEventListener('input', filterInterviewers);
+    document.getElementById('int-region').addEventListener('change', filterInterviewers);
+    document.getElementById('int-reset').addEventListener('click', () => {
+      document.getElementById('int-search').value = '';
+      document.getElementById('int-region').value = '';
+      filterInterviewers();
+    });
   });
 
-  // ── View switcher ──────────────────────────────────────────────
-  function showView(view) {
-    document.getElementById('view-overview').style.display = view === 'overview' ? '' : 'none';
-    document.getElementById('view-beneficiaries').style.display = view === 'beneficiaries' ? '' : 'none';
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if (view === 'overview') document.getElementById('nav-overview')?.classList.add('active');
-    if (view === 'beneficiaries') {
-      document.getElementById('nav-beneficiaries')?.classList.add('active');
-      loadAllBeneficiaries();
+  // ── Interviewers View ──────────────────────────────────────────
+  let intData = [], intFiltered = [], intPage = 0, intLoaded = false;
+
+  async function loadInterviewers() {
+    if (intLoaded) return;
+    document.getElementById('int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    try {
+      const json = await (await fetch('/api/get-interviewers.php')).json();
+      intData = json.success ? json.data : [];
+      intLoaded = true;
+      const regions = [...new Set(intData.map(r => r.region).filter(r => r && r !== '—'))].sort();
+      const sel = document.getElementById('int-region');
+      regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o); });
+      intFiltered = intData; intPage = 0; renderInterviewers();
+    } catch(e) {
+      document.getElementById('int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
     }
+  }
+
+  function filterInterviewers() {
+    const q = document.getElementById('int-search').value.toLowerCase();
+    const region = document.getElementById('int-region').value;
+    intFiltered = intData.filter(r => {
+      const matchQ = !q || (r.name + r.code + r.region + r.province + r.position + r.office).toLowerCase().includes(q);
+      return matchQ && (!region || r.region === region);
+    });
+    intPage = 0; renderInterviewers();
+  }
+
+  function renderInterviewers() {
+    const total = intFiltered.length;
+    const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+    const start = intPage * PER_PAGE;
+    const end   = Math.min(start + PER_PAGE, total);
+    const page  = intFiltered.slice(start, end);
+    document.getElementById('int-count').textContent = total + ' interviewer' + (total !== 1 ? 's' : '');
+    document.getElementById('int-tbody').innerHTML = page.length
+      ? page.map(r => `<tr class="table-row-hover">
+          <td><div style="font-weight:600;color:#111811;">${r.name}</div></td>
+          <td><span style="font-family:monospace;font-size:0.8rem;font-weight:700;color:var(--blue);">${r.code}</span></td>
+          <td>${r.region}</td>
+          <td>${r.province}</td>
+          <td>${r.position}</td>
+          <td>${r.office}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
+    document.getElementById('int-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} interviewers` : 'No results';
+    buildPagination('int-pagination', intPage, totalPages, p => { intPage = p; renderInterviewers(); });
+  }
+
+  // ── View switcher ──────────────────────────────────────────────
+  const VIEWS = ['overview','beneficiaries','assessments','interviewers'];
+  function showView(view) {
+    VIEWS.forEach(v => {
+      const el = document.getElementById('view-' + v);
+      if (el) el.style.display = v === view ? '' : 'none';
+    });
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const navEl = document.getElementById('nav-' + view);
+    if (navEl) navEl.classList.add('active');
+    if (view === 'beneficiaries') loadAllBeneficiaries();
+    if (view === 'interviewers') loadInterviewers();
   }
 </script>
 </body>
