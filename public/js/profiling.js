@@ -3434,7 +3434,7 @@ async function submitAssessment() {
   const submitBtn = document.querySelector('#step-11 button[onclick="submitAssessment()"]');
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]" style="animation:spin 1s linear infinite">progress_activity</span> Submitting...';
+    submitBtn.innerHTML = '<img src="/images/logo.webp" alt="Aruga" style="width:24px;height:24px;display:inline-block;animation:arugaSmile 1.2s ease-in-out infinite;vertical-align:middle;" />';
   }
 
   try {
