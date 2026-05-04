@@ -18,6 +18,7 @@ if (!$res['success']) {
 
 $rows = array_map(function($r) {
     return [
+        'id'       => $r['id'] ?? null,
         'name'     => $r['full_name'] ?? '—',
         'code'     => $r['interviewer_code'] ?? '—',
         'region'   => $r['region'] ?? '—',

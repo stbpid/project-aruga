@@ -317,17 +317,15 @@
 
     <!-- Interviewers View -->
     <div class="dash-content" id="view-interviewers" style="display:none;">
-      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
-        <div>
-          <div class="page-title" style="margin:0;">Interviewers</div>
-          <div class="page-subtitle" style="margin:0;">All registered interviewers in the system</div>
-        </div>
-        <button class="btn btn-primary btn-sm" style="margin-left:auto;" onclick="openAddInterviewerModal()">
-          <span class="material-symbols-outlined">person_add</span>Add Interviewer
-        </button>
+      <div style="margin-bottom:1.5rem;">
+        <div class="page-title" style="margin:0;">Interviewers</div>
+        <div class="page-subtitle" style="margin:0;">All registered interviewers in the system</div>
       </div>
       <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
         <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="openAddInterviewerModal()">
+            <span class="material-symbols-outlined">person_add</span>Add Interviewer
+          </button>
           <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;">
             <span class="material-symbols-outlined">search</span>
             <input type="text" id="int-search" placeholder="Search name, code, region..." aria-label="Search interviewers">
@@ -336,7 +334,6 @@
             <option value="">All Regions</option>
           </select>
           <button class="btn btn-secondary btn-sm" id="int-reset">Reset</button>
-          <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="int-count">—</span>
         </div>
       </div>
       <div class="card">
@@ -412,10 +409,7 @@
               <div><label class="settings-label">Full Name</label><input type="text" id="add-int-name" class="settings-input" placeholder="e.g. Juan dela Cruz"></div>
               <div>
                 <label class="settings-label">Code</label>
-                <div style="display:flex;gap:0.375rem;">
-                  <input type="text" id="add-int-code" class="settings-input" placeholder="Auto-generate" readonly style="flex:1;background:var(--gray-50);font-family:monospace;font-weight:700;color:var(--blue);">
-                  <button onclick="genAddIntCode()" style="background:var(--gray-100);border:1px solid var(--border);border-radius:0.5rem;cursor:pointer;padding:0 0.5rem;display:flex;align-items:center;" title="Generate"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--gray-600);">refresh</span></button>
-                </div>
+                <input type="text" id="add-int-code" class="settings-input" placeholder="e.g. IVR-2026-001" style="font-family:monospace;font-weight:700;color:var(--blue);">
               </div>
             </div>
             <div><label class="settings-label">Region</label><select id="add-int-region" class="settings-input">
@@ -2040,7 +2034,6 @@
     const start = intPage * PER_PAGE;
     const end   = Math.min(start + PER_PAGE, total);
     const page  = intFiltered.slice(start, end);
-    document.getElementById('int-count').textContent = total + ' interviewer' + (total !== 1 ? 's' : '');
     document.getElementById('int-tbody').innerHTML = page.length
       ? page.map((r, i) => `<tr class="table-row-hover">
           <td><div style="font-weight:600;color:#111811;">${r.name}</div></td>
@@ -2072,35 +2065,43 @@
     modal.style.display = 'flex';
   }
 
-  function confirmEditInterviewer() {
+  async function confirmEditInterviewer() {
     if (editIntIndex === null) return;
     const r = intData[editIntIndex];
-    r.name     = document.getElementById('edit-int-name').value.trim()     || r.name;
-    r.region   = document.getElementById('edit-int-region').value.trim()   || r.region;
-    r.province = document.getElementById('edit-int-province').value.trim() || r.province;
-    r.position = document.getElementById('edit-int-position').value.trim() || r.position;
-    r.office   = document.getElementById('edit-int-office').value.trim()   || r.office;
+    const name     = document.getElementById('edit-int-name').value.trim();
+    const region   = document.getElementById('edit-int-region').value.trim();
+    const province = document.getElementById('edit-int-province').value.trim();
+    const position = document.getElementById('edit-int-position').value.trim();
+    const office   = document.getElementById('edit-int-office').value.trim();
+
+    try {
+      const res = await fetch('/api/update-interviewer.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ interviewer_code: r.code, full_name: name, region, province, position, office }),
+      });
+      const json = await res.json();
+      if (!json.success) { alert('Update failed: ' + (json.message || 'Unknown error')); return; }
+    } catch(e) { alert('Network error. Please try again.'); return; }
+
+    r.name     = name     || r.name;
+    r.region   = region   || r.region;
+    r.province = province || r.province;
+    r.position = position || r.position;
+    r.office   = office   || r.office;
     closeIntModal('edit');
     filterInterviewers();
     showIntToast(r.name + ' updated successfully.');
   }
 
   function openAddInterviewerModal() {
-    ['add-int-name','add-int-province','add-int-position','add-int-office'].forEach(id => document.getElementById(id).value = '');
+    ['add-int-name','add-int-code','add-int-province','add-int-position','add-int-office'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('add-int-region').value = '';
-    document.getElementById('add-int-code').value = '';
     document.getElementById('add-int-err').style.display = 'none';
-    genAddIntCode();
     document.getElementById('add-int-modal').style.display = 'flex';
   }
 
-  function genAddIntCode() {
-    const year = new Date().getFullYear();
-    const seq = String(intData.length + Math.floor(Math.random()*10) + 1).padStart(3,'0');
-    document.getElementById('add-int-code').value = `IVR-${year}-${seq}`;
-  }
-
-  function confirmAddInterviewer() {
+  async function confirmAddInterviewer() {
     const name     = document.getElementById('add-int-name').value.trim();
     const code     = document.getElementById('add-int-code').value.trim();
     const region   = document.getElementById('add-int-region').value;
@@ -2108,11 +2109,21 @@
     const position = document.getElementById('add-int-position').value.trim();
     const office   = document.getElementById('add-int-office').value.trim();
     const errEl    = document.getElementById('add-int-err');
-    if (!name || !region) { errEl.textContent = 'Name and Region are required.'; errEl.style.display = ''; return; }
+
+    if (!name || !code || !region) { errEl.textContent = 'Name, Code, and Region are required.'; errEl.style.display = ''; return; }
     errEl.style.display = 'none';
-    const newInt = { name, code, region, province, position, office };
-    intData.unshift(newInt);
-    intLoaded = true;
+
+    try {
+      const res = await fetch('/api/add-interviewer.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name: name, interviewer_code: code, region, province, position, office }),
+      });
+      const json = await res.json();
+      if (!json.success) { errEl.textContent = json.message || 'Failed to add interviewer.'; errEl.style.display = ''; return; }
+    } catch(e) { errEl.textContent = 'Network error. Please try again.'; errEl.style.display = ''; return; }
+
+    intData.unshift({ name, code, region, province, position, office });
     closeIntModal('add');
     filterInterviewers();
     showIntToast(name + ' added as a new interviewer.');
