@@ -141,11 +141,17 @@
           <div class="card-header">
             <div>
               <div class="card-title">Monthly Assessments</div>
-              <div class="card-subtitle">Jan – May 2026</div>
+              <div class="card-subtitle" id="monthly-subtitle">Loading...</div>
             </div>
-            <button class="btn btn-secondary btn-sm">
-              <span class="material-symbols-outlined">download</span>Export
-            </button>
+            <div style="display:flex;align-items:center;gap:0.375rem;">
+              <button class="btn btn-secondary btn-sm" id="monthly-prev" title="Previous year">
+                <span class="material-symbols-outlined">chevron_left</span>
+              </button>
+              <span id="monthly-year" style="font-size:0.8125rem;font-weight:700;color:var(--dark);min-width:2.5rem;text-align:center;"></span>
+              <button class="btn btn-secondary btn-sm" id="monthly-next" title="Next year">
+                <span class="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
           </div>
           <div class="bar-chart" id="monthly-bars"></div>
         </div>
@@ -363,20 +369,24 @@
 <script>
   dashRequireAuth();
 
+  const NOW = new Date();
+  const CURRENT_YEAR = NOW.getFullYear();
+  const CURRENT_MONTH = NOW.getMonth() + 1; // 1-12
+  let monthlyYear = CURRENT_YEAR;
+
   document.addEventListener('DOMContentLoaded', function() {
     dashPopulateUser();
-
     drawDonut('donut-status', [71.7, 24.8, 3.5], ['#1152d4', '#f59e0b', '#ef4444']);
-
-    drawBars('monthly-bars', [
-      { label: 'Jan', value: 1420 },
-      { label: 'Feb', value: 1680 },
-      { label: 'Mar', value: 1950 },
-      { label: 'Apr', value: 2100 },
-      { label: 'May', value: 2064 },
-    ]);
-
     loadDashboardStats();
+    loadMonthlyChart(monthlyYear);
+
+    document.getElementById('monthly-prev').addEventListener('click', function() {
+      monthlyYear--;
+      loadMonthlyChart(monthlyYear);
+    });
+    document.getElementById('monthly-next').addEventListener('click', function() {
+      if (monthlyYear < CURRENT_YEAR) { monthlyYear++; loadMonthlyChart(monthlyYear); }
+    });
   });
 
   async function loadDashboardStats() {
@@ -385,21 +395,55 @@
       const json = await res.json();
       if (!json.success) return;
       const d = json.data;
-
       document.getElementById('stat-total-beneficiaries').textContent = d.total_beneficiaries.toLocaleString();
       document.getElementById('stat-beneficiaries-sub').textContent = 'Total records in system';
-
       document.getElementById('stat-active-interviewers').textContent = d.active_interviewers.toLocaleString();
       document.getElementById('stat-interviewers-sub').textContent = 'Currently active';
-
       document.getElementById('stat-regions-covered').textContent = d.regions_covered;
-      document.getElementById('stat-regions-sub').textContent = 'Regions with data';
-
+      document.getElementById('stat-regions-sub').textContent = 'Covered regions';
       document.getElementById('stat-completion-rate').textContent = d.completion_rate + '%';
       document.getElementById('stat-completion-sub').textContent = 'Completed vs total';
     } catch (e) {
       ['stat-beneficiaries-sub','stat-interviewers-sub','stat-regions-sub','stat-completion-sub']
         .forEach(id => { const el = document.getElementById(id); if (el) el.textContent = 'Failed to load'; });
+    }
+  }
+
+  async function loadMonthlyChart(year) {
+    document.getElementById('monthly-year').textContent = year;
+    document.getElementById('monthly-subtitle').textContent = 'All months — ' + year;
+    document.getElementById('monthly-next').disabled = year >= CURRENT_YEAR;
+
+    try {
+      const res = await fetch('/api/get-monthly-assessments.php?year=' + year);
+      const json = await res.json();
+      if (!json.success) return;
+
+      const container = document.getElementById('monthly-bars');
+      container.innerHTML = '';
+
+      const maxVal = Math.max(...json.data.map(d => d.value), 1);
+
+      json.data.forEach(d => {
+        const isCurrent = year === CURRENT_YEAR && d.month === CURRENT_MONTH;
+        const isPrev2 = year === CURRENT_YEAR && (d.month === CURRENT_MONTH - 1 || d.month === CURRENT_MONTH - 2);
+        const isFuture = year === CURRENT_YEAR && d.month > CURRENT_MONTH;
+
+        const barColor = isCurrent ? '#1152d4' : isPrev2 ? '#60a5fa' : isFuture ? '#e5e7eb' : '#93c5fd';
+        const heightPx = Math.max((d.value / maxVal) * 120, d.value > 0 ? 4 : 2);
+
+        const col = document.createElement('div');
+        col.className = 'bar-col';
+        col.style.position = 'relative';
+        col.innerHTML = `
+          <div style="font-size:0.55rem;font-weight:700;color:${isCurrent ? '#1152d4' : '#9ca3af'};margin-bottom:2px;text-align:center;">${d.value > 0 ? d.value : ''}</div>
+          <div class="bar-fill" style="height:${heightPx}px;background:${barColor};opacity:1;" title="${d.label}: ${d.value}"></div>
+          <span class="bar-label" style="font-weight:${isCurrent ? '700' : '500'};color:${isCurrent ? '#1152d4' : '#6b7280'};">${d.label}</span>
+        `;
+        container.appendChild(col);
+      });
+    } catch(e) {
+      document.getElementById('monthly-subtitle').textContent = 'Failed to load';
     }
   }
 </script>
