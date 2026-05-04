@@ -22,22 +22,27 @@
         <div class="sidebar-brand-sub">Field Officer</div>
       </div>
     </div>
+    <div class="sidebar-minimize-btn">
+      <button id="sidebar-minimize-btn" title="Minimize sidebar">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+    </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">My Work</div>
-      <a href="/dashboard-field-officer.html" class="nav-item active"><span class="material-symbols-outlined">dashboard</span>My Dashboard</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">group</span>My Beneficiaries</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">add_circle</span>New Assessment</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">history</span>My Submissions</a>
+      <a href="/dashboard-field-officer.html" class="nav-item active" title="My Dashboard"><span class="material-symbols-outlined">dashboard</span><span class="nav-label">My Dashboard</span></a>
+      <a href="#" class="nav-item" title="My Beneficiaries"><span class="material-symbols-outlined">group</span><span class="nav-label">My Beneficiaries</span></a>
+      <a href="#" class="nav-item" title="New Assessment"><span class="material-symbols-outlined">add_circle</span><span class="nav-label">New Assessment</span></a>
+      <a href="#" class="nav-item" title="My Submissions"><span class="material-symbols-outlined">history</span><span class="nav-label">My Submissions</span></a>
 
       <div class="nav-section-label">Tools</div>
-      <a href="/profiling.html" class="nav-item"><span class="material-symbols-outlined">edit_note</span>Profiling Tool</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">qr_code_scanner</span>Scan QR Code</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">help</span>Help & Guide</a>
+      <a href="/profiling.html" class="nav-item" title="Profiling Tool"><span class="material-symbols-outlined">edit_note</span><span class="nav-label">Profiling Tool</span></a>
+      <a href="#" class="nav-item" title="Scan QR Code"><span class="material-symbols-outlined">qr_code_scanner</span><span class="nav-label">Scan QR Code</span></a>
+      <a href="#" class="nav-item" title="Help &amp; Guide"><span class="material-symbols-outlined">help</span><span class="nav-label">Help &amp; Guide</span></a>
 
       <div class="nav-section-label">Switch View</div>
-      <a href="/dashboard-admin.html" class="nav-item"><span class="material-symbols-outlined">shield_person</span>Admin</a>
-      <a href="/dashboard-central.html" class="nav-item"><span class="material-symbols-outlined">corporate_fare</span>Central Office</a>
-      <a href="/dashboard-stu-head.html" class="nav-item"><span class="material-symbols-outlined">manage_accounts</span>STU Head</a>
+      <a href="/dashboard-admin.html" class="nav-item" title="Admin"><span class="material-symbols-outlined">shield_person</span><span class="nav-label">Admin</span></a>
+      <a href="/dashboard-central.html" class="nav-item" title="Central Office"><span class="material-symbols-outlined">corporate_fare</span><span class="nav-label">Central Office</span></a>
+      <a href="/dashboard-stu-head.html" class="nav-item" title="STU Head"><span class="material-symbols-outlined">manage_accounts</span><span class="nav-label">STU Head</span></a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -46,10 +51,11 @@
           <div class="user-name" id="dash-user-name">Field Officer</div>
           <div class="user-role" id="dash-user-role">Interviewer</div>
         </div>
-        <button onclick="dashLogout()" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:0.25rem;" onmouseenter="this.style.color='#ef4444'" onmouseleave="this.style.color='#9ca3af'">
-          <span class="material-symbols-outlined" style="font-size:1.125rem;">logout</span>
-        </button>
       </div>
+      <button class="logout-btn" onclick="dashLogout()">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="logout-label">Logout</span>
+      </button>
     </div>
   </aside>
 
@@ -61,20 +67,6 @@
         <a href="/profiling.html" class="btn btn-primary btn-sm">
           <span class="material-symbols-outlined">add</span>New Assessment
         </a>
-        <div style="position:relative;">
-          <button class="icon-btn" id="notif-btn"><span class="material-symbols-outlined">notifications</span><span class="notif-badge">1</span></button>
-          <div class="notif-dropdown" id="notif-dropdown">
-            <div class="notif-dropdown-header">
-              <span class="notif-dropdown-title">Notifications</span>
-              <button class="btn btn-ghost btn-sm">Mark all read</button>
-            </div>
-            <div class="notif-item unread">
-              <div class="notif-icon" style="background:rgba(245,158,11,0.1);color:#d97706;"><span class="material-symbols-outlined">warning</span></div>
-              <div class="notif-text"><div class="notif-msg">Assessment BEN-2026-00441 requires correction</div><div class="notif-time">1 hour ago</div></div>
-            </div>
-          </div>
-        </div>
-        <img src="/images/form-logo.webp" alt="DSWD" style="height:1.75rem;width:auto;object-fit:contain;opacity:0.8;">
       </div>
     </header>
 

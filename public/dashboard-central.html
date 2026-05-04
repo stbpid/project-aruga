@@ -22,22 +22,27 @@
         <div class="sidebar-brand-sub">Central Office</div>
       </div>
     </div>
+    <div class="sidebar-minimize-btn">
+      <button id="sidebar-minimize-btn" title="Minimize sidebar">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+    </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
-      <a href="/dashboard-central.html" class="nav-item active"><span class="material-symbols-outlined">dashboard</span>Overview</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">group</span>Beneficiaries</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">assignment</span>Assessments</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">bar_chart</span>Reports</a>
+      <a href="/dashboard-central.html" class="nav-item active" title="Overview"><span class="material-symbols-outlined">dashboard</span><span class="nav-label">Overview</span></a>
+      <a href="#" class="nav-item" title="Beneficiaries"><span class="material-symbols-outlined">group</span><span class="nav-label">Beneficiaries</span></a>
+      <a href="#" class="nav-item" title="Assessments"><span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span></a>
+      <a href="#" class="nav-item" title="Reports"><span class="material-symbols-outlined">bar_chart</span><span class="nav-label">Reports</span></a>
 
       <div class="nav-section-label">Coordination</div>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">map</span>Regional View</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">people</span>STU Units</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">folder_open</span>Documents</a>
+      <a href="#" class="nav-item" title="Regional View"><span class="material-symbols-outlined">map</span><span class="nav-label">Regional View</span></a>
+      <a href="#" class="nav-item" title="STU Units"><span class="material-symbols-outlined">people</span><span class="nav-label">STU Units</span></a>
+      <a href="#" class="nav-item" title="Documents"><span class="material-symbols-outlined">folder_open</span><span class="nav-label">Documents</span></a>
 
       <div class="nav-section-label">Switch View</div>
-      <a href="/dashboard-admin.html" class="nav-item"><span class="material-symbols-outlined">shield_person</span>Admin</a>
-      <a href="/dashboard-stu-head.html" class="nav-item"><span class="material-symbols-outlined">manage_accounts</span>STU Head</a>
-      <a href="/dashboard-field-officer.html" class="nav-item"><span class="material-symbols-outlined">person_pin_circle</span>Field Officer</a>
+      <a href="/dashboard-admin.html" class="nav-item" title="Admin"><span class="material-symbols-outlined">shield_person</span><span class="nav-label">Admin</span></a>
+      <a href="/dashboard-stu-head.html" class="nav-item" title="STU Head"><span class="material-symbols-outlined">manage_accounts</span><span class="nav-label">STU Head</span></a>
+      <a href="/dashboard-field-officer.html" class="nav-item" title="Field Officer"><span class="material-symbols-outlined">person_pin_circle</span><span class="nav-label">Field Officer</span></a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -46,10 +51,11 @@
           <div class="user-name" id="dash-user-name">Central User</div>
           <div class="user-role" id="dash-user-role">Central Office</div>
         </div>
-        <button onclick="dashLogout()" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:0.25rem;" onmouseenter="this.style.color='#ef4444'" onmouseleave="this.style.color='#9ca3af'">
-          <span class="material-symbols-outlined" style="font-size:1.125rem;">logout</span>
-        </button>
       </div>
+      <button class="logout-btn" onclick="dashLogout()">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="logout-label">Logout</span>
+      </button>
     </div>
   </aside>
 
@@ -57,30 +63,7 @@
     <header class="dash-header">
       <button class="hamburger" id="hamburger-btn"><span class="material-symbols-outlined">menu</span></button>
       <div class="dash-header-title">Central Office — National Overview</div>
-      <div class="dash-header-actions">
-        <div style="position:relative;">
-          <button class="icon-btn" id="notif-btn"><span class="material-symbols-outlined">notifications</span><span class="notif-badge">3</span></button>
-          <div class="notif-dropdown" id="notif-dropdown">
-            <div class="notif-dropdown-header">
-              <span class="notif-dropdown-title">Notifications</span>
-              <button class="btn btn-ghost btn-sm">Mark all read</button>
-            </div>
-            <div class="notif-item unread">
-              <div class="notif-icon" style="background:rgba(17,82,212,0.1);color:#1152d4;"><span class="material-symbols-outlined">bar_chart</span></div>
-              <div class="notif-text"><div class="notif-msg">Q1 report ready for review</div><div class="notif-time">1 hour ago</div></div>
-            </div>
-            <div class="notif-item unread">
-              <div class="notif-icon" style="background:rgba(245,158,11,0.1);color:#d97706;"><span class="material-symbols-outlined">warning</span></div>
-              <div class="notif-text"><div class="notif-msg">Region XII below target (43%)</div><div class="notif-time">3 hours ago</div></div>
-            </div>
-            <div class="notif-item unread">
-              <div class="notif-icon" style="background:rgba(16,185,129,0.1);color:#059669;"><span class="material-symbols-outlined">thumb_up</span></div>
-              <div class="notif-text"><div class="notif-msg">NCR exceeded monthly target</div><div class="notif-time">Yesterday</div></div>
-            </div>
-          </div>
-        </div>
-        <img src="/images/form-logo.webp" alt="DSWD" style="height:1.75rem;width:auto;object-fit:contain;opacity:0.8;">
-      </div>
+      <div class="dash-header-actions"></div>
     </header>
 
     <div class="dash-content">

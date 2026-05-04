@@ -25,6 +25,11 @@
         <div class="sidebar-brand-sub">Admin Dashboard</div>
       </div>
     </div>
+    <div class="sidebar-minimize-btn">
+      <button id="sidebar-minimize-btn" title="Minimize sidebar">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+    </div>
 
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -74,10 +79,11 @@
           <div class="user-name" id="dash-user-name">System Admin</div>
           <div class="user-role" id="dash-user-role">Administrator</div>
         </div>
-        <button onclick="dashLogout()" title="Logout" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:0.25rem;border-radius:0.25rem;" onmouseenter="this.style.color='#ef4444'" onmouseleave="this.style.color='#9ca3af'">
-          <span class="material-symbols-outlined" style="font-size:1.125rem;">logout</span>
-        </button>
       </div>
+      <button class="logout-btn" onclick="dashLogout()">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="logout-label">Logout</span>
+      </button>
     </div>
   </aside>
 

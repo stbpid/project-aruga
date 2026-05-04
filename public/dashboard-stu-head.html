@@ -22,23 +22,28 @@
         <div class="sidebar-brand-sub">STU Head</div>
       </div>
     </div>
+    <div class="sidebar-minimize-btn">
+      <button id="sidebar-minimize-btn" title="Minimize sidebar">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+    </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">My Unit</div>
-      <a href="/dashboard-stu-head.html" class="nav-item active"><span class="material-symbols-outlined">dashboard</span>Overview</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">group</span>Beneficiaries</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">assignment</span>Assessments</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">badge</span>My Interviewers</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">bar_chart</span>Unit Reports</a>
+      <a href="/dashboard-stu-head.html" class="nav-item active" title="Overview"><span class="material-symbols-outlined">dashboard</span><span class="nav-label">Overview</span></a>
+      <a href="#" class="nav-item" title="Beneficiaries"><span class="material-symbols-outlined">group</span><span class="nav-label">Beneficiaries</span></a>
+      <a href="#" class="nav-item" title="Assessments"><span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span></a>
+      <a href="#" class="nav-item" title="My Interviewers"><span class="material-symbols-outlined">badge</span><span class="nav-label">My Interviewers</span></a>
+      <a href="#" class="nav-item" title="Unit Reports"><span class="material-symbols-outlined">bar_chart</span><span class="nav-label">Unit Reports</span></a>
 
       <div class="nav-section-label">Operations</div>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">task_alt</span>Pending Reviews</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">calendar_month</span>Schedule</a>
-      <a href="#" class="nav-item"><span class="material-symbols-outlined">notifications</span>Alerts</a>
+      <a href="#" class="nav-item" title="Pending Reviews"><span class="material-symbols-outlined">task_alt</span><span class="nav-label">Pending Reviews</span></a>
+      <a href="#" class="nav-item" title="Schedule"><span class="material-symbols-outlined">calendar_month</span><span class="nav-label">Schedule</span></a>
+      <a href="#" class="nav-item" title="Alerts"><span class="material-symbols-outlined">notifications</span><span class="nav-label">Alerts</span></a>
 
       <div class="nav-section-label">Switch View</div>
-      <a href="/dashboard-admin.html" class="nav-item"><span class="material-symbols-outlined">shield_person</span>Admin</a>
-      <a href="/dashboard-central.html" class="nav-item"><span class="material-symbols-outlined">corporate_fare</span>Central Office</a>
-      <a href="/dashboard-field-officer.html" class="nav-item"><span class="material-symbols-outlined">person_pin_circle</span>Field Officer</a>
+      <a href="/dashboard-admin.html" class="nav-item" title="Admin"><span class="material-symbols-outlined">shield_person</span><span class="nav-label">Admin</span></a>
+      <a href="/dashboard-central.html" class="nav-item" title="Central Office"><span class="material-symbols-outlined">corporate_fare</span><span class="nav-label">Central Office</span></a>
+      <a href="/dashboard-field-officer.html" class="nav-item" title="Field Officer"><span class="material-symbols-outlined">person_pin_circle</span><span class="nav-label">Field Officer</span></a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -47,10 +52,11 @@
           <div class="user-name" id="dash-user-name">STU Head</div>
           <div class="user-role" id="dash-user-role">Unit Head</div>
         </div>
-        <button onclick="dashLogout()" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:0.25rem;" onmouseenter="this.style.color='#ef4444'" onmouseleave="this.style.color='#9ca3af'">
-          <span class="material-symbols-outlined" style="font-size:1.125rem;">logout</span>
-        </button>
       </div>
+      <button class="logout-btn" onclick="dashLogout()">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="logout-label">Logout</span>
+      </button>
     </div>
   </aside>
 
@@ -58,26 +64,7 @@
     <header class="dash-header">
       <button class="hamburger" id="hamburger-btn"><span class="material-symbols-outlined">menu</span></button>
       <div class="dash-header-title">STU Head — Unit Overview</div>
-      <div class="dash-header-actions">
-        <div style="position:relative;">
-          <button class="icon-btn" id="notif-btn"><span class="material-symbols-outlined">notifications</span><span class="notif-badge">2</span></button>
-          <div class="notif-dropdown" id="notif-dropdown">
-            <div class="notif-dropdown-header">
-              <span class="notif-dropdown-title">Notifications</span>
-              <button class="btn btn-ghost btn-sm">Mark all read</button>
-            </div>
-            <div class="notif-item unread">
-              <div class="notif-icon" style="background:rgba(245,158,11,0.1);color:#d97706;"><span class="material-symbols-outlined">assignment_late</span></div>
-              <div class="notif-text"><div class="notif-msg">2 assessments pending your review</div><div class="notif-time">30 minutes ago</div></div>
-            </div>
-            <div class="notif-item unread">
-              <div class="notif-icon" style="background:rgba(17,82,212,0.1);color:#1152d4;"><span class="material-symbols-outlined">person</span></div>
-              <div class="notif-text"><div class="notif-msg">Interviewer R5004 submitted 5 new entries</div><div class="notif-time">2 hours ago</div></div>
-            </div>
-          </div>
-        </div>
-        <img src="/images/form-logo.webp" alt="DSWD" style="height:1.75rem;width:auto;object-fit:contain;opacity:0.8;">
-      </div>
+      <div class="dash-header-actions"></div>
     </header>
 
     <div class="dash-content">

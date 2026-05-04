@@ -46,12 +46,18 @@ function initSidebar() {
   function toggleMinimize() {
     const minimized = sidebar?.classList.toggle('minimized');
     main?.classList.toggle('sidebar-minimized', minimized);
+    const btn = document.getElementById('sidebar-minimize-btn');
+    if (btn) btn.querySelector('.material-symbols-outlined').textContent = minimized ? 'chevron_right' : 'chevron_left';
   }
 
   hamburger?.addEventListener('click', () => {
     if (isMobile()) openMobile(); else toggleMinimize();
   });
   overlay?.addEventListener('click', closeMobile);
+
+  // Minimize button inside sidebar
+  const minBtn = document.getElementById('sidebar-minimize-btn');
+  minBtn?.addEventListener('click', toggleMinimize);
 }
 
 // Notification dropdown
