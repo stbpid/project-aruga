@@ -54,7 +54,7 @@
       <a href="#" class="nav-item" id="nav-interviewers" title="Interviewers" onclick="showView('interviewers');return false;">
         <span class="material-symbols-outlined">badge</span><span class="nav-label">Interviewers</span>
       </a>
-      <a href="#" class="nav-item" title="Regions">
+      <a href="#" class="nav-item" id="nav-regions" title="Regions" onclick="showView('regions');return false;">
         <span class="material-symbols-outlined">map</span><span class="nav-label">Regions</span>
       </a>
       <a href="#" class="nav-item" id="nav-settings" title="System Settings" onclick="showView('settings');return false;">
@@ -360,6 +360,378 @@
         </div>
       </div>
     </div><!-- /view-interviewers -->
+
+    <!-- Regions View -->
+    <div class="dash-content" id="view-regions" style="display:none;">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <div class="page-title" style="margin:0;">Regional Dashboard</div>
+          <div class="page-subtitle" style="margin:0;">National overview of assessment progress across all regions</div>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="exportRegionsCSV()"><span class="material-symbols-outlined">download</span>Export CSV</button>
+          <button class="btn btn-secondary btn-sm" onclick="printRegionReport()"><span class="material-symbols-outlined">print</span>Print Report</button>
+          <button class="btn btn-primary btn-sm" onclick="refreshRegionsView()"><span class="material-symbols-outlined">refresh</span>Refresh</button>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="stats-grid" style="margin-bottom:1rem;">
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">task_alt</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="rg-stat-completed">—</div>
+            <div class="stat-label">Completed</div>
+            <div class="stat-change up" id="rg-stat-completed-sub">Loading...</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><span class="material-symbols-outlined">pending</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="rg-stat-pending">—</div>
+            <div class="stat-label">Pending</div>
+            <div class="stat-change" id="rg-stat-pending-sub">Loading...</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><span class="material-symbols-outlined">trending_up</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="rg-stat-rate">—</div>
+            <div class="stat-label">National Rate</div>
+            <div class="stat-change up" id="rg-stat-rate-sub">Overall completion</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">warning</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="rg-stat-atrisk">—</div>
+            <div class="stat-label">At Risk</div>
+            <div class="stat-change down" id="rg-stat-atrisk-sub">Regions behind target</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert Bar -->
+      <div id="rg-alerts" style="margin-bottom:1rem;display:flex;flex-direction:column;gap:0.5rem;"></div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;overflow-x:auto;">
+        <button class="settings-tab active" data-rgtab="performance" onclick="showRegionTab('performance')"><span class="material-symbols-outlined">leaderboard</span>Performance</button>
+        <button class="settings-tab" data-rgtab="drilldown" onclick="showRegionTab('drilldown')"><span class="material-symbols-outlined">account_tree</span>Drill-Down</button>
+        <button class="settings-tab" data-rgtab="interviewers" onclick="showRegionTab('interviewers')"><span class="material-symbols-outlined">badge</span>Interviewers</button>
+        <button class="settings-tab" data-rgtab="trends" onclick="showRegionTab('trends')"><span class="material-symbols-outlined">show_chart</span>Trends</button>
+        <button class="settings-tab" data-rgtab="insights" onclick="showRegionTab('insights')"><span class="material-symbols-outlined">insights</span>Insights</button>
+        <button class="settings-tab" data-rgtab="actions" onclick="showRegionTab('actions')"><span class="material-symbols-outlined">bolt</span>Quick Actions</button>
+        <button class="settings-tab" data-rgtab="ranking" onclick="showRegionTab('ranking')"><span class="material-symbols-outlined">emoji_events</span>Rankings</button>
+      </div>
+
+      <!-- ── Tab: Performance Table ── -->
+      <div class="settings-panel" id="rgtab-performance">
+        <!-- Filters -->
+        <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
+          <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+            <div class="search-bar" style="flex:1;min-width:180px;max-width:280px;">
+              <span class="material-symbols-outlined">search</span>
+              <input type="text" id="rg-search" placeholder="Search region..." oninput="filterRegionsTable()">
+            </div>
+            <select id="rg-filter-status" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="filterRegionsTable()">
+              <option value="">All Status</option>
+              <option value="complete">Complete</option>
+              <option value="on_track">On Track</option>
+              <option value="behind">Behind</option>
+              <option value="at_risk">At Risk</option>
+            </select>
+            <select id="rg-filter-island" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="filterRegionsTable()">
+              <option value="">All Island Groups</option>
+              <option value="Luzon">Luzon</option>
+              <option value="Visayas">Visayas</option>
+              <option value="Mindanao">Mindanao</option>
+            </select>
+            <select id="rg-filter-rate" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="filterRegionsTable()">
+              <option value="">All Rates</option>
+              <option value="0-25">0–25%</option>
+              <option value="26-50">26–50%</option>
+              <option value="51-75">51–75%</option>
+              <option value="76-100">76–100%</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="resetRegionFilters()">Reset</button>
+            <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="rg-table-count">—</span>
+          </div>
+        </div>
+
+        <div class="card" style="margin:0;">
+          <div class="table-wrap">
+            <table class="dash-table" id="rg-perf-table">
+              <thead>
+                <tr>
+                  <th style="cursor:pointer;" onclick="sortRegions('region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRegions('island')">Island <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRegions('target')">Target <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRegions('completed')">Completed <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRegions('pending')">Pending <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRegions('rate')">Rate % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRegions('interviewers')">Interviewers <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRegions('days')">Days Left <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="rg-perf-tbody">
+                <tr><td colspan="10" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab: Drill-Down ── -->
+      <div class="settings-panel" id="rgtab-drilldown" style="display:none;">
+        <div class="card" style="margin:0;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Regional Drill-Down</div>
+              <nav id="rg-breadcrumb" style="font-size:0.75rem;color:var(--gray-500);margin-top:0.25rem;display:flex;align-items:center;gap:0.25rem;flex-wrap:wrap;">
+                <span style="color:var(--blue);cursor:pointer;font-weight:600;" onclick="drillTo('national')">National</span>
+              </nav>
+            </div>
+          </div>
+          <div id="rg-drilldown-body">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0.75rem;" id="rg-drill-cards"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab: Interviewers ── -->
+      <div class="settings-panel" id="rgtab-interviewers" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Interviewers by Region</div>
+                <div class="card-subtitle">Workload &amp; activity status</div>
+              </div>
+              <select id="rg-int-region-filter" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;" onchange="filterRegionInterviewers()">
+                <option value="">All Regions</option>
+              </select>
+            </div>
+            <div id="rg-int-list" style="display:flex;flex-direction:column;gap:0.5rem;max-height:420px;overflow-y:auto;">
+              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>
+            </div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div class="card-title">Reassign Interviewer</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+              <div>
+                <label class="settings-label">Select Interviewer</label>
+                <select id="ra-interviewer" class="settings-input">
+                  <option value="">Choose interviewer...</option>
+                </select>
+              </div>
+              <div>
+                <label class="settings-label">Reassign to Region</label>
+                <select id="ra-region" class="settings-input">
+                  <option value="">Choose region...</option>
+                </select>
+              </div>
+              <div>
+                <label class="settings-label">Reason (optional)</label>
+                <input type="text" id="ra-reason" class="settings-input" placeholder="e.g. Workload balancing">
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="reassignInterviewer()">
+                <span class="material-symbols-outlined">swap_horiz</span>Confirm Reassignment
+              </button>
+            </div>
+            <div id="rg-int-toast" class="settings-toast" style="display:none;margin-top:0.75rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab: Trends ── -->
+      <div class="settings-panel" id="rgtab-trends" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Weekly Completion Trend</div>
+                <div class="card-subtitle">Last 8 weeks — all regions combined</div>
+              </div>
+            </div>
+            <div class="bar-chart" id="rg-trend-bars" style="min-height:160px;margin-top:0.75rem;"></div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div class="card-title">This Week vs Last Week</div>
+            </div>
+            <div id="rg-weekly-compare" style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.25rem;"></div>
+          </div>
+        </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header">
+            <div class="card-title">Forecasting</div>
+            <div class="card-subtitle">Projected completion dates at current pace</div>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead><tr><th>Region</th><th>Current Rate</th><th>Remaining</th><th>Projected Completion</th><th>Confidence</th></tr></thead>
+              <tbody id="rg-forecast-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab: Insights ── -->
+      <div class="settings-panel" id="rgtab-insights" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Bottleneck Regions</div></div>
+            <div id="rg-bottlenecks" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Peak Activity Days</div></div>
+            <div id="rg-peak-days" style="display:flex;flex-direction:column;gap:0.375rem;"></div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Avg. Assessment Duration</div></div>
+            <div id="rg-avg-duration" style="display:flex;flex-direction:column;gap:0.375rem;"></div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Incomplete Data Rate</div></div>
+            <div id="rg-incomplete-rate" style="display:flex;flex-direction:column;gap:0.375rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab: Quick Actions ── -->
+      <div class="settings-panel" id="rgtab-actions" style="display:none;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <div style="width:2rem;height:2rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;">
+                  <span class="material-symbols-outlined" style="color:var(--blue);font-size:1rem;">notifications</span>
+                </div>
+                <div class="card-title" style="margin:0;">Bulk Notification</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+              <select id="qa-notif-target" class="settings-input">
+                <option value="all">All Coordinators &amp; Interviewers</option>
+                <option value="behind">Behind/At-Risk Regions Only</option>
+                <option value="coordinators">Regional Coordinators Only</option>
+              </select>
+              <textarea id="qa-notif-msg" class="settings-input" rows="3" placeholder="Message to send..." style="resize:vertical;"></textarea>
+              <button class="btn btn-primary btn-sm" onclick="sendBulkNotification()">
+                <span class="material-symbols-outlined">send</span>Send Notification
+              </button>
+            </div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <div style="width:2rem;height:2rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;">
+                  <span class="material-symbols-outlined" style="color:#16a34a;font-size:1rem;">flag</span>
+                </div>
+                <div class="card-title" style="margin:0;">Set Regional Target</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+              <select id="qa-target-region" class="settings-input">
+                <option value="">Select region...</option>
+              </select>
+              <input type="number" id="qa-target-value" class="settings-input" placeholder="New target count" min="1">
+              <input type="date" id="qa-target-deadline" class="settings-input">
+              <button class="btn btn-primary btn-sm" onclick="setRegionTarget()">
+                <span class="material-symbols-outlined">save</span>Update Target
+              </button>
+            </div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <div style="width:2rem;height:2rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;">
+                  <span class="material-symbols-outlined" style="color:#ea580c;font-size:1rem;">priority_high</span>
+                </div>
+                <div class="card-title" style="margin:0;">Mark Priority Region</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+              <select id="qa-priority-region" class="settings-input" multiple size="5">
+              </select>
+              <button class="btn btn-primary btn-sm" onclick="markPriorityRegions()">
+                <span class="material-symbols-outlined">star</span>Mark as Priority
+              </button>
+            </div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <div style="width:2rem;height:2rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;">
+                  <span class="material-symbols-outlined" style="color:#7c3aed;font-size:1rem;">summarize</span>
+                </div>
+                <div class="card-title" style="margin:0;">Generate Report</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+              <select id="qa-report-region" class="settings-input">
+                <option value="all">All Regions</option>
+              </select>
+              <select id="qa-report-type" class="settings-input">
+                <option value="summary">Summary Report</option>
+                <option value="detailed">Detailed Report</option>
+                <option value="interviewer">Interviewer Report</option>
+              </select>
+              <button class="btn btn-primary btn-sm" onclick="generateRegionReport()">
+                <span class="material-symbols-outlined">download</span>Download Report
+              </button>
+            </div>
+          </div>
+
+        </div>
+        <div id="rg-actions-toast" class="settings-toast" style="display:none;margin-top:1rem;"></div>
+      </div>
+
+      <!-- ── Tab: Rankings ── -->
+      <div class="settings-panel" id="rgtab-ranking" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.25rem;">emoji_events</span>
+                <div class="card-title" style="margin:0;">Top 5 Regions</div>
+              </div>
+            </div>
+            <div id="rg-top5" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <span class="material-symbols-outlined" style="color:#ef4444;font-size:1.25rem;">trending_down</span>
+                <div class="card-title" style="margin:0;">Bottom 5 Regions</div>
+              </div>
+            </div>
+            <div id="rg-bottom5" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+          </div>
+          <div class="card" style="margin:0;grid-column:1/-1;">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <span class="material-symbols-outlined" style="color:#10b981;font-size:1.25rem;">rocket_launch</span>
+                <div class="card-title" style="margin:0;">Most Improved (Week-over-Week)</div>
+              </div>
+            </div>
+            <div id="rg-most-improved" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.75rem;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /view-regions -->
 
     <!-- System Settings View -->
     <div class="dash-content" id="view-settings" style="display:none;">
@@ -1300,7 +1672,7 @@
   }
 
   // ── View switcher ──────────────────────────────────────────────
-  const VIEWS = ['overview','beneficiaries','assessments','interviewers','settings','audit'];
+  const VIEWS = ['overview','beneficiaries','assessments','interviewers','regions','settings','audit'];
   function showView(view) {
     VIEWS.forEach(v => {
       const el = document.getElementById('view-' + v);
@@ -1313,6 +1685,7 @@
     if (view === 'interviewers') loadInterviewers();
     if (view === 'audit') loadAuditLogs();
     if (view === 'settings') showSettingsTab('users');
+    if (view === 'regions') loadRegionsView();
   }
 
   // ── Audit Logs View ────────────────────────────────────────────
@@ -1406,6 +1779,479 @@
       : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No log entries found.</td></tr>';
     document.getElementById('audit-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} entries` : 'No results';
     buildPagination('audit-pagination', auditPage, totalPages, p => { auditPage = p; renderAudit(); });
+  }
+
+  // ── Regions View ──────────────────────────────────────────────
+
+  const RG_REGIONS = [
+    { region:'NCR – Metro Manila',              island:'Luzon',    target:1800, completed:1540, pending:260, interviewers:32, days:28 },
+    { region:'Region III – Central Luzon',      island:'Luzon',    target:1400, completed:980,  pending:420, interviewers:24, days:28 },
+    { region:'Region IV-A – CALABARZON',        island:'Luzon',    target:1600, completed:1200, pending:400, interviewers:28, days:28 },
+    { region:'Region I – Ilocos Region',        island:'Luzon',    target:900,  completed:810,  pending:90,  interviewers:16, days:28 },
+    { region:'Region II – Cagayan Valley',      island:'Luzon',    target:700,  completed:420,  pending:280, interviewers:12, days:28 },
+    { region:'Region V – Bicol Region',         island:'Luzon',    target:1100, completed:660,  pending:440, interviewers:18, days:28 },
+    { region:'Region IV-B – MIMAROPA',          island:'Luzon',    target:600,  completed:270,  pending:330, interviewers:10, days:28 },
+    { region:'CAR – Cordillera',                island:'Luzon',    target:500,  completed:450,  pending:50,  interviewers:9,  days:28 },
+    { region:'Region VI – Western Visayas',     island:'Visayas',  target:1000, completed:760,  pending:240, interviewers:18, days:28 },
+    { region:'Region VII – Central Visayas',    island:'Visayas',  target:1100, completed:990,  pending:110, interviewers:20, days:28 },
+    { region:'Region VIII – Eastern Visayas',   island:'Visayas',  target:800,  completed:360,  pending:440, interviewers:14, days:28 },
+    { region:'Region IX – Zamboanga Peninsula', island:'Mindanao', target:700,  completed:490,  pending:210, interviewers:12, days:28 },
+    { region:'Region X – Northern Mindanao',    island:'Mindanao', target:900,  completed:630,  pending:270, interviewers:16, days:28 },
+    { region:'Region XI – Davao Region',        island:'Mindanao', target:1000, completed:850,  pending:150, interviewers:18, days:28 },
+    { region:'Region XII – SOCCSKSARGEN',       island:'Mindanao', target:800,  completed:400,  pending:400, interviewers:14, days:28 },
+    { region:'Region XIII – Caraga',            island:'Mindanao', target:600,  completed:300,  pending:300, interviewers:10, days:28 },
+    { region:'BARMM',                           island:'Mindanao', target:700,  completed:210,  pending:490, interviewers:12, days:28 },
+  ].map(r => ({ ...r, rate: Math.round((r.completed/r.target)*100) }));
+
+  const PREV_WEEK = { 'NCR – Metro Manila':1420,'Region III – Central Luzon':880,'Region IV-A – CALABARZON':1050,'Region I – Ilocos Region':770,'Region II – Cagayan Valley':360,'Region V – Bicol Region':560,'Region IV-B – MIMAROPA':200,'CAR – Cordillera':420,'Region VI – Western Visayas':680,'Region VII – Central Visayas':890,'Region VIII – Eastern Visayas':280,'Region IX – Zamboanga Peninsula':420,'Region X – Northern Mindanao':550,'Region XI – Davao Region':750,'Region XII – SOCCSKSARGEN':300,'Region XIII – Caraga':220,'BARMM':140 };
+
+  function rgStatus(r) {
+    if (r.rate >= 100) return 'complete';
+    if (r.rate >= 70)  return 'on_track';
+    if (r.rate >= 45)  return 'behind';
+    return 'at_risk';
+  }
+
+  const RG_STATUS_BADGE = {
+    complete: '<span class="badge badge-green">Complete</span>',
+    on_track: '<span class="badge badge-blue">On Track</span>',
+    behind:   '<span class="badge badge-orange">Behind</span>',
+    at_risk:  '<span class="badge badge-red">At Risk</span>',
+  };
+  const RG_ROW_BG = { complete:'#f0fdf4', on_track:'transparent', behind:'#fffbeb', at_risk:'#fff1f1' };
+
+  let rgFiltered = [...RG_REGIONS];
+  let rgSortKey = 'region', rgSortDir = 1;
+  let rgDrillPath = ['national'];
+  let priorityRegions = new Set();
+
+  function loadRegionsView() {
+    buildRgSummaryCards();
+    buildRgAlerts();
+    renderRegionsTable();
+    renderDrillDown();
+    renderRegionInterviewers();
+    populateRgSelects();
+    renderRgTrends();
+    renderRgInsights();
+    renderRgRankings();
+  }
+
+  function buildRgSummaryCards() {
+    const total_completed = RG_REGIONS.reduce((s,r)=>s+r.completed,0);
+    const total_pending   = RG_REGIONS.reduce((s,r)=>s+r.pending,0);
+    const total_target    = RG_REGIONS.reduce((s,r)=>s+r.target,0);
+    const rate = Math.round((total_completed/total_target)*100);
+    const at_risk = RG_REGIONS.filter(r=>rgStatus(r)==='at_risk').length;
+    document.getElementById('rg-stat-completed').textContent = total_completed.toLocaleString();
+    document.getElementById('rg-stat-completed-sub').textContent = 'of '+total_target.toLocaleString()+' target';
+    document.getElementById('rg-stat-pending').textContent = total_pending.toLocaleString();
+    document.getElementById('rg-stat-pending-sub').textContent = 'assessments remaining';
+    document.getElementById('rg-stat-rate').textContent = rate+'%';
+    document.getElementById('rg-stat-atrisk').textContent = at_risk;
+    document.getElementById('rg-stat-atrisk-sub').textContent = at_risk > 0 ? at_risk+' region'+(at_risk>1?'s':'')+' need attention' : 'All regions on track';
+  }
+
+  function buildRgAlerts() {
+    const container = document.getElementById('rg-alerts');
+    const atRisk = RG_REGIONS.filter(r=>rgStatus(r)==='at_risk');
+    const behind = RG_REGIONS.filter(r=>rgStatus(r)==='behind');
+    container.innerHTML = '';
+    atRisk.forEach(r => {
+      container.innerHTML += `<div style="display:flex;align-items:center;gap:0.625rem;padding:0.625rem 1rem;background:#fff1f1;border:1px solid #fecaca;border-radius:0.625rem;font-size:0.8125rem;">
+        <span class="material-symbols-outlined" style="color:#dc2626;font-size:1rem;">error</span>
+        <strong style="color:#dc2626;">At Risk:</strong>&nbsp;<span style="color:#374151;">${r.region} — only ${r.rate}% complete with ${r.days} days left</span>
+      </div>`;
+    });
+    behind.slice(0,2).forEach(r => {
+      container.innerHTML += `<div style="display:flex;align-items:center;gap:0.625rem;padding:0.625rem 1rem;background:#fffbeb;border:1px solid #fde68a;border-radius:0.625rem;font-size:0.8125rem;">
+        <span class="material-symbols-outlined" style="color:#d97706;font-size:1rem;">warning</span>
+        <strong style="color:#d97706;">Behind:</strong>&nbsp;<span style="color:#374151;">${r.region} — ${r.rate}% complete, ${r.pending} assessments pending</span>
+      </div>`;
+    });
+  }
+
+  function filterRegionsTable() {
+    const q = (document.getElementById('rg-search').value||'').toLowerCase();
+    const status = document.getElementById('rg-filter-status').value;
+    const island = document.getElementById('rg-filter-island').value;
+    const rateRange = document.getElementById('rg-filter-rate').value;
+    rgFiltered = RG_REGIONS.filter(r => {
+      if (q && !r.region.toLowerCase().includes(q)) return false;
+      if (status && rgStatus(r) !== status) return false;
+      if (island && r.island !== island) return false;
+      if (rateRange) {
+        const [lo,hi] = rateRange.split('-').map(Number);
+        if (r.rate < lo || r.rate > hi) return false;
+      }
+      return true;
+    });
+    renderRegionsTable();
+  }
+
+  function resetRegionFilters() {
+    ['rg-search','rg-filter-status','rg-filter-island','rg-filter-rate'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.value='';
+    });
+    rgFiltered = [...RG_REGIONS];
+    renderRegionsTable();
+  }
+
+  function sortRegions(key) {
+    if (rgSortKey === key) rgSortDir *= -1; else { rgSortKey=key; rgSortDir=1; }
+    rgFiltered.sort((a,b)=>{
+      const av = a[key]??a.region, bv = b[key]??b.region;
+      return typeof av==='string' ? av.localeCompare(bv)*rgSortDir : (av-bv)*rgSortDir;
+    });
+    renderRegionsTable();
+  }
+
+  function renderRegionsTable() {
+    const tbody = document.getElementById('rg-perf-tbody');
+    document.getElementById('rg-table-count').textContent = rgFiltered.length+' region'+(rgFiltered.length!==1?'s':'');
+    tbody.innerHTML = rgFiltered.map(r => {
+      const s = rgStatus(r);
+      const bg = RG_ROW_BG[s];
+      const priority = priorityRegions.has(r.region) ? '<span class="material-symbols-outlined" style="font-size:0.875rem;color:#f59e0b;vertical-align:middle;" title="Priority">star</span> ' : '';
+      return `<tr style="background:${bg};">
+        <td><div style="font-weight:700;color:var(--dark);">${priority}${r.region}</div><div style="font-size:0.65rem;color:var(--gray-400);">${r.island}</div></td>
+        <td style="display:none;">${r.island}</td>
+        <td>${r.target.toLocaleString()}</td>
+        <td style="font-weight:700;color:#16a34a;">${r.completed.toLocaleString()}</td>
+        <td style="color:#d97706;">${r.pending.toLocaleString()}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <div style="flex:1;height:6px;background:var(--gray-200);border-radius:999px;overflow:hidden;min-width:50px;">
+              <div style="height:100%;width:${r.rate}%;background:${s==='complete'?'#16a34a':s==='on_track'?'#1152d4':s==='behind'?'#f59e0b':'#ef4444'};border-radius:999px;"></div>
+            </div>
+            <span style="font-weight:700;font-size:0.8125rem;">${r.rate}%</span>
+          </div>
+        </td>
+        <td>${r.interviewers}</td>
+        <td>${r.days}</td>
+        <td>${RG_STATUS_BADGE[s]}</td>
+        <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="drillToRegion('${r.region}')" title="Drill down"><span class="material-symbols-outlined" style="font-size:0.875rem;">open_in_new</span></button></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results.</td></tr>';
+  }
+
+  // Drill-Down
+  const RG_DRILL = {
+    'NCR – Metro Manila':       { provinces:['Manila','Quezon City','Caloocan','Marikina','Pasig','Taguig','Makati','Pasay','Parañaque','Las Piñas'] },
+    'Region VII – Central Visayas':{ provinces:['Cebu','Bohol','Negros Oriental','Siquijor'] },
+    'Region XI – Davao Region': { provinces:['Davao del Norte','Davao del Sur','Davao Oriental','Davao de Oro','Davao Occidental'] },
+    '__default__':              { provinces:['Province A','Province B','Province C'] },
+  };
+
+  function drillTo(level, value) {
+    if (level==='national') { rgDrillPath=['national']; renderDrillDown(); }
+    else if (level==='region') { rgDrillPath=['national',value]; renderDrillDown(); }
+    else if (level==='province') { rgDrillPath=[...rgDrillPath.slice(0,2),value]; renderDrillDown(); }
+    showRegionTab('drilldown');
+  }
+
+  function drillToRegion(name) { drillTo('region',name); }
+
+  function renderDrillDown() {
+    const bc = document.getElementById('rg-breadcrumb');
+    const body = document.getElementById('rg-drill-cards');
+    bc.innerHTML = rgDrillPath.map((seg,i)=>{
+      const isLast = i===rgDrillPath.length-1;
+      const label = seg==='national'?'National':seg;
+      if(isLast) return `<span style="color:var(--dark);font-weight:700;">${label}</span>`;
+      const lvl = i===0?'national':i===1?'region':'province';
+      return `<span style="color:var(--blue);cursor:pointer;font-weight:600;" onclick="drillTo('${lvl}','${seg}')">${label}</span><span class="material-symbols-outlined" style="font-size:0.875rem;color:var(--gray-400);">chevron_right</span>`;
+    }).join('');
+
+    const level = rgDrillPath.length;
+    let items = [];
+
+    if (level===1) {
+      items = RG_REGIONS.map(r=>({ label:r.region, sub:r.island, completed:r.completed, target:r.target, rate:r.rate, interviewers:r.interviewers, onclick:`drillTo('region','${r.region}')` }));
+    } else if (level===2) {
+      const regionName = rgDrillPath[1];
+      const drill = RG_DRILL[regionName]||RG_DRILL['__default__'];
+      items = drill.provinces.map((p,i)=>{
+        const base = RG_REGIONS.find(r=>r.region===regionName)||{};
+        const c = Math.round((base.completed||0)/drill.provinces.length * (0.7+Math.random()*0.6));
+        const t = Math.round((base.target||0)/drill.provinces.length);
+        return { label:p, sub:'Province', completed:c, target:t, rate:Math.min(100,Math.round((c/Math.max(t,1))*100)), interviewers:Math.ceil((base.interviewers||4)/drill.provinces.length), onclick:`drillTo('province','${p}')` };
+      });
+    } else {
+      const prov = rgDrillPath[2];
+      const cities = ['City A','City B','City C','Municipality D','Municipality E'];
+      items = cities.map(c=>({ label:c, sub:'City/Municipality', completed:Math.round(Math.random()*80+20), target:100, rate:Math.round(Math.random()*80+20), interviewers:2, onclick:'' }));
+    }
+
+    body.innerHTML = items.map(it=>`
+      <div class="card" style="margin:0;cursor:${it.onclick?'pointer':'default'};" ${it.onclick?`onclick="${it.onclick}"`:''}
+           onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow=''">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+          <div>
+            <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">${it.label}</div>
+            <div style="font-size:0.7rem;color:var(--gray-400);">${it.sub}</div>
+          </div>
+          ${RG_STATUS_BADGE[it.rate>=100?'complete':it.rate>=70?'on_track':it.rate>=45?'behind':'at_risk']}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.75rem;">
+          <div style="text-align:center;padding:0.5rem;background:var(--gray-50);border-radius:0.375rem;">
+            <div style="font-size:0.75rem;color:var(--gray-400);">Completed</div>
+            <div style="font-weight:800;color:#16a34a;">${it.completed}</div>
+          </div>
+          <div style="text-align:center;padding:0.5rem;background:var(--gray-50);border-radius:0.375rem;">
+            <div style="font-size:0.75rem;color:var(--gray-400);">Target</div>
+            <div style="font-weight:800;color:var(--dark);">${it.target}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <div style="flex:1;height:6px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+            <div style="height:100%;width:${it.rate}%;background:${it.rate>=70?'#16a34a':it.rate>=45?'#f59e0b':'#ef4444'};border-radius:999px;"></div>
+          </div>
+          <span style="font-weight:700;font-size:0.75rem;">${it.rate}%</span>
+        </div>
+        ${it.onclick?'<div style="font-size:0.7rem;color:var(--blue);margin-top:0.5rem;text-align:right;">Click to drill down →</div>':''}
+      </div>`).join('');
+  }
+
+  // Interviewers tab
+  let rgIntData = [];
+  function renderRegionInterviewers() {
+    if (!intData.length) { rgIntData=[]; renderRgIntList(); return; }
+    rgIntData = intData.map((iv,i) => {
+      const wl = i%3===0?'overloaded':i%3===1?'balanced':'underutilized';
+      const done = Math.round(Math.random()*80+20);
+      return { ...iv, workload:wl, done, last:'2026-05-0'+((i%9)+1) };
+    });
+    const sel = document.getElementById('rg-int-region-filter');
+    const regions = [...new Set(rgIntData.map(r=>r.region).filter(Boolean))].sort();
+    sel.innerHTML = '<option value="">All Regions</option>'+regions.map(r=>`<option>${r}</option>`).join('');
+    populateRaDropdowns();
+    renderRgIntList();
+  }
+
+  function filterRegionInterviewers() {
+    renderRgIntList(document.getElementById('rg-int-region-filter').value);
+  }
+
+  function renderRgIntList(filter='') {
+    const list = document.getElementById('rg-int-list');
+    const data = filter ? rgIntData.filter(r=>r.region===filter) : rgIntData;
+    const WL_BADGE = { overloaded:'<span class="badge badge-red" style="font-size:0.65rem;">Overloaded</span>', balanced:'<span class="badge badge-green" style="font-size:0.65rem;">Balanced</span>', underutilized:'<span class="badge badge-orange" style="font-size:0.65rem;">Underutilized</span>' };
+    list.innerHTML = data.slice(0,20).map(iv=>`
+      <div class="user-row">
+        <div class="user-row-avatar">${(iv.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
+        <div class="user-row-info">
+          <div class="user-row-name">${iv.name} <span style="font-family:monospace;font-size:0.7rem;color:var(--blue);">${iv.code}</span></div>
+          <div class="user-row-role">${iv.region} · Done: ${iv.done} · Last: ${iv.last}</div>
+        </div>
+        ${WL_BADGE[iv.workload]||''}
+      </div>`).join('') || '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No interviewers found.</div>';
+  }
+
+  function populateRaDropdowns() {
+    const ivSel = document.getElementById('ra-interviewer');
+    const rgSel = document.getElementById('ra-region');
+    ivSel.innerHTML = '<option value="">Choose interviewer...</option>' + rgIntData.map(iv=>`<option value="${iv.code}">${iv.name} (${iv.code})</option>`).join('');
+    rgSel.innerHTML = '<option value="">Choose region...</option>' + [...new Set(RG_REGIONS.map(r=>r.region))].map(r=>`<option>${r}</option>`).join('');
+  }
+
+  function reassignInterviewer() {
+    const iv = document.getElementById('ra-interviewer').value;
+    const rg = document.getElementById('ra-region').value;
+    if (!iv||!rg) { showToast('rg-int-toast','Select both an interviewer and a target region.','error'); return; }
+    const ivObj = rgIntData.find(x=>x.code===iv);
+    if (ivObj) ivObj.region = rg;
+    renderRgIntList();
+    document.getElementById('ra-interviewer').value='';
+    document.getElementById('ra-region').value='';
+    document.getElementById('ra-reason').value='';
+    showToast('rg-int-toast',`${ivObj?.name||iv} reassigned to ${rg}.`,'success');
+  }
+
+  // Trends tab
+  function renderRgTrends() {
+    const weeks = ['W44','W45','W46','W47','W48','W49','W50','W51'];
+    const vals  = [180,240,290,260,380,420,510,490];
+    const maxV  = Math.max(...vals);
+    const container = document.getElementById('rg-trend-bars');
+    container.innerHTML='';
+    const usableH = (container.clientHeight||160)-32;
+    let tip = document.getElementById('chart-tooltip');
+    if(!tip){tip=document.createElement('div');tip.id='chart-tooltip';tip.style.cssText='position:fixed;background:#1f2937;color:white;font-size:0.7rem;font-weight:600;padding:0.3rem 0.625rem;border-radius:0.375rem;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9000;white-space:nowrap;';document.body.appendChild(tip);}
+    weeks.forEach((w,i)=>{
+      const pct=vals[i]/maxV; const h=Math.max(pct*usableH,6);
+      const col=document.createElement('div'); col.className='bar-col';
+      const vd=document.createElement('div'); vd.style.cssText='font-size:0.6rem;font-weight:700;color:#9ca3af;margin-bottom:3px;text-align:center;min-height:0.75rem;'; vd.textContent=vals[i];
+      const bar=document.createElement('div'); bar.className='bar-fill'; bar.style.cssText=`height:${h}px;background:${i===7?'#1152d4':'#93c5fd'};border-radius:4px 4px 0 0;cursor:pointer;transition:background 0.15s;`;
+      bar.addEventListener('mouseenter',e=>{bar.style.background='#60a5fa';tip.textContent=w+': '+vals[i]+' completions';tip.style.opacity='1';});
+      bar.addEventListener('mousemove',e=>{tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-28)+'px';});
+      bar.addEventListener('mouseleave',()=>{bar.style.background=i===7?'#1152d4':'#93c5fd';tip.style.opacity='0';});
+      const lbl=document.createElement('span'); lbl.className='bar-label'; lbl.textContent=w;
+      col.appendChild(vd); col.appendChild(bar); col.appendChild(lbl); container.appendChild(col);
+    });
+
+    // Weekly compare
+    const compare = document.getElementById('rg-weekly-compare');
+    compare.innerHTML = RG_REGIONS.slice(0,8).map(r=>{
+      const prev = PREV_WEEK[r.region]||0;
+      const diff = r.completed - prev;
+      const pct = prev>0?Math.round((diff/prev)*100):0;
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--gray-100);">
+        <span style="font-size:0.75rem;color:var(--dark);font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region.split('–')[0].trim()}</span>
+        <span style="font-size:0.75rem;color:var(--gray-500);margin:0 0.5rem;">This: ${r.completed}</span>
+        <span style="font-size:0.7rem;font-weight:700;color:${diff>=0?'#16a34a':'#ef4444'};">${diff>=0?'+':''}${pct}%</span>
+      </div>`;
+    }).join('');
+
+    // Forecast
+    const tbody = document.getElementById('rg-forecast-tbody');
+    tbody.innerHTML = RG_REGIONS.map(r=>{
+      const remaining = r.target - r.completed;
+      const weekly = Math.max(1, r.completed / 8);
+      const weeksLeft = Math.ceil(remaining / weekly);
+      const projDate = new Date();
+      projDate.setDate(projDate.getDate() + weeksLeft*7);
+      const s = rgStatus(r);
+      const conf = s==='complete'?'High':s==='on_track'?'High':s==='behind'?'Medium':'Low';
+      const confColor = conf==='High'?'#16a34a':conf==='Medium'?'#f59e0b':'#ef4444';
+      return `<tr><td style="font-weight:600;">${r.region}</td><td>${r.rate}%</td><td>${remaining.toLocaleString()}</td><td>${remaining<=0?'<span class="badge badge-green">Done</span>':projDate.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'})}</td><td style="font-weight:700;color:${confColor};">${conf}</td></tr>`;
+    }).join('');
+  }
+
+  // Insights tab
+  function renderRgInsights() {
+    const sorted = [...RG_REGIONS].sort((a,b)=>a.rate-b.rate);
+    document.getElementById('rg-bottlenecks').innerHTML = sorted.slice(0,5).map(r=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
+        <span style="font-size:0.8125rem;font-weight:600;">${r.region}</span>
+        <span style="font-weight:800;color:#ef4444;">${r.rate}%</span>
+      </div>`).join('');
+
+    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    const peaks = [320,410,480,450,390,180,90];
+    document.getElementById('rg-peak-days').innerHTML = days.map((d,i)=>`
+      <div style="display:flex;align-items:center;gap:0.75rem;padding:0.35rem 0;">
+        <span style="font-size:0.75rem;width:80px;color:var(--gray-700);">${d}</span>
+        <div style="flex:1;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+          <div style="height:100%;width:${Math.round(peaks[i]/480*100)}%;background:var(--blue);border-radius:999px;"></div>
+        </div>
+        <span style="font-size:0.7rem;font-weight:700;color:var(--dark);width:36px;text-align:right;">${peaks[i]}</span>
+      </div>`).join('');
+
+    document.getElementById('rg-avg-duration').innerHTML = RG_REGIONS.slice(0,6).map(r=>{
+      const mins = Math.round(25+Math.random()*35);
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.375rem 0.75rem;background:var(--gray-50);border-radius:0.375rem;border:1px solid var(--border);">
+        <span style="font-size:0.75rem;font-weight:600;">${r.region.split('–')[0].trim()}</span>
+        <span style="font-size:0.75rem;font-weight:700;color:var(--blue);">${mins} min</span>
+      </div>`;}).join('');
+
+    document.getElementById('rg-incomplete-rate').innerHTML = RG_REGIONS.slice(0,6).map(r=>{
+      const pct = Math.round(Math.random()*18+2);
+      return `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.35rem 0.75rem;background:var(--gray-50);border-radius:0.375rem;border:1px solid var(--border);">
+        <span style="font-size:0.75rem;font-weight:600;flex:1;">${r.region.split('–')[0].trim()}</span>
+        <div style="width:80px;height:6px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+          <div style="height:100%;width:${pct*5}%;background:${pct<8?'#16a34a':pct<14?'#f59e0b':'#ef4444'};border-radius:999px;"></div>
+        </div>
+        <span style="font-size:0.7rem;font-weight:700;color:${pct<8?'#16a34a':pct<14?'#d97706':'#ef4444'};width:32px;text-align:right;">${pct}%</span>
+      </div>`;}).join('');
+  }
+
+  // Ranking tab
+  function renderRgRankings() {
+    const byRate = [...RG_REGIONS].sort((a,b)=>b.rate-a.rate);
+    const medals = ['🥇','🥈','🥉','4.','5.'];
+    document.getElementById('rg-top5').innerHTML = byRate.slice(0,5).map((r,i)=>`
+      <div style="display:flex;align-items:center;gap:0.75rem;padding:0.625rem 0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
+        <span style="font-size:1rem;min-width:1.5rem;">${medals[i]}</span>
+        <div style="flex:1;"><div style="font-weight:700;font-size:0.8125rem;">${r.region}</div><div style="font-size:0.7rem;color:var(--gray-400);">${r.completed.toLocaleString()} / ${r.target.toLocaleString()}</div></div>
+        <span style="font-weight:800;color:#16a34a;">${r.rate}%</span>
+      </div>`).join('');
+
+    document.getElementById('rg-bottom5').innerHTML = byRate.slice(-5).reverse().map((r,i)=>`
+      <div style="display:flex;align-items:center;gap:0.75rem;padding:0.625rem 0.75rem;background:#fff8f8;border-radius:0.5rem;border:1px solid #fecaca;">
+        <span class="material-symbols-outlined" style="color:#ef4444;font-size:1rem;">flag</span>
+        <div style="flex:1;"><div style="font-weight:700;font-size:0.8125rem;">${r.region}</div><div style="font-size:0.7rem;color:var(--gray-400);">${r.pending.toLocaleString()} pending</div></div>
+        <span style="font-weight:800;color:#ef4444;">${r.rate}%</span>
+      </div>`).join('');
+
+    const improved = RG_REGIONS.map(r=>({ ...r, gain:r.completed-(PREV_WEEK[r.region]||0) })).sort((a,b)=>b.gain-a.gain).slice(0,4);
+    document.getElementById('rg-most-improved').innerHTML = improved.map(r=>`
+      <div class="card" style="margin:0;border:2px solid #d1fae5;">
+        <div style="font-weight:700;font-size:0.8125rem;color:var(--dark);margin-bottom:0.25rem;">${r.region.split('–')[0].trim()}</div>
+        <div style="font-size:0.7rem;color:var(--gray-400);margin-bottom:0.5rem;">${r.region.includes('–')?r.region.split('–')[1].trim():r.island}</div>
+        <div style="font-size:1.25rem;font-weight:800;color:#16a34a;">+${r.gain} <span style="font-size:0.75rem;font-weight:600;">this week</span></div>
+      </div>`).join('');
+  }
+
+  // Quick Actions helpers
+  function populateRgSelects() {
+    const rgNames = RG_REGIONS.map(r=>r.region);
+    ['qa-target-region','qa-report-region'].forEach(id=>{
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const def = id==='qa-report-region'?'<option value="all">All Regions</option>':'<option value="">Select region...</option>';
+      sel.innerHTML = def + rgNames.map(r=>`<option>${r}</option>`).join('');
+    });
+    const priSel = document.getElementById('qa-priority-region');
+    if (priSel) priSel.innerHTML = rgNames.map(r=>`<option value="${r}" ${priorityRegions.has(r)?'selected':''}>${r}</option>`).join('');
+  }
+
+  function sendBulkNotification() {
+    const msg = document.getElementById('qa-notif-msg').value.trim();
+    if (!msg) { showToast('rg-actions-toast','Please enter a message to send.','error'); return; }
+    document.getElementById('qa-notif-msg').value='';
+    showToast('rg-actions-toast','Notification queued for delivery to selected recipients.','success');
+  }
+
+  function setRegionTarget() {
+    const rg = document.getElementById('qa-target-region').value;
+    const val = document.getElementById('qa-target-value').value;
+    if (!rg||!val) { showToast('rg-actions-toast','Select a region and enter a target value.','error'); return; }
+    const r = RG_REGIONS.find(x=>x.region===rg);
+    if (r) { r.target=Number(val); r.rate=Math.round((r.completed/r.target)*100); }
+    renderRegionsTable(); buildRgSummaryCards();
+    showToast('rg-actions-toast',`Target for ${rg} updated to ${Number(val).toLocaleString()}.`,'success');
+  }
+
+  function markPriorityRegions() {
+    const sel = document.getElementById('qa-priority-region');
+    priorityRegions = new Set([...sel.selectedOptions].map(o=>o.value));
+    renderRegionsTable();
+    showToast('rg-actions-toast',`${priorityRegions.size} region(s) marked as priority.`,'success');
+  }
+
+  function generateRegionReport() {
+    const rg = document.getElementById('qa-report-region').value;
+    const type = document.getElementById('qa-report-type').value;
+    const data = rg==='all' ? RG_REGIONS : RG_REGIONS.filter(r=>r.region===rg);
+    const headers = ['Region','Island','Target','Completed','Pending','Rate%','Interviewers','Status'];
+    const rows = data.map(r=>[r.region,r.island,r.target,r.completed,r.pending,r.rate+'%',r.interviewers,rgStatus(r)]);
+    const csv = [headers,...rows].map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const blob = new Blob([csv],{type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download=`region-${type}-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    URL.revokeObjectURL(url);
+    showToast('rg-actions-toast','Report downloaded as CSV.','success');
+  }
+
+  function exportRegionsCSV() {
+    const headers = ['Region','Island','Target','Completed','Pending','Rate%','Interviewers','Days Left','Status'];
+    const rows = RG_REGIONS.map(r=>[r.region,r.island,r.target,r.completed,r.pending,r.rate+'%',r.interviewers,r.days,rgStatus(r)]);
+    const csv = [headers,...rows].map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const blob = new Blob([csv],{type:'text/csv'});
+    const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`regions-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  }
+
+  function printRegionReport() { window.print(); }
+
+  function refreshRegionsView() { buildRgSummaryCards(); buildRgAlerts(); renderRegionsTable(); showToast('rg-actions-toast','Data refreshed.','info'); }
+
+  function showRegionTab(tab) {
+    document.querySelectorAll('[data-rgtab]').forEach(t=>t.classList.toggle('active',t.dataset.rgtab===tab));
+    document.querySelectorAll('[id^="rgtab-"]').forEach(p=>p.style.display='none');
+    const panel = document.getElementById('rgtab-'+tab);
+    if(panel) panel.style.display='';
+    if(tab==='trends') renderRgTrends();
   }
 
   // ── System Settings ────────────────────────────────────────────
