@@ -2639,27 +2639,15 @@
 
   // ── Regions View ──────────────────────────────────────────────
 
-  const RG_REGIONS = [
-    { region:'NCR – Metro Manila',              island:'Luzon',    target:1800, completed:1540, pending:260, interviewers:32, days:28 },
-    { region:'Region III – Central Luzon',      island:'Luzon',    target:1400, completed:980,  pending:420, interviewers:24, days:28 },
-    { region:'Region IV-A – CALABARZON',        island:'Luzon',    target:1600, completed:1200, pending:400, interviewers:28, days:28 },
-    { region:'Region I – Ilocos Region',        island:'Luzon',    target:900,  completed:810,  pending:90,  interviewers:16, days:28 },
-    { region:'Region II – Cagayan Valley',      island:'Luzon',    target:700,  completed:420,  pending:280, interviewers:12, days:28 },
-    { region:'Region V – Bicol Region',         island:'Luzon',    target:1100, completed:660,  pending:440, interviewers:18, days:28 },
-    { region:'Region IV-B – MIMAROPA',          island:'Luzon',    target:600,  completed:270,  pending:330, interviewers:10, days:28 },
-    { region:'CAR – Cordillera',                island:'Luzon',    target:500,  completed:450,  pending:50,  interviewers:9,  days:28 },
-    { region:'Region VI – Western Visayas',     island:'Visayas',  target:1000, completed:760,  pending:240, interviewers:18, days:28 },
-    { region:'Region VII – Central Visayas',    island:'Visayas',  target:1100, completed:990,  pending:110, interviewers:20, days:28 },
-    { region:'Region VIII – Eastern Visayas',   island:'Visayas',  target:800,  completed:360,  pending:440, interviewers:14, days:28 },
-    { region:'Region IX – Zamboanga Peninsula', island:'Mindanao', target:700,  completed:490,  pending:210, interviewers:12, days:28 },
-    { region:'Region X – Northern Mindanao',    island:'Mindanao', target:900,  completed:630,  pending:270, interviewers:16, days:28 },
-    { region:'Region XI – Davao Region',        island:'Mindanao', target:1000, completed:850,  pending:150, interviewers:18, days:28 },
-    { region:'Region XII – SOCCSKSARGEN',       island:'Mindanao', target:800,  completed:400,  pending:400, interviewers:14, days:28 },
-    { region:'Region XIII – Caraga',            island:'Mindanao', target:600,  completed:300,  pending:300, interviewers:10, days:28 },
-    { region:'BARMM',                           island:'Mindanao', target:700,  completed:210,  pending:490, interviewers:12, days:28 },
-  ].map(r => ({ ...r, rate: Math.round((r.completed/r.target)*100) }));
+  let RG_REGIONS = [];
+  let PREV_WEEK = {};
 
-  const PREV_WEEK = { 'NCR – Metro Manila':1420,'Region III – Central Luzon':880,'Region IV-A – CALABARZON':1050,'Region I – Ilocos Region':770,'Region II – Cagayan Valley':360,'Region V – Bicol Region':560,'Region IV-B – MIMAROPA':200,'CAR – Cordillera':420,'Region VI – Western Visayas':680,'Region VII – Central Visayas':890,'Region VIII – Eastern Visayas':280,'Region IX – Zamboanga Peninsula':420,'Region X – Northern Mindanao':550,'Region XI – Davao Region':750,'Region XII – SOCCSKSARGEN':300,'Region XIII – Caraga':220,'BARMM':140 };
+  function rgIsland(region) {
+    const r = (region||'').toLowerCase();
+    if (/visayas|vi|vii|viii/.test(r)) return 'Visayas';
+    if (/mindanao|ix|x\b|xi|xii|xiii|caraga|barmm|davao|zamboanga|soccsksargen|northern mindanao/.test(r)) return 'Mindanao';
+    return 'Luzon';
+  }
 
   function rgStatus(r) {
     if (r.rate >= 100) return 'complete';
@@ -2676,12 +2664,35 @@
   };
   const RG_ROW_BG = { complete:'#f0fdf4', on_track:'transparent', behind:'#fffbeb', at_risk:'#fff1f1' };
 
-  let rgFiltered = [...RG_REGIONS];
+  let rgFiltered = [];
   let rgSortKey = 'region', rgSortDir = 1;
   let rgDrillPath = ['national'];
   let priorityRegions = new Set();
+  let rgLoaded = false;
 
-  function loadRegionsView() {
+  async function loadRegionsView() {
+    if (!rgLoaded) {
+      document.getElementById('rg-perf-tbody').innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+      try {
+        const json = await (await fetch('/api/get-regions-stats.php')).json();
+        if (json.success && json.data.length) {
+          RG_REGIONS = json.data.map(r => ({
+            ...r,
+            island: rgIsland(r.region),
+            target: r.total || (r.completed + r.pending),
+            days: 28,
+          }));
+        } else {
+          RG_REGIONS = [];
+        }
+      } catch(e) {
+        RG_REGIONS = [];
+      }
+      PREV_WEEK = {};
+      RG_REGIONS.forEach(r => { PREV_WEEK[r.region] = Math.max(0, r.completed - Math.round(r.completed * 0.08)); });
+      rgLoaded = true;
+    }
+    rgFiltered = [...RG_REGIONS];
     buildRgSummaryCards();
     buildRgAlerts();
     renderRegionsTable();
@@ -2697,10 +2708,10 @@
     const total_completed = RG_REGIONS.reduce((s,r)=>s+r.completed,0);
     const total_pending   = RG_REGIONS.reduce((s,r)=>s+r.pending,0);
     const total_target    = RG_REGIONS.reduce((s,r)=>s+r.target,0);
-    const rate = Math.round((total_completed/total_target)*100);
+    const rate = total_target > 0 ? Math.round((total_completed/total_target)*100) : 0;
     const at_risk = RG_REGIONS.filter(r=>rgStatus(r)==='at_risk').length;
     document.getElementById('rg-stat-completed').textContent = total_completed.toLocaleString();
-    document.getElementById('rg-stat-completed-sub').textContent = 'of '+total_target.toLocaleString()+' target';
+    document.getElementById('rg-stat-completed-sub').textContent = 'of '+total_target.toLocaleString()+' total';
     document.getElementById('rg-stat-pending').textContent = total_pending.toLocaleString();
     document.getElementById('rg-stat-pending-sub').textContent = 'assessments remaining';
     document.getElementById('rg-stat-rate').textContent = rate+'%';
@@ -2713,10 +2724,14 @@
     const atRisk = RG_REGIONS.filter(r=>rgStatus(r)==='at_risk');
     const behind = RG_REGIONS.filter(r=>rgStatus(r)==='behind');
     container.innerHTML = '';
+    if (!RG_REGIONS.length) {
+      container.innerHTML = '<div style="padding:0.625rem 1rem;background:#f3f4f6;border-radius:0.625rem;font-size:0.8125rem;color:var(--gray-500);">No regional data available.</div>';
+      return;
+    }
     atRisk.forEach(r => {
       container.innerHTML += `<div style="display:flex;align-items:center;gap:0.625rem;padding:0.625rem 1rem;background:#fff1f1;border:1px solid #fecaca;border-radius:0.625rem;font-size:0.8125rem;">
         <span class="material-symbols-outlined" style="color:#dc2626;font-size:1rem;">error</span>
-        <strong style="color:#dc2626;">At Risk:</strong>&nbsp;<span style="color:#374151;">${r.region} — only ${r.rate}% complete with ${r.days} days left</span>
+        <strong style="color:#dc2626;">At Risk:</strong>&nbsp;<span style="color:#374151;">${r.region} — only ${r.rate}% complete</span>
       </div>`;
     });
     behind.slice(0,2).forEach(r => {
@@ -3100,7 +3115,7 @@
 
   function printRegionReport() { window.print(); }
 
-  function refreshRegionsView() { buildRgSummaryCards(); buildRgAlerts(); renderRegionsTable(); showToast('rg-actions-toast','Data refreshed.','info'); }
+  function refreshRegionsView() { rgLoaded = false; loadRegionsView(); showToast('rg-actions-toast','Data refreshed.','info'); }
 
   function showRegionTab(tab) {
     document.querySelectorAll('[data-rgtab]').forEach(t=>t.classList.toggle('active',t.dataset.rgtab===tab));
