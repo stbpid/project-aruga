@@ -57,7 +57,7 @@
       <a href="#" class="nav-item" title="Regions">
         <span class="material-symbols-outlined">map</span><span class="nav-label">Regions</span>
       </a>
-      <a href="#" class="nav-item" title="System Settings">
+      <a href="#" class="nav-item" id="nav-settings" title="System Settings" onclick="showView('settings');return false;">
         <span class="material-symbols-outlined">settings</span><span class="nav-label">System Settings</span>
       </a>
       <a href="#" class="nav-item" id="nav-audit" title="Audit Logs" onclick="showView('audit');return false;">
@@ -361,20 +361,158 @@
       </div>
     </div><!-- /view-interviewers -->
 
+    <!-- System Settings View -->
+    <div class="dash-content" id="view-settings" style="display:none;">
+      <div style="margin-bottom:0.25rem;">
+        <div class="page-title" style="margin:0;">System Settings</div>
+        <div class="page-subtitle" style="margin:0;">Control panel for administrators — manage users, interviewer codes, dropdown options, and system-wide rules.</div>
+      </div>
+
+      <!-- Info banner -->
+      <div style="display:flex;align-items:flex-start;gap:0.75rem;background:#faf5ff;border:1px solid #e9d5ff;border-radius:0.625rem;padding:0.875rem 1rem;margin-bottom:1.25rem;margin-top:1rem;">
+        <span class="material-symbols-outlined" style="color:#7c3aed;font-size:1.25rem;flex-shrink:0;margin-top:0.05rem;">admin_panel_settings</span>
+        <div style="font-size:0.8125rem;color:#5b21b6;line-height:1.6;">
+          <span style="font-weight:700;">Administrators Only.</span> Changes made here affect the entire system. Manage user accounts, create interviewer codes, configure dropdown lists, and adjust system-wide rules from this panel.
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;">
+
+        <!-- User Accounts -->
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:0.625rem;">
+              <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.125rem;">manage_accounts</span>
+              </div>
+              <div>
+                <div class="card-title" style="margin:0;">User Accounts</div>
+                <div class="card-subtitle" style="margin:0;">Manage admin &amp; interviewer access</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:0.25rem 0 0.5rem;">
+            <div style="font-size:0.8125rem;color:#6b7280;line-height:1.6;margin-bottom:1rem;">Create, deactivate, or reset passwords for user accounts in the system.</div>
+            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;opacity:0.6;cursor:not-allowed;" disabled>
+              <span class="material-symbols-outlined" style="font-size:0.875rem;">construction</span>Coming Soon
+            </button>
+          </div>
+        </div>
+
+        <!-- Interviewer Codes -->
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:0.625rem;">
+              <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.125rem;">badge</span>
+              </div>
+              <div>
+                <div class="card-title" style="margin:0;">Interviewer Codes</div>
+                <div class="card-subtitle" style="margin:0;">Generate &amp; assign interviewer IDs</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:0.25rem 0 0.5rem;">
+            <div style="font-size:0.8125rem;color:#6b7280;line-height:1.6;margin-bottom:1rem;">Set up new interviewer access codes and assign them to field staff by region.</div>
+            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;opacity:0.6;cursor:not-allowed;" disabled>
+              <span class="material-symbols-outlined" style="font-size:0.875rem;">construction</span>Coming Soon
+            </button>
+          </div>
+        </div>
+
+        <!-- Dropdown Options -->
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:0.625rem;">
+              <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#ea580c;font-size:1.125rem;">list_alt</span>
+              </div>
+              <div>
+                <div class="card-title" style="margin:0;">Dropdown Options</div>
+                <div class="card-subtitle" style="margin:0;">Disabilities, occupations &amp; more</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:0.25rem 0 0.5rem;">
+            <div style="font-size:0.8125rem;color:#6b7280;line-height:1.6;margin-bottom:1rem;">Configure what options appear in assessment form dropdowns — disability types, occupations, civil status, etc.</div>
+            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;opacity:0.6;cursor:not-allowed;" disabled>
+              <span class="material-symbols-outlined" style="font-size:0.875rem;">construction</span>Coming Soon
+            </button>
+          </div>
+        </div>
+
+        <!-- System Rules -->
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:0.625rem;">
+              <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#7c3aed;font-size:1.125rem;">tune</span>
+              </div>
+              <div>
+                <div class="card-title" style="margin:0;">System Rules</div>
+                <div class="card-subtitle" style="margin:0;">Global configuration &amp; policies</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:0.25rem 0 0.5rem;">
+            <div style="font-size:0.8125rem;color:#6b7280;line-height:1.6;margin-bottom:1rem;">Adjust system-wide rules such as session timeout, required fields, data validation thresholds, and region assignments.</div>
+            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;opacity:0.6;cursor:not-allowed;" disabled>
+              <span class="material-symbols-outlined" style="font-size:0.875rem;">construction</span>Coming Soon
+            </button>
+          </div>
+        </div>
+
+        <!-- Region Management -->
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:0.625rem;">
+              <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.125rem;">map</span>
+              </div>
+              <div>
+                <div class="card-title" style="margin:0;">Region Management</div>
+                <div class="card-subtitle" style="margin:0;">Add or edit regions &amp; provinces</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:0.25rem 0 0.5rem;">
+            <div style="font-size:0.8125rem;color:#6b7280;line-height:1.6;margin-bottom:1rem;">Add new regions, provinces, or municipalities to the system for use in assessments and interviewer assignments.</div>
+            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;opacity:0.6;cursor:not-allowed;" disabled>
+              <span class="material-symbols-outlined" style="font-size:0.875rem;">construction</span>Coming Soon
+            </button>
+          </div>
+        </div>
+
+        <!-- Data Export -->
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:0.625rem;">
+              <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.125rem;">download</span>
+              </div>
+              <div>
+                <div class="card-title" style="margin:0;">Data Export</div>
+                <div class="card-subtitle" style="margin:0;">Bulk export system data</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:0.25rem 0 0.5rem;">
+            <div style="font-size:0.8125rem;color:#6b7280;line-height:1.6;margin-bottom:1rem;">Export beneficiary records, assessment data, and system reports in CSV or Excel format for offline use.</div>
+            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;opacity:0.6;cursor:not-allowed;" disabled>
+              <span class="material-symbols-outlined" style="font-size:0.875rem;">construction</span>Coming Soon
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /view-settings -->
+
     <!-- Audit Logs View -->
     <div class="dash-content" id="view-audit" style="display:none;">
       <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.25rem;flex-wrap:wrap;">
         <div>
           <div class="page-title" style="margin:0;">Audit Logs</div>
           <div class="page-subtitle" style="margin:0;">A running history of everything that happened in the system — who logged in, who submitted an assessment, who changed a record and when.</div>
-        </div>
-      </div>
-
-      <!-- Info banner -->
-      <div style="display:flex;align-items:flex-start;gap:0.75rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:0.625rem;padding:0.875rem 1rem;margin-bottom:1rem;margin-top:1rem;">
-        <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;flex-shrink:0;margin-top:0.05rem;">videocam</span>
-        <div style="font-size:0.8125rem;color:#1e40af;line-height:1.6;">
-          <span style="font-weight:700;">Security Camera Footage.</span> This log captures every meaningful action in the system. Use it to trace back what happened and who did it when something goes wrong.
         </div>
       </div>
 
@@ -835,7 +973,7 @@
   }
 
   // ── View switcher ──────────────────────────────────────────────
-  const VIEWS = ['overview','beneficiaries','assessments','interviewers','audit'];
+  const VIEWS = ['overview','beneficiaries','assessments','interviewers','settings','audit'];
   function showView(view) {
     VIEWS.forEach(v => {
       const el = document.getElementById('view-' + v);
