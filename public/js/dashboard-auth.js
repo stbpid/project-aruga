@@ -45,12 +45,12 @@ function showLogoutModal() {
           <div class="logout-modal-icon"><span class="material-symbols-outlined">warning</span></div>
         </div>
         <div class="logout-modal-body">
-          <div class="logout-modal-title">End Session?</div>
-          <div class="logout-modal-msg">Are you sure you want to end your session?<br><strong>All unsaved data will be lost.</strong></div>
+          <div class="logout-modal-title">Confirm Logout</div>
+          <div class="logout-modal-msg">Are you sure you want to log out?<br><strong>You will be redirected to the login page.</strong></div>
         </div>
         <div class="logout-modal-actions">
           <button id="logout-cancel-btn">Cancel</button>
-          <button id="logout-confirm-btn">Yes, End Session</button>
+          <button id="logout-confirm-btn">Yes, Logout</button>
         </div>
       </div>
     `;
