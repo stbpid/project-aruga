@@ -60,7 +60,7 @@
       <a href="#" class="nav-item" title="System Settings">
         <span class="material-symbols-outlined">settings</span><span class="nav-label">System Settings</span>
       </a>
-      <a href="#" class="nav-item" title="Audit Logs">
+      <a href="#" class="nav-item" id="nav-audit" title="Audit Logs" onclick="showView('audit');return false;">
         <span class="material-symbols-outlined">history</span><span class="nav-label">Audit Logs</span>
       </a>
 
@@ -360,6 +360,66 @@
         </div>
       </div>
     </div><!-- /view-interviewers -->
+
+    <!-- Audit Logs View -->
+    <div class="dash-content" id="view-audit" style="display:none;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.25rem;flex-wrap:wrap;">
+        <div>
+          <div class="page-title" style="margin:0;">Audit Logs</div>
+          <div class="page-subtitle" style="margin:0;">A running history of everything that happened in the system — who logged in, who submitted an assessment, who changed a record and when.</div>
+        </div>
+      </div>
+
+      <!-- Info banner -->
+      <div style="display:flex;align-items:flex-start;gap:0.75rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:0.625rem;padding:0.875rem 1rem;margin-bottom:1rem;margin-top:1rem;">
+        <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;flex-shrink:0;margin-top:0.05rem;">videocam</span>
+        <div style="font-size:0.8125rem;color:#1e40af;line-height:1.6;">
+          <span style="font-weight:700;">Security Camera Footage.</span> This log captures every meaningful action in the system. Use it to trace back what happened and who did it when something goes wrong.
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
+        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+          <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" id="audit-search" placeholder="Search user, action, details..." aria-label="Search audit logs">
+          </div>
+          <select id="audit-type" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+            <option value="">All Actions</option>
+            <option value="login">Login</option>
+            <option value="assessment">Assessment</option>
+            <option value="record_change">Record Change</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" id="audit-reset">Reset</button>
+          <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="audit-count">—</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Details</th>
+                <th>Region</th>
+                <th>IP / Session</th>
+              </tr>
+            </thead>
+            <tbody id="audit-tbody">
+              <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <span style="font-size:0.75rem;color:#6b7280;" id="audit-page-info">—</span>
+          <div class="pagination" id="audit-pagination"></div>
+        </div>
+      </div>
+    </div><!-- /view-audit -->
 
   </div><!-- /dash-main -->
 </div><!-- /dash-layout -->
@@ -775,7 +835,7 @@
   }
 
   // ── View switcher ──────────────────────────────────────────────
-  const VIEWS = ['overview','beneficiaries','assessments','interviewers'];
+  const VIEWS = ['overview','beneficiaries','assessments','interviewers','audit'];
   function showView(view) {
     VIEWS.forEach(v => {
       const el = document.getElementById('view-' + v);
@@ -786,6 +846,100 @@
     if (navEl) navEl.classList.add('active');
     if (view === 'beneficiaries') loadAllBeneficiaries();
     if (view === 'interviewers') loadInterviewers();
+    if (view === 'audit') loadAuditLogs();
+  }
+
+  // ── Audit Logs View ────────────────────────────────────────────
+  const AUDIT_ACTION_COLORS = { login: 'badge-blue', assessment: 'badge-green', record_change: 'badge-orange' };
+  const AUDIT_ACTION_ICONS  = { login: 'login', assessment: 'assignment_turned_in', record_change: 'edit_note' };
+  let auditData = [], auditFiltered = [], auditPage = 0, auditLoaded = false;
+
+  async function loadAuditLogs() {
+    if (auditLoaded) return;
+    document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    try {
+      const json = await (await fetch('/api/get-audit-logs.php')).json();
+      if (json.success && json.data) {
+        auditData = json.data;
+      } else {
+        auditData = buildAuditFromSessions();
+      }
+    } catch(e) {
+      auditData = buildAuditFromSessions();
+    }
+    auditLoaded = true;
+    auditFiltered = auditData;
+    auditPage = 0;
+
+    document.getElementById('audit-search').addEventListener('input', filterAudit);
+    document.getElementById('audit-type').addEventListener('change', filterAudit);
+    document.getElementById('audit-reset').addEventListener('click', () => {
+      document.getElementById('audit-search').value = '';
+      document.getElementById('audit-type').value = '';
+      filterAudit();
+    });
+
+    renderAudit();
+  }
+
+  function buildAuditFromSessions() {
+    // Derive audit entries from already-loaded recent activity data
+    const items = document.querySelectorAll('#activity-list .activity-item');
+    const entries = [];
+    items.forEach(item => {
+      const main = item.querySelector('.activity-main')?.textContent || '';
+      const time = item.querySelector('.activity-time')?.textContent || '';
+      const parts = main.split(' — ');
+      const namePart = parts[0]?.replace(' logged in', '').trim();
+      const region = parts[1]?.trim() || '—';
+      const timeParts = time.split(' · ');
+      entries.push({
+        timestamp: timeParts[0] || '—',
+        user: namePart || '—',
+        action: 'login',
+        details: 'User logged in to the system',
+        region,
+        session: timeParts[1] || '—'
+      });
+    });
+    return entries;
+  }
+
+  function filterAudit() {
+    const q = document.getElementById('audit-search').value.toLowerCase();
+    const type = document.getElementById('audit-type').value;
+    auditFiltered = auditData.filter(r => {
+      const matchQ = !q || (r.user + r.action + r.details + r.region + r.session).toLowerCase().includes(q);
+      return matchQ && (!type || r.action === type);
+    });
+    auditPage = 0;
+    renderAudit();
+  }
+
+  function renderAudit() {
+    const total = auditFiltered.length;
+    const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+    const start = auditPage * PER_PAGE;
+    const end = Math.min(start + PER_PAGE, total);
+    const page = auditFiltered.slice(start, end);
+    document.getElementById('audit-count').textContent = total + ' log entr' + (total !== 1 ? 'ies' : 'y');
+    document.getElementById('audit-tbody').innerHTML = page.length
+      ? page.map(r => {
+          const badgeClass = AUDIT_ACTION_COLORS[r.action] || 'badge-blue';
+          const icon = AUDIT_ACTION_ICONS[r.action] || 'info';
+          const label = r.action === 'login' ? 'Login' : r.action === 'assessment' ? 'Assessment' : r.action === 'record_change' ? 'Record Change' : r.action;
+          return `<tr class="table-row-hover">
+            <td style="font-family:monospace;font-size:0.75rem;color:#6b7280;white-space:nowrap;">${r.timestamp}</td>
+            <td><div style="font-weight:600;color:#111827;">${r.user}</div></td>
+            <td><span class="badge ${badgeClass}" style="display:inline-flex;align-items:center;gap:0.25rem;"><span class="material-symbols-outlined" style="font-size:0.75rem;">${icon}</span>${label}</span></td>
+            <td style="font-size:0.8125rem;color:#374151;max-width:260px;">${r.details}</td>
+            <td style="font-size:0.8125rem;">${r.region}</td>
+            <td style="font-family:monospace;font-size:0.7rem;color:#9ca3af;">${r.session}</td>
+          </tr>`;
+        }).join('')
+      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No log entries found.</td></tr>';
+    document.getElementById('audit-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} entries` : 'No results';
+    buildPagination('audit-pagination', auditPage, totalPages, p => { auditPage = p; renderAudit(); });
   }
 </script>
 </body>
