@@ -616,7 +616,8 @@ table.dash-table {
   display: flex;
   align-items: flex-end;
   gap: 0.5rem;
-  height: 160px;
+  height: 100%;
+  min-height: 160px;
   padding-bottom: 1.5rem;
   position: relative;
 }
@@ -836,6 +837,32 @@ table.dash-table {
   from { transform: translateX(0); opacity: 1; }
   to { transform: translateX(400px); opacity: 0; }
 }
+
+/* ── Hover Effects ───────────────────────── */
+.stat-card {
+  transition: box-shadow 0.18s, transform 0.18s;
+  cursor: default;
+}
+.stat-card:hover {
+  box-shadow: 0 6px 24px rgba(17,82,212,0.10);
+  transform: translateY(-2px);
+}
+
+.table-row-hover { transition: background 0.12s; }
+.table-row-hover:hover { background: var(--blue-light); }
+.table-row-hover:hover td { color: var(--dark); }
+
+.table-action-btn { transition: background 0.12s, color 0.12s; }
+.table-action-btn:hover { background: var(--blue-light) !important; color: var(--blue) !important; }
+
+.region-row { transition: background 0.12s; border-radius: 0.375rem; padding-left: 0.25rem; padding-right: 0.25rem; }
+.region-row:hover { background: var(--blue-light); }
+
+.progress-fill { transition: width 0.5s ease, filter 0.15s; }
+.region-row:hover .progress-fill { filter: brightness(1.1); }
+
+.nav-item { transition: background 0.15s, color 0.15s, padding-left 0.15s; }
+.nav-item:hover { padding-left: 1.25rem; }
 
 /* ── Chart View Toggle ───────────────────── */
 .chart-view-btn {
