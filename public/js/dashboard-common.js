@@ -31,7 +31,9 @@ function initSidebar() {
   const sidebar = document.getElementById('dash-sidebar');
   const overlay = document.getElementById('sidebar-overlay');
   const hamburger = document.getElementById('hamburger-btn');
+  const layout = document.getElementById('dash-layout');
   const main = document.querySelector('.dash-main');
+  const toggleBtn = document.getElementById('sidebar-minimize-btn');
 
   function isMobile() { return window.innerWidth < 768; }
 
@@ -46,18 +48,17 @@ function initSidebar() {
   function toggleMinimize() {
     const minimized = sidebar?.classList.toggle('minimized');
     main?.classList.toggle('sidebar-minimized', minimized);
-    const btn = document.getElementById('sidebar-minimize-btn');
-    if (btn) btn.querySelector('.material-symbols-outlined').textContent = minimized ? 'chevron_right' : 'chevron_left';
+    layout?.classList.toggle('sidebar-collapsed', minimized);
+    if (toggleBtn) {
+      toggleBtn.querySelector('.material-symbols-outlined').textContent = minimized ? 'chevron_right' : 'chevron_left';
+    }
   }
 
   hamburger?.addEventListener('click', () => {
     if (isMobile()) openMobile(); else toggleMinimize();
   });
   overlay?.addEventListener('click', closeMobile);
-
-  // Minimize button inside sidebar
-  const minBtn = document.getElementById('sidebar-minimize-btn');
-  minBtn?.addEventListener('click', toggleMinimize);
+  toggleBtn?.addEventListener('click', toggleMinimize);
 }
 
 // Notification dropdown

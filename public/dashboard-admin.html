@@ -11,10 +11,15 @@
 </head>
 <body>
 
-<div class="dash-layout">
+<div class="dash-layout" id="dash-layout">
 
   <!-- Sidebar Overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Floating Sidebar Toggle -->
+  <button class="sidebar-toggle" id="sidebar-minimize-btn" title="Toggle sidebar">
+    <span class="material-symbols-outlined">chevron_left</span>
+  </button>
 
   <!-- Sidebar -->
   <aside class="dash-sidebar" id="dash-sidebar">
@@ -24,11 +29,6 @@
         <div class="sidebar-brand-name">Project Aruga</div>
         <div class="sidebar-brand-sub">Admin Dashboard</div>
       </div>
-    </div>
-    <div class="sidebar-minimize-btn">
-      <button id="sidebar-minimize-btn" title="Minimize sidebar">
-        <span class="material-symbols-outlined">chevron_left</span>
-      </button>
     </div>
 
     <nav class="sidebar-nav">

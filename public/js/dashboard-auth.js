@@ -41,12 +41,16 @@ function showLogoutModal() {
     modal.innerHTML = `
       <div class="logout-modal-backdrop" id="logout-modal-backdrop"></div>
       <div class="logout-modal-box">
-        <div class="logout-modal-icon"><span class="material-symbols-outlined">logout</span></div>
-        <div class="logout-modal-title">Confirm Logout</div>
-        <div class="logout-modal-msg">Are you sure you want to log out? Your session will be ended.</div>
+        <div class="logout-modal-top">
+          <div class="logout-modal-icon"><span class="material-symbols-outlined">warning</span></div>
+        </div>
+        <div class="logout-modal-body">
+          <div class="logout-modal-title">End Session?</div>
+          <div class="logout-modal-msg">Are you sure you want to end your session?<br><strong>All unsaved data will be lost.</strong></div>
+        </div>
         <div class="logout-modal-actions">
-          <button class="btn btn-secondary" id="logout-cancel-btn">Cancel</button>
-          <button class="btn btn-danger" id="logout-confirm-btn">Logout</button>
+          <button id="logout-cancel-btn">Cancel</button>
+          <button id="logout-confirm-btn">Yes, End Session</button>
         </div>
       </div>
     `;
