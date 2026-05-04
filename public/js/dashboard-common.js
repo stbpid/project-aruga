@@ -31,18 +31,27 @@ function initSidebar() {
   const sidebar = document.getElementById('dash-sidebar');
   const overlay = document.getElementById('sidebar-overlay');
   const hamburger = document.getElementById('hamburger-btn');
+  const main = document.querySelector('.dash-main');
 
-  function open() {
+  function isMobile() { return window.innerWidth < 768; }
+
+  function openMobile() {
     sidebar?.classList.add('open');
     overlay?.classList.add('open');
   }
-  function close() {
+  function closeMobile() {
     sidebar?.classList.remove('open');
     overlay?.classList.remove('open');
   }
+  function toggleMinimize() {
+    const minimized = sidebar?.classList.toggle('minimized');
+    main?.classList.toggle('sidebar-minimized', minimized);
+  }
 
-  hamburger?.addEventListener('click', open);
-  overlay?.addEventListener('click', close);
+  hamburger?.addEventListener('click', () => {
+    if (isMobile()) openMobile(); else toggleMinimize();
+  });
+  overlay?.addEventListener('click', closeMobile);
 }
 
 // Notification dropdown
