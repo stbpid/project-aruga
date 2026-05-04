@@ -363,148 +363,474 @@
 
     <!-- System Settings View -->
     <div class="dash-content" id="view-settings" style="display:none;">
-      <div style="margin-bottom:0.25rem;">
+      <div style="margin-bottom:1.25rem;">
         <div class="page-title" style="margin:0;">System Settings</div>
         <div class="page-subtitle" style="margin:0;">Control panel for administrators — manage users, interviewer codes, dropdown options, and system-wide rules.</div>
       </div>
 
-      <!-- Info banner -->
-      <div style="display:flex;align-items:flex-start;gap:0.75rem;background:#faf5ff;border:1px solid #e9d5ff;border-radius:0.625rem;padding:0.875rem 1rem;margin-bottom:1.25rem;margin-top:1rem;">
-        <span class="material-symbols-outlined" style="color:#7c3aed;font-size:1.25rem;flex-shrink:0;margin-top:0.05rem;">admin_panel_settings</span>
-        <div style="font-size:0.8125rem;color:#5b21b6;line-height:1.6;">
-          <span style="font-weight:700;">Administrators Only.</span> Changes made here affect the entire system. Manage user accounts, create interviewer codes, configure dropdown lists, and adjust system-wide rules from this panel.
-        </div>
+      <!-- Settings Tab Bar -->
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1.5rem;overflow-x:auto;">
+        <button class="settings-tab active" data-tab="users" onclick="showSettingsTab('users')">
+          <span class="material-symbols-outlined">manage_accounts</span>User Accounts
+        </button>
+        <button class="settings-tab" data-tab="codes" onclick="showSettingsTab('codes')">
+          <span class="material-symbols-outlined">badge</span>Interviewer Codes
+        </button>
+        <button class="settings-tab" data-tab="dropdowns" onclick="showSettingsTab('dropdowns')">
+          <span class="material-symbols-outlined">list_alt</span>Dropdown Options
+        </button>
+        <button class="settings-tab" data-tab="rules" onclick="showSettingsTab('rules')">
+          <span class="material-symbols-outlined">tune</span>System Rules
+        </button>
+        <button class="settings-tab" data-tab="regions" onclick="showSettingsTab('regions')">
+          <span class="material-symbols-outlined">map</span>Regions
+        </button>
+        <button class="settings-tab" data-tab="export" onclick="showSettingsTab('export')">
+          <span class="material-symbols-outlined">download</span>Data Export
+        </button>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;">
-
-        <!-- User Accounts -->
-        <div class="card">
-          <div class="card-header">
-            <div style="display:flex;align-items:center;gap:0.625rem;">
-              <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.125rem;">manage_accounts</span>
-              </div>
+      <!-- ── Tab: User Accounts ── -->
+      <div class="settings-panel" id="stab-users">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header">
               <div>
-                <div class="card-title" style="margin:0;">User Accounts</div>
-                <div class="card-subtitle" style="margin:0;">Manage admin &amp; interviewer access</div>
+                <div class="card-title">Add New User</div>
+                <div class="card-subtitle">Create a new admin or staff account</div>
               </div>
             </div>
-          </div>
-          <div style="padding:0.25rem 0 0.5rem;">
-            <div style="font-size:0.8125rem;color:#6b7280;line-height:1.6;margin-bottom:1rem;">Create, deactivate, or reset passwords for user accounts in the system.</div>
-            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;opacity:0.6;cursor:not-allowed;" disabled>
-              <span class="material-symbols-outlined" style="font-size:0.875rem;">construction</span>Coming Soon
-            </button>
-          </div>
-        </div>
-
-        <!-- Interviewer Codes -->
-        <div class="card">
-          <div class="card-header">
-            <div style="display:flex;align-items:center;gap:0.625rem;">
-              <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.125rem;">badge</span>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+              <div>
+                <label class="settings-label">Full Name</label>
+                <input type="text" id="nu-name" class="settings-input" placeholder="e.g. Maria Santos">
               </div>
               <div>
-                <div class="card-title" style="margin:0;">Interviewer Codes</div>
-                <div class="card-subtitle" style="margin:0;">Generate &amp; assign interviewer IDs</div>
-              </div>
-            </div>
-          </div>
-          <div style="padding:0.25rem 0 0.5rem;">
-            <div style="font-size:0.8125rem;color:#6b7280;line-height:1.6;margin-bottom:1rem;">Set up new interviewer access codes and assign them to field staff by region.</div>
-            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;opacity:0.6;cursor:not-allowed;" disabled>
-              <span class="material-symbols-outlined" style="font-size:0.875rem;">construction</span>Coming Soon
-            </button>
-          </div>
-        </div>
-
-        <!-- Dropdown Options -->
-        <div class="card">
-          <div class="card-header">
-            <div style="display:flex;align-items:center;gap:0.625rem;">
-              <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#ea580c;font-size:1.125rem;">list_alt</span>
+                <label class="settings-label">Email Address</label>
+                <input type="email" id="nu-email" class="settings-input" placeholder="e.g. m.santos@dswd.gov.ph">
               </div>
               <div>
-                <div class="card-title" style="margin:0;">Dropdown Options</div>
-                <div class="card-subtitle" style="margin:0;">Disabilities, occupations &amp; more</div>
-              </div>
-            </div>
-          </div>
-          <div style="padding:0.25rem 0 0.5rem;">
-            <div style="font-size:0.8125rem;color:#6b7280;line-height:1.6;margin-bottom:1rem;">Configure what options appear in assessment form dropdowns — disability types, occupations, civil status, etc.</div>
-            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;opacity:0.6;cursor:not-allowed;" disabled>
-              <span class="material-symbols-outlined" style="font-size:0.875rem;">construction</span>Coming Soon
-            </button>
-          </div>
-        </div>
-
-        <!-- System Rules -->
-        <div class="card">
-          <div class="card-header">
-            <div style="display:flex;align-items:center;gap:0.625rem;">
-              <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#7c3aed;font-size:1.125rem;">tune</span>
+                <label class="settings-label">Role</label>
+                <select id="nu-role" class="settings-input">
+                  <option value="">Select role...</option>
+                  <option value="admin">Administrator</option>
+                  <option value="central">Central Office</option>
+                  <option value="stu_head">STU Head</option>
+                  <option value="field_officer">Field Officer</option>
+                </select>
               </div>
               <div>
-                <div class="card-title" style="margin:0;">System Rules</div>
-                <div class="card-subtitle" style="margin:0;">Global configuration &amp; policies</div>
+                <label class="settings-label">Temporary Password</label>
+                <div style="display:flex;gap:0.5rem;">
+                  <input type="text" id="nu-password" class="settings-input" placeholder="Auto-generated" readonly style="flex:1;background:var(--gray-50);">
+                  <button class="btn btn-secondary btn-sm" onclick="generateTempPassword()" title="Generate password">
+                    <span class="material-symbols-outlined">refresh</span>
+                  </button>
+                </div>
               </div>
+              <button class="btn btn-primary btn-sm" onclick="createUser()" style="margin-top:0.25rem;">
+                <span class="material-symbols-outlined">person_add</span>Create Account
+              </button>
             </div>
           </div>
-          <div style="padding:0.25rem 0 0.5rem;">
-            <div style="font-size:0.8125rem;color:#6b7280;line-height:1.6;margin-bottom:1rem;">Adjust system-wide rules such as session timeout, required fields, data validation thresholds, and region assignments.</div>
-            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;opacity:0.6;cursor:not-allowed;" disabled>
-              <span class="material-symbols-outlined" style="font-size:0.875rem;">construction</span>Coming Soon
-            </button>
-          </div>
-        </div>
 
-        <!-- Region Management -->
-        <div class="card">
-          <div class="card-header">
-            <div style="display:flex;align-items:center;gap:0.625rem;">
-              <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.125rem;">map</span>
-              </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header">
               <div>
-                <div class="card-title" style="margin:0;">Region Management</div>
-                <div class="card-subtitle" style="margin:0;">Add or edit regions &amp; provinces</div>
+                <div class="card-title">Existing Users</div>
+                <div class="card-subtitle">Active accounts in the system</div>
               </div>
+              <button class="btn btn-secondary btn-sm" onclick="loadUsers()">
+                <span class="material-symbols-outlined">refresh</span>
+              </button>
+            </div>
+            <div id="users-list" style="display:flex;flex-direction:column;gap:0.5rem;max-height:340px;overflow-y:auto;">
+              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Click refresh to load users.</div>
             </div>
           </div>
-          <div style="padding:0.25rem 0 0.5rem;">
-            <div style="font-size:0.8125rem;color:#6b7280;line-height:1.6;margin-bottom:1rem;">Add new regions, provinces, or municipalities to the system for use in assessments and interviewer assignments.</div>
-            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;opacity:0.6;cursor:not-allowed;" disabled>
-              <span class="material-symbols-outlined" style="font-size:0.875rem;">construction</span>Coming Soon
-            </button>
-          </div>
         </div>
-
-        <!-- Data Export -->
-        <div class="card">
-          <div class="card-header">
-            <div style="display:flex;align-items:center;gap:0.625rem;">
-              <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.125rem;">download</span>
-              </div>
-              <div>
-                <div class="card-title" style="margin:0;">Data Export</div>
-                <div class="card-subtitle" style="margin:0;">Bulk export system data</div>
-              </div>
-            </div>
-          </div>
-          <div style="padding:0.25rem 0 0.5rem;">
-            <div style="font-size:0.8125rem;color:#6b7280;line-height:1.6;margin-bottom:1rem;">Export beneficiary records, assessment data, and system reports in CSV or Excel format for offline use.</div>
-            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;opacity:0.6;cursor:not-allowed;" disabled>
-              <span class="material-symbols-outlined" style="font-size:0.875rem;">construction</span>Coming Soon
-            </button>
-          </div>
-        </div>
-
+        <div id="users-toast" class="settings-toast" style="display:none;"></div>
       </div>
+
+      <!-- ── Tab: Interviewer Codes ── -->
+      <div class="settings-panel" id="stab-codes" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Generate Interviewer Code</div>
+                <div class="card-subtitle">Assign a unique ID to a field interviewer</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+              <div>
+                <label class="settings-label">Interviewer Full Name</label>
+                <input type="text" id="ic-name" class="settings-input" placeholder="e.g. Juan dela Cruz">
+              </div>
+              <div>
+                <label class="settings-label">Region</label>
+                <select id="ic-region" class="settings-input">
+                  <option value="">Select region...</option>
+                  <option>Region I – Ilocos Region</option>
+                  <option>Region II – Cagayan Valley</option>
+                  <option>Region III – Central Luzon</option>
+                  <option>Region IV-A – CALABARZON</option>
+                  <option>Region IV-B – MIMAROPA</option>
+                  <option>Region V – Bicol Region</option>
+                  <option>Region VI – Western Visayas</option>
+                  <option>Region VII – Central Visayas</option>
+                  <option>Region VIII – Eastern Visayas</option>
+                  <option>Region IX – Zamboanga Peninsula</option>
+                  <option>Region X – Northern Mindanao</option>
+                  <option>Region XI – Davao Region</option>
+                  <option>Region XII – SOCCSKSARGEN</option>
+                  <option>Region XIII – Caraga</option>
+                  <option>NCR – Metro Manila</option>
+                  <option>CAR – Cordillera</option>
+                  <option>BARMM</option>
+                </select>
+              </div>
+              <div>
+                <label class="settings-label">Position / Office</label>
+                <input type="text" id="ic-position" class="settings-input" placeholder="e.g. Social Welfare Officer II">
+              </div>
+              <div>
+                <label class="settings-label">Generated Code</label>
+                <div style="display:flex;gap:0.5rem;">
+                  <input type="text" id="ic-code" class="settings-input" placeholder="Click generate..." readonly style="flex:1;font-family:monospace;font-weight:700;color:var(--blue);background:var(--gray-50);">
+                  <button class="btn btn-secondary btn-sm" onclick="generateInterviewerCode()" title="Generate code">
+                    <span class="material-symbols-outlined">refresh</span>
+                  </button>
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="saveInterviewerCode()" style="margin-top:0.25rem;">
+                <span class="material-symbols-outlined">save</span>Save Code
+              </button>
+            </div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Active Codes</div>
+                <div class="card-subtitle">All registered interviewer codes</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="loadInterviewerCodes()">
+                <span class="material-symbols-outlined">refresh</span>
+              </button>
+            </div>
+            <div id="codes-list" style="max-height:340px;overflow-y:auto;">
+              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Click refresh to load codes.</div>
+            </div>
+          </div>
+        </div>
+        <div id="codes-toast" class="settings-toast" style="display:none;"></div>
+      </div>
+
+      <!-- ── Tab: Dropdown Options ── -->
+      <div class="settings-panel" id="stab-dropdowns" style="display:none;">
+        <div style="display:grid;grid-template-columns:260px 1fr;gap:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div class="card-title">Category</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.25rem;">
+              <button class="dropdown-cat-btn active" onclick="selectDropdownCat('disability',this)">Disability Types</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('occupation',this)">Occupations</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('civil_status',this)">Civil Status</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('education',this)">Education Level</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('relationship',this)">Relationship to Child</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('housing',this)">Housing Type</button>
+            </div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title" id="dd-cat-title">Disability Types</div>
+                <div class="card-subtitle">Add, edit, or remove options for this dropdown</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
+              <input type="text" id="dd-new-item" class="settings-input" placeholder="New option label..." style="flex:1;">
+              <button class="btn btn-primary btn-sm" onclick="addDropdownItem()">
+                <span class="material-symbols-outlined">add</span>Add
+              </button>
+            </div>
+            <div id="dd-items-list" style="display:flex;flex-direction:column;gap:0.375rem;max-height:340px;overflow-y:auto;">
+              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>
+            </div>
+          </div>
+        </div>
+        <div id="dropdowns-toast" class="settings-toast" style="display:none;"></div>
+      </div>
+
+      <!-- ── Tab: System Rules ── -->
+      <div class="settings-panel" id="stab-rules" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div class="card-title">Session &amp; Access</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:1rem;">
+              <div>
+                <label class="settings-label">Session Timeout (minutes)</label>
+                <input type="number" id="rule-timeout" class="settings-input" value="30" min="5" max="480">
+                <div class="settings-hint">Users will be automatically logged out after this period of inactivity.</div>
+              </div>
+              <div>
+                <label class="settings-label">Max Login Attempts</label>
+                <input type="number" id="rule-attempts" class="settings-input" value="5" min="1" max="20">
+                <div class="settings-hint">Account will be temporarily locked after this many failed attempts.</div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
+                <div>
+                  <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">Require Strong Passwords</div>
+                  <div class="settings-hint" style="margin:0;">Min 8 chars, uppercase, number, symbol</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="rule-strong-pw" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div class="card-title">Assessment Rules</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:1rem;">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
+                <div>
+                  <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">Require All Steps</div>
+                  <div class="settings-hint" style="margin:0;">All 11 assessment steps must be completed before submission</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="rule-all-steps" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
+                <div>
+                  <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">Allow Draft Saving</div>
+                  <div class="settings-hint" style="margin:0;">Interviewers can save incomplete assessments as drafts</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="rule-drafts" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div>
+                <label class="settings-label">Max Age for Beneficiary (years)</label>
+                <input type="number" id="rule-max-age" class="settings-input" value="18" min="1" max="25">
+                <div class="settings-hint">Assessment form will reject records above this age.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin:0;grid-column:1/-1;">
+            <div class="card-header">
+              <div class="card-title">Notifications</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
+                <div>
+                  <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">Email Alerts for New Submissions</div>
+                  <div class="settings-hint" style="margin:0;">Notify admin when a new assessment is submitted</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="rule-email-sub">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
+                <div>
+                  <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">Alert on Suspicious Login</div>
+                  <div class="settings-hint" style="margin:0;">Notify admin on repeated failed login attempts</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="rule-alert-login" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+            <div style="margin-top:1rem;display:flex;justify-content:flex-end;">
+              <button class="btn btn-primary btn-sm" onclick="saveSystemRules()">
+                <span class="material-symbols-outlined">save</span>Save Rules
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="rules-toast" class="settings-toast" style="display:none;"></div>
+      </div>
+
+      <!-- ── Tab: Regions ── -->
+      <div class="settings-panel" id="stab-regions" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Add Region / Province</div>
+                <div class="card-subtitle">Expand coverage areas in the system</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+              <div>
+                <label class="settings-label">Region Name</label>
+                <input type="text" id="reg-name" class="settings-input" placeholder="e.g. Region XIV – BARMM">
+              </div>
+              <div>
+                <label class="settings-label">Region Code</label>
+                <input type="text" id="reg-code" class="settings-input" placeholder="e.g. XIV">
+              </div>
+              <div>
+                <label class="settings-label">Province (optional)</label>
+                <input type="text" id="reg-province" class="settings-input" placeholder="e.g. Maguindanao del Norte">
+              </div>
+              <div>
+                <label class="settings-label">Municipality / City (optional)</label>
+                <input type="text" id="reg-municipality" class="settings-input" placeholder="e.g. Cotabato City">
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="saveRegion()" style="margin-top:0.25rem;">
+                <span class="material-symbols-outlined">add_location</span>Add Location
+              </button>
+            </div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Registered Regions</div>
+                <div class="card-subtitle">All active coverage areas</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="loadRegionSettings()">
+                <span class="material-symbols-outlined">refresh</span>
+              </button>
+            </div>
+            <div id="regions-list" style="max-height:340px;overflow-y:auto;">
+              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Click refresh to load regions.</div>
+            </div>
+          </div>
+        </div>
+        <div id="regions-toast" class="settings-toast" style="display:none;"></div>
+      </div>
+
+      <!-- ── Tab: Data Export ── -->
+      <div class="settings-panel" id="stab-export" style="display:none;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.625rem;">
+                <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.125rem;">groups</span>
+                </div>
+                <div>
+                  <div class="card-title" style="margin:0;">Beneficiaries</div>
+                  <div class="card-subtitle" style="margin:0;">All beneficiary records</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.625rem;margin-top:0.25rem;">
+              <select id="exp-ben-format" class="settings-input">
+                <option value="csv">CSV (comma-separated)</option>
+                <option value="excel">Excel (.xlsx)</option>
+              </select>
+              <select id="exp-ben-region" class="settings-input">
+                <option value="">All Regions</option>
+              </select>
+              <button class="btn btn-primary btn-sm" onclick="exportData('beneficiaries')">
+                <span class="material-symbols-outlined">download</span>Export Beneficiaries
+              </button>
+            </div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.625rem;">
+                <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.125rem;">assignment</span>
+                </div>
+                <div>
+                  <div class="card-title" style="margin:0;">Assessments</div>
+                  <div class="card-subtitle" style="margin:0;">Full assessment data per step</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.625rem;margin-top:0.25rem;">
+              <select id="exp-ass-format" class="settings-input">
+                <option value="csv">CSV (comma-separated)</option>
+                <option value="excel">Excel (.xlsx)</option>
+              </select>
+              <select id="exp-ass-year" class="settings-input">
+                <option value="">All Years</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+              </select>
+              <button class="btn btn-primary btn-sm" onclick="exportData('assessments')">
+                <span class="material-symbols-outlined">download</span>Export Assessments
+              </button>
+            </div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.625rem;">
+                <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="material-symbols-outlined" style="color:#ea580c;font-size:1.125rem;">badge</span>
+                </div>
+                <div>
+                  <div class="card-title" style="margin:0;">Interviewers</div>
+                  <div class="card-subtitle" style="margin:0;">Interviewer roster &amp; codes</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.625rem;margin-top:0.25rem;">
+              <select id="exp-int-format" class="settings-input">
+                <option value="csv">CSV (comma-separated)</option>
+                <option value="excel">Excel (.xlsx)</option>
+              </select>
+              <div style="height:2rem;"></div>
+              <button class="btn btn-primary btn-sm" onclick="exportData('interviewers')">
+                <span class="material-symbols-outlined">download</span>Export Interviewers
+              </button>
+            </div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.625rem;">
+                <div style="width:2.25rem;height:2.25rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="material-symbols-outlined" style="color:#7c3aed;font-size:1.125rem;">history</span>
+                </div>
+                <div>
+                  <div class="card-title" style="margin:0;">Audit Logs</div>
+                  <div class="card-subtitle" style="margin:0;">System activity log export</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.625rem;margin-top:0.25rem;">
+              <select id="exp-audit-format" class="settings-input">
+                <option value="csv">CSV (comma-separated)</option>
+                <option value="excel">Excel (.xlsx)</option>
+              </select>
+              <select id="exp-audit-range" class="settings-input">
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 90 days</option>
+                <option value="365">Last year</option>
+                <option value="all">All time</option>
+              </select>
+              <button class="btn btn-primary btn-sm" onclick="exportData('audit')">
+                <span class="material-symbols-outlined">download</span>Export Audit Logs
+              </button>
+            </div>
+          </div>
+
+        </div>
+        <div id="export-toast" class="settings-toast" style="display:none;"></div>
+      </div>
+
     </div><!-- /view-settings -->
 
     <!-- Audit Logs View -->
@@ -920,6 +1246,7 @@
       document.getElementById('int-region').value = '';
       filterInterviewers();
     });
+    document.getElementById('dd-new-item').addEventListener('keydown', e => { if (e.key === 'Enter') addDropdownItem(); });
   });
 
   // ── Interviewers View ──────────────────────────────────────────
@@ -985,6 +1312,7 @@
     if (view === 'beneficiaries') loadAllBeneficiaries();
     if (view === 'interviewers') loadInterviewers();
     if (view === 'audit') loadAuditLogs();
+    if (view === 'settings') showSettingsTab('users');
   }
 
   // ── Audit Logs View ────────────────────────────────────────────
@@ -1078,6 +1406,290 @@
       : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No log entries found.</td></tr>';
     document.getElementById('audit-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} entries` : 'No results';
     buildPagination('audit-pagination', auditPage, totalPages, p => { auditPage = p; renderAudit(); });
+  }
+
+  // ── System Settings ────────────────────────────────────────────
+
+  function showSettingsTab(tab) {
+    document.querySelectorAll('.settings-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    document.querySelectorAll('.settings-panel').forEach(p => p.style.display = 'none');
+    const panel = document.getElementById('stab-' + tab);
+    if (panel) panel.style.display = '';
+    if (tab === 'dropdowns') renderDropdownItems('disability');
+    if (tab === 'export') populateExportRegions();
+  }
+
+  function showToast(id, msg, type) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'settings-toast ' + type;
+    el.style.display = '';
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.style.display = 'none'; }, 4000);
+  }
+
+  // ── User Accounts ──────────────────────────────────────────────
+  const ROLE_LABELS = { admin: 'Administrator', central: 'Central Office', stu_head: 'STU Head', field_officer: 'Field Officer' };
+
+  let usersData = [
+    { id: 1, name: 'System Admin', email: 'admin@dswd.gov.ph', role: 'admin', active: true },
+    { id: 2, name: 'Maria Santos', email: 'm.santos@dswd.gov.ph', role: 'central', active: true },
+    { id: 3, name: 'Jose Reyes',   email: 'j.reyes@dswd.gov.ph', role: 'stu_head', active: false },
+  ];
+  let nextUserId = 4;
+
+  function loadUsers() {
+    const list = document.getElementById('users-list');
+    if (!usersData.length) { list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No users found.</div>'; return; }
+    list.innerHTML = usersData.map(u => `
+      <div class="user-row">
+        <div class="user-row-avatar">${u.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
+        <div class="user-row-info">
+          <div class="user-row-name">${u.name}</div>
+          <div class="user-row-role">${ROLE_LABELS[u.role] || u.role} · ${u.email}</div>
+        </div>
+        <div style="display:flex;gap:0.375rem;align-items:center;">
+          <span class="badge ${u.active ? 'badge-green' : 'badge-orange'}" style="font-size:0.65rem;">${u.active ? 'Active' : 'Inactive'}</span>
+          <button onclick="toggleUserActive(${u.id})" title="${u.active ? 'Deactivate' : 'Activate'}" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;">
+            <span class="material-symbols-outlined" style="font-size:1rem;">${u.active ? 'person_off' : 'person_check'}</span>
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function toggleUserActive(id) {
+    const u = usersData.find(x => x.id === id);
+    if (!u) return;
+    if (u.role === 'admin') { showToast('users-toast', 'Cannot deactivate the main admin account.', 'error'); return; }
+    u.active = !u.active;
+    loadUsers();
+    showToast('users-toast', `${u.name} has been ${u.active ? 'activated' : 'deactivated'}.`, 'success');
+  }
+
+  function generateTempPassword() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#';
+    let pw = '';
+    for (let i = 0; i < 10; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+    document.getElementById('nu-password').value = pw;
+  }
+
+  function createUser() {
+    const name = document.getElementById('nu-name').value.trim();
+    const email = document.getElementById('nu-email').value.trim();
+    const role = document.getElementById('nu-role').value;
+    const pw = document.getElementById('nu-password').value.trim();
+    if (!name || !email || !role || !pw) { showToast('users-toast', 'Please fill in all fields and generate a password.', 'error'); return; }
+    if (usersData.find(u => u.email === email)) { showToast('users-toast', 'An account with that email already exists.', 'error'); return; }
+    usersData.push({ id: nextUserId++, name, email, role, active: true });
+    document.getElementById('nu-name').value = '';
+    document.getElementById('nu-email').value = '';
+    document.getElementById('nu-role').value = '';
+    document.getElementById('nu-password').value = '';
+    loadUsers();
+    showToast('users-toast', `Account created for ${name}. Temporary password: ${pw}`, 'success');
+  }
+
+  // ── Interviewer Codes ──────────────────────────────────────────
+  let codesData = [
+    { code: 'IVR-2024-001', name: 'Ana Bautista', region: 'NCR – Metro Manila', active: true },
+    { code: 'IVR-2024-002', name: 'Pedro Cruz',   region: 'Region VII – Central Visayas', active: true },
+  ];
+
+  function loadInterviewerCodes() {
+    const list = document.getElementById('codes-list');
+    if (!codesData.length) { list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No codes registered.</div>'; return; }
+    list.innerHTML = '<div style="display:flex;flex-direction:column;gap:0.375rem;">' + codesData.map(c => `
+      <div class="code-row">
+        <div>
+          <div class="code-row-code">${c.code}</div>
+          <div class="code-row-name">${c.name}</div>
+          <div class="code-row-region">${c.region}</div>
+        </div>
+        <span class="badge ${c.active ? 'badge-green' : 'badge-orange'}" style="font-size:0.65rem;">${c.active ? 'Active' : 'Inactive'}</span>
+      </div>
+    `).join('') + '</div>';
+  }
+
+  function generateInterviewerCode() {
+    const region = document.getElementById('ic-region').value;
+    if (!region) { showToast('codes-toast', 'Please select a region first.', 'error'); return; }
+    const year = new Date().getFullYear();
+    const seq = String(codesData.length + 1).padStart(3, '0');
+    const prefix = region.match(/Region\s+([\w-]+)/)?.[1] || region.replace(/[^A-Z]/g, '').slice(0,3) || 'IVR';
+    document.getElementById('ic-code').value = `IVR-${year}-${seq}`;
+  }
+
+  function saveInterviewerCode() {
+    const name = document.getElementById('ic-name').value.trim();
+    const region = document.getElementById('ic-region').value;
+    const position = document.getElementById('ic-position').value.trim();
+    const code = document.getElementById('ic-code').value.trim();
+    if (!name || !region || !code) { showToast('codes-toast', 'Please fill in all required fields and generate a code.', 'error'); return; }
+    if (codesData.find(c => c.code === code)) { showToast('codes-toast', 'That code already exists. Generate a new one.', 'error'); return; }
+    codesData.push({ code, name, region, position, active: true });
+    document.getElementById('ic-name').value = '';
+    document.getElementById('ic-region').value = '';
+    document.getElementById('ic-position').value = '';
+    document.getElementById('ic-code').value = '';
+    loadInterviewerCodes();
+    showToast('codes-toast', `Code ${code} saved for ${name}.`, 'success');
+  }
+
+  // ── Dropdown Options ───────────────────────────────────────────
+  const DD_DEFAULTS = {
+    disability:   ['Physical','Visual','Hearing','Intellectual','Psychosocial','Speech','Multiple'],
+    occupation:   ['Farmer','Fisher','Vendor','Laborer','Unemployed','OFW','Government Employee','Private Employee','Self-Employed'],
+    civil_status: ['Single','Married','Widowed','Separated','Annulled','Live-in'],
+    education:    ['No Formal Education','Elementary Level','Elementary Graduate','High School Level','High School Graduate','Vocational','College Level','College Graduate','Post-Graduate'],
+    relationship: ['Mother','Father','Grandparent','Sibling','Aunt/Uncle','Guardian','Other'],
+    housing:      ['Owned','Rented','Shared','Informal Settler','Government Housing','Other'],
+  };
+  const DD_LABELS = { disability:'Disability Types', occupation:'Occupations', civil_status:'Civil Status', education:'Education Level', relationship:'Relationship to Child', housing:'Housing Type' };
+  let ddItems = JSON.parse(JSON.stringify(DD_DEFAULTS));
+  let currentDDCat = 'disability';
+
+  function selectDropdownCat(cat, btn) {
+    currentDDCat = cat;
+    document.querySelectorAll('.dropdown-cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('dd-cat-title').textContent = DD_LABELS[cat] || cat;
+    document.getElementById('dd-new-item').value = '';
+    renderDropdownItems(cat);
+  }
+
+  function renderDropdownItems(cat) {
+    const list = document.getElementById('dd-items-list');
+    const items = ddItems[cat] || [];
+    list.innerHTML = items.length
+      ? items.map((item, i) => `
+          <div class="dd-item-row">
+            <span>${item}</span>
+            <button onclick="removeDropdownItem(${i})" title="Remove">
+              <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
+            </button>
+          </div>`).join('')
+      : '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:1.5rem;">No items. Add one above.</div>';
+  }
+
+  function addDropdownItem() {
+    const val = document.getElementById('dd-new-item').value.trim();
+    if (!val) return;
+    if (ddItems[currentDDCat].includes(val)) { showToast('dropdowns-toast', 'That option already exists.', 'error'); return; }
+    ddItems[currentDDCat].push(val);
+    document.getElementById('dd-new-item').value = '';
+    renderDropdownItems(currentDDCat);
+    showToast('dropdowns-toast', `"${val}" added to ${DD_LABELS[currentDDCat]}.`, 'success');
+  }
+
+  function removeDropdownItem(index) {
+    const item = ddItems[currentDDCat][index];
+    ddItems[currentDDCat].splice(index, 1);
+    renderDropdownItems(currentDDCat);
+    showToast('dropdowns-toast', `"${item}" removed.`, 'info');
+  }
+
+  // ── System Rules ───────────────────────────────────────────────
+  function saveSystemRules() {
+    const timeout = document.getElementById('rule-timeout').value;
+    const attempts = document.getElementById('rule-attempts').value;
+    if (!timeout || timeout < 5 || !attempts || attempts < 1) { showToast('rules-toast', 'Please enter valid values for all fields.', 'error'); return; }
+    showToast('rules-toast', 'System rules saved successfully.', 'success');
+  }
+
+  // ── Regions ────────────────────────────────────────────────────
+  let regionsSettingsData = [];
+
+  function loadRegionSettings() {
+    const list = document.getElementById('regions-list');
+    list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:1rem;">Loading...</div>';
+    fetch('/api/get-region-coverage.php')
+      .then(r => r.json())
+      .then(json => {
+        regionsSettingsData = json.success ? json.data.map(r => r.region) : [];
+        renderRegionSettings();
+      })
+      .catch(() => {
+        regionsSettingsData = [];
+        renderRegionSettings();
+        showToast('regions-toast', 'Could not load regions from server. Showing local entries only.', 'info');
+      });
+  }
+
+  function renderRegionSettings() {
+    const list = document.getElementById('regions-list');
+    if (!regionsSettingsData.length) { list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No regions found.</div>'; return; }
+    list.innerHTML = '<div style="display:flex;flex-direction:column;gap:0.375rem;padding:0.25rem 0;">' +
+      regionsSettingsData.map(r => `
+        <div class="dd-item-row">
+          <span style="display:flex;align-items:center;gap:0.5rem;">
+            <span class="material-symbols-outlined" style="font-size:0.875rem;color:var(--blue);">map</span>${r}
+          </span>
+        </div>`).join('') + '</div>';
+  }
+
+  function saveRegion() {
+    const name = document.getElementById('reg-name').value.trim();
+    const code = document.getElementById('reg-code').value.trim();
+    if (!name || !code) { showToast('regions-toast', 'Region name and code are required.', 'error'); return; }
+    if (regionsSettingsData.includes(name)) { showToast('regions-toast', 'That region already exists.', 'error'); return; }
+    regionsSettingsData.push(name);
+    document.getElementById('reg-name').value = '';
+    document.getElementById('reg-code').value = '';
+    document.getElementById('reg-province').value = '';
+    document.getElementById('reg-municipality').value = '';
+    renderRegionSettings();
+    showToast('regions-toast', `"${name}" added to regions.`, 'success');
+  }
+
+  // ── Data Export ────────────────────────────────────────────────
+  function populateExportRegions() {
+    const sel = document.getElementById('exp-ben-region');
+    if (sel.options.length > 1) return;
+    const regions = [...new Set(allBenData.map(r => r.region).filter(r => r && r !== '—'))].sort();
+    regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o); });
+  }
+
+  function exportData(type) {
+    let data = [], filename = '', headers = [];
+    if (type === 'beneficiaries') {
+      data = allBenData.length ? allBenData : [];
+      const region = document.getElementById('exp-ben-region').value;
+      if (region) data = data.filter(r => r.region === region);
+      headers = ['Name','Aruga ID','Age','Disability','Region','Interviewer','Date'];
+      filename = 'beneficiaries';
+    } else if (type === 'assessments') {
+      data = allBenData;
+      headers = ['Name','Aruga ID','Age','Disability','Region','Interviewer','Date'];
+      filename = 'assessments';
+    } else if (type === 'interviewers') {
+      data = intData;
+      headers = ['Name','Code','Region','Province','Position','Office'];
+      filename = 'interviewers';
+    } else if (type === 'audit') {
+      data = auditData;
+      headers = ['Timestamp','User','Action','Details','Region','Session'];
+      filename = 'audit-logs';
+    }
+
+    if (!data.length) { showToast('export-toast', 'No data available to export. Load the relevant view first.', 'error'); return; }
+
+    const rows = data.map(r => {
+      if (type === 'interviewers') return [r.name, r.code, r.region, r.province, r.position, r.office];
+      if (type === 'audit') return [r.timestamp, r.user, r.action, r.details, r.region, r.session];
+      return [r.name, r.aruga_id, r.age, r.disability, r.region, r.interviewer, r.date];
+    });
+
+    const csv = [headers, ...rows].map(row => row.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('export-toast', `${data.length} records exported as CSV.`, 'success');
   }
 </script>
 </body>
