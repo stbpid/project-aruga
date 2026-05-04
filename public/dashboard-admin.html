@@ -16,19 +16,23 @@
   <!-- Sidebar Overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-  <!-- Floating Sidebar Toggle -->
-  <button class="sidebar-toggle" id="sidebar-minimize-btn" title="Toggle sidebar">
-    <span class="material-symbols-outlined">chevron_left</span>
-  </button>
-
   <!-- Sidebar -->
   <aside class="dash-sidebar" id="dash-sidebar">
     <div class="sidebar-brand">
-      <img src="/images/logo.webp" alt="Project Aruga">
-      <div>
+      <img src="/images/logo.webp" alt="Project Aruga" class="sidebar-brand-logo">
+      <div class="sidebar-brand-text">
         <div class="sidebar-brand-name">Project Aruga</div>
         <div class="sidebar-brand-sub">Admin Dashboard</div>
       </div>
+      <button class="sidebar-toggle-btn" id="sidebar-minimize-btn" title="Toggle sidebar">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+    </div>
+    <div class="sidebar-mini-logo">
+      <img src="/images/logo.webp" alt="Project Aruga">
+      <button class="sidebar-mini-toggle" id="sidebar-expand-btn" title="Expand sidebar">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
     </div>
 
     <nav class="sidebar-nav">
@@ -89,16 +93,6 @@
 
   <!-- Main -->
   <div class="dash-main">
-
-    <!-- Header -->
-    <header class="dash-header">
-      <button class="hamburger" id="hamburger-btn">
-        <span class="material-symbols-outlined">menu</span>
-      </button>
-      <div class="dash-header-title" id="dash-header-title">System Admin</div>
-      <div class="dash-header-actions">
-      </div>
-    </header>
 
     <!-- Content -->
     <div class="dash-content">

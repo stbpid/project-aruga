@@ -33,7 +33,8 @@ function initSidebar() {
   const hamburger = document.getElementById('hamburger-btn');
   const layout = document.getElementById('dash-layout');
   const main = document.querySelector('.dash-main');
-  const toggleBtn = document.getElementById('sidebar-minimize-btn');
+  const collapseBtn = document.getElementById('sidebar-minimize-btn');
+  const expandBtn = document.getElementById('sidebar-expand-btn');
 
   function isMobile() { return window.innerWidth < 768; }
 
@@ -45,20 +46,21 @@ function initSidebar() {
     sidebar?.classList.remove('open');
     overlay?.classList.remove('open');
   }
-  function toggleMinimize() {
-    const minimized = sidebar?.classList.toggle('minimized');
-    main?.classList.toggle('sidebar-minimized', minimized);
-    layout?.classList.toggle('sidebar-collapsed', minimized);
-    if (toggleBtn) {
-      toggleBtn.querySelector('.material-symbols-outlined').textContent = minimized ? 'chevron_right' : 'chevron_left';
-    }
+  function minimize() {
+    sidebar?.classList.add('minimized');
+    main?.classList.add('sidebar-minimized');
+    layout?.classList.add('sidebar-collapsed');
+  }
+  function expand() {
+    sidebar?.classList.remove('minimized');
+    main?.classList.remove('sidebar-minimized');
+    layout?.classList.remove('sidebar-collapsed');
   }
 
-  hamburger?.addEventListener('click', () => {
-    if (isMobile()) openMobile(); else toggleMinimize();
-  });
+  hamburger?.addEventListener('click', () => { if (isMobile()) openMobile(); });
   overlay?.addEventListener('click', closeMobile);
-  toggleBtn?.addEventListener('click', toggleMinimize);
+  collapseBtn?.addEventListener('click', minimize);
+  expandBtn?.addEventListener('click', expand);
 }
 
 // Notification dropdown

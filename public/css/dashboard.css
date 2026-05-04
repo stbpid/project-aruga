@@ -64,20 +64,17 @@ body {
   width: var(--sidebar-mini-w);
 }
 
-.dash-sidebar.minimized .sidebar-brand-name,
-.dash-sidebar.minimized .sidebar-brand-sub,
-.dash-sidebar.minimized .nav-section-label,
-.dash-sidebar.minimized .nav-label,
-.dash-sidebar.minimized .user-info {
+.dash-sidebar.minimized .sidebar-brand {
   display: none;
 }
 
-.dash-sidebar.minimized .sidebar-brand {
-  justify-content: center;
-  padding: 0;
+.dash-sidebar.minimized .sidebar-mini-logo {
+  display: flex;
 }
 
-.dash-sidebar.minimized .sidebar-brand img {
+.dash-sidebar.minimized .nav-section-label,
+.dash-sidebar.minimized .nav-label,
+.dash-sidebar.minimized .user-info {
   display: none;
 }
 
@@ -142,16 +139,60 @@ body {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  padding: 0 1rem;
+  padding: 0 0.75rem 0 1rem;
   border-bottom: 1px solid var(--border-soft);
   flex-shrink: 0;
+  position: relative;
 }
 
-.sidebar-brand img {
+.sidebar-brand-logo {
   height: 2.25rem;
   width: auto;
   object-fit: contain;
+  flex-shrink: 0;
 }
+
+.sidebar-brand-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Mini logo shown only when minimized */
+.sidebar-mini-logo {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.625rem 0;
+  height: auto;
+  border-bottom: 1px solid var(--border-soft);
+  flex-shrink: 0;
+}
+.sidebar-mini-logo img {
+  height: 2rem;
+  width: auto;
+  object-fit: contain;
+}
+
+/* In-brand toggle button */
+.sidebar-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--border);
+  background: var(--gray-50);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  color: var(--gray-500);
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.sidebar-toggle-btn:hover { background: var(--blue-light); color: var(--blue); border-color: var(--blue); }
+.sidebar-toggle-btn .material-symbols-outlined { font-size: 1.125rem; }
 
 .sidebar-brand-name {
   font-weight: 700;
@@ -831,36 +872,28 @@ table.dash-table {
   .stats-grid { grid-template-columns: 1fr; }
 }
 
-/* ── Sidebar Floating Toggle ─────────────── */
-.sidebar-minimize-btn {
-  display: none; /* replaced by floating toggle */
-}
+/* ── Sidebar Minimize (legacy, unused) ───── */
+.sidebar-minimize-btn { display: none; }
+.sidebar-toggle { display: none; }
 
-.sidebar-toggle {
-  position: fixed;
-  top: 50%;
-  left: var(--sidebar-w);
-  transform: translate(-50%, -50%);
-  z-index: 101;
-  width: 1.5rem;
-  height: 3rem;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 0 0.75rem 0.75rem 0;
+/* Mini toggle shown inside mini-logo row when collapsed */
+.sidebar-mini-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--border);
+  background: var(--gray-50);
+  border-radius: 0.375rem;
   cursor: pointer;
-  color: var(--gray-400);
-  box-shadow: 3px 0 8px rgba(0,0,0,0.08);
-  transition: left 0.3s ease, color 0.15s, background 0.15s;
+  color: var(--gray-500);
+  transition: all 0.15s;
+  flex-shrink: 0;
+  font-family: inherit;
 }
-.sidebar-toggle:hover { background: var(--blue-light); color: var(--blue); }
-.sidebar-toggle .material-symbols-outlined { font-size: 1rem; }
-
-.dash-layout.sidebar-collapsed .sidebar-toggle {
-  left: var(--sidebar-mini-w);
-}
+.sidebar-mini-toggle:hover { background: var(--blue-light); color: var(--blue); border-color: var(--blue); }
+.sidebar-mini-toggle .material-symbols-outlined { font-size: 1.125rem; }
 
 /* ── Logout Button ───────────────────────── */
 .logout-btn {
