@@ -10,68 +10,61 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-// Total beneficiaries = total assessments (one child per assessment)
-$totalRes = supabaseRequest('GET', 'assessments?select=id&limit=1&offset=0', null);
-// Use count header — re-request with Prefer: count=exact
-$url = SUPABASE_URL . '/rest/v1/assessments?select=id';
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(getSupabaseHeaders(), ['Prefer: count=exact']));
-curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'HEAD');
-curl_setopt($ch, CURLOPT_HEADER, true);
-curl_setopt($ch, CURLOPT_NOBODY, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-$resp = curl_exec($ch);
-$totalBeneficiaries = 0;
-if (preg_match('/Content-Range:\s*\*\/(\d+)/i', $resp, $m)) {
-    $totalBeneficiaries = (int)$m[1];
-}
-curl_close($ch);
+function supabaseCount($endpoint) {
+    $url = SUPABASE_URL . '/rest/v1/' . $endpoint;
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'apikey: ' . SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization: Bearer ' . SUPABASE_SERVICE_ROLE_KEY,
+        'Prefer: count=exact',
+        'Range: 0-0',
+    ]);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+    curl_setopt($ch, CURLOPT_HEADER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    $resp = curl_exec($ch);
+    curl_close($ch);
 
-// Completed assessments count
-$ch2 = curl_init();
-$url2 = SUPABASE_URL . '/rest/v1/assessments?select=id&status=eq.completed';
-curl_setopt($ch2, CURLOPT_URL, $url2);
-curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch2, CURLOPT_HTTPHEADER, array_merge(getSupabaseHeaders(), ['Prefer: count=exact']));
-curl_setopt($ch2, CURLOPT_CUSTOMREQUEST, 'HEAD');
-curl_setopt($ch2, CURLOPT_HEADER, true);
-curl_setopt($ch2, CURLOPT_NOBODY, true);
-curl_setopt($ch2, CURLOPT_TIMEOUT, 15);
-$resp2 = curl_exec($ch2);
-$completedCount = 0;
-if (preg_match('/Content-Range:\s*\*\/(\d+)/i', $resp2, $m2)) {
-    $completedCount = (int)$m2[1];
+    // Content-Range: 0-0/14  or  Content-Range: */14
+    if (preg_match('/Content-Range:\s*[\d\*]+-?[\d\*]*\/(\d+)/i', $resp, $m)) {
+        return (int)$m[1];
+    }
+    return 0;
 }
-curl_close($ch2);
 
-// Active interviewers
-$ch3 = curl_init();
-$url3 = SUPABASE_URL . '/rest/v1/interviewers?select=id&status=eq.active';
-curl_setopt($ch3, CURLOPT_URL, $url3);
-curl_setopt($ch3, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch3, CURLOPT_HTTPHEADER, array_merge(getSupabaseHeaders(), ['Prefer: count=exact']));
-curl_setopt($ch3, CURLOPT_CUSTOMREQUEST, 'HEAD');
-curl_setopt($ch3, CURLOPT_HEADER, true);
-curl_setopt($ch3, CURLOPT_NOBODY, true);
-curl_setopt($ch3, CURLOPT_TIMEOUT, 15);
-$resp3 = curl_exec($ch3);
-$activeInterviewers = 0;
-if (preg_match('/Content-Range:\s*\*\/(\d+)/i', $resp3, $m3)) {
-    $activeInterviewers = (int)$m3[1];
+// Total beneficiaries = total rows in assessments table
+$totalBeneficiaries = supabaseCount('assessments?select=id');
+
+// Completed assessments
+$completedCount = supabaseCount('assessments?select=id&status=eq.completed');
+
+// Active interviewers — no status filter first, count all, then try with active
+$activeInterviewers = supabaseCount('interviewers?select=id&status=eq.active');
+// Fallback: if 0, count all interviewers (status column may not exist or have different value)
+if ($activeInterviewers === 0) {
+    $activeInterviewers = supabaseCount('interviewers?select=id');
 }
-curl_close($ch3);
 
-// Regions covered = distinct regions from assessments via children table
-$regionsRes = supabaseRequest('GET', 'children?select=region');
+// Regions covered = distinct regions from children table
+$regionsRes = supabaseRequest('GET', 'children?select=region&limit=1000');
 $regionsCovered = 0;
 if ($regionsRes['success'] && is_array($regionsRes['data'])) {
     $regions = array_unique(array_filter(array_column($regionsRes['data'], 'region')));
     $regionsCovered = count($regions);
 }
+// Fallback: distinct regions from interviewers if children has none
+if ($regionsCovered === 0) {
+    $intRes = supabaseRequest('GET', 'interviewers?select=region&limit=1000');
+    if ($intRes['success'] && is_array($intRes['data'])) {
+        $regions = array_unique(array_filter(array_column($intRes['data'], 'region')));
+        $regionsCovered = count($regions);
+    }
+}
 
-// Completion rate
+// Completion rate = completed / total * 100
 $completionRate = $totalBeneficiaries > 0
     ? round(($completedCount / $totalBeneficiaries) * 100, 1)
     : 0;
