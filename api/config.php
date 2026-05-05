@@ -123,6 +123,33 @@ function supabaseRequest($method, $endpoint, $data = null) {
 }
 
 /**
+ * Call a Supabase RPC function
+ */
+function supabaseRPC($functionName, $params = []) {
+    $url = SUPABASE_URL . '/rest/v1/rpc/' . $functionName;
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, getSupabaseHeaders());
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    $decoded = json_decode($response, true);
+
+    return [
+        'success' => $httpCode >= 200 && $httpCode < 300,
+        'data'    => $decoded,
+        'httpCode'=> $httpCode
+    ];
+}
+
+/**
  * Get client's IP address
  * @return string IP address
  */

@@ -1,15 +1,4 @@
 <?php
-/**
- * Dashboard Login — email + password authentication
- * Endpoint: POST /api/dashboard-login.php
- *
- * Request Body:
- * { "email": "admin@dswd.gov.ph", "password": "plaintext" }
- *
- * Response:
- * { "success": true, "data": { "id", "full_name", "email", "role", "dashboard_role" } }
- */
-
 require_once 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
@@ -28,7 +17,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     sendResponse(false, 'Invalid email address', null, 400);
 }
 
-// Fetch interviewer by email — only dashboard-enabled accounts
+// Fetch interviewer by email
 $endpoint = 'interviewers?email=eq.' . urlencode($email) . '&status=eq.active&select=*';
 $result   = supabaseRequest('GET', $endpoint);
 
@@ -42,27 +31,41 @@ if (empty($result['data'])) {
 
 $user = $result['data'][0];
 
-// Must have a dashboard role set
 if (empty($user['dashboard_role'])) {
     sendResponse(false, 'This account does not have dashboard access', null, 403);
 }
 
-// Must have a password hash set
 if (empty($user['password_hash'])) {
     sendResponse(false, 'Account not yet set up for dashboard login. Contact your administrator.', null, 403);
 }
 
-// Verify password — supports both PHP bcrypt ($2y$) and pgcrypto bcrypt ($2a$)
-$hash = $user['password_hash'];
-$compatible_hash = preg_replace('/^\$2a\$/', '$2y$', $hash);
-if (!password_verify($password, $compatible_hash)) {
+// Verify password using Supabase RPC (pgcrypto crypt comparison)
+$rpcResult = supabaseRPC('verify_password', [
+    'input_password' => $password,
+    'stored_hash'    => $user['password_hash']
+]);
+
+$passwordValid = false;
+
+if ($rpcResult['success'] && isset($rpcResult['data'])) {
+    $passwordValid = (bool) $rpcResult['data'];
+}
+
+// Fallback: try PHP password_verify with $2a$ -> $2y$ swap
+if (!$passwordValid) {
+    $hash = $user['password_hash'];
+    $compatible = preg_replace('/^\$2a\$/', '$2y$', $hash);
+    $passwordValid = password_verify($password, $compatible);
+}
+
+if (!$passwordValid) {
     sendResponse(false, 'Invalid email or password', null, 401);
 }
 
 // Create session record
 $sessionData = [
     'interviewer_id'   => $user['id'],
-    'interviewer_code' => $user['interviewer_code'],
+    'interviewer_code' => $user['interviewer_code'] ?? null,
     'started_at'       => date('c'),
     'status'           => 'active',
     'ip_address'       => getUserIP(),
@@ -74,7 +77,7 @@ $session = ($sessionResult['success'] && !empty($sessionResult['data'])) ? $sess
 
 sendResponse(true, 'Login successful', [
     'id'               => $user['id'],
-    'interviewer_code' => $user['interviewer_code'],
+    'interviewer_code' => $user['interviewer_code'] ?? null,
     'full_name'        => $user['full_name'],
     'email'            => $user['email'],
     'role'             => $user['dashboard_role'],
