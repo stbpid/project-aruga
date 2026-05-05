@@ -172,7 +172,10 @@
           toast.success(`Welcome, ${d.full_name}!`, 'Login Successful');
           btnSubmit.textContent = '✓ Success! Redirecting...';
 
-          const redirect = ROLE_REDIRECT[d.role] || '/dashboard-admin.html';
+          const role = (d.role || '').trim().toLowerCase();
+          console.log('Login role received:', JSON.stringify(role));
+          const redirect = ROLE_REDIRECT[role] || '/dashboard-admin.html';
+          console.log('Redirecting to:', redirect);
           setTimeout(() => { window.location.href = redirect; }, 1000);
         } else {
           showError(result.message || 'Invalid email or password.');

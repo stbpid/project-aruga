@@ -52,8 +52,10 @@ if (empty($user['password_hash'])) {
     sendResponse(false, 'Account not yet set up for dashboard login. Contact your administrator.', null, 403);
 }
 
-// Verify password
-if (!password_verify($password, $user['password_hash'])) {
+// Verify password — supports both PHP bcrypt ($2y$) and pgcrypto bcrypt ($2a$)
+$hash = $user['password_hash'];
+$compatible_hash = preg_replace('/^\$2a\$/', '$2y$', $hash);
+if (!password_verify($password, $compatible_hash)) {
     sendResponse(false, 'Invalid email or password', null, 401);
 }
 
