@@ -871,9 +871,7 @@
                   <th style="cursor:pointer;" onclick="sortRg('cities','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
                   <th style="cursor:pointer;" onclick="sortRg('cities','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
                   <th style="cursor:pointer;" onclick="sortRg('cities','city')">City / Municipality <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('cities','total')">Total <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('cities','completed')">Completed <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('cities','rate')">Completion % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('cities','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
                 </tr>
               </thead>
               <tbody id="rg-city-tbody"><tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
@@ -2578,11 +2576,10 @@
           <td style="font-weight:700;color:var(--dark);">${r.province||'—'}</td>
           <td>
             <div style="display:flex;align-items:center;gap:0.625rem;">
-              <span style="font-weight:700;min-width:32px;">${r.total.toLocaleString()}</span>
               <div style="flex:1;height:8px;background:var(--gray-100);border-radius:999px;overflow:hidden;min-width:80px;">
                 <div style="height:100%;width:${Math.round((r.completed/maxT)*100)}%;background:#16a34a;border-radius:999px;transition:width 0.4s;"></div>
               </div>
-              <span style="font-size:0.7rem;color:#16a34a;font-weight:700;min-width:36px;">${r.completed}</span>
+              <span style="font-size:0.7rem;color:#16a34a;font-weight:700;min-width:36px;">${r.total.toLocaleString()}</span>
             </div>
           </td>
         </tr>`).join(''); })()
@@ -2593,15 +2590,20 @@
     const tbody = document.getElementById('rg-city-tbody');
     const sorted = sortedData(data,'cities');
     tbody.innerHTML = sorted.length
-      ? sorted.map(r=>`<tr class="table-row-hover">
+      ? (()=>{ const maxT=Math.max(...sorted.map(r=>r.total),1); return sorted.map(r=>`<tr class="table-row-hover">
           <td style="font-size:0.75rem;color:var(--gray-500);">${r.region}</td>
           <td style="font-size:0.75rem;color:var(--gray-500);">${r.province||'—'}</td>
           <td style="font-weight:700;color:var(--dark);">${r.city||'—'}</td>
-          <td style="font-weight:700;">${r.total.toLocaleString()}</td>
-          <td style="color:#16a34a;font-weight:600;">${r.completed.toLocaleString()}</td>
-          <td>${rateBar(r.rate)}</td>
-        </tr>`).join('')
-      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data.</td></tr>';
+          <td>
+            <div style="display:flex;align-items:center;gap:0.625rem;">
+              <div style="flex:1;height:8px;background:var(--gray-100);border-radius:999px;overflow:hidden;min-width:80px;">
+                <div style="height:100%;width:${Math.round((r.completed/maxT)*100)}%;background:#16a34a;border-radius:999px;transition:width 0.4s;"></div>
+              </div>
+              <span style="font-size:0.7rem;color:#16a34a;font-weight:700;min-width:36px;">${r.total.toLocaleString()}</span>
+            </div>
+          </td>
+        </tr>`).join(''); })()
+      : '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data.</td></tr>';
   }
 
   function renderRgBarChart(data) {
