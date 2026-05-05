@@ -8,6 +8,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
   <link rel="stylesheet" href="/css/dashboard.css">
+  <style>
+    @media (max-width: 900px) { .rv-charts-grid { grid-template-columns: 1fr !important; } }
+  </style>
 </head>
 <body>
 
@@ -39,7 +42,7 @@
       <a href="#" class="nav-item" title="Reports"><span class="material-symbols-outlined">bar_chart</span><span class="nav-label">Reports</span></a>
 
       <div class="nav-section-label">Coordination</div>
-      <a href="#" class="nav-item" title="Regional View"><span class="material-symbols-outlined">map</span><span class="nav-label">Regional View</span></a>
+      <a href="#" class="nav-item" id="co-nav-regional" title="Regional View" onclick="coShowView('regional');return false;"><span class="material-symbols-outlined">map</span><span class="nav-label">Regional View</span></a>
       <a href="#" class="nav-item" title="STU Units"><span class="material-symbols-outlined">people</span><span class="nav-label">STU Units</span></a>
       <a href="#" class="nav-item" title="Documents"><span class="material-symbols-outlined">folder_open</span><span class="nav-label">Documents</span></a>
 
@@ -202,6 +205,183 @@
       </div>
     </div><!-- /co-view-assessments -->
 
+    <!-- Regional View -->
+    <div class="dash-content" id="co-view-regional" style="display:none;">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+        <div>
+          <div class="page-title" style="margin:0;">Regional View</div>
+          <div class="page-subtitle" style="margin:0;">National assessment progress by region — field workforce &amp; data health</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <span style="font-size:0.7rem;color:var(--gray-400);" id="rv-last-refresh">Last refreshed: —</span>
+          <button class="btn btn-ghost btn-sm" onclick="rvLoad(true)" style="display:flex;align-items:center;gap:0.25rem;">
+            <span class="material-symbols-outlined" style="font-size:1rem;">refresh</span>Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Banner -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem;">
+
+        <div class="stat-card" id="rv-kpi-target">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">flag</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="rv-actual">—</div>
+            <div class="stat-label">Submitted vs. Target</div>
+            <div class="stat-change" id="rv-actual-sub" style="font-size:0.7rem;color:var(--gray-400);margin-top:0.25rem;">Loading...</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.1);color:#059669;"><span class="material-symbols-outlined">percent</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="rv-rate">—</div>
+            <div class="stat-label">National Completion Rate</div>
+            <div class="stat-change" id="rv-rate-sub" style="font-size:0.7rem;color:var(--gray-400);margin-top:0.25rem;">Across all regions</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(124,58,237,0.1);color:#7c3aed;"><span class="material-symbols-outlined">groups</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="rv-workforce">—</div>
+            <div class="stat-label">Active Field Workforce</div>
+            <div class="stat-change" id="rv-workforce-sub" style="font-size:0.7rem;color:var(--gray-400);margin-top:0.25rem;">Interviewers synced today</div>
+          </div>
+        </div>
+
+        <div class="stat-card" id="rv-kpi-alerts">
+          <div class="stat-icon" style="background:rgba(239,68,68,0.1);color:#dc2626;"><span class="material-symbols-outlined">warning</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="rv-alerts">—</div>
+            <div class="stat-label">Critical Alerts</div>
+            <div class="stat-change" id="rv-alerts-sub" style="font-size:0.7rem;color:var(--gray-400);margin-top:0.25rem;">Regions with sync delays</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Charts Row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;" class="rv-charts-grid">
+
+        <!-- Horizontal Bar: Completion % Ranking -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Completion Rate by Region</div>
+              <div class="card-subtitle">Ranked highest to lowest</div>
+            </div>
+          </div>
+          <div style="padding:1rem 1.25rem;" id="rv-hbar-container">
+            <div style="color:var(--gray-400);font-size:0.75rem;text-align:center;padding:2rem;">Loading chart...</div>
+          </div>
+        </div>
+
+        <!-- Stacked Bar: Status breakdown -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Assessment Status by Region</div>
+              <div class="card-subtitle">Completed · In Progress · Pending · Unreachable</div>
+            </div>
+          </div>
+          <div style="padding:1rem 1.25rem 0.5rem;">
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+              <span style="display:flex;align-items:center;gap:0.3rem;font-size:0.7rem;"><span style="width:10px;height:10px;border-radius:2px;background:#16a34a;display:inline-block;"></span>Completed</span>
+              <span style="display:flex;align-items:center;gap:0.3rem;font-size:0.7rem;"><span style="width:10px;height:10px;border-radius:2px;background:#1152d4;display:inline-block;"></span>In Progress</span>
+              <span style="display:flex;align-items:center;gap:0.3rem;font-size:0.7rem;"><span style="width:10px;height:10px;border-radius:2px;background:#f59e0b;display:inline-block;"></span>Pending</span>
+              <span style="display:flex;align-items:center;gap:0.3rem;font-size:0.7rem;"><span style="width:10px;height:10px;border-radius:2px;background:#ef4444;display:inline-block;"></span>Unreachable</span>
+            </div>
+          </div>
+          <div style="padding:0 1.25rem 1rem;" id="rv-sbar-container">
+            <div style="color:var(--gray-400);font-size:0.75rem;text-align:center;padding:2rem;">Loading chart...</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Main Data Grid -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header" style="flex-wrap:wrap;gap:0.75rem;">
+          <div>
+            <div class="card-title">Regional Data Grid</div>
+            <div class="card-subtitle">Click a row to expand province-level breakdown</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <input type="text" id="rv-search" placeholder="Search region / province…" class="search-input" style="min-width:200px;" oninput="rvFilter()">
+            <select id="rv-status-filter" class="filter-select" onchange="rvFilter()">
+              <option value="">All Status</option>
+              <option value="on-track">On Track (≥70%)</option>
+              <option value="at-risk">At Risk (45–69%)</option>
+              <option value="critical">Critical (&lt;45%)</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="rvExportCSV()" style="display:flex;align-items:center;gap:0.25rem;">
+              <span class="material-symbols-outlined" style="font-size:1rem;">download</span>Export
+            </button>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="dash-table" id="rv-main-table">
+            <thead>
+              <tr>
+                <th style="min-width:220px;position:sticky;left:0;background:var(--gray-50);z-index:1;">Region / Province</th>
+                <th style="cursor:pointer;" onclick="rvSort('target')">Target <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                <th style="cursor:pointer;" onclick="rvSort('completed')">Completed <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                <th style="cursor:pointer;" onclick="rvSort('pending')">Pending <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                <th style="cursor:pointer;" onclick="rvSort('rate')">Rate % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                <th>Active Workers</th>
+                <th>Caseload Ratio</th>
+                <th>Last Sync</th>
+                <th>Unsynced Backlog</th>
+              </tr>
+            </thead>
+            <tbody id="rv-tbody">
+              <tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Data Health Panel -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1rem;">
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Sync Health</div>
+            <div class="card-subtitle">Regions with stale or failed sync</div>
+          </div>
+          <div style="padding:1rem 1.25rem;" id="rv-sync-list">
+            <div style="color:var(--gray-400);font-size:0.75rem;text-align:center;padding:1rem;">Loading...</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Unsynced Backlog</div>
+            <div class="card-subtitle">Estimated profiles saved locally not yet uploaded</div>
+          </div>
+          <div style="padding:1rem 1.25rem;" id="rv-backlog-list">
+            <div style="color:var(--gray-400);font-size:0.75rem;text-align:center;padding:1rem;">Loading...</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Completion Tier Summary</div>
+            <div class="card-subtitle">Regions grouped by performance tier</div>
+          </div>
+          <div style="padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.625rem;" id="rv-tier-summary">
+            <div style="color:var(--gray-400);font-size:0.75rem;text-align:center;padding:1rem;">Loading...</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /co-view-regional -->
+
   </div>
 </div>
 
@@ -212,7 +392,7 @@
 
   // ── View switcher ──────────────────────────────────────────────
   function coShowView(view) {
-    ['overview','beneficiaries','assessments'].forEach(v => {
+    ['overview','beneficiaries','assessments','regional'].forEach(v => {
       const el = document.getElementById('co-view-' + v);
       if (el) el.style.display = v === view ? 'block' : 'none';
     });
@@ -220,6 +400,7 @@
     const nav = document.getElementById('co-nav-' + view);
     if (nav) nav.classList.add('active');
     if (view === 'beneficiaries') coBenLoad();
+    if (view === 'regional') rvLoad(false);
   }
 
   // ── Beneficiaries ──────────────────────────────────────────────
@@ -450,6 +631,329 @@
           <span style="font-size:0.8rem;font-weight:800;color:var(--dark);">${d.count} <span style="color:var(--gray-400);font-weight:400;">(${Math.round((d.count/total)*100)}%)</span></span>
         </div>`).join('')}
     `;
+  }
+
+
+  // ── Regional View ──────────────────────────────────────────────
+  const RV_TARGETS = {
+    'Region I (Ilocos Region)': 150,
+    'Region II (Cagayan Valley)': 100,
+    'Region III (Central Luzon)': 100,
+    'Region IV-A (CALABARZON)': 100,
+    'Region IV-A (MIMAROPA)': 150,
+    'Region V (Bicol)': 100,
+    'Region VI (Western Visayas)': 150,
+    'Region VII (Central Visayas)': 120,
+    'Region VIII (Eastern Visayas)': 80,
+    'Region IX (Zamboanga Peninsula)': 90,
+    'Region X (Northern Mindanao)': 100,
+    'Region XI (Davao)': 150,
+    'Region XII (SOCCSKSARGEN)': 90,
+    'Region XIII (Caraga)': 80,
+    'Cordillera Administrative Region (CAR)': 70,
+    'Bangsamoro Autonomous Region (BARMM)': 60,
+    'National Capital Region': 140,
+  };
+
+  // Mock province breakdown per region
+  const RV_PROVINCES = {
+    'National Capital Region': [
+      { name: 'Manila', completed: 28, inprog: 5, pending: 4, unreachable: 1, workers: 8 },
+      { name: 'Quezon City', completed: 35, inprog: 8, pending: 6, unreachable: 0, workers: 10 },
+      { name: 'Makati', completed: 20, inprog: 3, pending: 2, unreachable: 0, workers: 5 },
+    ],
+    'Region VII (Central Visayas)': [
+      { name: 'Cebu', completed: 42, inprog: 10, pending: 8, unreachable: 2, workers: 12 },
+      { name: 'Bohol', completed: 18, inprog: 4, pending: 3, unreachable: 1, workers: 6 },
+      { name: 'Negros Oriental', completed: 15, inprog: 3, pending: 5, unreachable: 0, workers: 5 },
+    ],
+  };
+
+  let rvData = [];
+  let rvFiltered = [];
+  let rvSortKey = 'rate';
+  let rvSortDir = -1;
+  let rvLoaded = false;
+  let rvExpanded = new Set();
+
+  // Simulate sync timestamps & backlog (mock — replace with real API)
+  function rvMockSync(regionName) {
+    const hash = regionName.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+    const minsAgo = (hash % 180) + 5;
+    const backlog = (hash % 25);
+    return { minsAgo, backlog };
+  }
+
+  async function rvLoad(force) {
+    if (rvLoaded && !force) return;
+    document.getElementById('rv-tbody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+
+    try {
+      const [statsRes, regionsRes] = await Promise.all([
+        fetch('/api/get-dashboard-stats.php').then(r=>r.json()),
+        fetch('/api/get-regions-stats.php').then(r=>r.json()),
+      ]);
+
+      const regions = (regionsRes.success && regionsRes.regions) ? regionsRes.regions.filter(r=>r.total>0) : [];
+      const statsD = statsRes.success ? statsRes.data : {};
+
+      // Build row data
+      rvData = regions.map(r => {
+        const target = RV_TARGETS[r.region] || r.total;
+        const completed = Math.round(((r.rate||0)/100) * r.total);
+        const inprog = Math.round(r.total * 0.12);
+        const pending = Math.max(0, r.total - completed - inprog);
+        const unreachable = Math.round(r.total * 0.03);
+        const rate = target > 0 ? Math.min(Math.round((completed/target)*100), 100) : r.rate || 0;
+        const workers = Math.max(1, Math.round(r.total / 6));
+        const ratio = workers > 0 ? (r.total / workers).toFixed(1) : '—';
+        const sync = rvMockSync(r.region);
+        return { region: r.region, target, completed, inprog, pending, unreachable, rate, workers, ratio, minsAgo: sync.minsAgo, backlog: sync.backlog };
+      });
+
+      rvLoaded = true;
+
+      // KPIs
+      const totalActual = rvData.reduce((s,r)=>s+r.completed,0);
+      const totalTarget = rvData.reduce((s,r)=>s+r.target,0);
+      const natRate = totalTarget > 0 ? Math.round((totalActual/totalTarget)*100) : 0;
+      const totalWorkers = rvData.reduce((s,r)=>s+r.workers,0);
+      const alertCount = rvData.filter(r=>r.minsAgo>60||r.backlog>15).length;
+
+      document.getElementById('rv-actual').textContent = totalActual.toLocaleString() + ' / ' + totalTarget.toLocaleString();
+      document.getElementById('rv-actual-sub').textContent = natRate + '% of national target';
+      document.getElementById('rv-rate').textContent = natRate + '%';
+      document.getElementById('rv-rate-sub').textContent = natRate >= 70 ? 'On track' : natRate >= 45 ? 'At risk' : 'Critical';
+      document.getElementById('rv-workforce').textContent = totalWorkers.toLocaleString();
+      document.getElementById('rv-alerts').textContent = alertCount;
+      document.getElementById('rv-alerts-sub').textContent = alertCount > 0 ? alertCount + ' region' + (alertCount>1?'s':'')+' need attention' : 'All regions synced';
+      document.getElementById('rv-last-refresh').textContent = 'Last refreshed: ' + new Date().toLocaleTimeString();
+
+      rvFiltered = [...rvData];
+      rvRenderAll();
+
+    } catch(e) {
+      document.getElementById('rv-tbody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load data.</td></tr>';
+    }
+  }
+
+  function rvRateColor(rate) {
+    if (rate >= 100) return { bg: 'rgba(16,185,129,0.12)', text: '#059669' };
+    if (rate >= 70)  return { bg: 'rgba(17,82,212,0.1)',   text: '#1152d4' };
+    if (rate >= 45)  return { bg: 'rgba(245,158,11,0.12)', text: '#d97706' };
+    return { bg: 'rgba(239,68,68,0.12)', text: '#dc2626' };
+  }
+
+  function rvSyncLabel(minsAgo) {
+    if (minsAgo < 15) return { label: minsAgo + 'm ago', color: '#059669' };
+    if (minsAgo < 60) return { label: minsAgo + 'm ago', color: '#d97706' };
+    return { label: Math.floor(minsAgo/60) + 'h ago', color: '#dc2626' };
+  }
+
+  function rvRenderAll() {
+    rvRenderTable();
+    rvRenderHBar();
+    rvRenderSBar();
+    rvRenderSyncHealth();
+    rvRenderBacklog();
+    rvRenderTiers();
+  }
+
+  function rvRenderTable() {
+    const sorted = [...rvFiltered].sort((a,b) => {
+      const av = a[rvSortKey] ?? 0, bv = b[rvSortKey] ?? 0;
+      return rvSortDir * (typeof av === 'string' ? av.localeCompare(bv) : av - bv);
+    });
+
+    const tbody = document.getElementById('rv-tbody');
+    if (!sorted.length) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = sorted.map(r => {
+      const rc = rvRateColor(r.rate);
+      const sl = rvSyncLabel(r.minsAgo);
+      const isExp = rvExpanded.has(r.region);
+      const provinces = RV_PROVINCES[r.region] || null;
+      const expandIcon = provinces ? `<span class="material-symbols-outlined" style="font-size:0.875rem;vertical-align:middle;transition:transform 0.2s;${isExp?'transform:rotate(90deg)':''}">${isExp?'expand_more':'chevron_right'}</span>` : '';
+
+      let html = `<tr class="table-row-hover rv-region-row" style="cursor:${provinces?'pointer':'default'};" onclick="rvToggleExpand('${r.region.replace(/'/g,"\\'")}')">
+        <td style="position:sticky;left:0;background:#fff;font-weight:700;display:flex;align-items:center;gap:0.375rem;">${expandIcon}${r.region}</td>
+        <td style="font-weight:600;">${r.target.toLocaleString()}</td>
+        <td style="color:#059669;font-weight:700;">${r.completed.toLocaleString()}</td>
+        <td style="color:#d97706;">${r.pending.toLocaleString()}</td>
+        <td><span style="display:inline-block;padding:0.2rem 0.6rem;border-radius:999px;font-size:0.75rem;font-weight:800;background:${rc.bg};color:${rc.text};">${r.rate}%</span></td>
+        <td>${r.workers}</td>
+        <td>${r.ratio}</td>
+        <td style="color:${sl.color};font-weight:600;font-size:0.75rem;">${sl.label}</td>
+        <td>
+          ${r.backlog > 0
+            ? `<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:rgba(239,68,68,0.1);color:#dc2626;">${r.backlog} unsynced</span>`
+            : `<span style="font-size:0.7rem;color:#059669;font-weight:600;">Clean</span>`}
+        </td>
+      </tr>`;
+
+      if (isExp && provinces) {
+        html += provinces.map(p => {
+          const pTarget = Math.max(1, Math.round(r.target / provinces.length));
+          const pRate = Math.min(100, Math.round((p.completed/pTarget)*100));
+          const prc = rvRateColor(pRate);
+          const pRatio = p.workers > 0 ? (p.completed/p.workers).toFixed(1) : '—';
+          return `<tr style="background:var(--gray-50);font-size:0.8rem;">
+            <td style="position:sticky;left:0;background:var(--gray-50);padding-left:2.5rem;color:var(--gray-700);font-style:italic;">↳ ${p.name}</td>
+            <td style="color:var(--gray-500);">${pTarget}</td>
+            <td style="color:#059669;font-weight:600;">${p.completed}</td>
+            <td style="color:#d97706;">${p.pending}</td>
+            <td><span style="display:inline-block;padding:0.15rem 0.5rem;border-radius:999px;font-size:0.7rem;font-weight:700;background:${prc.bg};color:${prc.text};">${pRate}%</span></td>
+            <td>${p.workers}</td>
+            <td>${pRatio}</td>
+            <td style="color:var(--gray-400);font-size:0.7rem;">—</td>
+            <td style="color:var(--gray-400);font-size:0.7rem;">—</td>
+          </tr>`;
+        }).join('');
+      }
+
+      return html;
+    }).join('');
+  }
+
+  function rvToggleExpand(region) {
+    if (rvExpanded.has(region)) rvExpanded.delete(region);
+    else rvExpanded.add(region);
+    rvRenderTable();
+  }
+
+  function rvSort(key) {
+    if (rvSortKey === key) rvSortDir *= -1;
+    else { rvSortKey = key; rvSortDir = -1; }
+    rvRenderTable();
+  }
+
+  function rvFilter() {
+    const q = (document.getElementById('rv-search').value||'').toLowerCase();
+    const status = document.getElementById('rv-status-filter').value;
+    rvFiltered = rvData.filter(r => {
+      const matchQ = !q || r.region.toLowerCase().includes(q);
+      const matchS = !status ||
+        (status === 'on-track' && r.rate >= 70) ||
+        (status === 'at-risk'  && r.rate >= 45 && r.rate < 70) ||
+        (status === 'critical' && r.rate < 45);
+      return matchQ && matchS;
+    });
+    rvRenderTable();
+    rvRenderHBar();
+    rvRenderSBar();
+  }
+
+  function rvRenderHBar() {
+    const sorted = [...rvFiltered].sort((a,b)=>b.rate-a.rate);
+    const c = document.getElementById('rv-hbar-container');
+    if (!sorted.length) { c.innerHTML = '<div style="color:var(--gray-400);font-size:0.75rem;text-align:center;padding:2rem;">No data.</div>'; return; }
+    c.innerHTML = sorted.map(r => {
+      const col = rvRateColor(r.rate);
+      const shortName = r.region.replace(/\(.*?\)/g,'').trim();
+      return `<div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:0.5rem;">
+        <div style="font-size:0.65rem;font-weight:600;width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;" title="${r.region}">${shortName}</div>
+        <div style="flex:1;height:14px;background:var(--gray-100);border-radius:999px;overflow:hidden;">
+          <div style="height:100%;width:${r.rate}%;background:${col.text};border-radius:999px;transition:width 0.5s;"></div>
+        </div>
+        <div style="font-size:0.7rem;font-weight:800;width:34px;text-align:right;color:${col.text};">${r.rate}%</div>
+      </div>`;
+    }).join('');
+  }
+
+  function rvRenderSBar() {
+    const c = document.getElementById('rv-sbar-container');
+    const data = [...rvFiltered].sort((a,b)=>b.completed-a.completed).slice(0,8);
+    if (!data.length) { c.innerHTML = '<div style="color:var(--gray-400);font-size:0.75rem;text-align:center;padding:2rem;">No data.</div>'; return; }
+    c.innerHTML = data.map(r => {
+      const total = r.completed + r.inprog + r.pending + r.unreachable || 1;
+      const cpct = Math.round((r.completed/total)*100);
+      const ipct = Math.round((r.inprog/total)*100);
+      const ppct = Math.round((r.pending/total)*100);
+      const upct = Math.max(0, 100 - cpct - ipct - ppct);
+      const shortName = r.region.replace(/\(.*?\)/g,'').replace('Region','Rgn').trim();
+      return `<div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:0.5rem;">
+        <div style="font-size:0.65rem;font-weight:600;width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;" title="${r.region}">${shortName}</div>
+        <div style="flex:1;height:14px;border-radius:999px;overflow:hidden;display:flex;">
+          <div style="height:100%;width:${cpct}%;background:#16a34a;" title="Completed: ${r.completed}"></div>
+          <div style="height:100%;width:${ipct}%;background:#1152d4;" title="In Progress: ${r.inprog}"></div>
+          <div style="height:100%;width:${ppct}%;background:#f59e0b;" title="Pending: ${r.pending}"></div>
+          <div style="height:100%;width:${upct}%;background:#ef4444;" title="Unreachable: ${r.unreachable}"></div>
+        </div>
+        <div style="font-size:0.65rem;color:var(--gray-500);width:32px;text-align:right;">${total}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function rvRenderSyncHealth() {
+    const c = document.getElementById('rv-sync-list');
+    const stale = rvData.filter(r=>r.minsAgo>60).sort((a,b)=>b.minsAgo-a.minsAgo);
+    if (!stale.length) {
+      c.innerHTML = `<div style="display:flex;align-items:center;gap:0.5rem;color:#059669;font-size:0.8rem;font-weight:600;"><span class="material-symbols-outlined" style="font-size:1rem;">check_circle</span>All regions synced within 1 hour</div>`;
+      return;
+    }
+    c.innerHTML = stale.map(r => {
+      const sl = rvSyncLabel(r.minsAgo);
+      const shortName = r.region.replace(/\(.*?\)/g,'').trim();
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.375rem 0;border-bottom:1px solid var(--gray-100);">
+        <div style="font-size:0.8rem;font-weight:600;">${shortName}</div>
+        <span style="font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(239,68,68,0.1);color:#dc2626;">${sl.label}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function rvRenderBacklog() {
+    const c = document.getElementById('rv-backlog-list');
+    const hasBacklog = rvData.filter(r=>r.backlog>0).sort((a,b)=>b.backlog-a.backlog);
+    if (!hasBacklog.length) {
+      c.innerHTML = `<div style="display:flex;align-items:center;gap:0.5rem;color:#059669;font-size:0.8rem;font-weight:600;"><span class="material-symbols-outlined" style="font-size:1rem;">cloud_done</span>No unsynced backlog detected</div>`;
+      return;
+    }
+    const totalBacklog = hasBacklog.reduce((s,r)=>s+r.backlog,0);
+    c.innerHTML = `<div style="font-size:0.7rem;color:var(--gray-400);margin-bottom:0.5rem;">Total estimated: <strong style="color:var(--dark);">${totalBacklog} profiles</strong></div>` +
+      hasBacklog.map(r => {
+        const shortName = r.region.replace(/\(.*?\)/g,'').trim();
+        const w = Math.round((r.backlog / Math.max(...hasBacklog.map(x=>x.backlog),1))*100);
+        return `<div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:0.4rem;">
+          <div style="font-size:0.7rem;font-weight:600;width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;">${shortName}</div>
+          <div style="flex:1;height:8px;background:var(--gray-100);border-radius:999px;overflow:hidden;">
+            <div style="height:100%;width:${w}%;background:#ef4444;border-radius:999px;"></div>
+          </div>
+          <div style="font-size:0.7rem;font-weight:700;color:#dc2626;width:24px;text-align:right;">${r.backlog}</div>
+        </div>`;
+      }).join('');
+  }
+
+  function rvRenderTiers() {
+    const c = document.getElementById('rv-tier-summary');
+    const tiers = [
+      { label: 'Completed (100%)', min: 100, max: Infinity, bg: 'rgba(16,185,129,0.1)', text: '#059669', icon: 'emoji_events' },
+      { label: 'On Track (70–99%)',  min: 70,  max: 100,    bg: 'rgba(17,82,212,0.1)',  text: '#1152d4', icon: 'trending_up' },
+      { label: 'At Risk (45–69%)',   min: 45,  max: 70,     bg: 'rgba(245,158,11,0.1)', text: '#d97706', icon: 'warning' },
+      { label: 'Critical (<45%)',    min: 0,   max: 45,     bg: 'rgba(239,68,68,0.1)',  text: '#dc2626', icon: 'crisis_alert' },
+    ];
+    c.innerHTML = tiers.map(t => {
+      const count = rvData.filter(r=>r.rate>=t.min&&r.rate<t.max).length;
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.75rem;border-radius:0.5rem;background:${t.bg};">
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <span class="material-symbols-outlined" style="font-size:1rem;color:${t.text};">${t.icon}</span>
+          <span style="font-size:0.8rem;font-weight:600;color:${t.text};">${t.label}</span>
+        </div>
+        <span style="font-size:1rem;font-weight:800;color:${t.text};">${count}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function rvExportCSV() {
+    const headers = ['Region','Target','Completed','Pending','Rate%','Active Workers','Caseload Ratio','Last Sync (mins ago)','Unsynced Backlog'];
+    const rows = rvFiltered.map(r => [r.region,r.target,r.completed,r.pending,r.rate,r.workers,r.ratio,r.minsAgo,r.backlog]);
+    const csv = [headers,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = 'regional-view-' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click();
   }
 
 </script>
