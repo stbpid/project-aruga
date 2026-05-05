@@ -104,42 +104,37 @@
         </div>
       </div>
 
-      <div class="grid-2" style="margin-bottom:1rem;">
-
-        <!-- Regional Performance -->
-        <div class="card">
-          <div class="card-header">
-            <div><div class="card-title">Regional Performance</div><div class="card-subtitle">Total profiled per region</div></div>
-          </div>
-          <div class="table-wrap">
-            <table class="dash-table">
-              <thead><tr><th>Region</th><th>Total Profiled</th><th>Target</th><th>Completion %</th></tr></thead>
-              <tbody id="co-region-tbody">
-                <tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
+      <!-- Regional Performance (full width) -->
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">
+          <div><div class="card-title">Regional Performance</div><div class="card-subtitle">Total profiled per region</div></div>
         </div>
-
-        <!-- Disability Distribution -->
-        <div class="card">
-          <div class="card-header">
-            <div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown</div></div>
-          </div>
-          <div id="co-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;">
-            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>
-          </div>
+        <div class="table-wrap">
+          <table class="dash-table">
+            <thead><tr><th>Region</th><th>Total Profiled</th><th>Target</th><th>Completion %</th></tr></thead>
+            <tbody id="co-region-tbody">
+              <tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+            </tbody>
+          </table>
         </div>
-
       </div>
 
-      <!-- Recent Sessions -->
-      <div class="card">
+      <!-- Disability Distribution (full width, filterable) -->
+      <div class="card" style="margin-bottom:1rem;">
         <div class="card-header">
-          <div><div class="card-title">Recent Interviewer Sessions</div><div class="card-subtitle">Latest login activity across all regions</div></div>
+          <div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown — filter by region</div></div>
+          <select id="co-dis-region-filter" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="renderCoDisBars()">
+            <option value="">All Regions</option>
+          </select>
         </div>
-        <div class="activity-list" id="co-activity-list">
-          <div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Loading...</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;padding:0.25rem 0;">
+          <div id="co-dis-bars" style="display:flex;flex-direction:column;gap:0.625rem;">
+            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>
+          </div>
+          <div>
+            <div style="font-size:0.8125rem;font-weight:700;color:var(--dark);margin-bottom:0.75rem;">Summary</div>
+            <div id="co-dis-summary" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+          </div>
         </div>
       </div>
 
@@ -169,13 +164,14 @@
     loadCentralData();
   });
 
+  let coAllDisabilities = [];
+  let coRegionDisMap = {};
+
   async function loadCentralData() {
     try {
-      const [statsRes, regionsRes, disRes, sessionsRes] = await Promise.all([
+      const [statsRes, regionsRes] = await Promise.all([
         fetch('/api/get-dashboard-stats.php').then(r=>r.json()),
         fetch('/api/get-regions-stats.php').then(r=>r.json()),
-        fetch('/api/get-regions-stats.php').then(r=>r.json()),
-        fetch('/api/get-recent-sessions.php?limit=8').then(r=>r.json()),
       ]);
 
       // Stats cards
@@ -189,75 +185,98 @@
         document.getElementById('co-int-sub').textContent = 'Currently active';
       }
 
-      // Regional table
+      // Regional table + disability filter setup
       if (regionsRes.success && regionsRes.regions) {
         const regions = regionsRes.regions.filter(r => r.total > 0);
         document.getElementById('co-regions').textContent = regions.length;
+
+        // Populate region filter
+        const sel = document.getElementById('co-dis-region-filter');
+        regions.forEach(r => { const o = document.createElement('option'); o.value = r.region; o.textContent = r.region; sel.appendChild(o); });
+
         const tbody = document.getElementById('co-region-tbody');
-        if (regions.length) {
-          tbody.innerHTML = regions.map(r => {
-            const target = CO_TARGETS[r.region] || null;
-            const pct = target ? Math.min(Math.round((r.total/target)*100),100) : r.rate;
-            const pctColor = pct >= 100 ? '#16a34a' : pct >= 70 ? '#1152d4' : pct >= 45 ? '#f59e0b' : '#ef4444';
-            const badge = pct >= 100
-              ? '<span class="badge badge-green">Complete</span>'
-              : pct >= 70 ? '<span class="badge badge-blue">On Track</span>'
-              : pct >= 45 ? '<span class="badge badge-orange">Behind</span>'
-              : '<span class="badge badge-red">At Risk</span>';
-            return `<tr class="table-row-hover">
-              <td style="font-weight:600;">${r.region}</td>
-              <td style="font-weight:700;">${r.total.toLocaleString()}</td>
-              <td style="color:var(--gray-500);">${target ? target.toLocaleString() : '—'}</td>
-              <td>
-                <div style="display:flex;align-items:center;gap:0.5rem;">
-                  <div style="width:60px;height:6px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
-                    <div style="height:100%;width:${pct}%;background:${pctColor};border-radius:999px;"></div>
-                  </div>
-                  <span style="font-weight:700;font-size:0.8rem;color:${pctColor};">${pct}%</span>
+        tbody.innerHTML = regions.length ? regions.map(r => {
+          const target = CO_TARGETS[r.region] || null;
+          const pct = target ? Math.min(Math.round((r.total/target)*100),100) : r.rate;
+          const pctColor = pct >= 100 ? '#16a34a' : pct >= 70 ? '#1152d4' : pct >= 45 ? '#f59e0b' : '#ef4444';
+          return `<tr class="table-row-hover">
+            <td style="font-weight:600;">${r.region}</td>
+            <td style="font-weight:700;">${r.total.toLocaleString()}</td>
+            <td style="color:var(--gray-500);">${target ? target.toLocaleString() : '—'}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <div style="width:80px;height:6px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+                  <div style="height:100%;width:${pct}%;background:${pctColor};border-radius:999px;"></div>
                 </div>
-              </td>
-            </tr>`;
-          }).join('');
-        } else {
-          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data available.</td></tr>';
-        }
+                <span style="font-weight:700;font-size:0.8rem;color:${pctColor};">${pct}%</span>
+              </div>
+            </td>
+          </tr>`;
+        }).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data available.</td></tr>';
       }
 
-      // Disability bars
-      if (disRes.success && disRes.disabilities && disRes.disabilities.length) {
-        const dis = disRes.disabilities;
-        const maxD = Math.max(...dis.map(d=>d.count), 1);
-        const colors = ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6','#06b6d4','#84cc16'];
-        document.getElementById('co-dis-bars').innerHTML = dis.map((d,i) => `
-          <div style="display:flex;align-items:center;gap:0.75rem;">
-            <div style="font-size:0.75rem;font-weight:600;width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div>
-            <div style="flex:1;height:10px;background:var(--gray-100);border-radius:999px;overflow:hidden;">
-              <div style="height:100%;width:${Math.round((d.count/maxD)*100)}%;background:${colors[i%colors.length]};border-radius:999px;"></div>
-            </div>
-            <div style="font-size:0.75rem;font-weight:800;width:40px;text-align:right;">${d.count}</div>
-          </div>`).join('');
-      } else {
-        document.getElementById('co-dis-bars').innerHTML = '<div style="color:var(--gray-400);font-size:0.75rem;padding:1rem;text-align:center;">No disability data.</div>';
-      }
-
-      // Recent sessions
-      if (sessionsRes.success && sessionsRes.data && sessionsRes.data.length) {
-        document.getElementById('co-activity-list').innerHTML = sessionsRes.data.map(s => `
-          <div class="activity-item">
-            <div class="activity-dot" style="background:#1152d4;"></div>
-            <div class="activity-text">
-              <div class="activity-main">${s.name} logged in — ${s.region}</div>
-              <div class="activity-time">${s.time} · ${s.code}</div>
-            </div>
-          </div>`).join('');
-      } else {
-        document.getElementById('co-activity-list').innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No recent sessions.</div>';
-      }
+      // Disabilities — global + placeholder per-region (API returns global only)
+      coAllDisabilities = (regionsRes.success && regionsRes.disabilities) ? regionsRes.disabilities : [];
+      renderCoDisBars();
 
     } catch(e) {
       console.error('Central dashboard load error:', e);
     }
   }
+
+  const DIS_COLORS_CO = ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6','#06b6d4','#84cc16'];
+
+  async function renderCoDisBars() {
+    const region = document.getElementById('co-dis-region-filter').value;
+    let dis = coAllDisabilities;
+
+    if (region) {
+      // Fetch filtered data for that region
+      try {
+        const res = await fetch('/api/get-regions-stats.php?region=' + encodeURIComponent(region)).then(r=>r.json());
+        dis = (res.success && res.disabilities) ? res.disabilities : [];
+      } catch(e) { dis = []; }
+    }
+
+    const container = document.getElementById('co-dis-bars');
+    const summary = document.getElementById('co-dis-summary');
+
+    if (!dis.length) {
+      container.innerHTML = '<div style="color:var(--gray-400);font-size:0.75rem;padding:1rem;text-align:center;">No disability data.</div>';
+      summary.innerHTML = '';
+      return;
+    }
+
+    const maxD = Math.max(...dis.map(d=>d.count), 1);
+    const total = dis.reduce((s,d)=>s+d.count, 0);
+
+    container.innerHTML = dis.map((d,i) => `
+      <div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background='transparent'">
+        <div style="font-size:0.75rem;font-weight:600;width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div>
+        <div style="flex:1;height:10px;background:var(--gray-100);border-radius:999px;overflow:hidden;">
+          <div style="height:100%;width:${Math.round((d.count/maxD)*100)}%;background:${DIS_COLORS_CO[i%DIS_COLORS_CO.length]};border-radius:999px;transition:width 0.5s;"></div>
+        </div>
+        <div style="font-size:0.75rem;font-weight:800;width:40px;text-align:right;">${d.count}</div>
+        <div style="font-size:0.7rem;color:var(--gray-400);width:36px;text-align:right;">${Math.round((d.count/total)*100)}%</div>
+      </div>`).join('');
+
+    summary.innerHTML = `
+      <div style="padding:0.75rem;background:var(--gray-50);border-radius:0.625rem;border:1px solid var(--border);margin-bottom:0.5rem;">
+        <div style="font-size:0.7rem;color:var(--gray-400);">Total Disability Records</div>
+        <div style="font-size:1.5rem;font-weight:800;color:var(--dark);">${total.toLocaleString()}</div>
+      </div>
+      <div style="font-size:0.75rem;font-weight:600;color:var(--gray-700);margin-bottom:0.375rem;">Top 3</div>
+      ${dis.slice(0,3).map((d,i)=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.375rem 0;border-bottom:1px solid var(--gray-100);">
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <div style="width:10px;height:10px;border-radius:50%;background:${DIS_COLORS_CO[i]};flex-shrink:0;"></div>
+            <span style="font-size:0.8rem;font-weight:600;">${d.label}</span>
+          </div>
+          <span style="font-size:0.8rem;font-weight:800;color:var(--dark);">${d.count} <span style="color:var(--gray-400);font-weight:400;">(${Math.round((d.count/total)*100)}%)</span></span>
+        </div>`).join('')}
+    `;
+  }
+
 </script>
 </body>
 </html>
