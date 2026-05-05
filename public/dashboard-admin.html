@@ -922,9 +922,6 @@
         <button class="settings-tab active" data-tab="users" onclick="showSettingsTab('users')">
           <span class="material-symbols-outlined">manage_accounts</span>User Accounts
         </button>
-        <button class="settings-tab" data-tab="codes" onclick="showSettingsTab('codes')">
-          <span class="material-symbols-outlined">badge</span>Interviewer Codes
-        </button>
         <button class="settings-tab" data-tab="dropdowns" onclick="showSettingsTab('dropdowns')">
           <span class="material-symbols-outlined">list_alt</span>Dropdown Options
         </button>
@@ -1002,79 +999,6 @@
       </div>
 
       <!-- ── Tab: Interviewer Codes ── -->
-      <div class="settings-panel" id="stab-codes" style="display:none;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-          <div class="card" style="margin:0;">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Generate Interviewer Code</div>
-                <div class="card-subtitle">Assign a unique ID to a field interviewer</div>
-              </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;">
-              <div>
-                <label class="settings-label">Interviewer Full Name</label>
-                <input type="text" id="ic-name" class="settings-input" placeholder="e.g. Juan dela Cruz">
-              </div>
-              <div>
-                <label class="settings-label">Region</label>
-                <select id="ic-region" class="settings-input">
-                  <option value="">Select region...</option>
-                  <option>Region I – Ilocos Region</option>
-                  <option>Region II – Cagayan Valley</option>
-                  <option>Region III – Central Luzon</option>
-                  <option>Region IV-A – CALABARZON</option>
-                  <option>Region IV-B – MIMAROPA</option>
-                  <option>Region V – Bicol Region</option>
-                  <option>Region VI – Western Visayas</option>
-                  <option>Region VII – Central Visayas</option>
-                  <option>Region VIII – Eastern Visayas</option>
-                  <option>Region IX – Zamboanga Peninsula</option>
-                  <option>Region X – Northern Mindanao</option>
-                  <option>Region XI – Davao Region</option>
-                  <option>Region XII – SOCCSKSARGEN</option>
-                  <option>Region XIII – Caraga</option>
-                  <option>NCR – Metro Manila</option>
-                  <option>CAR – Cordillera</option>
-                  <option>BARMM</option>
-                </select>
-              </div>
-              <div>
-                <label class="settings-label">Position / Office</label>
-                <input type="text" id="ic-position" class="settings-input" placeholder="e.g. Social Welfare Officer II">
-              </div>
-              <div>
-                <label class="settings-label">Generated Code</label>
-                <div style="display:flex;gap:0.5rem;">
-                  <input type="text" id="ic-code" class="settings-input" placeholder="Click generate..." readonly style="flex:1;font-family:monospace;font-weight:700;color:var(--blue);background:var(--gray-50);">
-                  <button class="btn btn-secondary btn-sm" onclick="generateInterviewerCode()" title="Generate code">
-                    <span class="material-symbols-outlined">refresh</span>
-                  </button>
-                </div>
-              </div>
-              <button class="btn btn-primary btn-sm" onclick="saveInterviewerCode()" style="margin-top:0.25rem;">
-                <span class="material-symbols-outlined">save</span>Save Code
-              </button>
-            </div>
-          </div>
-
-          <div class="card" style="margin:0;">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Active Codes</div>
-                <div class="card-subtitle">All registered interviewer codes</div>
-              </div>
-              <button class="btn btn-secondary btn-sm" onclick="loadInterviewerCodes()">
-                <span class="material-symbols-outlined">refresh</span>
-              </button>
-            </div>
-            <div id="codes-list" style="max-height:340px;overflow-y:auto;">
-              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Click refresh to load codes.</div>
-            </div>
-          </div>
-        </div>
-        <div id="codes-toast" class="settings-toast" style="display:none;"></div>
-      </div>
 
       <!-- ── Tab: Dropdown Options ── -->
       <div class="settings-panel" id="stab-dropdowns" style="display:none;">
@@ -1725,12 +1649,26 @@
     c.appendChild(mkBtn('›', currentPage + 1, false, currentPage >= totalPages - 1));
   }
 
+  function disabilityCell(disability) {
+    const raw = disability || '—';
+    if (raw === '—' || raw === '') return `<span style="color:var(--gray-400);font-size:0.8rem;">—</span>`;
+    const parts = Array.isArray(raw) ? raw : raw.split(',').map(s=>s.trim()).filter(Boolean);
+    if (!parts.length) return `<span style="color:var(--gray-400);font-size:0.8rem;">—</span>`;
+    const first = parts[0];
+    const dc = DIS_COLORS[first] || 'badge-blue';
+    const rest = parts.length - 1;
+    const tooltip = parts.join(', ');
+    return `<div style="display:flex;align-items:center;gap:0.375rem;flex-wrap:nowrap;" title="${tooltip}">
+      <span class="badge ${dc}" style="white-space:nowrap;">${first}</span>
+      ${rest > 0 ? `<span style="font-size:0.7rem;font-weight:700;background:var(--gray-200);color:var(--gray-700);padding:0.1rem 0.4rem;border-radius:999px;cursor:default;" title="${tooltip}">+${rest}</span>` : ''}
+    </div>`;
+  }
+
   function benRow(r) {
-    const dc = DIS_COLORS[r.disability] || 'badge-blue';
     return `<tr class="table-row-hover">
       <td><div style="font-weight:600;color:#111811;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
       <td>${r.age}</td>
-      <td><span class="badge ${dc}">${r.disability}</span></td>
+      <td>${disabilityCell(r.disability)}</td>
       <td>${r.region}</td>
       <td>${r.interviewer}</td>
       <td>${r.date}</td>
@@ -1965,16 +1903,24 @@
 
   async function loadAuditLogs() {
     if (auditLoaded) return;
-    document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
-      const json = await (await fetch('/api/get-audit-logs.php')).json();
-      if (json.success && json.data) {
-        auditData = json.data;
+      const res = await fetch('/api/get-recent-sessions.php?limit=20');
+      const json = await res.json();
+      if (json.success && json.data && json.data.length) {
+        auditData = json.data.map(s => ({
+          timestamp: s.time || '—',
+          user: s.name || '—',
+          action: 'login',
+          details: 'Interviewer logged in to the system',
+          region: s.region || '—',
+          session: s.code || '—',
+        }));
       } else {
-        auditData = buildAuditFromSessions();
+        auditData = [];
       }
     } catch(e) {
-      auditData = buildAuditFromSessions();
+      auditData = [];
     }
     auditLoaded = true;
     auditFiltered = auditData;
@@ -1989,29 +1935,6 @@
     });
 
     renderAudit();
-  }
-
-  function buildAuditFromSessions() {
-    // Derive audit entries from already-loaded recent activity data
-    const items = document.querySelectorAll('#activity-list .activity-item');
-    const entries = [];
-    items.forEach(item => {
-      const main = item.querySelector('.activity-main')?.textContent || '';
-      const time = item.querySelector('.activity-time')?.textContent || '';
-      const parts = main.split(' — ');
-      const namePart = parts[0]?.replace(' logged in', '').trim();
-      const region = parts[1]?.trim() || '—';
-      const timeParts = time.split(' · ');
-      entries.push({
-        timestamp: timeParts[0] || '—',
-        user: namePart || '—',
-        action: 'login',
-        details: 'User logged in to the system',
-        region,
-        session: timeParts[1] || '—'
-      });
-    });
-    return entries;
   }
 
   function filterAudit() {

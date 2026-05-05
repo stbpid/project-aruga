@@ -8,9 +8,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(['success' => false]); exit;
 }
 
-// Fetch 8 most recent sessions with interviewer info
+$limit = isset($_GET['limit']) ? min((int)$_GET['limit'], 100) : 8;
 $res = supabaseRequest('GET',
-    'sessions?select=id,interviewer_code,started_at,status,interviewers(full_name,region)&order=started_at.desc&limit=8'
+    'sessions?select=id,interviewer_code,started_at,status,interviewers(full_name,region)&order=started_at.desc&limit='.$limit
 );
 
 if (!$res['success']) {
