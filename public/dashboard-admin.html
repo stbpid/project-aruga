@@ -248,6 +248,25 @@
         </div>
       </div>
 
+      <!-- Disability Type Distribution -->
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header">
+          <div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown — filter by region</div></div>
+          <select id="adm-dis-region-filter" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="admRenderDisBars()">
+            <option value="">All Regions</option>
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;padding:0.25rem 0;">
+          <div id="adm-dis-bars" style="display:flex;flex-direction:column;gap:0.625rem;">
+            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>
+          </div>
+          <div>
+            <div style="font-size:0.8125rem;font-weight:700;color:var(--dark);margin-bottom:0.75rem;">Summary</div>
+            <div id="adm-dis-summary" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /view-overview -->
 
     <!-- Beneficiaries View -->
@@ -1379,6 +1398,7 @@
     loadRegionCoverage();
     loadRecentBeneficiaries();
     loadRecentActivity();
+    admLoadDisabilityDist();
     loadChart();
 
     document.getElementById('monthly-prev').addEventListener('click', () => { chartYear--; loadChart(); });
@@ -2357,6 +2377,68 @@
     a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
     a.download = `analytics-full-${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
+  }
+
+  // ── Disability Distribution (Overview) ────────────────────────
+  const ADM_DIS_COLORS = ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6','#06b6d4','#84cc16'];
+  let admAllDisabilities = [];
+
+  async function admLoadDisabilityDist() {
+    try {
+      const json = await (await fetch('/api/get-regions-stats.php')).json();
+      admAllDisabilities = (json.success && json.disabilities) ? json.disabilities : [];
+      // Populate region filter
+      if (json.success && json.regions) {
+        const sel = document.getElementById('adm-dis-region-filter');
+        const regions = [...new Set(json.regions.map(r=>r.region))].sort();
+        regions.forEach(r => { const o = document.createElement('option'); o.value=r; o.textContent=r; sel.appendChild(o); });
+      }
+      admRenderDisBars();
+    } catch(e) {}
+  }
+
+  async function admRenderDisBars() {
+    const region = document.getElementById('adm-dis-region-filter').value;
+    let dis = admAllDisabilities;
+    if (region) {
+      try {
+        const res = await (await fetch('/api/get-regions-stats.php?region=' + encodeURIComponent(region))).json();
+        dis = (res.success && res.disabilities) ? res.disabilities : [];
+      } catch(e) { dis = []; }
+    }
+    const container = document.getElementById('adm-dis-bars');
+    const summary   = document.getElementById('adm-dis-summary');
+    if (!dis.length) {
+      container.innerHTML = '<div style="color:var(--gray-400);font-size:0.75rem;padding:1rem;text-align:center;">No disability data.</div>';
+      summary.innerHTML = '';
+      return;
+    }
+    const maxD  = Math.max(...dis.map(d=>d.count), 1);
+    const total = dis.reduce((s,d)=>s+d.count, 0);
+    container.innerHTML = dis.map((d,i) => `
+      <div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background='transparent'">
+        <div style="font-size:0.75rem;font-weight:600;width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div>
+        <div style="flex:1;height:10px;background:var(--gray-100);border-radius:999px;overflow:hidden;">
+          <div style="height:100%;width:${Math.round((d.count/maxD)*100)}%;background:${ADM_DIS_COLORS[i%ADM_DIS_COLORS.length]};border-radius:999px;transition:width 0.5s;"></div>
+        </div>
+        <div style="font-size:0.75rem;font-weight:800;width:40px;text-align:right;">${d.count}</div>
+        <div style="font-size:0.7rem;color:var(--gray-400);width:36px;text-align:right;">${Math.round((d.count/total)*100)}%</div>
+      </div>`).join('');
+    summary.innerHTML = `
+      <div style="padding:0.75rem;background:var(--gray-50);border-radius:0.625rem;border:1px solid var(--border);margin-bottom:0.5rem;">
+        <div style="font-size:0.7rem;color:var(--gray-400);">Total Disability Records</div>
+        <div style="font-size:1.5rem;font-weight:800;color:var(--dark);">${total.toLocaleString()}</div>
+      </div>
+      <div style="font-size:0.75rem;font-weight:600;color:var(--gray-700);margin-bottom:0.375rem;">Top 3</div>
+      ${dis.slice(0,3).map((d,i)=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.375rem 0;border-bottom:1px solid var(--gray-100);">
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <div style="width:10px;height:10px;border-radius:50%;background:${ADM_DIS_COLORS[i]};flex-shrink:0;"></div>
+            <span style="font-size:0.8rem;font-weight:600;">${d.label}</span>
+          </div>
+          <span style="font-size:0.8rem;font-weight:800;color:var(--dark);">${d.count} <span style="color:var(--gray-400);font-weight:400;">(${Math.round((d.count/total)*100)}%)</span></span>
+        </div>`).join('')}
+    `;
   }
 
   // ── Regions View ──────────────────────────────────────────────
