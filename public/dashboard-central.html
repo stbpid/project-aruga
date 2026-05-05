@@ -64,97 +64,82 @@
   </aside>
 
   <div class="dash-main">
-    <header class="dash-header">
-      <button class="hamburger" id="hamburger-btn"><span class="material-symbols-outlined">menu</span></button>
-      <div class="dash-header-title">Central Office — National Overview</div>
-      <div class="dash-header-actions"></div>
-    </header>
-
     <div class="dash-content">
       <div class="page-title">National Overview</div>
-      <div class="page-subtitle">Aggregated data across all 17 regions — May 2026</div>
+      <div class="page-subtitle">Aggregated data across all regions — live from database</div>
 
+      <!-- Stats -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon blue"><span class="material-symbols-outlined">groups</span></div>
-          <div class="stat-body"><div class="stat-value">12,847</div><div class="stat-label">Total Beneficiaries</div><div class="stat-change up">↑ 8.3% this month</div></div>
+          <div class="stat-body">
+            <div class="stat-value" id="co-total">—</div>
+            <div class="stat-label">Total Profiled</div>
+            <div class="stat-change up" id="co-total-sub">Loading...</div>
+          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon green"><span class="material-symbols-outlined">check_circle</span></div>
-          <div class="stat-body"><div class="stat-value">9,214</div><div class="stat-label">Completed</div><div class="stat-change up">71.7% completion rate</div></div>
+          <div class="stat-icon green"><span class="material-symbols-outlined">task_alt</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="co-completed">—</div>
+            <div class="stat-label">Completed</div>
+            <div class="stat-change up" id="co-completed-sub">Loading...</div>
+          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon orange"><span class="material-symbols-outlined">schedule</span></div>
-          <div class="stat-body"><div class="stat-value">3,633</div><div class="stat-label">Pending</div><div class="stat-change down">28.3% of total</div></div>
+          <div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="co-interviewers">—</div>
+            <div class="stat-label">Active Interviewers</div>
+            <div class="stat-change up" id="co-int-sub">Loading...</div>
+          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon purple"><span class="material-symbols-outlined">apartment</span></div>
-          <div class="stat-body"><div class="stat-value">17</div><div class="stat-label">Regions Active</div><div class="stat-change up">Full national coverage</div></div>
+          <div class="stat-icon blue"><span class="material-symbols-outlined">map</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="co-regions">—</div>
+            <div class="stat-label">Regions with Data</div>
+            <div class="stat-change up">Active regions</div>
+          </div>
         </div>
       </div>
 
       <div class="grid-2" style="margin-bottom:1rem;">
+
+        <!-- Regional Performance -->
         <div class="card">
           <div class="card-header">
-            <div><div class="card-title">Regional Performance</div><div class="card-subtitle">Completion rate by region</div></div>
-            <button class="btn btn-secondary btn-sm"><span class="material-symbols-outlined">download</span>Export</button>
+            <div><div class="card-title">Regional Performance</div><div class="card-subtitle">Total profiled per region</div></div>
           </div>
           <div class="table-wrap">
             <table class="dash-table">
-              <thead><tr><th>Region</th><th>Target</th><th>Achieved</th><th>Rate</th><th>Status</th></tr></thead>
-              <tbody>
-                <tr><td style="font-weight:600;">NCR</td><td>2,800</td><td>2,341</td><td>83.6%</td><td><span class="badge badge-green">On Track</span></td></tr>
-                <tr><td style="font-weight:600;">Region IV-A</td><td>2,500</td><td>1,892</td><td>75.7%</td><td><span class="badge badge-green">On Track</span></td></tr>
-                <tr><td style="font-weight:600;">Region III</td><td>2,200</td><td>1,654</td><td>75.2%</td><td><span class="badge badge-green">On Track</span></td></tr>
-                <tr><td style="font-weight:600;">Region VII</td><td>1,800</td><td>1,203</td><td>66.8%</td><td><span class="badge badge-yellow">At Risk</span></td></tr>
-                <tr><td style="font-weight:600;">Region V</td><td>1,600</td><td>987</td><td>61.7%</td><td><span class="badge badge-yellow">At Risk</span></td></tr>
-                <tr><td style="font-weight:600;">Region XII</td><td>1,400</td><td>602</td><td>43.0%</td><td><span class="badge badge-red">Behind</span></td></tr>
+              <thead><tr><th>Region</th><th>Total Profiled</th><th>Target</th><th>Completion %</th></tr></thead>
+              <tbody id="co-region-tbody">
+                <tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
+        <!-- Disability Distribution -->
         <div class="card">
           <div class="card-header">
             <div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown</div></div>
           </div>
-          <div class="donut-wrap" style="margin-bottom:0.5rem;">
-            <svg id="donut-disability" class="donut-chart" viewBox="0 0 120 120"></svg>
-            <div class="donut-legend">
-              <div class="donut-legend-item"><div class="donut-dot" style="background:#1152d4"></div><span class="donut-legend-label">Physical</span><span class="donut-legend-val">32%</span></div>
-              <div class="donut-legend-item"><div class="donut-dot" style="background:#10b981"></div><span class="donut-legend-label">Intellectual</span><span class="donut-legend-val">28%</span></div>
-              <div class="donut-legend-item"><div class="donut-dot" style="background:#f59e0b"></div><span class="donut-legend-label">Visual</span><span class="donut-legend-val">18%</span></div>
-              <div class="donut-legend-item"><div class="donut-dot" style="background:#8b5cf6"></div><span class="donut-legend-label">Hearing</span><span class="donut-legend-val">14%</span></div>
-              <div class="donut-legend-item"><div class="donut-dot" style="background:#ef4444"></div><span class="donut-legend-label">Multiple</span><span class="donut-legend-val">8%</span></div>
-            </div>
-          </div>
-          <div style="padding-top:0.75rem;border-top:1px solid #f3f4f6;">
-            <div class="card-title" style="margin-bottom:0.75rem;">Age Group Breakdown</div>
-            <div style="display:flex;flex-direction:column;gap:0.5rem;">
-              <div><div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:0.25rem;"><span style="color:#6b7280;">0–5 years</span><span style="font-weight:700;">18%</span></div><div class="progress-bar"><div class="progress-fill" style="width:18%"></div></div></div>
-              <div><div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:0.25rem;"><span style="color:#6b7280;">6–11 years</span><span style="font-weight:700;">41%</span></div><div class="progress-bar"><div class="progress-fill" style="width:41%"></div></div></div>
-              <div><div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:0.25rem;"><span style="color:#6b7280;">12–17 years</span><span style="font-weight:700;">41%</span></div><div class="progress-bar"><div class="progress-fill green" style="width:41%"></div></div></div>
-            </div>
+          <div id="co-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;">
+            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>
           </div>
         </div>
+
       </div>
 
+      <!-- Recent Sessions -->
       <div class="card">
         <div class="card-header">
-          <div><div class="card-title">STU Unit Summary</div><div class="card-subtitle">Performance by Social Technology Unit</div></div>
-          <button class="btn btn-primary btn-sm"><span class="material-symbols-outlined">summarize</span>Full Report</button>
+          <div><div class="card-title">Recent Interviewer Sessions</div><div class="card-subtitle">Latest login activity across all regions</div></div>
         </div>
-        <div class="table-wrap">
-          <table class="dash-table">
-            <thead><tr><th>STU Unit</th><th>Region</th><th>Head</th><th>Interviewers</th><th>Beneficiaries</th><th>Completion</th><th>Last Active</th></tr></thead>
-            <tbody>
-              <tr><td style="font-weight:600;">STU-NCR-01</td><td>NCR</td><td>Ma. Cruz, R.</td><td>18</td><td>2,341</td><td><span class="badge badge-green">83.6%</span></td><td>Today</td></tr>
-              <tr><td style="font-weight:600;">STU-IVA-01</td><td>Region IV-A</td><td>Santos, J.</td><td>14</td><td>1,892</td><td><span class="badge badge-green">75.7%</span></td><td>Today</td></tr>
-              <tr><td style="font-weight:600;">STU-III-01</td><td>Region III</td><td>Reyes, M.</td><td>13</td><td>1,654</td><td><span class="badge badge-green">75.2%</span></td><td>Yesterday</td></tr>
-              <tr><td style="font-weight:600;">STU-VII-01</td><td>Region VII</td><td>Lim, C.</td><td>11</td><td>1,203</td><td><span class="badge badge-yellow">66.8%</span></td><td>Today</td></tr>
-              <tr><td style="font-weight:600;">STU-V-01</td><td>Region V</td><td>Alcantara, J.</td><td>10</td><td>987</td><td><span class="badge badge-yellow">61.7%</span></td><td>Today</td></tr>
-            </tbody>
-          </table>
+        <div class="activity-list" id="co-activity-list">
+          <div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Loading...</div>
         </div>
       </div>
 
@@ -166,10 +151,113 @@
 <script src="/js/dashboard-common.js"></script>
 <script>
   dashRequireAuth();
+
+  const CO_TARGETS = {
+    'Region I (Ilocos Region)': 150,
+    'Region II (Cagayan Valley)': 100,
+    'Region III (Central Luzon)': 100,
+    'Region IV-A (CALABARZON)': 100,
+    'Region IV-A (MIMAROPA)': 150,
+    'Region V (Bicol)': 100,
+    'Region VI (Western Visayas)': 150,
+    'Region XI (Davao)': 150,
+    'NCR (National Capital Region)': 140,
+  };
+
   document.addEventListener('DOMContentLoaded', function() {
     dashPopulateUser();
-    drawDonut('donut-disability', [32, 28, 18, 14, 8], ['#1152d4','#10b981','#f59e0b','#8b5cf6','#ef4444']);
+    loadCentralData();
   });
+
+  async function loadCentralData() {
+    try {
+      const [statsRes, regionsRes, disRes, sessionsRes] = await Promise.all([
+        fetch('/api/get-dashboard-stats.php').then(r=>r.json()),
+        fetch('/api/get-regions-stats.php').then(r=>r.json()),
+        fetch('/api/get-regions-stats.php').then(r=>r.json()),
+        fetch('/api/get-recent-sessions.php?limit=8').then(r=>r.json()),
+      ]);
+
+      // Stats cards
+      if (statsRes.success) {
+        const d = statsRes.data;
+        document.getElementById('co-total').textContent = (d.total_beneficiaries||0).toLocaleString();
+        document.getElementById('co-total-sub').textContent = 'All regions combined';
+        document.getElementById('co-completed').textContent = Math.round((d.completion_rate||0)*d.total_beneficiaries/100).toLocaleString();
+        document.getElementById('co-completed-sub').textContent = (d.completion_rate||0) + '% completion rate';
+        document.getElementById('co-interviewers').textContent = (d.active_interviewers||0).toLocaleString();
+        document.getElementById('co-int-sub').textContent = 'Currently active';
+      }
+
+      // Regional table
+      if (regionsRes.success && regionsRes.regions) {
+        const regions = regionsRes.regions.filter(r => r.total > 0);
+        document.getElementById('co-regions').textContent = regions.length;
+        const tbody = document.getElementById('co-region-tbody');
+        if (regions.length) {
+          tbody.innerHTML = regions.map(r => {
+            const target = CO_TARGETS[r.region] || null;
+            const pct = target ? Math.min(Math.round((r.total/target)*100),100) : r.rate;
+            const pctColor = pct >= 100 ? '#16a34a' : pct >= 70 ? '#1152d4' : pct >= 45 ? '#f59e0b' : '#ef4444';
+            const badge = pct >= 100
+              ? '<span class="badge badge-green">Complete</span>'
+              : pct >= 70 ? '<span class="badge badge-blue">On Track</span>'
+              : pct >= 45 ? '<span class="badge badge-orange">Behind</span>'
+              : '<span class="badge badge-red">At Risk</span>';
+            return `<tr class="table-row-hover">
+              <td style="font-weight:600;">${r.region}</td>
+              <td style="font-weight:700;">${r.total.toLocaleString()}</td>
+              <td style="color:var(--gray-500);">${target ? target.toLocaleString() : '—'}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                  <div style="width:60px;height:6px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:${pctColor};border-radius:999px;"></div>
+                  </div>
+                  <span style="font-weight:700;font-size:0.8rem;color:${pctColor};">${pct}%</span>
+                </div>
+              </td>
+            </tr>`;
+          }).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data available.</td></tr>';
+        }
+      }
+
+      // Disability bars
+      if (disRes.success && disRes.disabilities && disRes.disabilities.length) {
+        const dis = disRes.disabilities;
+        const maxD = Math.max(...dis.map(d=>d.count), 1);
+        const colors = ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6','#06b6d4','#84cc16'];
+        document.getElementById('co-dis-bars').innerHTML = dis.map((d,i) => `
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div style="font-size:0.75rem;font-weight:600;width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div>
+            <div style="flex:1;height:10px;background:var(--gray-100);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${Math.round((d.count/maxD)*100)}%;background:${colors[i%colors.length]};border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.75rem;font-weight:800;width:40px;text-align:right;">${d.count}</div>
+          </div>`).join('');
+      } else {
+        document.getElementById('co-dis-bars').innerHTML = '<div style="color:var(--gray-400);font-size:0.75rem;padding:1rem;text-align:center;">No disability data.</div>';
+      }
+
+      // Recent sessions
+      if (sessionsRes.success && sessionsRes.data && sessionsRes.data.length) {
+        document.getElementById('co-activity-list').innerHTML = sessionsRes.data.map(s => `
+          <div class="activity-item">
+            <div class="activity-dot" style="background:#1152d4;"></div>
+            <div class="activity-text">
+              <div class="activity-main">${s.name} logged in — ${s.region}</div>
+              <div class="activity-time">${s.time} · ${s.code}</div>
+            </div>
+          </div>`).join('');
+      } else {
+        document.getElementById('co-activity-list').innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No recent sessions.</div>';
+      }
+
+    } catch(e) {
+      console.error('Central dashboard load error:', e);
+    }
+  }
 </script>
 </body>
 </html>
