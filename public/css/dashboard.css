@@ -298,6 +298,9 @@ body {
 .dash-content {
   flex: 1;
   padding: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .page-title {

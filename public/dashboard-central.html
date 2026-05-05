@@ -63,10 +63,10 @@
     </div>
   </aside>
 
-  <div class="dash-main" style="min-width:0;width:100%;">
+  <div class="dash-main">
 
     <!-- Overview View -->
-    <div class="dash-content" id="co-view-overview" style="width:100%;box-sizing:border-box;">
+    <div class="dash-content" id="co-view-overview">
       <div class="page-title">National Overview</div>
       <div class="page-subtitle">Aggregated data across all regions — live from database</div>
 
@@ -144,12 +144,12 @@
     </div><!-- /co-view-overview -->
 
     <!-- Beneficiaries View -->
-    <div class="dash-content" id="co-view-beneficiaries" style="display:none;width:100%;box-sizing:border-box;">
+    <div class="dash-content" id="co-view-beneficiaries" style="display:none;">
       <div style="margin-bottom:1.5rem;">
         <div class="page-title" style="margin:0;">Beneficiaries</div>
         <div class="page-subtitle" style="margin:0;">All submitted assessments across all regions</div>
       </div>
-      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;width:100%;box-sizing:border-box;">
+      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
         <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
           <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;">
             <span class="material-symbols-outlined">search</span>
@@ -200,7 +200,7 @@
   function coShowView(view) {
     ['overview','beneficiaries'].forEach(v => {
       const el = document.getElementById('co-view-' + v);
-      if (el) el.style.display = v === view ? '' : 'none';
+      if (el) el.style.display = v === view ? 'block' : 'none';
     });
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     const nav = document.getElementById('co-nav-' + view);
