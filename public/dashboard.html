@@ -79,10 +79,6 @@
           Sign In
         </button>
 
-        <div id="error-msg" class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600 font-medium">
-          <span id="error-text"></span>
-        </div>
-
         <p class="text-center text-[11px] text-gray-400 mt-4">
           Looking for the profiling tool? <a href="https://project-aruga.vercel.app" class="text-brand-blue font-semibold hover:underline">Click here</a>
         </p>
@@ -102,8 +98,6 @@
     const emailInput  = document.getElementById('email');
     const pwInput     = document.getElementById('password');
     const btnSubmit   = document.getElementById('btn-submit');
-    const errorMsg    = document.getElementById('error-msg');
-    const errorText   = document.getElementById('error-text');
     const togglePw    = document.getElementById('toggle-pw');
     const pwEyeShow   = document.getElementById('pw-eye-show');
     const pwEyeHide   = document.getElementById('pw-eye-hide');
@@ -125,9 +119,6 @@
       pwEyeHide.classList.toggle('hidden', isText);
     });
 
-    function showError(msg) { errorMsg.classList.remove('hidden'); errorText.textContent = msg; }
-    function hideError()    { errorMsg.classList.add('hidden'); }
-
     const ROLE_REDIRECT = {
       admin:          '/dashboard-admin.html',
       central:        '/dashboard-central.html',
@@ -136,7 +127,6 @@
     };
 
     btnSubmit.addEventListener('click', async function() {
-      hideError();
       const email    = emailInput.value.trim().toLowerCase();
       const password = pwInput.value;
 
@@ -178,7 +168,7 @@
           console.log('Redirecting to:', redirect);
           setTimeout(() => { window.location.href = redirect; }, 1000);
         } else {
-          showError(result.message || 'Invalid email or password.');
+          toast.error(result.message || 'Invalid email or password.', 'Login Failed');
           btnSubmit.textContent = orig;
           btnSubmit.disabled = false;
           pwInput.value = '';
