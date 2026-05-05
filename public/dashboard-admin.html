@@ -838,7 +838,7 @@
             </table>
           </div>
         </div>
-        <div class="card" style="margin:0;">
+        <div class="card" style="margin:0;display:none;">
           <div class="card-header"><div class="card-title">Total Profiled by Region</div><div class="card-subtitle">Completed vs In Progress</div></div>
           <div id="rg-bar-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
         </div>
@@ -2481,7 +2481,7 @@
     document.getElementById('rg-stat-total-sub').textContent = 'All regions';
     document.getElementById('rg-stat-completed').textContent = (s.completed||0).toLocaleString();
     document.getElementById('rg-stat-completed-sub').textContent = s.total_profiled>0 ? Math.round((s.completed/s.total_profiled)*100)+'% of total' : '—';
-    document.getElementById('rg-stat-inprog').textContent    = (s.in_progress||0).toLocaleString();
+    document.getElementById('rg-stat-inprog').textContent    = s.in_progress > 0 ? s.in_progress.toLocaleString() : '—';
     document.getElementById('rg-stat-inprog-sub').textContent= 'Assessments in Progress';
     document.getElementById('rg-stat-regions').textContent   = s.regions_count||0;
   }
