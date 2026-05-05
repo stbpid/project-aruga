@@ -35,7 +35,7 @@
       <div class="nav-section-label">Main</div>
       <a href="#" class="nav-item active" id="co-nav-overview" title="Overview" onclick="coShowView('overview');return false;"><span class="material-symbols-outlined">dashboard</span><span class="nav-label">Overview</span></a>
       <a href="#" class="nav-item" id="co-nav-beneficiaries" title="Beneficiaries" onclick="coShowView('beneficiaries');return false;"><span class="material-symbols-outlined">group</span><span class="nav-label">Beneficiaries</span></a>
-      <a href="#" class="nav-item" title="Assessments"><span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span></a>
+      <a href="#" class="nav-item" id="co-nav-assessments" title="Assessments" onclick="coShowView('assessments');return false;"><span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span></a>
       <a href="#" class="nav-item" title="Reports"><span class="material-symbols-outlined">bar_chart</span><span class="nav-label">Reports</span></a>
 
       <div class="nav-section-label">Coordination</div>
@@ -187,6 +187,21 @@
       </div>
     </div><!-- /co-view-beneficiaries -->
 
+    <!-- Assessments View -->
+    <div class="dash-content" id="co-view-assessments" style="display:none;">
+      <div class="page-title">Assessments</div>
+      <div class="page-subtitle">Assessment records across all regions</div>
+      <div class="card" style="margin-top:1.5rem;">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:1rem;text-align:center;">
+          <div style="width:4rem;height:4rem;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;">
+            <span class="material-symbols-outlined" style="color:var(--blue);font-size:2rem;">construction</span>
+          </div>
+          <div style="font-size:1.125rem;font-weight:800;color:var(--dark);">Coming Soon</div>
+          <div style="font-size:0.875rem;color:var(--gray-400);line-height:1.7;max-width:360px;">The Assessments module is currently under development. It will provide a full view of all assessment records, statuses, and detailed reports. Check back in a future update.</div>
+        </div>
+      </div>
+    </div><!-- /co-view-assessments -->
+
   </div>
 </div>
 
@@ -197,7 +212,7 @@
 
   // ── View switcher ──────────────────────────────────────────────
   function coShowView(view) {
-    ['overview','beneficiaries'].forEach(v => {
+    ['overview','beneficiaries','assessments'].forEach(v => {
       const el = document.getElementById('co-view-' + v);
       if (el) el.style.display = v === view ? 'block' : 'none';
     });
