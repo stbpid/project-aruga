@@ -144,7 +144,7 @@
     </div><!-- /co-view-overview -->
 
     <!-- Beneficiaries View -->
-    <div class="dash-content" id="co-view-beneficiaries" style="display:none;width:100%;max-width:100%;">
+    <div class="dash-content" id="co-view-beneficiaries" style="display:none;">
       <div style="margin-bottom:1.5rem;">
         <div class="page-title" style="margin:0;">Beneficiaries</div>
         <div class="page-subtitle" style="margin:0;">All submitted assessments across all regions</div>
@@ -162,9 +162,9 @@
           <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="co-ben-count">—</span>
         </div>
       </div>
-      <div class="card" style="width:100%;box-sizing:border-box;overflow:hidden;">
-        <div class="table-wrap" style="width:100%;overflow-x:auto;">
-          <table class="dash-table" style="width:100%;min-width:700px;">
+      <div class="card">
+        <div class="table-wrap">
+          <table class="dash-table">
             <thead>
               <tr>
                 <th>Beneficiary</th>
@@ -173,10 +173,11 @@
                 <th>Region</th>
                 <th>Interviewer</th>
                 <th>Date</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody id="co-ben-tbody">
-              <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -232,6 +233,7 @@
       <td>${r.region}</td>
       <td>${r.interviewer}</td>
       <td>${r.date}</td>
+      <td><button class="btn btn-ghost btn-sm table-action-btn"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
     </tr>`;
   }
 
@@ -261,7 +263,7 @@
 
   async function coBenLoad() {
     if (coBenLoaded) return;
-    document.getElementById('co-ben-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    document.getElementById('co-ben-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
       const json = await (await fetch('/api/get-all-beneficiaries.php?limit=10000&offset=0')).json();
       coBenData = json.success ? json.data : [];
@@ -271,7 +273,7 @@
       regions.forEach(r => { const o = document.createElement('option'); o.value=r; o.textContent=r; sel.appendChild(o); });
       coBenFiltered = coBenData; coBenPage = 0; coBenRender();
     } catch(e) {
-      document.getElementById('co-ben-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+      document.getElementById('co-ben-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
     }
   }
 
@@ -294,7 +296,7 @@
     document.getElementById('co-ben-count').textContent = total.toLocaleString() + ' beneficiar' + (total !== 1 ? 'ies' : 'y');
     document.getElementById('co-ben-tbody').innerHTML = page.length
       ? page.map(r => coBenRow(r)).join('')
-      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
+      : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
     document.getElementById('co-ben-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} beneficiaries` : 'No results';
     coBuildPagination(coBenPage, totalPages, p => { coBenPage = p; coBenRender(); });
   }
