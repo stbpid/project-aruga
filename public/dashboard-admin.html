@@ -742,12 +742,13 @@
     <!-- Regions View -->
     <div class="dash-content" id="view-regions" style="display:none;">
 
+      <!-- Header -->
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
         <div>
           <div class="page-title" style="margin:0;">Regional Dashboard</div>
-          <div class="page-subtitle" style="margin:0;">Assessment records and interviewers per region</div>
+          <div class="page-subtitle" style="margin:0;">Total profiled children by region, province, and city — from live database</div>
         </div>
-        <div style="display:flex;gap:0.5rem;">
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
           <button class="btn btn-secondary btn-sm" onclick="exportRegionsCSV()"><span class="material-symbols-outlined">download</span>Export CSV</button>
           <button class="btn btn-primary btn-sm" onclick="refreshRegionsView()"><span class="material-symbols-outlined">refresh</span>Refresh</button>
         </div>
@@ -756,11 +757,11 @@
       <!-- Summary Cards -->
       <div class="stats-grid" style="margin-bottom:1rem;">
         <div class="stat-card">
-          <div class="stat-icon blue"><span class="material-symbols-outlined">assignment</span></div>
+          <div class="stat-icon blue"><span class="material-symbols-outlined">groups</span></div>
           <div class="stat-body">
             <div class="stat-value" id="rg-stat-total">—</div>
-            <div class="stat-label">Total Assessments</div>
-            <div class="stat-change up" id="rg-stat-total-sub">Across all regions</div>
+            <div class="stat-label">Total Profiled</div>
+            <div class="stat-change up" id="rg-stat-total-sub">All regions</div>
           </div>
         </div>
         <div class="stat-card">
@@ -768,15 +769,15 @@
           <div class="stat-body">
             <div class="stat-value" id="rg-stat-completed">—</div>
             <div class="stat-label">Completed</div>
-            <div class="stat-change up" id="rg-stat-completed-sub">Loading...</div>
+            <div class="stat-change up" id="rg-stat-completed-sub">—</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon purple"><span class="material-symbols-outlined">pending</span></div>
           <div class="stat-body">
-            <div class="stat-value" id="rg-stat-pending">—</div>
-            <div class="stat-label">Pending / In-progress</div>
-            <div class="stat-change" id="rg-stat-pending-sub">Loading...</div>
+            <div class="stat-value" id="rg-stat-inprog">—</div>
+            <div class="stat-label">In Progress</div>
+            <div class="stat-change" id="rg-stat-inprog-sub">—</div>
           </div>
         </div>
         <div class="stat-card">
@@ -784,51 +785,134 @@
           <div class="stat-body">
             <div class="stat-value" id="rg-stat-regions">—</div>
             <div class="stat-label">Regions with Data</div>
-            <div class="stat-change up" id="rg-stat-regions-sub">With at least 1 record</div>
+            <div class="stat-change up">Active regions</div>
           </div>
         </div>
       </div>
 
-      <!-- Search + Filter -->
+      <!-- Filters -->
       <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
         <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-          <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;">
+          <div class="search-bar" style="flex:1;min-width:180px;max-width:280px;">
             <span class="material-symbols-outlined">search</span>
-            <input type="text" id="rg-search" placeholder="Search region..." oninput="filterRegionsTable()">
+            <input type="text" id="rg-search" placeholder="Search region or province..." oninput="applyRgFilters()">
           </div>
+          <select id="rg-filter-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="applyRgFilters()">
+            <option value="">All Regions</option>
+          </select>
+          <select id="rg-filter-status" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="applyRgFilters()">
+            <option value="">All Status</option>
+            <option value="high">High Completion (≥70%)</option>
+            <option value="mid">Mid (45–69%)</option>
+            <option value="low">Low (&lt;45%)</option>
+          </select>
           <button class="btn btn-secondary btn-sm" onclick="resetRegionFilters()">Reset</button>
           <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="rg-table-count">—</span>
         </div>
       </div>
 
-      <!-- Region Table -->
-      <div class="card" style="margin-bottom:1rem;">
-        <div class="table-wrap">
-          <table class="dash-table">
-            <thead>
-              <tr>
-                <th style="cursor:pointer;" onclick="sortRegions('region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                <th style="cursor:pointer;" onclick="sortRegions('total')">Total <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                <th style="cursor:pointer;" onclick="sortRegions('completed')">Completed <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                <th style="cursor:pointer;" onclick="sortRegions('pending')">Pending <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                <th style="cursor:pointer;" onclick="sortRegions('rate')">Completion % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                <th style="cursor:pointer;" onclick="sortRegions('interviewers')">Interviewers <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-              </tr>
-            </thead>
-            <tbody id="rg-perf-tbody">
-              <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
-            </tbody>
-          </table>
+      <!-- Tabs -->
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;overflow-x:auto;">
+        <button class="settings-tab active" data-rgtab="overview" onclick="showRgTab('overview')"><span class="material-symbols-outlined">leaderboard</span>By Region</button>
+        <button class="settings-tab" data-rgtab="province" onclick="showRgTab('province')"><span class="material-symbols-outlined">location_city</span>By Province</button>
+        <button class="settings-tab" data-rgtab="city" onclick="showRgTab('city')"><span class="material-symbols-outlined">apartment</span>By City/Municipality</button>
+        <button class="settings-tab" data-rgtab="insights" onclick="showRgTab('insights')"><span class="material-symbols-outlined">insights</span>Key Insights</button>
+      </div>
+
+      <!-- Tab: By Region -->
+      <div class="settings-panel" id="rgtab-overview">
+        <div class="card" style="margin:0 0 1rem;">
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th style="cursor:pointer;" onclick="sortRg('regions','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('regions','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('regions','completed')">Completed <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('regions','in_progress')">In Progress <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('regions','rate')">Completion % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('regions','interviewers')">Interviewers <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('regions','province_count')">Provinces <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                </tr>
+              </thead>
+              <tbody id="rg-region-tbody"><tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Total Profiled by Region</div><div class="card-subtitle">Completed vs In Progress</div></div>
+          <div id="rg-bar-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
         </div>
       </div>
 
-      <!-- Region Bar Chart -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Assessments by Region</div>
-          <div class="card-subtitle">Total records per region</div>
+      <!-- Tab: By Province -->
+      <div class="settings-panel" id="rgtab-province" style="display:none;">
+        <div class="card" style="margin:0;">
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th style="cursor:pointer;" onclick="sortRg('provinces','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('provinces','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('provinces','total')">Total <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('provinces','completed')">Completed <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('provinces','in_progress')">In Progress <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('provinces','rate')">Completion % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('provinces','city_count')">Cities/Municipalities <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                </tr>
+              </thead>
+              <tbody id="rg-province-tbody"><tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
+            </table>
+          </div>
         </div>
-        <div id="rg-bar-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+      </div>
+
+      <!-- Tab: By City -->
+      <div class="settings-panel" id="rgtab-city" style="display:none;">
+        <div class="card" style="margin:0;">
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th style="cursor:pointer;" onclick="sortRg('cities','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('cities','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('cities','city')">City / Municipality <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('cities','total')">Total <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('cities','completed')">Completed <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('cities','rate')">Completion % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                </tr>
+              </thead>
+              <tbody id="rg-city-tbody"><tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Key Insights -->
+      <div class="settings-panel" id="rgtab-insights" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Top 5 Regions</div><div class="card-subtitle">By total profiled</div></div>
+            <div id="rg-top5" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Most Common Disabilities</div><div class="card-subtitle">Across all regions</div></div>
+            <div id="rg-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Monthly Profiling Trend</div><div class="card-subtitle">Records added per month</div></div>
+            <div class="bar-chart" id="rg-monthly-bars" style="min-height:160px;margin-top:0.75rem;"></div>
+          </div>
+
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Regions Needing Attention</div><div class="card-subtitle">Lowest completion rates</div></div>
+            <div id="rg-low-regions" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+          </div>
+
+        </div>
       </div>
 
     </div><!-- /view-regions -->
@@ -2361,118 +2445,266 @@
 
   // ── Regions View ──────────────────────────────────────────────
 
-  let RG_REGIONS = [];
-  let rgFiltered = [];
-  let rgSortKey = 'total', rgSortDir = -1;
+  let RG_DATA = { summary:{}, regions:[], provinces:[], cities:[], disabilities:[], monthly_trend:[] };
   let rgLoaded = false;
+  let rgSortState = { regions:{key:'total',dir:-1}, provinces:{key:'total',dir:-1}, cities:{key:'total',dir:-1} };
+  let rgCurrentTab = 'overview';
 
   async function loadRegionsView() {
     if (!rgLoaded) {
-      document.getElementById('rg-perf-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+      ['rg-region-tbody','rg-province-tbody','rg-city-tbody'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+      });
       try {
         const json = await (await fetch('/api/get-regions-stats.php')).json();
-        RG_REGIONS = (json.success && json.data.length) ? json.data : [];
-      } catch(e) { RG_REGIONS = []; }
+        if (json.success) {
+          RG_DATA.summary    = json.summary    || {};
+          RG_DATA.regions    = json.regions    || [];
+          RG_DATA.provinces  = json.provinces  || [];
+          RG_DATA.cities     = json.cities     || [];
+          RG_DATA.disabilities = json.disabilities || [];
+          RG_DATA.monthly_trend = json.monthly_trend || [];
+        }
+      } catch(e) {}
       rgLoaded = true;
+      populateRgRegionFilter();
     }
-    rgFiltered = [...RG_REGIONS];
-    sortRegions(rgSortKey, true);
     buildRgSummaryCards();
-    renderRegionsTable();
-    renderRgBarChart();
+    applyRgFilters();
+  }
+
+  function populateRgRegionFilter() {
+    const sel = document.getElementById('rg-filter-region');
+    if (!sel) return;
+    const regions = [...new Set(RG_DATA.regions.map(r=>r.region))].sort();
+    sel.innerHTML = '<option value="">All Regions</option>' + regions.map(r=>`<option value="${r}">${r}</option>`).join('');
   }
 
   function buildRgSummaryCards() {
-    const total_completed = RG_REGIONS.reduce((s,r)=>s+r.completed,0);
-    const total_pending   = RG_REGIONS.reduce((s,r)=>s+r.pending,0);
-    const grand_total     = RG_REGIONS.reduce((s,r)=>s+r.total,0);
-    document.getElementById('rg-stat-total').textContent     = grand_total.toLocaleString();
-    document.getElementById('rg-stat-completed').textContent = total_completed.toLocaleString();
-    document.getElementById('rg-stat-completed-sub').textContent = grand_total > 0 ? Math.round((total_completed/grand_total)*100)+'% of total' : '—';
-    document.getElementById('rg-stat-pending').textContent   = total_pending.toLocaleString();
-    document.getElementById('rg-stat-pending-sub').textContent = 'non-completed records';
-    document.getElementById('rg-stat-regions').textContent   = RG_REGIONS.length;
+    const s = RG_DATA.summary;
+    document.getElementById('rg-stat-total').textContent     = (s.total_profiled||0).toLocaleString();
+    document.getElementById('rg-stat-total-sub').textContent = (RG_DATA.regions.length||0)+' regions';
+    document.getElementById('rg-stat-completed').textContent = (s.completed||0).toLocaleString();
+    document.getElementById('rg-stat-completed-sub').textContent = s.total_profiled>0 ? Math.round((s.completed/s.total_profiled)*100)+'% of total' : '—';
+    document.getElementById('rg-stat-inprog').textContent    = (s.in_progress||0).toLocaleString();
+    document.getElementById('rg-stat-inprog-sub').textContent= 'assessments in progress';
+    document.getElementById('rg-stat-regions').textContent   = s.regions_count||0;
   }
 
-  function filterRegionsTable() {
-    const q = (document.getElementById('rg-search').value||'').toLowerCase();
-    rgFiltered = RG_REGIONS.filter(r => !q || r.region.toLowerCase().includes(q));
-    renderRegionsTable();
-    renderRgBarChart();
+  function applyRgFilters() {
+    const q      = (document.getElementById('rg-search').value||'').toLowerCase();
+    const region = document.getElementById('rg-filter-region').value;
+    const status = document.getElementById('rg-filter-status').value;
+
+    const rateMatch = (rate) => {
+      if (!status) return true;
+      if (status==='high') return rate >= 70;
+      if (status==='mid')  return rate >= 45 && rate < 70;
+      if (status==='low')  return rate < 45;
+      return true;
+    };
+
+    const filteredRegions = RG_DATA.regions.filter(r =>
+      (!q || r.region.toLowerCase().includes(q)) &&
+      (!region || r.region === region) &&
+      rateMatch(r.rate)
+    );
+    const filteredProvinces = RG_DATA.provinces.filter(r =>
+      (!q || r.region.toLowerCase().includes(q) || r.province.toLowerCase().includes(q)) &&
+      (!region || r.region === region) &&
+      rateMatch(r.rate)
+    );
+    const filteredCities = RG_DATA.cities.filter(r =>
+      (!q || r.region.toLowerCase().includes(q) || r.province.toLowerCase().includes(q) || r.city.toLowerCase().includes(q)) &&
+      (!region || r.region === region) &&
+      rateMatch(r.rate)
+    );
+
+    document.getElementById('rg-table-count').textContent = filteredRegions.length+' region'+(filteredRegions.length!==1?'s':'');
+    renderRgRegionTable(filteredRegions);
+    renderRgProvinceTable(filteredProvinces);
+    renderRgCityTable(filteredCities);
+    renderRgBarChart(filteredRegions);
+    renderRgInsights();
   }
 
   function resetRegionFilters() {
     document.getElementById('rg-search').value = '';
-    rgFiltered = [...RG_REGIONS];
-    renderRegionsTable();
-    renderRgBarChart();
+    document.getElementById('rg-filter-region').value = '';
+    document.getElementById('rg-filter-status').value = '';
+    applyRgFilters();
   }
 
-  function sortRegions(key, silent) {
-    if (!silent) {
-      if (rgSortKey === key) rgSortDir *= -1; else { rgSortKey=key; rgSortDir=-1; }
-    }
-    rgFiltered.sort((a,b)=>{
-      const av = a[key]??'', bv = b[key]??'';
-      return typeof av==='string' ? av.localeCompare(bv)*-rgSortDir : (av-bv)*rgSortDir;
+  function sortRg(dataset, key) {
+    const state = rgSortState[dataset];
+    if (state.key === key) state.dir *= -1; else { state.key=key; state.dir=-1; }
+    applyRgFilters();
+  }
+
+  function sortedData(arr, dataset) {
+    const { key, dir } = rgSortState[dataset];
+    return [...arr].sort((a,b)=>{
+      const av=a[key]??'', bv=b[key]??'';
+      return typeof av==='string' ? av.localeCompare(bv)*dir : (av-bv)*dir;
     });
-    if (!silent) { renderRegionsTable(); renderRgBarChart(); }
   }
 
-  function renderRegionsTable() {
-    const tbody = document.getElementById('rg-perf-tbody');
-    document.getElementById('rg-table-count').textContent = rgFiltered.length+' region'+(rgFiltered.length!==1?'s':'');
-    if (!rgFiltered.length) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data available.</td></tr>';
-      return;
-    }
-    tbody.innerHTML = rgFiltered.map(r => {
-      const rateColor = r.rate >= 70 ? '#16a34a' : r.rate >= 45 ? '#f59e0b' : '#ef4444';
-      return `<tr class="table-row-hover">
-        <td><div style="font-weight:700;color:var(--dark);">${r.region}</div></td>
-        <td style="font-weight:700;">${r.total.toLocaleString()}</td>
-        <td style="font-weight:700;color:#16a34a;">${r.completed.toLocaleString()}</td>
-        <td style="color:#d97706;">${r.pending.toLocaleString()}</td>
-        <td>
-          <div style="display:flex;align-items:center;gap:0.5rem;">
-            <div style="flex:1;height:6px;background:var(--gray-200);border-radius:999px;overflow:hidden;min-width:60px;">
-              <div style="height:100%;width:${r.rate}%;background:${rateColor};border-radius:999px;"></div>
-            </div>
-            <span style="font-weight:700;font-size:0.8125rem;color:${rateColor};min-width:36px;">${r.rate}%</span>
-          </div>
-        </td>
-        <td>${r.interviewers}</td>
-      </tr>`;
-    }).join('');
+  function rateBar(rate) {
+    const c = rate>=70?'#16a34a':rate>=45?'#f59e0b':'#ef4444';
+    return `<div style="display:flex;align-items:center;gap:0.5rem;">
+      <div style="flex:1;height:6px;background:var(--gray-200);border-radius:999px;overflow:hidden;min-width:60px;">
+        <div style="height:100%;width:${rate}%;background:${c};border-radius:999px;"></div>
+      </div>
+      <span style="font-weight:700;font-size:0.8125rem;color:${c};min-width:36px;">${rate}%</span>
+    </div>`;
   }
 
-  function renderRgBarChart() {
+  function renderRgRegionTable(data) {
+    const tbody = document.getElementById('rg-region-tbody');
+    const sorted = sortedData(data,'regions');
+    tbody.innerHTML = sorted.length
+      ? sorted.map(r=>`<tr class="table-row-hover">
+          <td><div style="font-weight:700;color:var(--dark);">${r.region}</div></td>
+          <td style="font-weight:700;">${r.total.toLocaleString()}</td>
+          <td style="font-weight:700;color:#16a34a;">${r.completed.toLocaleString()}</td>
+          <td style="color:#d97706;">${r.in_progress.toLocaleString()}</td>
+          <td>${rateBar(r.rate)}</td>
+          <td>${r.interviewers}</td>
+          <td>${r.province_count}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data.</td></tr>';
+  }
+
+  function renderRgProvinceTable(data) {
+    const tbody = document.getElementById('rg-province-tbody');
+    const sorted = sortedData(data,'provinces');
+    tbody.innerHTML = sorted.length
+      ? sorted.map(r=>`<tr class="table-row-hover">
+          <td style="font-size:0.75rem;color:var(--gray-500);">${r.region}</td>
+          <td style="font-weight:700;color:var(--dark);">${r.province||'—'}</td>
+          <td style="font-weight:700;">${r.total.toLocaleString()}</td>
+          <td style="color:#16a34a;font-weight:600;">${r.completed.toLocaleString()}</td>
+          <td style="color:#d97706;">${r.in_progress.toLocaleString()}</td>
+          <td>${rateBar(r.rate)}</td>
+          <td>${r.city_count}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data.</td></tr>';
+  }
+
+  function renderRgCityTable(data) {
+    const tbody = document.getElementById('rg-city-tbody');
+    const sorted = sortedData(data,'cities');
+    tbody.innerHTML = sorted.length
+      ? sorted.map(r=>`<tr class="table-row-hover">
+          <td style="font-size:0.75rem;color:var(--gray-500);">${r.region}</td>
+          <td style="font-size:0.75rem;color:var(--gray-500);">${r.province||'—'}</td>
+          <td style="font-weight:700;color:var(--dark);">${r.city||'—'}</td>
+          <td style="font-weight:700;">${r.total.toLocaleString()}</td>
+          <td style="color:#16a34a;font-weight:600;">${r.completed.toLocaleString()}</td>
+          <td>${rateBar(r.rate)}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data.</td></tr>';
+  }
+
+  function renderRgBarChart(data) {
     const container = document.getElementById('rg-bar-chart');
-    if (!container) return;
-    const maxV = Math.max(...rgFiltered.map(r=>r.total), 1);
-    container.innerHTML = rgFiltered.map(r => `
+    if (!container || !data.length) return;
+    const maxV = Math.max(...data.map(r=>r.total), 1);
+    container.innerHTML = data.map(r=>`
       <div style="display:flex;align-items:center;gap:0.75rem;">
-        <div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div>
-        <div style="flex:1;display:flex;height:14px;background:var(--gray-100);border-radius:999px;overflow:hidden;">
+        <div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${r.region}">${r.region}</div>
+        <div style="flex:1;display:flex;height:14px;background:var(--gray-100);border-radius:3px;overflow:hidden;">
           <div style="width:${Math.round((r.completed/maxV)*100)}%;background:#1152d4;height:100%;" title="Completed: ${r.completed}"></div>
-          <div style="width:${Math.round((r.pending/maxV)*100)}%;background:#fde68a;height:100%;" title="Pending: ${r.pending}"></div>
+          <div style="width:${Math.round((r.in_progress/maxV)*100)}%;background:#fde68a;height:100%;" title="In Progress: ${r.in_progress}"></div>
         </div>
         <div style="font-size:0.75rem;font-weight:800;color:var(--dark);width:44px;text-align:right;">${r.total.toLocaleString()}</div>
       </div>`).join('') +
     `<div style="display:flex;gap:1.25rem;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--gray-100);">
        <div style="display:flex;align-items:center;gap:0.375rem;font-size:0.7rem;color:var(--gray-600);"><div style="width:12px;height:12px;border-radius:2px;background:#1152d4;"></div>Completed</div>
-       <div style="display:flex;align-items:center;gap:0.375rem;font-size:0.7rem;color:var(--gray-600);"><div style="width:12px;height:12px;border-radius:2px;background:#fde68a;"></div>Pending</div>
+       <div style="display:flex;align-items:center;gap:0.375rem;font-size:0.7rem;color:var(--gray-600);"><div style="width:12px;height:12px;border-radius:2px;background:#fde68a;"></div>In Progress</div>
      </div>`;
   }
 
+  function renderRgInsights() {
+    const medals = ['🥇','🥈','🥉','4.','5.'];
+    const top5 = [...RG_DATA.regions].sort((a,b)=>b.total-a.total).slice(0,5);
+    document.getElementById('rg-top5').innerHTML = top5.length
+      ? top5.map((r,i)=>`
+          <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
+            <span style="font-size:1rem;min-width:1.5rem;">${medals[i]}</span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;font-size:0.8125rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div>
+              <div style="font-size:0.7rem;color:var(--gray-400);">${r.completed.toLocaleString()} completed of ${r.total.toLocaleString()}</div>
+            </div>
+            <span style="font-weight:800;color:#1152d4;">${r.total.toLocaleString()}</span>
+          </div>`).join('')
+      : '<div style="color:var(--gray-400);font-size:0.75rem;padding:1rem;">No data.</div>';
+
+    const dis = RG_DATA.disabilities;
+    const maxD = dis.length ? Math.max(...dis.map(d=>d.count),1) : 1;
+    document.getElementById('rg-dis-bars').innerHTML = dis.length
+      ? dis.map(d=>`
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div style="font-size:0.75rem;font-weight:600;width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div>
+            <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${Math.round((d.count/maxD)*100)}%;background:#7c3aed;border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.75rem;font-weight:800;width:40px;text-align:right;">${d.count}</div>
+          </div>`).join('')
+      : '<div style="color:var(--gray-400);font-size:0.75rem;padding:1rem;">No disability data.</div>';
+
+    const trend = RG_DATA.monthly_trend;
+    const container = document.getElementById('rg-monthly-bars');
+    if (container && trend.length) {
+      container.innerHTML = '';
+      const maxT = Math.max(...trend.map(t=>t.count),1);
+      const usableH = (container.clientHeight||160)-32;
+      let tip = document.getElementById('chart-tooltip');
+      if(!tip){tip=document.createElement('div');tip.id='chart-tooltip';tip.style.cssText='position:fixed;background:#1f2937;color:white;font-size:0.7rem;font-weight:600;padding:0.3rem 0.625rem;border-radius:0.375rem;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9000;white-space:nowrap;';document.body.appendChild(tip);}
+      trend.forEach(t=>{
+        const h=Math.max(Math.round((t.count/maxT)*usableH),4);
+        const col=document.createElement('div'); col.className='bar-col';
+        const vd=document.createElement('div'); vd.style.cssText='font-size:0.55rem;font-weight:700;color:#9ca3af;margin-bottom:3px;text-align:center;min-height:0.75rem;'; vd.textContent=t.count;
+        const bar=document.createElement('div'); bar.className='bar-fill'; bar.style.cssText=`height:${h}px;background:#93c5fd;border-radius:4px 4px 0 0;cursor:pointer;transition:background 0.15s;`;
+        bar.addEventListener('mouseenter',e=>{bar.style.background='#1152d4';tip.textContent=t.month+': '+t.count+' profiled';tip.style.opacity='1';});
+        bar.addEventListener('mousemove',e=>{tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-28)+'px';});
+        bar.addEventListener('mouseleave',()=>{bar.style.background='#93c5fd';tip.style.opacity='0';});
+        const lbl=document.createElement('span'); lbl.className='bar-label'; lbl.textContent=t.month.slice(5);
+        col.appendChild(vd); col.appendChild(bar); col.appendChild(lbl); container.appendChild(col);
+      });
+    }
+
+    const low = [...RG_DATA.regions].sort((a,b)=>a.rate-b.rate).slice(0,5);
+    document.getElementById('rg-low-regions').innerHTML = low.length
+      ? low.map(r=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0.75rem;background:#fff8f8;border-radius:0.5rem;border:1px solid #fecaca;">
+            <div>
+              <div style="font-weight:700;font-size:0.8125rem;">${r.region}</div>
+              <div style="font-size:0.7rem;color:var(--gray-400);">${r.in_progress} in progress · ${r.total} total</div>
+            </div>
+            <span style="font-weight:800;color:#ef4444;">${r.rate}%</span>
+          </div>`).join('')
+      : '<div style="color:var(--gray-400);font-size:0.75rem;padding:1rem;">No data.</div>';
+  }
+
+  function showRgTab(tab) {
+    rgCurrentTab = tab;
+    document.querySelectorAll('[data-rgtab]').forEach(t=>t.classList.toggle('active',t.dataset.rgtab===tab));
+    document.querySelectorAll('[id^="rgtab-"]').forEach(p=>p.style.display='none');
+    const panel = document.getElementById('rgtab-'+tab);
+    if (panel) panel.style.display='';
+    if (tab==='insights') renderRgInsights();
+  }
+
   function exportRegionsCSV() {
-    const headers = ['Region','Total','Completed','Pending','Completion %','Interviewers'];
-    const rows = RG_REGIONS.map(r=>[r.region,r.total,r.completed,r.pending,r.rate+'%',r.interviewers]);
-    const csv = [headers,...rows].map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const headers = ['Region','Total Profiled','Completed','In Progress','Completion %','Interviewers','Provinces'];
+    const rows = RG_DATA.regions.map(r=>[r.region,r.total,r.completed,r.in_progress,r.rate+'%',r.interviewers,r.province_count]);
+    const csv = [headers,...rows].map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');
     const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=`regions-${new Date().toISOString().slice(0,10)}.csv`; a.click();
   }
 
-  function refreshRegionsView() { rgLoaded = false; loadRegionsView(); }
+  function refreshRegionsView() { rgLoaded=false; loadRegionsView(); }
 
   // ── System Settings ────────────────────────────────────────────
 
