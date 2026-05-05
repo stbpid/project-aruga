@@ -1,6 +1,6 @@
 // ── Dashboard Auth ──────────────────────────────────────────────
 
-const DASH_SESSION_KEYS = ['session_id', 'interviewer_code', 'privacyAccepted'];
+const DASH_SESSION_KEYS = ['session_id', 'interviewer_id'];
 
 function dashCheckAuth() {
   const missing = DASH_SESSION_KEYS.some(k => !sessionStorage.getItem(k));
