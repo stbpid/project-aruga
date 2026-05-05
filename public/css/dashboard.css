@@ -1109,6 +1109,26 @@ table.dash-table {
 }
 .btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
 
+/* ── Region Bar Chart Hover ──────────────── */
+#rg-bar-chart > div,
+#rg-dis-bars > div,
+#rg-top5 > div,
+#rg-low-regions > div {
+  transition: background 0.15s, box-shadow 0.15s, transform 0.12s;
+  border-radius: 0.5rem;
+  padding: 0.375rem 0.5rem;
+}
+#rg-bar-chart > div:hover,
+#rg-dis-bars > div:hover {
+  background: var(--blue-light);
+  transform: translateX(3px);
+}
+#rg-top5 > div:hover,
+#rg-low-regions > div:hover {
+  box-shadow: 0 2px 12px rgba(17,82,212,0.10);
+  transform: translateY(-1px);
+}
+
 /* ── System Settings ─────────────────────── */
 .settings-tab {
   display: inline-flex;
