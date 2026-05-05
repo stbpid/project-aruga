@@ -49,33 +49,43 @@
   </script>
 
   <main class="flex-grow flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-5xl flex flex-col overflow-hidden border border-[#e0e4e0]">
-
-      <aside class="relative w-full h-48 sm:h-64 bg-gray-900">
-        <img src="/images/hero.webp" alt="Project Aruga Hero" class="absolute inset-0 w-full h-full object-cover opacity-60">
-      </aside>
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-[#e0e4e0]">
 
       <section class="w-full p-6 sm:p-8 flex flex-col justify-center">
 
-      <h1 class="font-bold text-xl mb-6 text-brand-dark">Dashboard Login</h1>
+        <div class="mb-4">
+          <img src="/images/form-logo.webp" alt="DSWD Logo" class="h-10 sm:h-12 w-auto object-contain">
+        </div>
 
-      <label for="code" class="block font-bold text-sm mb-1 text-brand-dark">Interviewer Code</label>
-      <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-2 h-10 mb-4 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
-        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-        <input id="code" name="code" type="text" maxlength="8" class="w-full text-sm outline-none text-gray-800 placeholder-gray-400" placeholder="Enter 8-digit code">
-      </div>
+        <h1 class="font-bold text-xl mb-6 text-brand-dark">Dashboard Login</h1>
 
-      <button id="btn-submit" class="w-full h-10 bg-brand-blue text-white rounded-lg font-bold hover:bg-brand-blueHover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md" disabled>
-        Submit and Proceed
-      </button>
+        <label for="email" class="block font-bold text-sm mb-1 text-brand-dark">Email Address</label>
+        <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-2 h-10 mb-4 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
+          <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <input id="email" name="email" type="email" class="w-full text-sm outline-none text-gray-800 placeholder-gray-400" placeholder="Enter your email address" autocomplete="email">
+        </div>
 
-      <div id="error-msg" class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600 font-medium">
-        <span id="error-text"></span>
-      </div>
+        <label for="password" class="block font-bold text-sm mb-1 text-brand-dark">Password</label>
+        <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-2 h-10 mb-5 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
+          <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <input id="password" name="password" type="password" class="w-full text-sm outline-none text-gray-800 placeholder-gray-400" placeholder="Enter your password" autocomplete="current-password">
+          <button type="button" id="toggle-pw" class="text-gray-400 hover:text-gray-600 flex-shrink-0 focus:outline-none" tabindex="-1">
+            <svg id="pw-eye-show" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <svg id="pw-eye-hide" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+          </button>
+        </div>
 
-      <p class="text-center text-[11px] text-gray-400 mt-4">
-        Looking for the profiling tool? <a href="https://project-aruga.vercel.app" class="text-brand-blue font-semibold hover:underline">Click here</a>
-      </p>
+        <button id="btn-submit" class="w-full h-10 bg-brand-blue text-white rounded-lg font-bold hover:bg-brand-blueHover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md" disabled>
+          Sign In
+        </button>
+
+        <div id="error-msg" class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-600 font-medium">
+          <span id="error-text"></span>
+        </div>
+
+        <p class="text-center text-[11px] text-gray-400 mt-4">
+          Looking for the profiling tool? <a href="https://project-aruga.vercel.app" class="text-brand-blue font-semibold hover:underline">Click here</a>
+        </p>
 
       </section>
     </div>
@@ -89,76 +99,101 @@
 
   <script src="/js/toast.js"></script>
   <script>
-    const codeInput = document.getElementById('code');
-    const btnSubmit = document.getElementById('btn-submit');
-    const errorMsg = document.getElementById('error-msg');
-    const errorText = document.getElementById('error-text');
+    const emailInput  = document.getElementById('email');
+    const pwInput     = document.getElementById('password');
+    const btnSubmit   = document.getElementById('btn-submit');
+    const errorMsg    = document.getElementById('error-msg');
+    const errorText   = document.getElementById('error-text');
+    const togglePw    = document.getElementById('toggle-pw');
+    const pwEyeShow   = document.getElementById('pw-eye-show');
+    const pwEyeHide   = document.getElementById('pw-eye-hide');
 
-    codeInput.addEventListener('input', function() {
-      this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 8);
-      btnSubmit.disabled = this.value.length !== 8;
+    function validate() {
+      const email = emailInput.value.trim();
+      const pw    = pwInput.value;
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      btnSubmit.disabled = !(emailOk && pw.length >= 1);
+    }
+
+    emailInput.addEventListener('input', validate);
+    pwInput.addEventListener('input', validate);
+
+    togglePw.addEventListener('click', () => {
+      const isText = pwInput.type === 'text';
+      pwInput.type = isText ? 'password' : 'text';
+      pwEyeShow.classList.toggle('hidden', !isText);
+      pwEyeHide.classList.toggle('hidden', isText);
     });
 
-    function showError(msg) {
-      errorMsg.classList.remove('hidden');
-      errorText.textContent = msg;
-    }
+    function showError(msg) { errorMsg.classList.remove('hidden'); errorText.textContent = msg; }
+    function hideError()    { errorMsg.classList.add('hidden'); }
 
-    function hideError() {
-      errorMsg.classList.add('hidden');
-    }
+    const ROLE_REDIRECT = {
+      admin:          '/dashboard-admin.html',
+      central:        '/dashboard-central.html',
+      stu_head:       '/dashboard-stu-head.html',
+      field_officer:  '/dashboard-field-officer.html',
+    };
 
     btnSubmit.addEventListener('click', async function() {
       hideError();
-      const code = codeInput.value.trim().toUpperCase();
-      if (code.length !== 8) { showError('Please enter a valid 8-character code.'); return; }
+      const email    = emailInput.value.trim().toLowerCase();
+      const password = pwInput.value;
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('Please enter a valid email address.'); return; }
+      if (!password) { showError('Please enter your password.'); return; }
 
       const orig = btnSubmit.textContent;
-      btnSubmit.textContent = 'Validating...';
+      btnSubmit.textContent = 'Signing in...';
       btnSubmit.disabled = true;
 
       try {
-        const res = await fetch('/api/validate-interviewer.php', {
+        const res = await fetch('/api/dashboard-login.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ interviewer_code: code })
+          body: JSON.stringify({ email, password })
         });
         const result = await res.json();
 
         if (result.success && result.data) {
           const d = result.data;
-          sessionStorage.setItem('session_id', d.session_id);
-          sessionStorage.setItem('interviewer_id', d.interviewer_id);
-          sessionStorage.setItem('interviewer_code', d.interviewer_code);
-          sessionStorage.setItem('interviewer_name', d.full_name);
-          sessionStorage.setItem('interviewer_region', d.region);
-          sessionStorage.setItem('interviewer_province', d.province || '');
-          sessionStorage.setItem('interviewer_office', d.office || '');
-          sessionStorage.setItem('interviewer_position', d.position || '');
-          sessionStorage.setItem('session_started_at', d.started_at);
-          sessionStorage.setItem('privacyAccepted', 'true');
-          sessionStorage.setItem('loginTime', new Date().toISOString());
-          sessionStorage.setItem('dashboard_role', d.position || 'field_officer');
+          sessionStorage.setItem('session_id',           d.session_id       || '');
+          sessionStorage.setItem('interviewer_id',       d.id               || '');
+          sessionStorage.setItem('interviewer_code',     d.interviewer_code || '');
+          sessionStorage.setItem('interviewer_name',     d.full_name        || '');
+          sessionStorage.setItem('interviewer_email',    d.email            || '');
+          sessionStorage.setItem('interviewer_region',   d.region           || '');
+          sessionStorage.setItem('interviewer_province', d.province         || '');
+          sessionStorage.setItem('interviewer_office',   d.office           || '');
+          sessionStorage.setItem('session_started_at',   d.started_at       || '');
+          sessionStorage.setItem('dashboard_role',       d.role             || 'field_officer');
+          sessionStorage.setItem('loginTime',            new Date().toISOString());
 
           toast.success(`Welcome, ${d.full_name}!`, 'Login Successful');
           btnSubmit.textContent = '✓ Success! Redirecting...';
 
-          setTimeout(() => { window.location.href = '/dashboard-admin.html'; }, 1000);
+          const redirect = ROLE_REDIRECT[d.role] || '/dashboard-admin.html';
+          setTimeout(() => { window.location.href = redirect; }, 1000);
         } else {
-          toast.error(result.message || 'Invalid interviewer code. Please check and try again.', 'Authentication Failed');
+          showError(result.message || 'Invalid email or password.');
           btnSubmit.textContent = orig;
           btnSubmit.disabled = false;
-          codeInput.value = '';
-          codeInput.focus();
+          pwInput.value = '';
+          pwInput.focus();
+          validate();
         }
       } catch {
-        toast.error('Unable to connect to the server. Please check your internet connection and try again.', 'Connection Error');
+        toast.error('Unable to connect to the server. Check your internet connection.', 'Connection Error');
         btnSubmit.textContent = orig;
         btnSubmit.disabled = false;
       }
     });
 
-    window.addEventListener('load', () => codeInput.focus());
+    [emailInput, pwInput].forEach(el => {
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' && !btnSubmit.disabled) btnSubmit.click(); });
+    });
+
+    window.addEventListener('load', () => emailInput.focus());
   </script>
 </body>
 </html>
