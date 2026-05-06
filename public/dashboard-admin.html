@@ -239,13 +239,11 @@
                 <th>Age</th>
                 <th>Disability</th>
                 <th>Region</th>
-                <th>Interviewer</th>
-                <th>Date</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody id="beneficiaries-tbody">
-              <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -325,7 +323,7 @@
             4Ps Only
           </label>
           <button class="btn btn-secondary btn-sm" id="all-ben-reset" style="flex-shrink:0;">Reset</button>
-          <span style="font-size:0.72rem;color:var(--gray-500);margin-left:auto;white-space:nowrap;flex-shrink:0;" id="all-ben-count">—</span>
+          <span style="font-size:0.72rem;color:var(--gray-500);margin-left:auto;white-space:nowrap;flex-shrink:0;" id="all-ben-count"></span>
         </div>
       </div>
 
@@ -339,12 +337,11 @@
                 <th>Disability</th>
                 <th>Region</th>
                 <th>Readiness</th>
-                <th>4Ps</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody id="all-ben-tbody">
-              <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -407,7 +404,7 @@
               </tr>
             </thead>
             <tbody id="int-tbody">
-              <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -890,7 +887,7 @@
                   <th style="cursor:pointer;" onclick="sortRg('regions','province_count')">Provinces <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
                 </tr>
               </thead>
-              <tbody id="rg-region-tbody"><tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
+              <tbody id="rg-region-tbody"><tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -912,7 +909,7 @@
                   <th style="cursor:pointer;" onclick="sortRg('provinces','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
                 </tr>
               </thead>
-              <tbody id="rg-province-tbody"><tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
+              <tbody id="rg-province-tbody"><tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -931,7 +928,7 @@
                   <th style="cursor:pointer;" onclick="sortRg('cities','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
                 </tr>
               </thead>
-              <tbody id="rg-city-tbody"><tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
+              <tbody id="rg-city-tbody"><tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -1542,7 +1539,7 @@
               </tr>
             </thead>
             <tbody id="audit-tbody">
-              <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -1849,17 +1846,23 @@
       renderRecentBen(recentBenData);
       if (countEl) countEl.textContent = 'Showing ' + recentBenData.length + ' most recent beneficiaries';
     } catch(e) {
-      document.getElementById('beneficiaries-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+      document.getElementById('beneficiaries-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
     }
   }
 
   function renderRecentBen(data) {
     const tbody = document.getElementById('beneficiaries-tbody');
     if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No beneficiaries found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No beneficiaries found.</td></tr>';
       return;
     }
-    tbody.innerHTML = data.map(r => benRow(r)).join('');
+    tbody.innerHTML = data.map(r => `<tr class="table-row-hover">
+      <td><div style="font-weight:600;color:#111811;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
+      <td>${r.age}</td>
+      <td>${disabilityCell(r.disability)}</td>
+      <td>${r.region}</td>
+      <td><button class="btn btn-ghost btn-sm table-action-btn"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+    </tr>`).join('');
   }
 
   // Search filter on recent beneficiaries table
@@ -1966,7 +1969,6 @@
       <td>${disabilityCell(r.disability)}</td>
       <td>${r.region}</td>
       <td>${readinessBadge(r.readiness_score)}</td>
-      <td>${fourPs}</td>
       <td><button class="btn btn-ghost btn-sm table-action-btn"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
     </tr>`;
   }
@@ -1986,7 +1988,7 @@
 
   async function loadAllBeneficiaries() {
     if (allBenLoaded) return;
-    document.getElementById('all-ben-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    document.getElementById('all-ben-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
       const json = await (await fetch('/api/get-all-beneficiaries.php?limit=10000&offset=0')).json();
       allBenData = json.success ? json.data : [];
@@ -2007,7 +2009,7 @@
 
       allBenFiltered = allBenData; allBenPage = 0; renderAllBen();
     } catch(e) {
-      document.getElementById('all-ben-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+      document.getElementById('all-ben-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
     }
   }
 
@@ -2035,7 +2037,7 @@
     const page  = allBenFiltered.slice(start, end);
     document.getElementById('all-ben-tbody').innerHTML = page.length
       ? page.map(r => benRow(r)).join('')
-      : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
+      : '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
     document.getElementById('all-ben-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} beneficiaries` : 'No results';
     buildPagination('all-ben-pagination', allBenPage, totalPages, p => { allBenPage = p; renderAllBen(); });
   }
@@ -2068,7 +2070,7 @@
 
   async function loadInterviewers() {
     if (intLoaded) return;
-    document.getElementById('int-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    document.getElementById('int-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
       const json = await (await fetch('/api/get-interviewers.php')).json();
       intData = json.success ? json.data : [];
@@ -2078,7 +2080,7 @@
       regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o); });
       intFiltered = intData; intPage = 0; renderInterviewers();
     } catch(e) {
-      document.getElementById('int-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+      document.getElementById('int-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
     }
   }
 
@@ -2108,7 +2110,7 @@
           <td>${r.office}</td>
           <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openEditInterviewerModal(${start + i})" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
         </tr>`).join('')
-      : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
+      : '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
     document.getElementById('int-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} interviewers` : 'No results';
     buildPagination('int-pagination', intPage, totalPages, p => { intPage = p; renderInterviewers(); });
   }
@@ -2238,7 +2240,7 @@
 
   async function loadAuditLogs() {
     if (auditLoaded) return;
-    document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
       const res = await fetch('/api/get-recent-sessions.php?limit=20');
       const json = await res.json();
@@ -2304,7 +2306,7 @@
             <td style="font-family:monospace;font-size:0.7rem;color:#9ca3af;">${r.session}</td>
           </tr>`;
         }).join('')
-      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No log entries found.</td></tr>';
+      : '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No log entries found.</td></tr>';
     document.getElementById('audit-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} entries` : 'No results';
     buildPagination('audit-pagination', auditPage, totalPages, p => { auditPage = p; renderAudit(); });
   }
@@ -2816,7 +2818,7 @@
     if (!rgLoaded) {
       ['rg-region-tbody','rg-province-tbody','rg-city-tbody'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+        if (el) el.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
       });
       try {
         const json = await (await fetch('/api/get-regions-stats.php')).json();
@@ -2966,7 +2968,7 @@
             <td>${r.province_count}</td>
           </tr>`;
         }).join('')
-      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data.</td></tr>';
+      : '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data.</td></tr>';
   }
 
   function renderRgProvinceTable(data) {
