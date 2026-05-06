@@ -843,17 +843,101 @@ table.dash-table {
 
 /* ── Hover Effects ───────────────────────── */
 .stat-card {
-  transition: box-shadow 0.18s, transform 0.18s;
+  transition: box-shadow 0.18s, transform 0.18s, border-color 0.18s;
   cursor: default;
 }
 .stat-card:hover {
-  box-shadow: 0 6px 24px rgba(17,82,212,0.10);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(17,82,212,0.13);
+  transform: translateY(-3px);
+  border-color: #c7d7f8;
 }
 
+.card {
+  transition: box-shadow 0.18s, transform 0.18s, border-color 0.18s;
+}
+.card:hover {
+  box-shadow: 0 6px 24px rgba(17,82,212,0.09);
+  border-color: #dce6fb;
+}
+
+/* donut legend rows */
+#status-donut-legend > div,
+#readiness-donut-legend > div,
+#status2-donut-legend > div {
+  border-radius: 0.375rem;
+  padding: 0.2rem 0.35rem;
+  transition: background 0.13s;
+  cursor: default;
+}
+#status-donut-legend > div:hover,
+#readiness-donut-legend > div:hover,
+#status2-donut-legend > div:hover {
+  background: var(--blue-light);
+}
+
+/* donut svg segments */
+#status-donut-svg circle,
+#readiness-donut-svg circle,
+#status2-donut-svg circle {
+  transition: opacity 0.15s, stroke-width 0.15s;
+  cursor: pointer;
+}
+#status-donut-svg:hover circle,
+#readiness-donut-svg:hover circle,
+#status2-donut-svg:hover circle {
+  opacity: 0.7;
+}
+#status-donut-svg circle:hover,
+#readiness-donut-svg circle:hover,
+#status2-donut-svg circle:hover {
+  opacity: 1 !important;
+  stroke-width: 28px;
+}
+
+/* region coverage rows */
+#region-rows > div {
+  transition: background 0.13s, padding-left 0.13s;
+  border-radius: 0.375rem;
+  cursor: default;
+}
+#region-rows > div:hover {
+  background: var(--blue-light);
+  padding-left: 0.5rem;
+}
+
+/* activity list items */
+.activity-list .activity-item,
+#activity-list > div {
+  transition: background 0.13s;
+  border-radius: 0.375rem;
+  cursor: default;
+}
+.activity-list .activity-item:hover,
+#activity-list > div:hover {
+  background: var(--blue-light);
+}
+
+/* beneficiaries table rows */
 .table-row-hover { transition: background 0.12s; }
 .table-row-hover:hover { background: var(--blue-light); }
 .table-row-hover:hover td { color: var(--dark); }
+
+/* disability bars */
+#adm-dis-bars > div {
+  transition: background 0.13s;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.375rem;
+  cursor: default;
+}
+#adm-dis-bars > div:hover {
+  background: var(--blue-light);
+}
+
+/* top issues cards already have inline hover — add focus ring */
+#top-issues-grid > div:focus {
+  outline: 2px solid #1152d4;
+  outline-offset: 2px;
+}
 
 .table-action-btn { transition: background 0.12s, color 0.12s; }
 .table-action-btn:hover { background: var(--blue-light) !important; color: var(--blue) !important; }

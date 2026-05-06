@@ -34,18 +34,10 @@ function supabaseCount($endpoint) {
     return 0;
 }
 
-$severe   = supabaseCount('assessments?select=id&assessment_status=eq.Severe');
-$moderate = supabaseCount('assessments?select=id&assessment_status=eq.Moderate');
-$low      = supabaseCount('assessments?select=id&assessment_status=eq.Low');
-$stable   = supabaseCount('assessments?select=id&assessment_status=eq.Stable');
-
-// Fallback: try lowercase variants if all zero
-if ($severe + $moderate + $low + $stable === 0) {
-    $severe   = supabaseCount('assessments?select=id&assessment_status=eq.severe');
-    $moderate = supabaseCount('assessments?select=id&assessment_status=eq.moderate');
-    $low      = supabaseCount('assessments?select=id&assessment_status=eq.low');
-    $stable   = supabaseCount('assessments?select=id&assessment_status=eq.stable');
-}
+$severe   = supabaseCount('assessments?select=id&readiness_score=eq.severe');
+$moderate = supabaseCount('assessments?select=id&readiness_score=eq.moderate');
+$low      = supabaseCount('assessments?select=id&readiness_score=eq.low');
+$stable   = supabaseCount('assessments?select=id&readiness_score=eq.stable');
 
 echo json_encode([
     'success' => true,
