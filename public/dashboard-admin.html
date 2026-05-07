@@ -396,7 +396,7 @@
               <tr>
                 <th>Name</th>
                 <th>Code</th>
-                <th>Region</th>
+                <th>Email</th>
                 <th style="cursor:pointer;user-select:none;" onclick="sortInterviewers('month')" title="Sort by monthly submissions">Submissions <span id="int-sort-icon" style="font-size:0.7rem;color:var(--gray-400);">↕</span></th>
                 <th style="cursor:pointer;user-select:none;" onclick="sortInterviewers('last_active')" title="Sort by last active">Last Active <span id="int-sort-icon-date" style="font-size:0.7rem;color:var(--gray-400);">↕</span></th>
                 <th>Action</th>
@@ -416,7 +416,7 @@
 
     <!-- Edit Interviewer Modal -->
     <div id="edit-int-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
-      <div style="background:white;border-radius:1.25rem;width:100%;max-width:480px;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden;">
+      <div style="background:white;border-radius:1.25rem;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);">
         <div style="padding:1.5rem 1.75rem 0;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
             <div>
@@ -425,10 +425,13 @@
             </div>
             <button onclick="closeIntModal('edit')" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;"><span class="material-symbols-outlined">close</span></button>
           </div>
-          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+
+          <!-- Basic Info -->
+          <div style="font-size:0.7rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Basic Info</div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
               <div><label class="settings-label">Full Name</label><input type="text" id="edit-int-name" class="settings-input" placeholder="Full name"></div>
-              <div><label class="settings-label">Code</label><input type="text" id="edit-int-code" class="settings-input" placeholder="Interviewer code" readonly style="background:var(--gray-50);"></div>
+              <div><label class="settings-label">Code</label><input type="text" id="edit-int-code" class="settings-input" readonly style="background:var(--gray-50);font-family:monospace;font-weight:700;color:var(--blue);"></div>
             </div>
             <div><label class="settings-label">Region</label><input type="text" id="edit-int-region" class="settings-input" placeholder="Region"></div>
             <div><label class="settings-label">Province</label><input type="text" id="edit-int-province" class="settings-input" placeholder="Province"></div>
@@ -437,17 +440,90 @@
               <div><label class="settings-label">Office</label><input type="text" id="edit-int-office" class="settings-input" placeholder="Office"></div>
             </div>
           </div>
+
+          <!-- Account -->
+          <div style="font-size:0.7rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;padding-top:0.5rem;border-top:1px solid var(--gray-100);">Account</div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
+
+            <!-- Email -->
+            <div>
+              <label class="settings-label">Email</label>
+              <input type="email" id="edit-int-email" class="settings-input" placeholder="e.g. juan@dswd.gov.ph" oninput="editIntEmailWarn()">
+              <div id="edit-int-email-warn" style="display:none;margin-top:0.3rem;font-size:0.7rem;color:#d97706;font-weight:600;display:flex;align-items:center;gap:0.25rem;">
+                <span class="material-symbols-outlined" style="font-size:0.85rem;">warning</span>This will update the login email.
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div>
+              <label class="settings-label">Password</label>
+              <div style="display:flex;gap:0.5rem;margin-bottom:0.4rem;">
+                <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.75rem;cursor:pointer;">
+                  <input type="radio" name="edit-int-pw-opt" value="keep" checked onchange="editIntPwToggle()"> Keep current
+                </label>
+                <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.75rem;cursor:pointer;">
+                  <input type="radio" name="edit-int-pw-opt" value="change" onchange="editIntPwToggle()"> Change password
+                </label>
+              </div>
+              <div id="edit-int-pw-section" style="display:none;">
+                <div style="position:relative;">
+                  <input type="password" id="edit-int-password" class="settings-input" placeholder="New password (min. 8 chars)" style="padding-right:2.5rem;">
+                  <button type="button" onclick="toggleEditIntPw()" style="position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;padding:0;">
+                    <span class="material-symbols-outlined" id="edit-int-pw-eye" style="font-size:1.1rem;">visibility</span>
+                  </button>
+                </div>
+                <div style="margin-top:0.35rem;text-align:right;">
+                  <button type="button" onclick="generateEditIntPw()" style="font-size:0.68rem;font-weight:700;color:var(--blue);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">Generate & use random password</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Account Status + User Type -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <div>
+                <label class="settings-label">Account Status</label>
+                <select id="edit-int-status" class="settings-input" onchange="editIntStatusWarn()">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="locked">Locked</option>
+                </select>
+              </div>
+              <div>
+                <label class="settings-label">User Type</label>
+                <select id="edit-int-role" class="settings-input">
+                  <option value="field_officer">Field Officer</option>
+                  <option value="stu_head">STU Head</option>
+                  <option value="central">Central</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <div id="edit-int-lock-warn" style="display:none;margin-top:0.3rem;font-size:0.7rem;color:#dc2626;font-weight:600;display:flex;align-items:center;gap:0.25rem;">
+                <span class="material-symbols-outlined" style="font-size:0.85rem;">lock</span>User will not be able to login.
+              </div>
+            </div>
+
+            <!-- Last Login (read-only) -->
+            <div>
+              <label class="settings-label">Last Active</label>
+              <div id="edit-int-last-active" style="font-size:0.8rem;color:var(--gray-600);padding:0.45rem 0;font-weight:600;">—</div>
+            </div>
+
+          </div>
+
+          <div id="edit-int-err" style="display:none;font-size:0.75rem;color:#dc2626;font-weight:600;padding-bottom:0.5rem;"></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);margin-top:1.5rem;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);margin-top:0.5rem;">
           <button onclick="closeIntModal('edit')" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
-          <button onclick="confirmEditInterviewer()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Update</button>
+          <button onclick="confirmEditInterviewer()" id="edit-int-submit-btn" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Update</button>
         </div>
       </div>
     </div>
 
     <!-- Add Interviewer Modal -->
     <div id="add-int-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
-      <div style="background:white;border-radius:1.25rem;width:100%;max-width:480px;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden;">
+      <div style="background:white;border-radius:1.25rem;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);">
         <div style="padding:1.5rem 1.75rem 0;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
             <div>
@@ -456,15 +532,15 @@
             </div>
             <button onclick="closeIntModal('add')" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;"><span class="material-symbols-outlined">close</span></button>
           </div>
-          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+
+          <!-- Section: Basic Info -->
+          <div style="font-size:0.7rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Basic Info</div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
-              <div><label class="settings-label">Full Name</label><input type="text" id="add-int-name" class="settings-input" placeholder="e.g. Juan dela Cruz"></div>
-              <div>
-                <label class="settings-label">Code</label>
-                <input type="text" id="add-int-code" class="settings-input" placeholder="e.g. IVR-2026-001" style="font-family:monospace;font-weight:700;color:var(--blue);">
-              </div>
+              <div><label class="settings-label">Full Name <span style="color:#dc2626;">*</span></label><input type="text" id="add-int-name" class="settings-input" placeholder="e.g. Juan dela Cruz"></div>
+              <div><label class="settings-label">Code <span style="color:#dc2626;">*</span></label><input type="text" id="add-int-code" class="settings-input" placeholder="e.g. IVR-2026-001" style="font-family:monospace;font-weight:700;color:var(--blue);"></div>
             </div>
-            <div><label class="settings-label">Region</label><select id="add-int-region" class="settings-input">
+            <div><label class="settings-label">Region <span style="color:#dc2626;">*</span></label><select id="add-int-region" class="settings-input">
               <option value="">Select region...</option>
               <option>NCR – Metro Manila</option><option>Region I – Ilocos Region</option><option>Region II – Cagayan Valley</option>
               <option>Region III – Central Luzon</option><option>Region IV-A – CALABARZON</option><option>Region IV-B – MIMAROPA</option>
@@ -478,21 +554,72 @@
               <div><label class="settings-label">Position</label><input type="text" id="add-int-position" class="settings-input" placeholder="e.g. SWO II"></div>
               <div><label class="settings-label">Office</label><input type="text" id="add-int-office" class="settings-input" placeholder="e.g. DSWD FO VII"></div>
             </div>
-            <div id="add-int-err" style="display:none;font-size:0.75rem;color:#dc2626;font-weight:600;"></div>
           </div>
+
+          <!-- Section: Account -->
+          <div style="font-size:0.7rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;padding-top:0.5rem;border-top:1px solid var(--gray-100);">Account</div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
+            <div>
+              <label class="settings-label">Email <span style="color:#dc2626;">*</span></label>
+              <input type="email" id="add-int-email" class="settings-input" placeholder="e.g. juan@dswd.gov.ph">
+            </div>
+            <div>
+              <label class="settings-label">Password <span style="color:#dc2626;">*</span></label>
+              <div style="position:relative;">
+                <input type="password" id="add-int-password" class="settings-input" placeholder="Min. 8 characters" oninput="checkAddIntPwStrength()" style="padding-right:2.5rem;">
+                <button type="button" onclick="toggleAddIntPw()" style="position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;padding:0;">
+                  <span class="material-symbols-outlined" id="add-int-pw-eye" style="font-size:1.1rem;">visibility</span>
+                </button>
+              </div>
+              <!-- Strength bar -->
+              <div style="margin-top:0.4rem;display:flex;gap:0.25rem;height:4px;">
+                <div id="add-int-str-1" style="flex:1;border-radius:999px;background:#e5e7eb;transition:background 0.2s;"></div>
+                <div id="add-int-str-2" style="flex:1;border-radius:999px;background:#e5e7eb;transition:background 0.2s;"></div>
+                <div id="add-int-str-3" style="flex:1;border-radius:999px;background:#e5e7eb;transition:background 0.2s;"></div>
+                <div id="add-int-str-4" style="flex:1;border-radius:999px;background:#e5e7eb;transition:background 0.2s;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.35rem;">
+                <span id="add-int-str-label" style="font-size:0.68rem;color:var(--gray-400);font-weight:600;"></span>
+                <button type="button" onclick="generateAddIntPw()" style="font-size:0.68rem;font-weight:700;color:var(--blue);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">Generate password</button>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <div>
+                <label class="settings-label">Account Status</label>
+                <select id="add-int-status" class="settings-input">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div>
+                <label class="settings-label">User Type</label>
+                <select id="add-int-role" class="settings-input">
+                  <option value="field_officer">Field Officer</option>
+                  <option value="stu_head">STU Head</option>
+                  <option value="central">Central</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div id="add-int-err" style="display:none;font-size:0.75rem;color:#dc2626;font-weight:600;padding-bottom:0.5rem;"></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);margin-top:1.5rem;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);margin-top:0.5rem;">
           <button onclick="closeIntModal('add')" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
-          <button onclick="confirmAddInterviewer()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Add Interviewer</button>
+          <button onclick="confirmAddInterviewer()" id="add-int-submit-btn" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Add Interviewer</button>
         </div>
       </div>
     </div>
 
-    <!-- Interviewer Success Toast -->
-    <div id="int-success-toast" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:10000;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:0.75rem;padding:0.875rem 1.25rem;font-size:0.8125rem;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.12);align-items:center;gap:0.5rem;display:none;">
-      <span class="material-symbols-outlined" style="font-size:1.125rem;">check_circle</span>
-      <span id="int-success-msg"></span>
+    <!-- Global Toast -->
+    <div id="global-toast">
+      <span class="material-symbols-outlined" id="global-toast-icon" style="font-size:1.125rem;flex-shrink:0;"></span>
+      <span id="global-toast-msg"></span>
     </div>
+
+    <!-- Legacy interviewer toast (kept for ID ref, hidden by CSS) -->
+    <div id="int-success-toast" style="display:none;"></div>
 
     <!-- Analytics View -->
     <div class="dash-content" id="view-analytics" style="display:none;">
@@ -973,131 +1100,182 @@
       <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;margin-top:1.25rem;overflow-x:auto;">
         <button class="settings-tab active" data-admindoctab="templates" onclick="adminShowDocTab('templates')"><span class="material-symbols-outlined">description</span>Forms &amp; Templates</button>
         <button class="settings-tab" data-admindoctab="reports" onclick="adminShowDocTab('reports')"><span class="material-symbols-outlined">bar_chart</span>Reports</button>
-        <button class="settings-tab" data-admindoctab="issuances" onclick="adminShowDocTab('issuances')"><span class="material-symbols-outlined">policy</span>Issuances</button>
-        <button class="settings-tab" data-admindoctab="references" onclick="adminShowDocTab('references')"><span class="material-symbols-outlined">book</span>References</button>
       </div>
 
       <!-- Tab: Forms & Templates -->
       <div id="admin-doctab-templates">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+
+          <!-- Profiling Tool -->
           <div class="card" style="margin:0;">
             <div style="display:flex;align-items:flex-start;gap:0.75rem;">
               <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">assignment</span>
               </div>
               <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Child Assessment Form</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official profiling form — all steps</div>
-                <button class="btn btn-secondary btn-sm" style="opacity:0.6;cursor:not-allowed;" disabled><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button>
+                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Profiling Tool</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official child assessment profiling form</div>
+                <button class="btn btn-secondary btn-sm" id="dl-btn-profiling-tool" onclick="downloadDoc('profiling-tool','Profiling_Tool.pdf',this)">
+                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
+                </button>
               </div>
             </div>
           </div>
+
+          <!-- NDA Consent Form -->
           <div class="card" style="margin:0;">
             <div style="display:flex;align-items:flex-start;gap:0.75rem;">
               <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">badge</span>
+                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">gavel</span>
               </div>
               <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Interviewer Registration Form</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">For onboarding new field interviewers</div>
-                <button class="btn btn-secondary btn-sm" style="opacity:0.6;cursor:not-allowed;" disabled><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button>
+                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">NDA Consent Form</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Non-disclosure agreement for field interviewers</div>
+                <button class="btn btn-secondary btn-sm" id="dl-btn-nda-consent" onclick="downloadDoc('nda-consent','NDA_Consent_Form.pdf',this)">
+                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
+                </button>
               </div>
             </div>
           </div>
+
+          <!-- Contract of Commitment -->
           <div class="card" style="margin:0;">
             <div style="display:flex;align-items:flex-start;gap:0.75rem;">
               <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">table_chart</span>
+                <span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">handshake</span>
               </div>
               <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Data Encoding Template</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Excel template for bulk data entry</div>
-                <button class="btn btn-secondary btn-sm" style="opacity:0.6;cursor:not-allowed;" disabled><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button>
+                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Contract of Commitment</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Commitment agreement for project participants</div>
+                <button class="btn btn-secondary btn-sm" id="dl-btn-contract-commitment" onclick="downloadDoc('contract-commitment','Contract_of_Commitment.pdf',this)">
+                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
+                </button>
               </div>
             </div>
           </div>
+
+          <!-- System User Manual -->
           <div class="card" style="margin:0;">
             <div style="display:flex;align-items:flex-start;gap:0.75rem;">
               <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#7c3aed;font-size:1.25rem;">checklist</span>
+                <span class="material-symbols-outlined" style="color:#7c3aed;font-size:1.25rem;">menu_book</span>
               </div>
               <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Field Supervisor Checklist</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Quality assurance checklist for supervisors</div>
-                <button class="btn btn-secondary btn-sm" style="opacity:0.6;cursor:not-allowed;" disabled><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button>
+                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">System User Manual</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Step-by-step guide for using the platform</div>
+                <button class="btn btn-secondary btn-sm" id="dl-btn-user-manual" onclick="downloadDoc('user-manual','System_User_Manual.pdf',this)">
+                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
+                </button>
               </div>
             </div>
           </div>
+
+          <!-- Aruga Briefer -->
+          <div class="card" style="margin:0;">
+            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fef9c3;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#ca8a04;font-size:1.25rem;">info</span>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Aruga Briefer</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Project overview and program briefer</div>
+                <button class="btn btn-secondary btn-sm" id="dl-btn-aruga-briefer" onclick="downloadDoc('aruga-briefer','Aruga_Briefer.pdf',this)">
+                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project Aruga Guidelines -->
+          <div class="card" style="margin:0;">
+            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#dc2626;font-size:1.25rem;">rule</span>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Project Aruga Guidelines</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official operational guidelines and standards</div>
+                <button class="btn btn-secondary btn-sm" id="dl-btn-aruga-guidelines" onclick="downloadDoc('aruga-guidelines','Project_Aruga_Guidelines.pdf',this)">
+                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Presentation Deck -->
+          <div class="card" style="margin:0;">
+            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">slideshow</span>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Presentation Deck</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official Project Aruga slide deck</div>
+                <button class="btn btn-secondary btn-sm" id="dl-btn-presentation-deck" onclick="downloadDoc('presentation-deck','Presentation_Deck.pptx',this)">
+                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mapping of Potential Partners -->
+          <div class="card" style="margin:0;">
+            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">groups</span>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Mapping of Potential Partners</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Documentation of partner organizations</div>
+                <button class="btn btn-secondary btn-sm" id="dl-btn-partners-mapping" onclick="downloadDoc('partners-mapping','Mapping_Potential_Partners.pdf',this)">
+                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MOA Template -->
+          <div class="card" style="margin:0;">
+            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">contract</span>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">MOA Template</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Memorandum of Agreement template</div>
+                <button class="btn btn-secondary btn-sm" id="dl-btn-moa-template" onclick="downloadDoc('moa-template','MOA_Template.docx',this)">
+                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
       <!-- Tab: Reports -->
       <div id="admin-doctab-reports" style="display:none;">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+
+          <!-- Presentation Evaluation -->
           <div class="card" style="margin:0;">
             <div style="display:flex;align-items:flex-start;gap:0.75rem;">
               <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">summarize</span>
+                <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">rate_review</span>
               </div>
               <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Monthly Progress Report</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.5rem;">Consolidated national profiling progress</div>
-                <span class="badge badge-blue" style="display:inline-block;">Coming Soon</span>
+                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Presentation Evaluation</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Evaluation form for project presentations</div>
+                <button class="btn btn-secondary btn-sm" id="dl-btn-presentation-eval" onclick="downloadDoc('presentation-eval','Presentation_Evaluation.pdf',this)">
+                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
+                </button>
               </div>
             </div>
           </div>
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">map</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Regional Summary Report</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.5rem;">Per-region breakdown of all assessments</div>
-                <span class="badge badge-green" style="display:inline-block;">Coming Soon</span>
-              </div>
-            </div>
-          </div>
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">disability_new</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Disability Distribution Report</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.5rem;">Breakdown by disability type nationally</div>
-                <span class="badge badge-orange" style="display:inline-block;">Coming Soon</span>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
 
-      <!-- Tab: Issuances -->
-      <div id="admin-doctab-issuances" style="display:none;">
-        <div class="card" style="margin:0;">
-          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:1rem;text-align:center;">
-            <div style="width:4rem;height:4rem;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;">
-              <span class="material-symbols-outlined" style="color:var(--blue);font-size:2rem;">policy</span>
-            </div>
-            <div style="font-size:1.125rem;font-weight:800;color:var(--dark);">No Issuances Yet</div>
-            <div style="font-size:0.875rem;color:var(--gray-400);line-height:1.7;max-width:360px;">Department orders, memoranda, and official issuances will appear here once uploaded.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab: References -->
-      <div id="admin-doctab-references" style="display:none;">
-        <div class="card" style="margin:0;">
-          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:1rem;text-align:center;">
-            <div style="width:4rem;height:4rem;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;">
-              <span class="material-symbols-outlined" style="color:var(--blue);font-size:2rem;">book</span>
-            </div>
-            <div style="font-size:1.125rem;font-weight:800;color:var(--dark);">No References Yet</div>
-            <div style="font-size:0.875rem;color:var(--gray-400);line-height:1.7;max-width:360px;">Reference materials, manuals, and guidelines will be available here in a future update.</div>
-          </div>
-        </div>
-      </div>
 
     </div><!-- /view-documents -->
 
@@ -2112,7 +2290,7 @@
     const q = document.getElementById('int-search').value.toLowerCase();
     const region = document.getElementById('int-region').value;
     intFiltered = intData.filter(r => {
-      const matchQ = !q || (r.name + r.code + r.region).toLowerCase().includes(q);
+      const matchQ = !q || (r.name + r.code + r.region + (r.email||'')).toLowerCase().includes(q);
       return matchQ && (!region || r.region === region);
     });
     intPage = 0; renderInterviewers();
@@ -2138,10 +2316,13 @@
                 <span style="font-weight:600;color:var(--gray-600);">${r.submissions_total||0}</span>
                 <span style="color:var(--gray-400);font-size:0.72rem;"> total</span>
                </span>`;
+          const emailDisplay = r.email && r.email !== '—'
+            ? `<a href="mailto:${r.email}" style="font-size:0.75rem;color:var(--blue);text-decoration:none;" title="${r.email}">${r.email}</a>`
+            : `<span style="color:var(--gray-400);font-size:0.75rem;">—</span>`;
           return `<tr class="table-row-hover">
             <td><div style="font-weight:600;color:#111811;">${r.name}</div></td>
             <td><span style="font-family:monospace;font-size:0.8rem;font-weight:700;color:var(--blue);">${r.code}</span></td>
-            <td>${r.region}</td>
+            <td>${emailDisplay}</td>
             <td>${subCell}</td>
             <td>${lastActiveBadge(r.last_active)}</td>
             <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openEditInterviewerModal(${start + i})" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
@@ -2154,6 +2335,43 @@
 
   let editIntIndex = null;
 
+  function editIntEmailWarn() {
+    const orig = editIntIndex !== null ? (intData[editIntIndex]?.email || '') : '';
+    const cur  = document.getElementById('edit-int-email').value.trim();
+    const warn = document.getElementById('edit-int-email-warn');
+    warn.style.display = (cur && cur !== orig) ? 'flex' : 'none';
+  }
+
+  function editIntStatusWarn() {
+    const val  = document.getElementById('edit-int-status').value;
+    const warn = document.getElementById('edit-int-lock-warn');
+    warn.style.display = val === 'locked' ? 'flex' : 'none';
+  }
+
+  function editIntPwToggle() {
+    const opt = document.querySelector('input[name="edit-int-pw-opt"]:checked').value;
+    document.getElementById('edit-int-pw-section').style.display = opt === 'change' ? '' : 'none';
+    if (opt === 'keep') document.getElementById('edit-int-password').value = '';
+  }
+
+  function toggleEditIntPw() {
+    const inp = document.getElementById('edit-int-password');
+    const eye = document.getElementById('edit-int-pw-eye');
+    const hide = inp.type === 'password';
+    inp.type = hide ? 'text' : 'password';
+    eye.textContent = hide ? 'visibility_off' : 'visibility';
+  }
+
+  function generateEditIntPw() {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
+    let pw = '';
+    for (let i = 0; i < 12; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+    const inp = document.getElementById('edit-int-password');
+    inp.type = 'text';
+    inp.value = pw;
+    document.getElementById('edit-int-pw-eye').textContent = 'visibility_off';
+  }
+
   function openEditInterviewerModal(filteredIndex) {
     const r = intFiltered[filteredIndex];
     if (!r) return;
@@ -2164,43 +2382,107 @@
     document.getElementById('edit-int-province').value = r.province || '';
     document.getElementById('edit-int-position').value = r.position || '';
     document.getElementById('edit-int-office').value   = r.office   || '';
-    const modal = document.getElementById('edit-int-modal');
-    modal.style.display = 'flex';
+    document.getElementById('edit-int-email').value    = (r.email && r.email !== '—') ? r.email : '';
+    document.getElementById('edit-int-status').value   = r.status         || 'active';
+    document.getElementById('edit-int-role').value     = r.dashboard_role || 'field_officer';
+    document.getElementById('edit-int-password').value = '';
+    document.getElementById('edit-int-password').type  = 'password';
+    document.getElementById('edit-int-pw-eye').textContent = 'visibility';
+    document.getElementById('edit-int-pw-section').style.display = 'none';
+    document.getElementById('edit-int-email-warn').style.display = 'none';
+    document.getElementById('edit-int-lock-warn').style.display  = 'none';
+    document.getElementById('edit-int-err').style.display        = 'none';
+    document.querySelector('input[name="edit-int-pw-opt"][value="keep"]').checked = true;
+    const la = r.last_active ? (new Date(r.last_active).toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' })) : 'No activity recorded';
+    document.getElementById('edit-int-last-active').textContent = la;
+    document.getElementById('edit-int-modal').style.display = 'flex';
   }
 
   async function confirmEditInterviewer() {
     if (editIntIndex === null) return;
-    const r = intData[editIntIndex];
+    const r        = intData[editIntIndex];
     const name     = document.getElementById('edit-int-name').value.trim();
     const region   = document.getElementById('edit-int-region').value.trim();
     const province = document.getElementById('edit-int-province').value.trim();
     const position = document.getElementById('edit-int-position').value.trim();
     const office   = document.getElementById('edit-int-office').value.trim();
+    const email    = document.getElementById('edit-int-email').value.trim();
+    const status        = document.getElementById('edit-int-status').value;
+    const dashboardRole = document.getElementById('edit-int-role').value;
+    const pwOpt    = document.querySelector('input[name="edit-int-pw-opt"]:checked').value;
+    const password = pwOpt === 'change' ? document.getElementById('edit-int-password').value : '';
+    const errEl    = document.getElementById('edit-int-err');
+    const btn      = document.getElementById('edit-int-submit-btn');
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Enter a valid email address.'; errEl.style.display = ''; return; }
+    if (pwOpt === 'change' && password.length < 8) { errEl.textContent = 'New password must be at least 8 characters.'; errEl.style.display = ''; return; }
+    errEl.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Saving...';
+
+    const payload = { interviewer_code: r.code, full_name: name, region, province, position, office, status, dashboard_role: dashboardRole };
+    if (email) payload.email = email;
+    if (password) payload.password = password;
 
     try {
-      const res = await fetch('/api/update-interviewer.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ interviewer_code: r.code, full_name: name, region, province, position, office }),
-      });
+      const res  = await fetch('/api/update-interviewer.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
       const json = await res.json();
-      if (!json.success) { alert('Update failed: ' + (json.message || 'Unknown error')); return; }
-    } catch(e) { alert('Network error. Please try again.'); return; }
+      if (!json.success) { errEl.textContent = json.message || 'Update failed.'; errEl.style.display = ''; btn.disabled = false; btn.textContent = 'Update'; return; }
+    } catch(e) { errEl.textContent = 'Network error. Please try again.'; errEl.style.display = ''; btn.disabled = false; btn.textContent = 'Update'; return; }
 
-    r.name     = name     || r.name;
-    r.region   = region   || r.region;
-    r.province = province || r.province;
-    r.position = position || r.position;
-    r.office   = office   || r.office;
+    r.name = name || r.name; r.region = region || r.region; r.province = province || r.province;
+    r.position = position || r.position; r.office = office || r.office;
+    r.email = email || r.email; r.status = status; r.dashboard_role = dashboardRole;
+    btn.disabled = false; btn.textContent = 'Update';
     closeIntModal('edit');
     filterInterviewers();
     showIntToast(r.name + ' updated successfully.');
   }
 
+  function toggleAddIntPw() {
+    const inp = document.getElementById('add-int-password');
+    const eye = document.getElementById('add-int-pw-eye');
+    const isHidden = inp.type === 'password';
+    inp.type = isHidden ? 'text' : 'password';
+    eye.textContent = isHidden ? 'visibility_off' : 'visibility';
+  }
+
+  function checkAddIntPwStrength() {
+    const pw = document.getElementById('add-int-password').value;
+    const bars = [1,2,3,4].map(i => document.getElementById('add-int-str-' + i));
+    const label = document.getElementById('add-int-str-label');
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    const colors = ['#ef4444','#f97316','#eab308','#22c55e'];
+    const labels = ['Weak','Fair','Good','Strong'];
+    bars.forEach((b, i) => b.style.background = i < score ? colors[score - 1] : '#e5e7eb');
+    label.textContent = pw.length ? labels[score - 1] || '' : '';
+    label.style.color = score ? colors[score - 1] : 'var(--gray-400)';
+  }
+
+  function generateAddIntPw() {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
+    let pw = '';
+    for (let i = 0; i < 12; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+    const inp = document.getElementById('add-int-password');
+    inp.type = 'text';
+    inp.value = pw;
+    document.getElementById('add-int-pw-eye').textContent = 'visibility_off';
+    checkAddIntPwStrength();
+  }
+
   function openAddInterviewerModal() {
-    ['add-int-name','add-int-code','add-int-province','add-int-position','add-int-office'].forEach(id => document.getElementById(id).value = '');
+    ['add-int-name','add-int-code','add-int-province','add-int-position','add-int-office','add-int-email','add-int-password'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('add-int-region').value = '';
+    document.getElementById('add-int-status').value = 'active';
+    document.getElementById('add-int-role').value = 'field_officer';
     document.getElementById('add-int-err').style.display = 'none';
+    document.getElementById('add-int-password').type = 'password';
+    document.getElementById('add-int-pw-eye').textContent = 'visibility';
+    [1,2,3,4].forEach(i => document.getElementById('add-int-str-' + i).style.background = '#e5e7eb');
+    document.getElementById('add-int-str-label').textContent = '';
     document.getElementById('add-int-modal').style.display = 'flex';
   }
 
@@ -2211,23 +2493,33 @@
     const province = document.getElementById('add-int-province').value.trim();
     const position = document.getElementById('add-int-position').value.trim();
     const office   = document.getElementById('add-int-office').value.trim();
+    const email    = document.getElementById('add-int-email').value.trim();
+    const password = document.getElementById('add-int-password').value;
+    const accountStatus   = document.getElementById('add-int-status').value;
+    const dashboardRole   = document.getElementById('add-int-role').value;
     const errEl    = document.getElementById('add-int-err');
+    const btn      = document.getElementById('add-int-submit-btn');
 
     if (!name || !code || !region) { errEl.textContent = 'Name, Code, and Region are required.'; errEl.style.display = ''; return; }
+    if (!email) { errEl.textContent = 'Email is required.'; errEl.style.display = ''; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Enter a valid email address.'; errEl.style.display = ''; return; }
+    if (password.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; errEl.style.display = ''; return; }
     errEl.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Adding...';
 
     try {
       const res = await fetch('/api/add-interviewer.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ full_name: name, interviewer_code: code, region, province, position, office }),
+        body: JSON.stringify({ full_name: name, interviewer_code: code, region, province, position, office, email, password, accountStatus, dashboard_role: dashboardRole }),
       });
       const json = await res.json();
-      if (!json.success) { errEl.textContent = json.message || 'Failed to add interviewer.'; errEl.style.display = ''; return; }
-    } catch(e) { errEl.textContent = 'Network error. Please try again.'; errEl.style.display = ''; return; }
+      if (!json.success) { errEl.textContent = json.message || 'Failed to add interviewer.'; errEl.style.display = ''; btn.disabled = false; btn.textContent = 'Add Interviewer'; return; }
+    } catch(e) { errEl.textContent = 'Network error. Please try again.'; errEl.style.display = ''; btn.disabled = false; btn.textContent = 'Add Interviewer'; return; }
 
-    intData.unshift({ name, code, region, province, position, office });
+    intData.unshift({ name, code, email, region, province, position, office, status: accountStatus, dashboard_role: dashboardRole, submissions_month: 0, submissions_total: 0, last_active: null });
     closeIntModal('add');
+    btn.disabled = false; btn.textContent = 'Add Interviewer';
     filterInterviewers();
     showIntToast(name + ' added as a new interviewer.');
   }
@@ -2236,13 +2528,7 @@
     document.getElementById(type + '-int-modal').style.display = 'none';
   }
 
-  function showIntToast(msg) {
-    const toast = document.getElementById('int-success-toast');
-    document.getElementById('int-success-msg').textContent = msg;
-    toast.style.display = 'flex';
-    clearTimeout(toast._t);
-    toast._t = setTimeout(() => { toast.style.display = 'none'; }, 3000);
-  }
+  function _showIntToastLegacy(msg) { showGlobalToast(msg, 'success'); }
 
   // ── View switcher ──────────────────────────────────────────────
   const VIEWS = ['overview','beneficiaries','assessments','interviewers','analytics','regions','documents','settings','audit'];
@@ -2264,10 +2550,39 @@
 
   function adminShowDocTab(tab) {
     document.querySelectorAll('[data-admindoctab]').forEach(t => t.classList.toggle('active', t.dataset.admindoctab === tab));
-    ['templates','reports','issuances','references'].forEach(t => {
+    ['templates','reports'].forEach(t => {
       const el = document.getElementById('admin-doctab-' + t);
       if (el) el.style.display = t === tab ? '' : 'none';
     });
+  }
+
+  const docDownloadCounts = {};
+
+  async function downloadDoc(docId, filename, btn) {
+    if (btn.disabled) return;
+    const origHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;animation:spin 0.8s linear infinite;">autorenew</span>Downloading...';
+
+    try {
+      const res = await fetch('/api/documents/download/' + docId);
+      if (!res.ok) throw new Error('File not available (HTTP ' + res.status + ')');
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      docDownloadCounts[docId] = (docDownloadCounts[docId] || 0) + 1;
+    } catch(e) {
+      showGlobalToast(e.message || 'Download failed. Please try again.', 'error');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
   }
 
   // ── Audit Logs View ────────────────────────────────────────────
@@ -3154,15 +3469,20 @@
     if (tab === 'export') populateExportRegions();
   }
 
-  function showToast(id, msg, type) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = msg;
-    el.className = 'settings-toast ' + type;
-    el.style.display = '';
-    clearTimeout(el._t);
-    el._t = setTimeout(() => { el.style.display = 'none'; }, 4000);
+  function showGlobalToast(msg, type) {
+    type = type || 'info';
+    const icons = { success:'check_circle', error:'error', info:'info' };
+    const toast = document.getElementById('global-toast');
+    document.getElementById('global-toast-icon').textContent = icons[type] || 'info';
+    document.getElementById('global-toast-msg').textContent  = msg;
+    toast.className = type;
+    toast.style.display = 'flex';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => { toast.style.display = 'none'; }, 3000);
   }
+
+  function showToast(id, msg, type) { showGlobalToast(msg, type); }
+  function showIntToast(msg)         { showGlobalToast(msg, 'success'); }
 
   // ── User Accounts ──────────────────────────────────────────────
   const ROLE_LABELS = { admin: 'Administrator', central: 'Central Office', stu_head: 'STU Head', field_officer: 'Field Officer' };

@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 $res = supabaseRequest('GET',
-    'interviewers?select=id,full_name,interviewer_code,region,province,position,office,status&order=full_name.asc&limit=10000'
+    'interviewers?select=id,full_name,interviewer_code,email,region,province,position,office,status,dashboard_role&order=full_name.asc&limit=10000'
 );
 
 if (!$res['success']) {
@@ -72,6 +72,8 @@ $rows = array_map(function($r) use ($totalMap, $monthMap, $completedTotal, $comp
         'id'               => $r['id'] ?? null,
         'name'             => $r['full_name'] ?? '—',
         'code'             => $code,
+        'email'            => $r['email'] ?? '—',
+        'dashboard_role'   => $r['dashboard_role'] ?? '—',
         'region'           => $r['region'] ?? '—',
         'province'         => $r['province'] ?? '—',
         'position'         => $r['position'] ?? '—',
