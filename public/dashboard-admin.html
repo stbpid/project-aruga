@@ -397,9 +397,8 @@
                 <th>Name</th>
                 <th>Code</th>
                 <th>Region</th>
-                <th>Province</th>
-                <th>Position</th>
-                <th>Office</th>
+                <th style="cursor:pointer;user-select:none;" onclick="sortInterviewers('month')" title="Sort by monthly submissions">Submissions <span id="int-sort-icon" style="font-size:0.7rem;color:var(--gray-400);">↕</span></th>
+                <th style="cursor:pointer;user-select:none;" onclick="sortInterviewers('last_active')" title="Sort by last active">Last Active <span id="int-sort-icon-date" style="font-size:0.7rem;color:var(--gray-400);">↕</span></th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -409,7 +408,7 @@
           </table>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
-          <span style="font-size:0.75rem;color:#6b7280;" id="int-page-info">—</span>
+          <span style="font-size:0.75rem;color:#6b7280;" id="int-page-info"></span>
           <div class="pagination" id="int-pagination"></div>
         </div>
       </div>
@@ -1754,21 +1753,7 @@
       legend.innerHTML = statuses.map((s, i) => {
         const v = d[s] || 0;
         const pct = sum > 0 ? Math.round((v / sum) * 100) : 0;
-        return `<div style="display:flex;align-items:center;gap:0.5rem;border-radius:0.375rem;padding:0.2rem 0.35rem;transition:background 0.13s;cursor:default;"
-          onmouseenter="(function(el){
-            document.querySelectorAll('#status-donut-svg circle[data-label]').forEach(c=>c.style.opacity='0.35');
-            const seg=document.querySelector('#status-donut-svg circle[data-label=\\'${STATUS_LABELS[s]}\\']');
-            if(seg){seg.style.opacity='1';seg.style.strokeWidth='${stroke+6}px';}
-            el.style.background='var(--blue-light)';
-            document.getElementById('status-donut-total').textContent='${v.toLocaleString()}';
-            document.getElementById('status-donut-subtitle').textContent='${STATUS_LABELS[s]} — ${pct}%';
-          })(this)"
-          onmouseleave="(function(el){
-            document.querySelectorAll('#status-donut-svg circle[data-label]').forEach(c=>{c.style.opacity='1';c.style.strokeWidth='${stroke}px';});
-            el.style.background='';
-            document.getElementById('status-donut-total').textContent='${total.toLocaleString()}';
-            document.getElementById('status-donut-subtitle').textContent='${total} total assessment${total !== 1 ? 's' : ''}';
-          })(this)">
+        return `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.2rem 0.35rem;">
           <div style="width:10px;height:10px;border-radius:50%;background:${STATUS_COLORS[s]};flex-shrink:0;"></div>
           <div style="font-size:0.75rem;font-weight:600;flex:1;">${STATUS_LABELS[s]}</div>
           <div style="font-size:0.75rem;font-weight:700;color:var(--dark);">${v.toLocaleString()}</div>
@@ -2067,6 +2052,45 @@
 
   // ── Interviewers View ──────────────────────────────────────────
   let intData = [], intFiltered = [], intPage = 0, intLoaded = false;
+  let intSortKey = 'month', intSortDir = -1;
+
+  function relativeTime(iso) {
+    if (!iso) return { text: 'Never', days: 9999 };
+    const diff = Math.floor((Date.now() - new Date(iso)) / 86400000);
+    let text;
+    if (diff === 0) text = 'Today';
+    else if (diff === 1) text = 'Yesterday';
+    else if (diff < 7) text = diff + ' days ago';
+    else if (diff < 14) text = '1 week ago';
+    else if (diff < 30) text = Math.floor(diff/7) + ' weeks ago';
+    else if (diff < 60) text = '1 month ago';
+    else text = Math.floor(diff/30) + ' months ago';
+    return { text, days: diff };
+  }
+
+  function lastActiveBadge(iso) {
+    const { text, days } = relativeTime(iso);
+    const cls = days <= 7 ? 'recent' : days <= 30 ? 'week' : 'old';
+    return `<span class="last-active-chip ${cls}" title="${iso ? new Date(iso).toLocaleString() : 'No activity'}">${text}</span>`;
+  }
+
+  function sortInterviewers(key) {
+    if (intSortKey === key) { intSortDir *= -1; } else { intSortKey = key; intSortDir = -1; }
+    document.getElementById('int-sort-icon').textContent = '↕';
+    document.getElementById('int-sort-icon-date').textContent = '↕';
+    if (key === 'last_active') {
+      document.getElementById('int-sort-icon-date').textContent = intSortDir === -1 ? '↓' : '↑';
+      intFiltered.sort((a, b) => {
+        const da = a.last_active || '', db = b.last_active || '';
+        return intSortDir * (da < db ? 1 : da > db ? -1 : 0);
+      });
+    } else {
+      document.getElementById('int-sort-icon').textContent = intSortDir === -1 ? '↓' : '↑';
+      const field = key === 'month' ? 'submissions_month' : 'submissions_total';
+      intFiltered.sort((a, b) => intSortDir * ((b[field]||0) - (a[field]||0)));
+    }
+    intPage = 0; renderInterviewers();
+  }
 
   async function loadInterviewers() {
     if (intLoaded) return;
@@ -2078,7 +2102,7 @@
       const regions = [...new Set(intData.map(r => r.region).filter(r => r && r !== '—'))].sort();
       const sel = document.getElementById('int-region');
       regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o); });
-      intFiltered = intData; intPage = 0; renderInterviewers();
+      intFiltered = [...intData]; intPage = 0; renderInterviewers();
     } catch(e) {
       document.getElementById('int-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
     }
@@ -2088,7 +2112,7 @@
     const q = document.getElementById('int-search').value.toLowerCase();
     const region = document.getElementById('int-region').value;
     intFiltered = intData.filter(r => {
-      const matchQ = !q || (r.name + r.code + r.region + r.province + r.position + r.office).toLowerCase().includes(q);
+      const matchQ = !q || (r.name + r.code + r.region).toLowerCase().includes(q);
       return matchQ && (!region || r.region === region);
     });
     intPage = 0; renderInterviewers();
@@ -2101,16 +2125,29 @@
     const end   = Math.min(start + PER_PAGE, total);
     const page  = intFiltered.slice(start, end);
     document.getElementById('int-tbody').innerHTML = page.length
-      ? page.map((r, i) => `<tr class="table-row-hover">
-          <td><div style="font-weight:600;color:#111811;">${r.name}</div></td>
-          <td><span style="font-family:monospace;font-size:0.8rem;font-weight:700;color:var(--blue);">${r.code}</span></td>
-          <td>${r.region}</td>
-          <td>${r.province}</td>
-          <td>${r.position}</td>
-          <td>${r.office}</td>
-          <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openEditInterviewerModal(${start + i})" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
-        </tr>`).join('')
-      : '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
+      ? page.map((r, i) => {
+          const pendingMonth = (r.submissions_month||0) - (r.completed_month||0);
+          const pendingTotal = (r.submissions_total||0) - (r.completed_total||0);
+          const tooltip = `This month: ${r.completed_month||0} completed, ${pendingMonth} pending | All time: ${r.completed_total||0} completed, ${pendingTotal} pending`;
+          const subCell = (r.submissions_total||0) === 0
+            ? `<span style="color:var(--gray-400);font-size:0.75rem;">No submissions</span>`
+            : `<span title="${tooltip}" style="cursor:default;">
+                <span style="font-weight:700;color:var(--dark);">${r.submissions_month||0}</span>
+                <span style="color:var(--gray-400);font-size:0.72rem;"> this month</span>
+                <span style="color:var(--gray-300);"> / </span>
+                <span style="font-weight:600;color:var(--gray-600);">${r.submissions_total||0}</span>
+                <span style="color:var(--gray-400);font-size:0.72rem;"> total</span>
+               </span>`;
+          return `<tr class="table-row-hover">
+            <td><div style="font-weight:600;color:#111811;">${r.name}</div></td>
+            <td><span style="font-family:monospace;font-size:0.8rem;font-weight:700;color:var(--blue);">${r.code}</span></td>
+            <td>${r.region}</td>
+            <td>${subCell}</td>
+            <td>${lastActiveBadge(r.last_active)}</td>
+            <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openEditInterviewerModal(${start + i})" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
+          </tr>`;
+        }).join('')
+      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
     document.getElementById('int-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} interviewers` : 'No results';
     buildPagination('int-pagination', intPage, totalPages, p => { intPage = p; renderInterviewers(); });
   }
@@ -2729,10 +2766,7 @@
           onmouseout="this.style.boxShadow='none';this.style.transform='none'"
           onkeydown="if(event.key==='Enter')showView('beneficiaries')">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;">
-            <div style="display:flex;align-items:center;gap:0.5rem;">
-              <span class="material-symbols-outlined" style="color:${s.icon};font-size:1.25rem;flex-shrink:0;">${issue.icon}</span>
-              <span style="font-size:0.8125rem;font-weight:700;color:#1f2937;line-height:1.3;">${issue.title}</span>
-            </div>
+            <span style="font-size:0.8125rem;font-weight:700;color:#1f2937;line-height:1.3;">${issue.title}</span>
             <span style="font-size:0.65rem;font-weight:700;background:${s.badge};color:#fff;padding:0.15rem 0.45rem;border-radius:999px;white-space:nowrap;flex-shrink:0;">${s.label}</span>
           </div>
           <div style="font-size:1.75rem;font-weight:800;color:#111827;line-height:1;">${issue.count.toLocaleString()}</div>

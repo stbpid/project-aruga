@@ -939,6 +939,11 @@ table.dash-table {
   outline-offset: 2px;
 }
 
+.last-active-chip { display:inline-block;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:999px;white-space:nowrap; }
+.last-active-chip.recent  { background:#e0f2fe;color:#0369a1; }
+.last-active-chip.week    { background:#ede9fe;color:#7c3aed; }
+.last-active-chip.old     { background:#f3f4f6;color:#6b7280; }
+
 .table-action-btn { transition: background 0.12s, color 0.12s; }
 .table-action-btn:hover { background: var(--blue-light) !important; color: var(--blue) !important; }
 
