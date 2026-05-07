@@ -123,6 +123,82 @@ function supabaseRequest($method, $endpoint, $data = null) {
 }
 
 /**
+ * Debug version — returns response body and HTTP code for troubleshooting
+ */
+function logAuditDebug($action, $tableName, $recordId = null, $oldValues = null, $newValues = null, $interviewerId = null, $assessmentId = null) {
+    $payload = [
+        'action'     => $action,
+        'table_name' => $tableName,
+        'ip_address' => getUserIP(),
+        'user_agent' => getUserAgent(),
+    ];
+    if (!empty($recordId))      $payload['record_id']      = $recordId;
+    if (!empty($interviewerId)) $payload['interviewer_id'] = $interviewerId;
+    if (!empty($assessmentId))  $payload['assessment_id']  = $assessmentId;
+    if ($oldValues !== null && is_array($oldValues)) $payload['old_values'] = $oldValues;
+    if ($newValues !== null && is_array($newValues)) $payload['new_values'] = $newValues;
+
+    $url = SUPABASE_URL . '/rest/v1/audit_logs';
+    $ch  = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'apikey: '       . SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization: Bearer ' . SUPABASE_SERVICE_ROLE_KEY,
+        'Prefer: return=representation',
+    ]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    $body = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err  = curl_error($ch);
+    curl_close($ch);
+
+    return ['http_code' => $code, 'body' => $body, 'curl_error' => $err, 'payload_sent' => $payload];
+}
+
+/**
+ * Write an entry to the audit_logs table
+ */
+function logAudit($action, $tableName, $recordId = null, $oldValues = null, $newValues = null, $interviewerId = null, $assessmentId = null) {
+    $payload = [
+        'action'     => $action,
+        'table_name' => $tableName,
+        'ip_address' => getUserIP(),
+        'user_agent' => getUserAgent(),
+    ];
+
+    // UUIDs — only include if non-empty string
+    if (!empty($recordId))      $payload['record_id']     = $recordId;
+    if (!empty($interviewerId)) $payload['interviewer_id'] = $interviewerId;
+    if (!empty($assessmentId))  $payload['assessment_id']  = $assessmentId;
+
+    // jsonb columns must be sent as JSON-encoded strings with explicit cast header
+    // Supabase REST accepts plain objects — send as PHP arrays, let json_encode handle it
+    if ($oldValues !== null && is_array($oldValues)) $payload['old_values'] = $oldValues;
+    if ($newValues !== null && is_array($newValues)) $payload['new_values'] = $newValues;
+
+    // Use a dedicated curl call so we can set Prefer: return=minimal (faster, no body parse)
+    $url = SUPABASE_URL . '/rest/v1/audit_logs';
+    $ch  = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'apikey: '       . SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization: Bearer ' . SUPABASE_SERVICE_ROLE_KEY,
+        'Prefer: return=minimal',
+    ]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_exec($ch);
+    curl_close($ch);
+}
+
+/**
  * Call a Supabase RPC function
  */
 function supabaseRPC($functionName, $params = []) {

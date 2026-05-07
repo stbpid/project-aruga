@@ -53,6 +53,10 @@ if (empty($fields)) {
     echo json_encode(['success' => false, 'message' => 'No fields to update']); exit;
 }
 
+// Fetch old values before update for audit
+$oldRes = supabaseRequest('GET', 'interviewers?select=id,full_name,email,region,status,dashboard_role&interviewer_code=eq.' . urlencode($code) . '&limit=1');
+$old    = ($oldRes['success'] && !empty($oldRes['data'])) ? $oldRes['data'][0] : null;
+
 $res = supabaseRequest('PATCH',
     'interviewers?interviewer_code=eq.' . urlencode($code),
     $fields
@@ -61,5 +65,13 @@ $res = supabaseRequest('PATCH',
 if (!$res['success']) {
     echo json_encode(['success' => false, 'message' => $res['error'] ?? 'Failed to update interviewer']); exit;
 }
+
+$logFields = $fields;
+unset($logFields['password_hash']); // never log password hashes
+logAudit('update', 'interviewers', $old['id'] ?? null,
+    $old ? array_intersect_key($old, $logFields) : null,
+    $logFields,
+    $old['id'] ?? null
+);
 
 echo json_encode(['success' => true, 'message' => 'Interviewer updated successfully']);

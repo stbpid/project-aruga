@@ -1693,9 +1693,17 @@
           </div>
           <select id="audit-type" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
             <option value="">All Actions</option>
-            <option value="login">Login</option>
-            <option value="assessment">Assessment</option>
-            <option value="record_change">Record Change</option>
+            <option value="view">Login</option>
+            <option value="create">Created</option>
+            <option value="update">Updated</option>
+            <option value="delete">Deleted</option>
+          </select>
+          <select id="audit-table" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+            <option value="">All Tables</option>
+            <option value="assessments">Assessments</option>
+            <option value="interviewers">Interviewers</option>
+            <option value="children">Children</option>
+            <option value="sessions">Sessions</option>
           </select>
           <button class="btn btn-secondary btn-sm" id="audit-reset">Reset</button>
           <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="audit-count">—</span>
@@ -1711,8 +1719,7 @@
                 <th>User</th>
                 <th>Action</th>
                 <th>Details</th>
-                <th>Region</th>
-                <th>IP / Session</th>
+                <th>IP Address</th>
               </tr>
             </thead>
             <tbody id="audit-tbody">
@@ -2588,38 +2595,43 @@
   // ── Audit Logs View ────────────────────────────────────────────
   const AUDIT_ACTION_COLORS = { login: 'badge-blue', assessment: 'badge-green', record_change: 'badge-orange' };
   const AUDIT_ACTION_ICONS  = { login: 'login', assessment: 'assignment_turned_in', record_change: 'edit_note' };
+  const AUDIT_ACTION_MAP = {
+    create: { label:'Created', badge:'badge-green',  icon:'add_circle' },
+    update: { label:'Updated', badge:'badge-blue',   icon:'edit' },
+    delete: { label:'Deleted', badge:'badge-red',    icon:'delete' },
+    view:   { label:'Login',   badge:'badge-purple', icon:'login' },
+  };
+
+  const AUDIT_PER_PAGE = 10;
   let auditData = [], auditFiltered = [], auditPage = 0, auditLoaded = false;
+
+  function formatPHT(isoStr) {
+    if (!isoStr) return '—';
+    return new Date(isoStr).toLocaleString('en-PH', {
+      timeZone: 'Asia/Manila',
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: 'numeric', minute: '2-digit', hour12: true
+    });
+  }
 
   async function loadAuditLogs() {
     if (auditLoaded) return;
     document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
-      const res = await fetch('/api/get-recent-sessions.php?limit=20');
-      const json = await res.json();
-      if (json.success && json.data && json.data.length) {
-        auditData = json.data.map(s => ({
-          timestamp: s.time || '—',
-          user: s.name || '—',
-          action: 'login',
-          details: 'Interviewer logged in to the system',
-          region: s.region || '—',
-          session: s.code || '—',
-        }));
-      } else {
-        auditData = [];
-      }
-    } catch(e) {
-      auditData = [];
-    }
+      const json = await (await fetch('/api/get-audit-logs.php?limit=40')).json();
+      auditData = json.success ? json.data : [];
+    } catch(e) { auditData = []; }
     auditLoaded = true;
     auditFiltered = auditData;
     auditPage = 0;
 
     document.getElementById('audit-search').addEventListener('input', filterAudit);
     document.getElementById('audit-type').addEventListener('change', filterAudit);
+    document.getElementById('audit-table').addEventListener('change', filterAudit);
     document.getElementById('audit-reset').addEventListener('click', () => {
       document.getElementById('audit-search').value = '';
       document.getElementById('audit-type').value = '';
+      document.getElementById('audit-table').value = '';
       filterAudit();
     });
 
@@ -2627,35 +2639,38 @@
   }
 
   function filterAudit() {
-    const q = document.getElementById('audit-search').value.toLowerCase();
-    const type = document.getElementById('audit-type').value;
+    const q     = document.getElementById('audit-search').value.toLowerCase();
+    const type  = document.getElementById('audit-type').value;
+    const table = document.getElementById('audit-table').value;
     auditFiltered = auditData.filter(r => {
-      const matchQ = !q || (r.user + r.action + r.details + r.region + r.session).toLowerCase().includes(q);
-      return matchQ && (!type || r.action === type);
+      if (q && !(r.user + r.action + r.details + r.table_name + r.ip_address + r.code).toLowerCase().includes(q)) return false;
+      if (type  && r.action     !== type)  return false;
+      if (table && r.table_name !== table) return false;
+      return true;
     });
     auditPage = 0;
     renderAudit();
   }
 
   function renderAudit() {
-    const total = auditFiltered.length;
-    const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
-    const start = auditPage * PER_PAGE;
-    const end = Math.min(start + PER_PAGE, total);
-    const page = auditFiltered.slice(start, end);
+    const total      = auditFiltered.length;
+    const totalPages = Math.max(1, Math.ceil(total / AUDIT_PER_PAGE));
+    const start      = auditPage * AUDIT_PER_PAGE;
+    const end        = Math.min(start + AUDIT_PER_PAGE, total);
+    const page       = auditFiltered.slice(start, end);
     document.getElementById('audit-count').textContent = total + ' log entr' + (total !== 1 ? 'ies' : 'y');
     document.getElementById('audit-tbody').innerHTML = page.length
       ? page.map(r => {
-          const badgeClass = AUDIT_ACTION_COLORS[r.action] || 'badge-blue';
-          const icon = AUDIT_ACTION_ICONS[r.action] || 'info';
-          const label = r.action === 'login' ? 'Login' : r.action === 'assessment' ? 'Assessment' : r.action === 'record_change' ? 'Record Change' : r.action;
+          const am = AUDIT_ACTION_MAP[r.action] || { label: r.action, badge:'badge-blue', icon:'info' };
           return `<tr class="table-row-hover">
-            <td style="font-family:monospace;font-size:0.75rem;color:#6b7280;white-space:nowrap;">${r.timestamp}</td>
-            <td><div style="font-weight:600;color:#111827;">${r.user}</div></td>
-            <td><span class="badge ${badgeClass}" style="display:inline-flex;align-items:center;gap:0.25rem;"><span class="material-symbols-outlined" style="font-size:0.75rem;">${icon}</span>${label}</span></td>
-            <td style="font-size:0.8125rem;color:#374151;max-width:260px;">${r.details}</td>
-            <td style="font-size:0.8125rem;">${r.region}</td>
-            <td style="font-family:monospace;font-size:0.7rem;color:#9ca3af;">${r.session}</td>
+            <td style="font-size:0.72rem;color:#6b7280;white-space:nowrap;">${formatPHT(r.timestamp_raw)}</td>
+            <td>
+              <div style="font-weight:600;color:#111827;font-size:0.8125rem;">${r.user}</div>
+              <div style="font-size:0.68rem;color:var(--gray-400);">${r.code !== '—' ? r.code + ' · ' : ''}${r.region}</div>
+            </td>
+            <td><span class="badge ${am.badge}" style="display:inline-flex;align-items:center;gap:0.25rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.75rem;">${am.icon}</span>${am.label}</span></td>
+            <td style="font-size:0.8rem;color:#374151;max-width:260px;word-break:break-word;">${r.details}</td>
+            <td style="font-family:monospace;font-size:0.7rem;color:#9ca3af;white-space:nowrap;">${r.ip_address}</td>
           </tr>`;
         }).join('')
       : '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No log entries found.</td></tr>';

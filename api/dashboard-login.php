@@ -75,6 +75,11 @@ $sessionData = [
 $sessionResult = supabaseRequest('POST', 'sessions', $sessionData);
 $session = ($sessionResult['success'] && !empty($sessionResult['data'])) ? $sessionResult['data'][0] : null;
 
+logAudit('view', 'sessions', $session['id'] ?? null, null,
+    ['event' => 'login', 'email' => $user['email'], 'role' => $user['dashboard_role'] ?? null],
+    $user['id']
+);
+
 sendResponse(true, 'Login successful', [
     'id'               => $user['id'],
     'interviewer_code' => $user['interviewer_code'] ?? null,

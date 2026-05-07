@@ -65,4 +65,10 @@ if (!$res['success']) {
     echo json_encode(['success' => false, 'message' => $res['error'] ?? 'Failed to add interviewer']); exit;
 }
 
+$newId = $res['data'][0]['id'] ?? null;
+logAudit('create', 'interviewers', $newId, null,
+    ['full_name' => $name, 'interviewer_code' => $code, 'region' => $region, 'email' => $email ?: null, 'status' => $accountStatus, 'dashboard_role' => $dashboardRole],
+    $newId
+);
+
 echo json_encode(['success' => true, 'message' => 'Interviewer added successfully']);

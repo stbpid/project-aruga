@@ -1,0 +1,92 @@
+<?php
+require_once __DIR__ . '/config.php';
+
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET');
+
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    echo json_encode(['success' => false]); exit;
+}
+
+$limit  = min((int)($_GET['limit']  ?? 500), 1000);
+$action = trim($_GET['action'] ?? '');
+$search = trim($_GET['search'] ?? '');
+
+$query = 'audit_logs?select=id,action,table_name,record_id,old_values,new_values,ip_address,user_agent,created_at,interviewer_id,assessment_id&order=created_at.desc&limit=' . $limit;
+
+if ($action) $query .= '&action=eq.' . urlencode($action);
+
+$res = supabaseRequest('GET', $query);
+
+if (!$res['success']) {
+    echo json_encode(['success' => false, 'data' => []]); exit;
+}
+
+// Fetch interviewer lookup
+$intRes = supabaseRequest('GET', 'interviewers?select=id,full_name,interviewer_code,region&limit=10000');
+$intMap = [];
+if ($intRes['success'] && is_array($intRes['data'])) {
+    foreach ($intRes['data'] as $i) {
+        $intMap[$i['id']] = [
+            'name'   => $i['full_name']       ?? '—',
+            'code'   => $i['interviewer_code'] ?? '—',
+            'region' => $i['region']           ?? '—',
+        ];
+    }
+}
+
+$rows = [];
+foreach ($res['data'] as $log) {
+    $intId   = $log['interviewer_id'] ?? null;
+    $int     = $intId && isset($intMap[$intId]) ? $intMap[$intId] : ['name'=>'System','code'=>'—','region'=>'—'];
+
+    $action  = $log['action']     ?? '—';
+    $table   = $log['table_name'] ?? '—';
+
+    // Build human-readable details
+    $newVals = $log['new_values'] ?? null;
+    if (is_string($newVals)) $newVals = json_decode($newVals, true);
+
+    $event = is_array($newVals) ? ($newVals['event'] ?? null) : null;
+
+    if ($event === 'login') {
+        $email = is_array($newVals) ? ($newVals['email'] ?? '') : '';
+        $role  = is_array($newVals) ? ($newVals['role']  ?? '') : '';
+        $details = 'User logged in' . ($email ? ' as ' . $email : '') . ($role ? ' (' . $role . ')' : '');
+    } elseif ($action === 'create' && $table === 'assessments') {
+        $childName = is_array($newVals) ? ($newVals['child_name'] ?? '') : '';
+        $arugaId   = is_array($newVals) ? ($newVals['aruga_id']   ?? '') : '';
+        $score     = is_array($newVals) ? ($newVals['readiness_score'] ?? '') : '';
+        $details   = 'Assessment submitted' . ($childName ? ' for ' . $childName : '') . ($arugaId ? ' (' . $arugaId . ')' : '') . ($score ? ' — ' . ucfirst($score) : '');
+    } elseif ($action === 'create' && $table === 'interviewers') {
+        $name = is_array($newVals) ? ($newVals['full_name'] ?? '') : '';
+        $code = is_array($newVals) ? ($newVals['interviewer_code'] ?? '') : '';
+        $details = 'Interviewer added' . ($name ? ': ' . $name : '') . ($code ? ' (' . $code . ')' : '');
+    } elseif ($action === 'update' && $table === 'interviewers') {
+        $changed = is_array($newVals) ? array_keys(array_filter($newVals, fn($v) => $v !== null && $v !== '')) : [];
+        $details = 'Interviewer updated' . (count($changed) ? ' — fields: ' . implode(', ', $changed) : '');
+    } else {
+        $details = ucfirst($action) . ' on ' . str_replace('_', ' ', $table);
+        if (is_array($newVals) && isset($newVals['status'])) {
+            $details .= ' → status: ' . $newVals['status'];
+        }
+    }
+
+    $ts = $log['created_at'] ?? null;
+    $rows[] = [
+        'id'            => $log['id'] ?? null,
+        'timestamp'     => $ts ?? '—',
+        'timestamp_raw' => $ts ?? '',
+        'user'       => $int['name'],
+        'code'       => $int['code'],
+        'region'     => $int['region'],
+        'action'     => $action,
+        'table_name' => $table,
+        'details'    => $details,
+        'ip_address' => $log['ip_address'] ?? '—',
+        'record_id'  => $log['record_id'] ?? null,
+    ];
+}
+
+echo json_encode(['success' => true, 'data' => $rows, 'total' => count($rows)]);

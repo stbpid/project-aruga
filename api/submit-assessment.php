@@ -280,6 +280,13 @@ $resp      = $input['respondent'] ?? [];
 $childName = trim(($child['first_name'] ?? '') . ' ' . ($child['last_name'] ?? ''));
 $email     = $resp['email'] ?? '';
 
+logAudit('create', 'assessments', $assessmentId,
+    null,
+    ['aruga_id' => $arugaId, 'child_name' => $childName, 'readiness_score' => $assessmentData['readiness_score'] ?? null, 'status' => 'completed'],
+    $assessmentData['interviewer_id'] ?? null,
+    $assessmentId
+);
+
 sendResponse(true, 'Assessment submitted successfully', [
     'assessment_id' => $assessmentId,
     'aruga_id'      => $arugaId,
