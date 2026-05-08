@@ -2707,7 +2707,7 @@
     { key: 'services',     label: 'Services',                 headers: ['Services'],       ids: ['an-service-gap-chart'] },
     { key: 'health',       label: 'Health',                   headers: ['Health'],         ids: ['an-vacc-rate','an-barriers-chart'] },
     { key: 'quality',      label: 'Data Quality',             headers: ['Data Quality'],   ids: ['an-gauge-pct','an-missing-fields','an-flagged-count'] },
-    { key: 'reports',      label: 'Reports',                  headers: ['Reports'],        ids: ['an-email-type'] },
+    { key: 'reports',      label: 'Reports',                  headers: ['Reports'],        ids: ['an-email-type'], locked: true },
   ];
 
   let anSectionVisibility = {};
@@ -2780,11 +2780,15 @@
   function openAnReportSettings() {
     const list = document.getElementById('an-settings-list');
     list.innerHTML = AN_SECTIONS.map(s => {
-      const on = anSectionVisibility[s.key] !== false;
+      const on     = anSectionVisibility[s.key] !== false;
+      const locked = s.locked;
       return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--gray-100);">
-        <span style="font-size:0.8125rem;font-weight:600;color:var(--dark);">${s.label}</span>
-        <div id="an-toggle-${s.key}" onclick="toggleAnSection('${s.key}')" style="width:40px;height:22px;border-radius:999px;background:${on?'#1152d4':'#e5e7eb'};position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;">
-          <div id="an-knob-${s.key}" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:${on?'20':'2'}px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+        <div>
+          <span style="font-size:0.8125rem;font-weight:600;color:var(--dark);">${s.label}</span>
+          ${locked ? '<span style="font-size:0.65rem;color:var(--gray-400);margin-left:0.4rem;">Always visible</span>' : ''}
+        </div>
+        <div id="an-toggle-${s.key}" ${locked ? '' : `onclick="toggleAnSection('${s.key}')"`} style="width:40px;height:22px;border-radius:999px;background:${locked?'#22c55e':on?'#1152d4':'#e5e7eb'};position:relative;${locked?'cursor:not-allowed;opacity:0.7;':'cursor:pointer;'}transition:background 0.2s;flex-shrink:0;">
+          <div id="an-knob-${s.key}" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:${locked||on?'20':'2'}px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
         </div>
       </div>`;
     }).join('');
@@ -2882,6 +2886,12 @@
     renderAnEconomic();
     renderAnServices();
     renderAnHealth();
+    const parts = [];
+    const rangeMap = {'30':'Last 30 days','7':'Last 7 days','90':'Last 90 days','all':'All time'};
+    parts.push(rangeMap[anFilters.range] || anFilters.range);
+    if (anFilters.region)   parts.push(anFilters.region);
+    if (anFilters.disability) parts.push(anFilters.disability);
+    showGlobalToast('Filter applied: ' + parts.join(' · '), 'success');
   }
 
   async function clearAnalyticsFilters() {
@@ -2925,18 +2935,24 @@
     };
     subtitleEl.textContent = subLabels[anTrendView] || '';
 
-    // Fetch from the same monthly API used by Overview
-    const data = await fetchYearData(CURRENT_YEAR);
+    // Use filter-aware AN_DATA trends
+    const monthly = AN_DATA?.trends?.monthly || [];
     container.innerHTML = '';
-    if (!data) { container.innerHTML = AN_EMPTY; return; }
+    if (!monthly.length) { container.innerHTML = AN_EMPTY; return; }
+
+    // Build month-indexed map from label e.g. {Jan:v, Feb:v ...}
+    const mLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const monthMap = {};
+    monthly.forEach((d, i) => { monthMap[i + 1] = d.value; });
 
     let bars;
     if (anTrendView === 'monthly') {
-      const maxVal = Math.max(...data.map(d => d.value), 1);
-      bars = data.map(d => {
-        const isCurrent = d.month === CURRENT_MONTH;
-        const isPrev    = d.month === CURRENT_MONTH - 1 || d.month === CURRENT_MONTH - 2;
-        const isFuture  = d.month > CURRENT_MONTH;
+      const maxVal = Math.max(...monthly.map(d => d.value), 1);
+      bars = monthly.map((d, i) => {
+        const month     = i + 1;
+        const isCurrent = month === CURRENT_MONTH;
+        const isPrev    = month === CURRENT_MONTH - 1 || month === CURRENT_MONTH - 2;
+        const isFuture  = month > CURRENT_MONTH;
         return {
           label: d.label, value: d.value, maxVal,
           tooltip: d.label + ' ' + CURRENT_YEAR + ': ' + d.value + ' assessment' + (d.value !== 1 ? 's' : ''),
@@ -2954,7 +2970,7 @@
       ];
       const currentQ = Math.ceil(CURRENT_MONTH / 3);
       const rawBars = qs.map((q, i) => {
-        const value = q.months.reduce((s, m) => s + (data.find(d => d.month === m)?.value || 0), 0);
+        const value = q.months.reduce((s, m) => s + (monthMap[m] || 0), 0);
         const isCurrentQ = (i+1) === currentQ;
         const isPrevQ    = (i+1) === currentQ - 1;
         const isFutureQ  = (i+1) > currentQ;
