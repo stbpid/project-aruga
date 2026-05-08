@@ -252,24 +252,6 @@
         </div>
       </div>
 
-      <!-- Disability Type Distribution -->
-      <div class="card" style="margin-top:1.5rem;margin-bottom:1.5rem;padding-bottom:1rem;">
-        <div class="card-header">
-          <div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown — filter by region</div></div>
-          <select id="adm-dis-region-filter" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="admRenderDisBars()">
-            <option value="">All Regions</option>
-          </select>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;padding:1rem 0 0.5rem;">
-          <div id="adm-dis-bars" style="display:flex;flex-direction:column;gap:0.75rem;">
-            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>
-          </div>
-          <div style="padding-left:1rem;border-left:1px solid var(--border);">
-            <div style="font-size:0.8125rem;font-weight:700;color:var(--dark);margin-bottom:0.75rem;">Summary</div>
-            <div id="adm-dis-summary" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
-          </div>
-        </div>
-      </div>
 
       <!-- Top Issues This Month -->
       <div class="card" style="margin-bottom:1.5rem;">
@@ -746,6 +728,26 @@
       <!-- ── Disabilities ── -->
       <div class="an-section-header">Disabilities</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+
+        <!-- Disability Type Distribution (from Overview) -->
+        <div class="card" style="margin:0;grid-column:1/-1;">
+          <div class="card-header">
+            <div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown — filter by region</div></div>
+            <select id="adm-dis-region-filter" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="admRenderDisBars()">
+              <option value="">All Regions</option>
+            </select>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;padding:0.5rem 0;">
+            <div id="adm-dis-bars" style="display:flex;flex-direction:column;gap:0.75rem;">
+              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>
+            </div>
+            <div style="padding-left:1rem;border-left:1px solid var(--border);">
+              <div style="font-size:0.8125rem;font-weight:700;color:var(--dark);margin-bottom:0.75rem;">Summary</div>
+              <div id="adm-dis-summary" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="card" style="margin:0;">
           <div class="card-header"><div class="card-title">Most Common Disabilities</div><div class="card-subtitle">Top 10</div></div>
           <div id="an-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
@@ -2832,6 +2834,7 @@
     renderAnEconomic();
     renderAnServices();
     renderAnHealth();
+    admLoadDisabilityDist();
     updateAnTimestamp();
     clearInterval(anAutoRefresh);
     anAutoRefresh = setInterval(async () => { AN_CACHE_TS = 0; AN_EXT = null; AN_EXT_CACHE_KEY = ''; await Promise.all([fetchAnalyticsData(), fetchExtendedAnalytics()]); renderAnAll(); renderAnReadiness(); renderAnEducation(); renderAnEconomic(); renderAnServices(); renderAnHealth(); updateAnTimestamp(); }, 300000);
