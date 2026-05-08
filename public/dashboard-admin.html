@@ -625,29 +625,30 @@
     <div class="dash-content" id="view-analytics" style="display:none;">
 
       <!-- Header -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
-        <div>
-          <div class="page-title" style="margin:0;">Analytics</div>
-          <div class="page-subtitle" id="an-last-refresh" style="margin:0;">Auto-refreshes every 5 minutes</div>
-        </div>
-        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
-          <!-- Global Filters -->
-          <select id="an-f-range" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;" onchange="applyAnalyticsFilters()">
+      <div style="margin-bottom:1rem;">
+        <div class="page-title" style="margin:0;">Analytics</div>
+        <div class="page-subtitle" id="an-last-refresh" style="margin:0;">Auto-refreshes every 5 minutes</div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
+        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+          <select id="an-f-range" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;" onchange="applyAnalyticsFilters()">
             <option value="30">Last 30 days</option>
             <option value="7">Last 7 days</option>
             <option value="90">Last 90 days</option>
             <option value="all">All time</option>
           </select>
-          <select id="an-f-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;" onchange="applyAnalyticsFilters()">
+          <select id="an-f-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;" onchange="applyAnalyticsFilters()">
             <option value="">All Regions</option>
           </select>
-          <select id="an-f-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;" onchange="applyAnalyticsFilters()">
+          <select id="an-f-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;" onchange="applyAnalyticsFilters()">
             <option value="">All Disabilities</option>
             <option>Physical</option><option>Visual</option><option>Hearing</option>
             <option>Intellectual</option><option>Psychosocial</option><option>Speech</option><option>Multiple</option>
           </select>
-          <button class="btn btn-secondary btn-sm" onclick="clearAnalyticsFilters()"><span class="material-symbols-outlined">filter_alt_off</span>Clear</button>
-          <button class="btn btn-primary btn-sm" onclick="exportAllAnalytics()"><span class="material-symbols-outlined">download</span>Export All</button>
+          <button class="btn btn-secondary btn-sm" onclick="clearAnalyticsFilters()">Reset</button>
+          <button class="btn btn-primary btn-sm" onclick="exportAllAnalytics()" style="margin-left:auto;"><span class="material-symbols-outlined">download</span>Export All</button>
         </div>
       </div>
 
@@ -2809,9 +2810,17 @@
     anFilters.region     = document.getElementById('an-f-region').value;
     anFilters.disability = document.getElementById('an-f-disability').value;
     AN_CACHE_TS = 0;
+    AN_EXT = null;
     await fetchAnalyticsData();
     renderAnAll();
     renderAnTrend();
+    // Re-render whichever extended tab is currently visible
+    const activeTab = document.querySelector('[data-antab].active')?.dataset?.antab;
+    if (activeTab === 'readiness') renderAnReadiness();
+    if (activeTab === 'education') renderAnEducation();
+    if (activeTab === 'economic')  renderAnEconomic();
+    if (activeTab === 'services')  renderAnServices();
+    if (activeTab === 'health')    renderAnHealth();
   }
 
   async function clearAnalyticsFilters() {
@@ -2985,7 +2994,7 @@
     if (!data.length) { container.innerHTML = AN_EMPTY; return; }
     const maxV = Math.max(...data.map(r=>r.count), 1);
     container.innerHTML = data.map(r => `
-      <div style="display:flex;align-items:center;gap:0.75rem;">
+      <div title="${r.region}: ${r.count.toLocaleString()} assessments (${Math.round((r.count/maxV)*100)}% of top)" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
         <div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div>
         <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
           <div style="height:100%;width:${Math.round((r.count/maxV)*100)}%;background:var(--blue);border-radius:999px;transition:width 0.6s;"></div>
@@ -3002,7 +3011,7 @@
     else {
       const maxA = Math.max(...ages.map(a=>a.val), 1);
       ageC.innerHTML = ages.map(a => `
-        <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div title="Age ${a.label}: ${a.val.toLocaleString()} children (${Math.round((a.val/maxA)*100)}% of peak)" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
           <div style="font-size:0.75rem;font-weight:600;width:60px;">${a.label}</div>
           <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
             <div style="height:100%;width:${Math.round((a.val/maxA)*100)}%;background:#7c3aed;border-radius:999px;"></div>
@@ -3042,7 +3051,7 @@
     if (!locs.length) { locC.innerHTML = AN_EMPTY; return; }
     const maxL = Math.max(...locs.map(l=>l.count), 1);
     locC.innerHTML = locs.map((l,i) => `
-      <div style="display:flex;align-items:center;gap:0.75rem;">
+      <div title="${l.name}: ${l.count.toLocaleString()} beneficiaries" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
         <span style="font-size:0.8rem;font-weight:800;color:var(--gray-400);width:1.25rem;">${i+1}</span>
         <div style="font-size:0.8125rem;font-weight:600;flex:1;">${l.name}</div>
         <div style="width:120px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
@@ -3062,7 +3071,7 @@
     else {
       const maxD = Math.max(...dis.map(d=>d.val), 1);
       disC.innerHTML = dis.map((d,i) => `
-        <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div title="${d.label}: ${d.val.toLocaleString()} cases (${Math.round((d.val/maxD)*100)}% of top)" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
           <div style="font-size:0.75rem;font-weight:600;width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div>
           <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
             <div style="height:100%;width:${Math.round((d.val/maxD)*100)}%;background:${colors[i%colors.length]};border-radius:999px;"></div>
@@ -3077,7 +3086,7 @@
     if (!multi.length) { multiC.innerHTML = AN_EMPTY; }
     else {
       multiC.innerHTML = multi.map(m => `
-        <div>
+        <div title="${m.label}: ${m.pct}% of beneficiaries with disabilities" style="padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
           <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
             <span style="font-size:0.8125rem;font-weight:600;">${m.label}</span>
             <span style="font-size:0.8125rem;font-weight:800;color:var(--blue);">${m.pct}%</span>
@@ -3144,7 +3153,7 @@
       {key:'balanced',     label:'Balanced',      color:'#16a34a'},
       {key:'underutilized',label:'Underutilized', color:'#f59e0b'},
     ].map(w => `
-      <div style="display:flex;align-items:center;gap:0.75rem;">
+      <div title="${w.label}: ${wlCounts[w.key]} of ${wlTotal} interviewers (${Math.round((wlCounts[w.key]/wlTotal)*100)}%)" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
         <div style="font-size:0.75rem;font-weight:600;width:100px;">${w.label}</div>
         <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
           <div style="height:100%;width:${Math.round((wlCounts[w.key]/wlTotal)*100)}%;background:${w.color};border-radius:999px;"></div>
@@ -3240,7 +3249,7 @@
     const maxR = Math.max(...reasons.map(r=>r.count),1);
     document.getElementById('an-enrollment-reasons').innerHTML = reasons.length
       ? reasons.map(r=>`
-          <div style="display:flex;align-items:center;gap:0.75rem;">
+          <div title="${r.reason}: ${r.count} cases" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
             <div style="font-size:0.75rem;flex:1;font-weight:500;">${r.reason}</div>
             <div style="width:100px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
               <div style="height:100%;width:${Math.round((r.count/maxR)*100)}%;background:#f97316;border-radius:999px;"></div>
@@ -3258,7 +3267,7 @@
     const maxI = Math.max(...income.map(i=>i.count),1);
     document.getElementById('an-income-chart').innerHTML = income.length
       ? income.map((item,i)=>`
-          <div style="display:flex;align-items:center;gap:0.75rem;">
+          <div title="${item.label}: ${item.count.toLocaleString()} households (${item.pct}%)" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
             <div style="font-size:0.75rem;font-weight:600;width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.label}</div>
             <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
               <div style="height:100%;width:${Math.round((item.count/maxI)*100)}%;background:${incColors[i%incColors.length]};border-radius:999px;"></div>
@@ -3276,7 +3285,7 @@
     const maxE = Math.max(...expData.breakdown.map(e=>e.avg),1);
     document.getElementById('an-expenses-chart').innerHTML = expData.breakdown.length
       ? expData.breakdown.map((e,i)=>`
-          <div style="display:flex;align-items:center;gap:0.75rem;">
+          <div title="${e.label}: avg ₱${e.avg.toLocaleString()} per household/month" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
             <div style="font-size:0.75rem;font-weight:600;width:130px;">${e.label}</div>
             <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
               <div style="height:100%;width:${Math.round((e.avg/maxE)*100)}%;background:${expColors[i%expColors.length]};border-radius:999px;"></div>
@@ -3325,7 +3334,7 @@
       const maxV = Math.max(...byRegion.map(r=>r.rate),1);
       document.getElementById('an-vacc-bars').innerHTML = byRegion.length
         ? byRegion.map(r=>`
-            <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div title="${r.region}: ${r.rate}% vaccination rate (${r.total} records)" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
               <div style="font-size:0.72rem;font-weight:600;width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div>
               <div style="flex:1;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
                 <div style="height:100%;width:${r.rate}%;background:${r.rate>=80?'#22c55e':r.rate>=50?'#1152d4':'#ef4444'};border-radius:999px;"></div>
@@ -3338,7 +3347,7 @@
     const maxB = Math.max(...barriers.map(b=>b.count),1);
     document.getElementById('an-barriers-chart').innerHTML = barriers.length
       ? barriers.map(b=>`
-          <div style="display:flex;align-items:center;gap:0.75rem;">
+          <div title="${b.label}: ${b.count} reported cases" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
             <div style="font-size:0.75rem;font-weight:500;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.label}</div>
             <div style="width:120px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
               <div style="height:100%;width:${Math.round((b.count/maxB)*100)}%;background:#f97316;border-radius:999px;"></div>
