@@ -9,26 +9,63 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(['success' => false]); exit;
 }
 
+$range        = $_GET['range']      ?? '30';
+$regionFilter = trim($_GET['region'] ?? '');
+
+// Date filter
+$dateFilter = '';
+if ($range !== 'all') {
+    $days  = (int)$range ?: 30;
+    $since = date('Y-m-d', strtotime("-{$days} days")) . 'T00:00:00';
+    $dateFilter = '&created_at=gte.' . urlencode($since);
+}
+
+// ── Fetch children for region lookup + filter ─────────────────
+$childRes = supabaseRequest('GET', 'children?select=assessment_id,region&limit=100000');
+$children = ($childRes['success'] && is_array($childRes['data'])) ? $childRes['data'] : [];
+
+$regionMap      = [];
+$filteredAssIds = [];
+foreach ($children as $c) {
+    $regionMap[$c['assessment_id']] = $c['region'] ?? '—';
+    if (!$regionFilter || stripos($c['region'] ?? '', $regionFilter) !== false) {
+        $filteredAssIds[$c['assessment_id']] = true;
+    }
+}
+
 // ── Core fetches ─────────────────────────────────────────────
-$assRes    = supabaseRequest('GET', 'assessments?select=id,readiness_score,created_at&limit=100000');
+$assRes    = supabaseRequest('GET', 'assessments?select=id,readiness_score,created_at&limit=100000' . $dateFilter);
 $eduRes    = supabaseRequest('GET', 'education_info?select=assessment_id,is_currently_enrolled,not_enrolled_reason&limit=100000');
 $econRes   = supabaseRequest('GET', 'economic_capacity?select=assessment_id,income_classification,monthly_income&limit=100000');
 $healthRes = supabaseRequest('GET', 'health_info?select=assessment_id,has_all_vaccinations,has_barriers_to_healthcare,healthcare_barriers_details,expense_food,expense_medication,expense_therapy,expense_hygiene,expense_assistive_device,expense_other&limit=100000');
 $svcRes    = supabaseRequest('GET', 'service_availment?select=assessment_id,is_aware_of_social_services,has_availed_services&limit=100000');
-$childRes  = supabaseRequest('GET', 'children?select=assessment_id,region&limit=100000');
 
-$assessments = ($assRes['success']    && is_array($assRes['data']))    ? $assRes['data']    : [];
-$edus        = ($eduRes['success']    && is_array($eduRes['data']))    ? $eduRes['data']    : [];
-$econs       = ($econRes['success']   && is_array($econRes['data']))   ? $econRes['data']   : [];
-$healths     = ($healthRes['success'] && is_array($healthRes['data'])) ? $healthRes['data'] : [];
-$svcs        = ($svcRes['success']    && is_array($svcRes['data']))    ? $svcRes['data']    : [];
-$children    = ($childRes['success']  && is_array($childRes['data']))  ? $childRes['data']  : [];
+// Apply region + date filter to each dataset
+function filterRows(array $rows, array $filteredAssIds, bool $hasRegionFilter): array {
+    if (!$hasRegionFilter) return $rows;
+    return array_values(array_filter($rows, fn($r) => isset($filteredAssIds[$r['assessment_id'] ?? $r['id'] ?? ''])));
+}
 
-// region lookup
-$regionMap = [];
-foreach ($children as $c) { $regionMap[$c['assessment_id']] = $c['region'] ?? '—'; }
+$hasRegion   = !empty($regionFilter);
+$rawAss      = ($assRes['success']    && is_array($assRes['data']))    ? $assRes['data']    : [];
+$rawEdus     = ($eduRes['success']    && is_array($eduRes['data']))    ? $eduRes['data']    : [];
+$rawEcons    = ($econRes['success']   && is_array($econRes['data']))   ? $econRes['data']   : [];
+$rawHealths  = ($healthRes['success'] && is_array($healthRes['data'])) ? $healthRes['data'] : [];
+$rawSvcs     = ($svcRes['success']    && is_array($svcRes['data']))    ? $svcRes['data']    : [];
 
-// ── 1. Readiness Score Trends (monthly, last 12 months) ──────
+// Filter assessments by region
+$assessments = $hasRegion
+    ? array_values(array_filter($rawAss, fn($a) => isset($filteredAssIds[$a['id']])))
+    : $rawAss;
+
+$assIdSet = array_flip(array_column($assessments, 'id'));
+
+$edus    = array_values(array_filter($rawEdus,    fn($r) => isset($assIdSet[$r['assessment_id']])));
+$econs   = array_values(array_filter($rawEcons,   fn($r) => isset($assIdSet[$r['assessment_id']])));
+$healths = array_values(array_filter($rawHealths, fn($r) => isset($assIdSet[$r['assessment_id']])));
+$svcs    = array_values(array_filter($rawSvcs,    fn($r) => isset($assIdSet[$r['assessment_id']])));
+
+// ── 1. Readiness Score Trends (last 12 months) ───────────────
 $readinessMonths = [];
 $now = new DateTime();
 for ($i = 11; $i >= 0; $i--) {
@@ -37,8 +74,8 @@ for ($i = 11; $i >= 0; $i--) {
     $readinessMonths[$key] = ['label' => $dt->format('M Y'), 'severe'=>0,'moderate'=>0,'low'=>0,'stable'=>0];
 }
 foreach ($assessments as $a) {
-    $ts  = $a['created_at'] ?? null;
-    $rs  = strtolower($a['readiness_score'] ?? '');
+    $ts = $a['created_at'] ?? null;
+    $rs = strtolower($a['readiness_score'] ?? '');
     if (!$ts || !in_array($rs, ['severe','moderate','low','stable'])) continue;
     $key = date('Y-m', strtotime($ts));
     if (isset($readinessMonths[$key])) $readinessMonths[$key][$rs]++;
@@ -95,13 +132,10 @@ usort($serviceGap, fn($a,$b)=>$b['aware_pct']-$a['aware_pct']);
 
 // ── 5. Healthcare Barriers ───────────────────────────────────
 $barrierCounts = [];
-$withBarriers  = 0;
 foreach ($healths as $h) {
     if (empty($h['has_barriers_to_healthcare'])) continue;
-    $withBarriers++;
     $detail = trim($h['healthcare_barriers_details'] ?? '');
     if (!$detail) { $barrierCounts['Not specified'] = ($barrierCounts['Not specified']??0)+1; continue; }
-    // Split by comma or semicolon for multi-barriers
     $parts = preg_split('/[,;]+/', $detail);
     foreach ($parts as $p) {
         $p = trim($p);

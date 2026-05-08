@@ -2810,17 +2810,18 @@
     anFilters.region     = document.getElementById('an-f-region').value;
     anFilters.disability = document.getElementById('an-f-disability').value;
     AN_CACHE_TS = 0;
-    AN_EXT = null;
-    await fetchAnalyticsData();
+    AN_EXT      = null;
+    AN_EXT_CACHE_KEY = '';
+    await Promise.all([fetchAnalyticsData(), fetchExtendedAnalytics()]);
     renderAnAll();
     renderAnTrend();
-    // Re-render whichever extended tab is currently visible
     const activeTab = document.querySelector('[data-antab].active')?.dataset?.antab;
     if (activeTab === 'readiness') renderAnReadiness();
     if (activeTab === 'education') renderAnEducation();
     if (activeTab === 'economic')  renderAnEconomic();
     if (activeTab === 'services')  renderAnServices();
     if (activeTab === 'health')    renderAnHealth();
+    if (activeTab === 'quality')   renderAnQuality();
   }
 
   async function clearAnalyticsFilters() {
@@ -3164,12 +3165,16 @@
 
   // ── Extended Analytics ─────────────────────────────────────
   let AN_EXT = null;
+  let AN_EXT_CACHE_KEY = '';
 
   async function fetchExtendedAnalytics() {
-    if (AN_EXT) return;
+    const cacheKey = anFilters.range + '|' + anFilters.region;
+    if (AN_EXT && AN_EXT_CACHE_KEY === cacheKey) return;
+    const params = new URLSearchParams({ range: anFilters.range });
+    if (anFilters.region) params.set('region', anFilters.region);
     try {
-      const json = await (await fetch('/api/get-analytics-extended.php')).json();
-      if (json.success) AN_EXT = json;
+      const json = await (await fetch('/api/get-analytics-extended.php?' + params)).json();
+      if (json.success) { AN_EXT = json; AN_EXT_CACHE_KEY = cacheKey; }
     } catch(e) {}
   }
 
