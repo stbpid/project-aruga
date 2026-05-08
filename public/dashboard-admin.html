@@ -696,9 +696,8 @@
               <div class="card-subtitle" id="an-trend-sub">Completions over time</div>
             </div>
             <div style="display:flex;border:1px solid var(--border);border-radius:0.375rem;overflow:hidden;">
-              <button class="chart-view-btn active" id="an-toggle-daily" onclick="setAnTrendView('daily')">Daily</button>
-              <button class="chart-view-btn" id="an-toggle-weekly" onclick="setAnTrendView('weekly')">Weekly</button>
-              <button class="chart-view-btn" id="an-toggle-monthly" onclick="setAnTrendView('monthly')">Monthly</button>
+              <button class="chart-view-btn active" id="an-toggle-monthly" onclick="setAnTrendView('monthly')">Monthly</button>
+              <button class="chart-view-btn" id="an-toggle-quarterly" onclick="setAnTrendView('quarterly')">Quarterly</button>
             </div>
           </div>
           <div class="bar-chart" id="an-trend-bars" style="flex:1;min-height:160px;margin-top:0.75rem;"></div>
@@ -723,6 +722,11 @@
         <button class="settings-tab" data-antab="beneficiary" onclick="showAnTab('beneficiary')"><span class="material-symbols-outlined">groups</span>Beneficiaries</button>
         <button class="settings-tab" data-antab="disability" onclick="showAnTab('disability')"><span class="material-symbols-outlined">accessible</span>Disabilities</button>
         <button class="settings-tab" data-antab="interviewers" onclick="showAnTab('interviewers')"><span class="material-symbols-outlined">leaderboard</span>Interviewers</button>
+        <button class="settings-tab" data-antab="readiness" onclick="showAnTab('readiness')"><span class="material-symbols-outlined">show_chart</span>Readiness</button>
+        <button class="settings-tab" data-antab="education" onclick="showAnTab('education')"><span class="material-symbols-outlined">school</span>Education</button>
+        <button class="settings-tab" data-antab="economic" onclick="showAnTab('economic')"><span class="material-symbols-outlined">payments</span>Economic</button>
+        <button class="settings-tab" data-antab="services" onclick="showAnTab('services')"><span class="material-symbols-outlined">medical_services</span>Services</button>
+        <button class="settings-tab" data-antab="health" onclick="showAnTab('health')"><span class="material-symbols-outlined">favorite</span>Health</button>
         <button class="settings-tab" data-antab="quality" onclick="showAnTab('quality')"><span class="material-symbols-outlined">verified</span>Data Quality</button>
         <button class="settings-tab" data-antab="reports" onclick="showAnTab('reports')"><span class="material-symbols-outlined">summarize</span>Reports</button>
       </div>
@@ -778,7 +782,7 @@
             <div class="card-header"><div class="card-title">Productivity Table</div><div class="card-subtitle">All interviewers ranked by completions</div></div>
             <div class="table-wrap">
               <table class="dash-table">
-                <thead><tr><th>Rank</th><th>Name</th><th>Code</th><th>Region</th><th>Completed</th><th>Avg/Day</th><th>Last Active</th><th>Workload</th></tr></thead>
+                <thead><tr><th>Rank</th><th>Name</th><th>Code</th><th>Region</th><th>Completed</th><th>Avg/Day</th><th>Workload</th></tr></thead>
                 <tbody id="an-int-tbody"></tbody>
               </table>
             </div>
@@ -790,6 +794,74 @@
           <div class="card" style="margin:0;">
             <div class="card-header"><div class="card-title">Workload Distribution</div></div>
             <div id="an-workload-vis" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Readiness Score Trends ── -->
+      <div class="settings-panel" id="antab-readiness" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div><div class="card-title">Readiness Score Trends</div><div class="card-subtitle">Monthly Severe / Moderate / Low / Stable counts — last 12 months</div></div>
+              <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="an-readiness-legend"></div>
+            </div>
+            <div id="an-readiness-chart" style="min-height:200px;padding:0.5rem 0;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Education ── -->
+      <div class="settings-panel" id="antab-education" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">School Enrollment Rate</div><div class="card-subtitle">Enrolled vs not enrolled</div></div>
+            <div id="an-enrollment-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Top Reasons for Non-Enrollment</div><div class="card-subtitle">Most common reasons reported</div></div>
+            <div id="an-enrollment-reasons" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Economic ── -->
+      <div class="settings-panel" id="antab-economic" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="card" style="margin:0;grid-column:1/-1;">
+            <div class="card-header"><div class="card-title">Income Classification Breakdown</div><div class="card-subtitle">Distribution across income brackets</div></div>
+            <div id="an-income-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+          </div>
+          <div class="card" style="margin:0;grid-column:1/-1;">
+            <div class="card-header"><div class="card-title">Average Monthly Health Expenses</div><div class="card-subtitle">By category across all households</div></div>
+            <div id="an-expenses-total" style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;"></div>
+            <div id="an-expenses-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Services ── -->
+      <div class="settings-panel" id="antab-services" style="display:none;">
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Service Awareness vs. Availment Gap</div><div class="card-subtitle">Aware % vs Availed % by region</div></div>
+          <div id="an-service-gap-chart" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.25rem 0;"></div>
+        </div>
+      </div>
+
+      <!-- ── Health ── -->
+      <div class="settings-panel" id="antab-health" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Vaccination Status</div><div class="card-subtitle">National rate and by region</div></div>
+            <div id="an-vacc-stat" style="display:flex;flex-direction:column;align-items:center;padding:1rem 0 0.5rem;gap:0.25rem;">
+              <div id="an-vacc-rate" style="font-size:3rem;font-weight:800;color:#16a34a;line-height:1;">—</div>
+              <div style="font-size:0.8rem;color:var(--gray-500);">National vaccination rate</div>
+            </div>
+            <div id="an-vacc-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;margin-top:0.5rem;"></div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Healthcare Barriers</div><div class="card-subtitle">Most common barriers to healthcare access</div></div>
+            <div id="an-barriers-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
           </div>
         </div>
       </div>
@@ -2680,60 +2752,36 @@
 
   // ── Analytics View ────────────────────────────────────────────
 
-  let anTrendView = 'daily';
+  let anTrendView = 'monthly';
   let anAutoRefresh;
   let anFilters = { range: '30', region: '', disability: '' };
+  let AN_DATA = null;
+  let AN_CACHE_TS = 0;
+  const AN_CACHE_TTL = 5 * 60 * 1000;
 
-  const AN_MOCK = {
-    totalAssessments: 12480,
-    completionRate: 74,
-    activeInterviewers: 241,
-    avgPerDay: 58,
-    daily: [42,55,61,48,70,83,65,72,90,58,77,85,63,49,91,78,66,55,88,74,80,95,67,71,58,84,92,76,60,88],
-    weekly: [310,428,465,512,490,558,601,540],
-    monthly: [980,1140,1320,1480,1560,1210,1390,1620,1740,1580,1690,1830],
-    regions: [
-      {region:'NCR – Metro Manila',count:1540},{region:'Region IV-A – CALABARZON',count:1200},
-      {region:'Region XI – Davao Region',count:850},{region:'Region VII – Central Visayas',count:990},
-      {region:'Region III – Central Luzon',count:980},{region:'Region I – Ilocos Region',count:810},
-      {region:'Region VI – Western Visayas',count:760},{region:'Region X – Northern Mindanao',count:630},
-      {region:'Region V – Bicol Region',count:660},{region:'Region IX – Zamboanga Peninsula',count:490},
-    ],
-    ageGroups: [{label:'0–5',val:1840},{label:'6–11',val:3210},{label:'12–17',val:4720},{label:'18+',val:2710}],
-    gender: [{label:'Male',val:6890,color:'#1152d4'},{label:'Female',val:5590,color:'#ec4899'}],
-    topLocations: [{name:'Manila, NCR',count:620},{name:'Cebu City, Region VII',count:480},{name:'Davao City, Region XI',count:410},{name:'Quezon City, NCR',count:390},{name:'Caloocan, NCR',count:350}],
-    disabilities: [
-      {label:'Physical',val:3240},{label:'Visual',val:2180},{label:'Hearing',val:1980},
-      {label:'Multiple',val:1750},{label:'Intellectual',val:1420},{label:'Psychosocial',val:980},
-      {label:'Speech',val:540},{label:'Cerebral Palsy',val:210},{label:'Autism',val:90},{label:'Other',val:110},
-    ],
-    multiDis: [{label:'1 disability',pct:62},{label:'2 disabilities',pct:29},{label:'3+ disabilities',pct:9}],
-    disAge: [
-      {group:'0–5',   Physical:120, Visual:80,  Hearing:90,  Intellectual:180, Other:60},
-      {group:'6–11',  Physical:340, Visual:210, Hearing:260, Intellectual:420, Other:130},
-      {group:'12–17', Physical:680, Visual:490, Hearing:520, Intellectual:590, Other:280},
-      {group:'18+',   Physical:480, Visual:340, Hearing:290, Intellectual:200, Other:190},
-    ],
-    interviewers: [
-      {name:'Ana Bautista',     code:'IVR-2024-001',region:'NCR – Metro Manila',  completed:142,avgDay:4.7,last:'2026-05-03',workload:'overloaded'},
-      {name:'Pedro Cruz',       code:'IVR-2024-002',region:'Region VII',           completed:128,avgDay:4.3,last:'2026-05-04',workload:'overloaded'},
-      {name:'Maria Reyes',      code:'IVR-2024-003',region:'Region IV-A',          completed:115,avgDay:3.8,last:'2026-05-04',workload:'balanced'},
-      {name:'Jose Santos',      code:'IVR-2024-004',region:'Region III',           completed:108,avgDay:3.6,last:'2026-05-02',workload:'balanced'},
-      {name:'Luz Garcia',       code:'IVR-2024-005',region:'Region XI',            completed:97, avgDay:3.2,last:'2026-05-04',workload:'balanced'},
-      {name:'Ramon Dela Cruz',  code:'IVR-2024-006',region:'Region I',             completed:84, avgDay:2.8,last:'2026-05-01',workload:'balanced'},
-      {name:'Elena Mendoza',    code:'IVR-2024-007',region:'BARMM',               completed:61, avgDay:2.0,last:'2026-04-29',workload:'underutilized'},
-      {name:'Dante Villanueva', code:'IVR-2024-008',region:'Region XIII',          completed:48, avgDay:1.6,last:'2026-04-27',workload:'underutilized'},
-    ],
-    completenessScore: 88,
-    missingFields: [
-      {field:'Parent/Guardian Contact',pct:18},{field:'Barangay Name',pct:14},{field:'Secondary Disability',pct:11},
-      {field:'Household Income',pct:9},{field:'School Name',pct:7},
-    ],
-    flaggedCount: 34,
-  };
+  const AN_EMPTY = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No data available</div>';
+  const AN_LOADING = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Loading...</div>';
 
-  function loadAnalyticsView() {
-    populateAnFilters();
+  async function loadAnalyticsView() {
+    await fetchAnalyticsData();
+    renderAnAll();
+    updateAnTimestamp();
+    clearInterval(anAutoRefresh);
+    anAutoRefresh = setInterval(async () => { AN_CACHE_TS = 0; await fetchAnalyticsData(); renderAnAll(); updateAnTimestamp(); }, 300000);
+  }
+
+  async function fetchAnalyticsData(force = false) {
+    if (!force && AN_DATA && (Date.now() - AN_CACHE_TS) < AN_CACHE_TTL) return;
+    const params = new URLSearchParams({ range: anFilters.range });
+    if (anFilters.region) params.set('region', anFilters.region);
+    try {
+      const json = await (await fetch('/api/get-analytics.php?' + params)).json();
+      if (json.success) { AN_DATA = json; AN_CACHE_TS = Date.now(); }
+    } catch(e) { AN_DATA = AN_DATA || null; }
+  }
+
+  function renderAnAll() {
+    if (!AN_DATA) return;
     renderAnOverview();
     renderAnTrend();
     renderAnRegionBars();
@@ -2741,9 +2789,7 @@
     renderAnDisability();
     renderAnInterviewers();
     renderAnQuality();
-    updateAnTimestamp();
-    clearInterval(anAutoRefresh);
-    anAutoRefresh = setInterval(() => { updateAnTimestamp(); }, 300000);
+    populateAnFilters();
   }
 
   function updateAnTimestamp() {
@@ -2751,27 +2797,29 @@
   }
 
   function populateAnFilters() {
+    if (!AN_DATA) return;
     const sel = document.getElementById('an-f-region');
-    if (sel.options.length <= 1) {
-      AN_MOCK.regions.forEach(r => { const o = document.createElement('option'); o.value = r.region; o.textContent = r.region; sel.appendChild(o); });
+    if (sel.options.length <= 1 && AN_DATA.regions) {
+      AN_DATA.regions.forEach(r => { const o = document.createElement('option'); o.value = r.region; o.textContent = r.region; sel.appendChild(o); });
     }
   }
 
-  function applyAnalyticsFilters() {
-    anFilters.range = document.getElementById('an-f-range').value;
-    anFilters.region = document.getElementById('an-f-region').value;
+  async function applyAnalyticsFilters() {
+    anFilters.range      = document.getElementById('an-f-range').value;
+    anFilters.region     = document.getElementById('an-f-region').value;
     anFilters.disability = document.getElementById('an-f-disability').value;
-    renderAnOverview();
+    AN_CACHE_TS = 0;
+    await fetchAnalyticsData();
+    renderAnAll();
     renderAnTrend();
-    renderAnRegionBars();
   }
 
-  function clearAnalyticsFilters() {
+  async function clearAnalyticsFilters() {
     document.getElementById('an-f-range').value = '30';
     document.getElementById('an-f-region').value = '';
     document.getElementById('an-f-disability').value = '';
     anFilters = { range:'30', region:'', disability:'' };
-    applyAnalyticsFilters();
+    await applyAnalyticsFilters();
   }
 
   function showAnTab(tab) {
@@ -2779,6 +2827,11 @@
     document.querySelectorAll('[id^="antab-"]').forEach(p => p.style.display = 'none');
     const panel = document.getElementById('antab-' + tab);
     if (panel) panel.style.display = '';
+    if (tab === 'readiness') renderAnReadiness();
+    if (tab === 'education') renderAnEducation();
+    if (tab === 'economic')  renderAnEconomic();
+    if (tab === 'services')  renderAnServices();
+    if (tab === 'health')    renderAnHealth();
   }
 
   function setAnTrendView(v) {
@@ -2790,118 +2843,205 @@
     renderAnTrend();
   }
 
-  function renderAnOverview() {
-    const d = AN_MOCK;
-    document.getElementById('an-total').textContent = d.totalAssessments.toLocaleString();
-    document.getElementById('an-total-sub').textContent = 'Across all regions';
-    document.getElementById('an-rate').textContent = d.completionRate + '%';
-    document.getElementById('an-interviewers').textContent = d.activeInterviewers;
-    document.getElementById('an-int-sub').textContent = 'Currently active';
-    document.getElementById('an-avg-day').textContent = d.avgPerDay;
-    const rate = d.completionRate;
-    const statusEl = document.getElementById('an-status-icon');
-    const labelEl = document.getElementById('an-status-label');
-    const subEl = document.getElementById('an-status-sub');
-    const badge = document.getElementById('an-rate-badge');
-    if (rate >= 80) {
-      statusEl.style.background = '#f0fdf4'; statusEl.style.color = '#16a34a';
-      statusEl.querySelector('span').textContent = 'trending_up';
-      labelEl.textContent = 'Ahead'; labelEl.style.color = '#16a34a';
-      subEl.textContent = 'Exceeding national target pace';
-      badge.innerHTML = '<span class="badge badge-green">Ahead</span>';
-    } else if (rate >= 60) {
-      statusEl.style.background = '#eff6ff'; statusEl.style.color = '#1152d4';
-      statusEl.querySelector('span').textContent = 'check_circle';
-      labelEl.textContent = 'On Track'; labelEl.style.color = '#1152d4';
-      subEl.textContent = 'Progressing within expected range';
-      badge.innerHTML = '<span class="badge badge-blue">On Track</span>';
+  async function renderAnTrend() {
+    const container = document.getElementById('an-trend-bars');
+    container.innerHTML = AN_LOADING;
+    const subtitleEl = document.getElementById('an-trend-sub');
+
+    const subLabels = {
+      daily:   'Daily submissions — last 30 days',
+      weekly:  'Weekly submissions — last 8 weeks',
+      monthly: 'Monthly submissions — ' + CURRENT_YEAR,
+    };
+    subtitleEl.textContent = subLabels[anTrendView] || '';
+
+    // Fetch from the same monthly API used by Overview
+    const data = await fetchYearData(CURRENT_YEAR);
+    container.innerHTML = '';
+    if (!data) { container.innerHTML = AN_EMPTY; return; }
+
+    let bars;
+    if (anTrendView === 'monthly') {
+      const maxVal = Math.max(...data.map(d => d.value), 1);
+      bars = data.map(d => {
+        const isCurrent = d.month === CURRENT_MONTH;
+        const isPrev    = d.month === CURRENT_MONTH - 1 || d.month === CURRENT_MONTH - 2;
+        const isFuture  = d.month > CURRENT_MONTH;
+        return {
+          label: d.label, value: d.value, maxVal,
+          tooltip: d.label + ' ' + CURRENT_YEAR + ': ' + d.value + ' assessment' + (d.value !== 1 ? 's' : ''),
+          color:      isCurrent ? '#1152d4' : isPrev ? '#60a5fa' : isFuture ? '#e2e8f0' : '#93c5fd',
+          hoverColor: isCurrent ? '#0d3fa3' : isPrev ? '#3b82f6' : isFuture ? '#cbd5e1' : '#60a5fa',
+          highlight:  isCurrent,
+        };
+      });
+    } else if (anTrendView === 'quarterly') {
+      const qs = [
+        {label:'Q1', tip:'Q1 (Jan–Mar)', months:[1,2,3]},
+        {label:'Q2', tip:'Q2 (Apr–Jun)', months:[4,5,6]},
+        {label:'Q3', tip:'Q3 (Jul–Sep)', months:[7,8,9]},
+        {label:'Q4', tip:'Q4 (Oct–Dec)', months:[10,11,12]},
+      ];
+      const currentQ = Math.ceil(CURRENT_MONTH / 3);
+      const rawBars = qs.map((q, i) => {
+        const value = q.months.reduce((s, m) => s + (data.find(d => d.month === m)?.value || 0), 0);
+        const isCurrentQ = (i+1) === currentQ;
+        const isPrevQ    = (i+1) === currentQ - 1;
+        const isFutureQ  = (i+1) > currentQ;
+        return {
+          label: q.label, value, maxVal: 0,
+          tooltip: q.tip + ': ' + value + ' assessment' + (value !== 1 ? 's' : ''),
+          color:      isCurrentQ ? '#1152d4' : isPrevQ ? '#60a5fa' : isFutureQ ? '#e2e8f0' : '#93c5fd',
+          hoverColor: isCurrentQ ? '#0d3fa3' : isPrevQ ? '#3b82f6' : isFutureQ ? '#cbd5e1' : '#60a5fa',
+          highlight:  isCurrentQ,
+        };
+      });
+      const maxVal = Math.max(...rawBars.map(b => b.value), 1);
+      bars = rawBars.map(b => ({ ...b, maxVal }));
     } else {
-      statusEl.style.background = '#fff1f1'; statusEl.style.color = '#ef4444';
-      statusEl.querySelector('span').textContent = 'warning';
-      labelEl.textContent = 'Behind'; labelEl.style.color = '#ef4444';
-      subEl.textContent = 'National pace below target — action needed';
-      badge.innerHTML = '<span class="badge badge-red">Behind</span>';
+      // daily — use AN_DATA trends if available
+      const trendData = AN_DATA?.trends?.daily || [];
+      if (!trendData.length) { container.innerHTML = AN_EMPTY; return; }
+      const maxVal = Math.max(...trendData.map(d => d.value), 1);
+      bars = trendData.map(d => ({
+        label: d.label, value: d.value, maxVal,
+        tooltip: d.label + ': ' + d.value + ' assessment' + (d.value !== 1 ? 's' : ''),
+        color: '#93c5fd', hoverColor: '#1152d4', highlight: false,
+      }));
     }
+
+    renderBarsInto(container, bars);
   }
 
-  function renderAnTrend() {
-    const container = document.getElementById('an-trend-bars');
+  function renderBarsInto(container, bars) {
     container.innerHTML = '';
-    const data = anTrendView === 'daily' ? AN_MOCK.daily.slice(-30)
-               : anTrendView === 'weekly' ? AN_MOCK.weekly
-               : AN_MOCK.monthly;
-    const labels = anTrendView === 'daily' ? Array.from({length:data.length},(_,i)=>'D'+(i+1))
-                 : anTrendView === 'weekly' ? ['W44','W45','W46','W47','W48','W49','W50','W51']
-                 : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    document.getElementById('an-trend-sub').textContent =
-      anTrendView === 'daily' ? 'Daily completions — last 30 days'
-      : anTrendView === 'weekly' ? 'Weekly completions — last 8 weeks'
-      : 'Monthly completions — current year';
-    const maxV = Math.max(...data, 1);
-    const usableH = (container.clientHeight || 160) - 32;
-    let tip = document.getElementById('chart-tooltip');
-    if (!tip) { tip = document.createElement('div'); tip.id = 'chart-tooltip'; tip.style.cssText = 'position:fixed;background:#1f2937;color:white;font-size:0.7rem;font-weight:600;padding:0.3rem 0.625rem;border-radius:0.375rem;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9000;white-space:nowrap;'; document.body.appendChild(tip); }
-    data.forEach((val, i) => {
-      const pct = val / maxV;
-      const h = Math.max(pct * usableH, val > 0 ? 4 : 3);
+    const containerH = container.clientHeight || 160;
+    const usableH    = containerH - 32;
+    let tooltip = document.getElementById('chart-tooltip');
+    if (!tooltip) {
+      tooltip = document.createElement('div');
+      tooltip.id = 'chart-tooltip';
+      tooltip.style.cssText = 'position:fixed;background:#1f2937;color:white;font-size:0.7rem;font-weight:600;padding:0.3rem 0.625rem;border-radius:0.375rem;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9000;white-space:nowrap;';
+      document.body.appendChild(tooltip);
+    }
+    bars.forEach(b => {
+      const pct = b.value / b.maxVal;
+      const h   = Math.max(pct * usableH, b.value > 0 ? 6 : 3);
       const col = document.createElement('div'); col.className = 'bar-col';
-      const vd = document.createElement('div'); vd.style.cssText = 'font-size:0.55rem;font-weight:700;color:#9ca3af;margin-bottom:3px;text-align:center;min-height:0.75rem;'; vd.textContent = data.length <= 12 ? val : '';
+      const vd  = document.createElement('div');
+      vd.style.cssText = `font-size:0.6rem;font-weight:700;color:${b.highlight?'#1152d4':'#9ca3af'};margin-bottom:3px;text-align:center;min-height:0.75rem;`;
+      vd.textContent = b.value > 0 && bars.length <= 12 ? b.value : '';
       const bar = document.createElement('div'); bar.className = 'bar-fill';
-      bar.style.cssText = `height:${h}px;background:#93c5fd;border-radius:4px 4px 0 0;cursor:pointer;transition:background 0.15s;`;
-      bar.addEventListener('mouseenter', e => { bar.style.background = '#1152d4'; tip.textContent = (labels[i]||'') + ': ' + val + ' assessments'; tip.style.opacity = '1'; });
-      bar.addEventListener('mousemove', e => { tip.style.left = (e.clientX+12)+'px'; tip.style.top = (e.clientY-28)+'px'; });
-      bar.addEventListener('mouseleave', () => { bar.style.background = '#93c5fd'; tip.style.opacity = '0'; });
-      const lbl = document.createElement('span'); lbl.className = 'bar-label'; lbl.textContent = labels[i] || '';
-      col.appendChild(vd); col.appendChild(bar); col.appendChild(lbl); container.appendChild(col);
+      bar.style.cssText = `height:${h}px;background:${b.color};border-radius:4px 4px 0 0;transition:background 0.15s,transform 0.15s;cursor:pointer;`;
+      bar.addEventListener('mouseenter', function() { this.style.background=b.hoverColor; this.style.transform='scaleY(1.03)'; this.style.transformOrigin='bottom'; tooltip.textContent=b.tooltip; tooltip.style.opacity='1'; });
+      bar.addEventListener('mousemove',  e => { tooltip.style.left=(e.clientX+12)+'px'; tooltip.style.top=(e.clientY-28)+'px'; });
+      bar.addEventListener('mouseleave', function() { this.style.background=b.color; this.style.transform=''; tooltip.style.opacity='0'; });
+      const lbl = document.createElement('span'); lbl.className = 'bar-label';
+      lbl.style.cssText = `font-weight:${b.highlight?'700':'500'};color:${b.highlight?'#1152d4':'#6b7280'};`;
+      lbl.textContent = b.label;
+      col.appendChild(vd); col.appendChild(bar); col.appendChild(lbl);
+      container.appendChild(col);
     });
+  }
+
+  function renderAnOverview() {
+    const s = AN_DATA?.summary;
+    if (!s) return;
+    document.getElementById('an-total').textContent       = (s.total||0).toLocaleString();
+    document.getElementById('an-total-sub').textContent   = 'Across all regions';
+    document.getElementById('an-rate').textContent        = (s.completion_rate||0) + '%';
+    document.getElementById('an-interviewers').textContent= (s.active_interviewers||0).toLocaleString();
+    document.getElementById('an-int-sub').textContent     = 'Submitted at least once';
+    document.getElementById('an-avg-day').textContent     = s.avg_per_day||0;
+    const rate     = s.completion_rate || 0;
+    const statusEl = document.getElementById('an-status-icon');
+    const labelEl  = document.getElementById('an-status-label');
+    const subEl    = document.getElementById('an-status-sub');
+    const badge    = document.getElementById('an-rate-badge');
+    if (rate >= 80) {
+      statusEl.style.background='#f0fdf4'; statusEl.style.color='#16a34a';
+      statusEl.querySelector('span').textContent='trending_up';
+      labelEl.textContent='Ahead'; labelEl.style.color='#16a34a';
+      subEl.textContent='Exceeding national target pace';
+      badge.innerHTML='<span class="badge badge-green">Ahead</span>';
+    } else if (rate >= 60) {
+      statusEl.style.background='#eff6ff'; statusEl.style.color='#1152d4';
+      statusEl.querySelector('span').textContent='check_circle';
+      labelEl.textContent='On Track'; labelEl.style.color='#1152d4';
+      subEl.textContent='Progressing within expected range';
+      badge.innerHTML='<span class="badge badge-blue">On Track</span>';
+    } else {
+      statusEl.style.background='#fff1f1'; statusEl.style.color='#ef4444';
+      statusEl.querySelector('span').textContent='warning';
+      labelEl.textContent='Behind'; labelEl.style.color='#ef4444';
+      subEl.textContent='National pace below target — action needed';
+      badge.innerHTML='<span class="badge badge-red">Behind</span>';
+    }
   }
 
   function renderAnRegionBars() {
     const container = document.getElementById('an-region-bars');
-    const data = AN_MOCK.regions;
-    const maxV = Math.max(...data.map(r => r.count), 1);
+    const data = AN_DATA?.regions || [];
+    if (!data.length) { container.innerHTML = AN_EMPTY; return; }
+    const maxV = Math.max(...data.map(r=>r.count), 1);
     container.innerHTML = data.map(r => `
       <div style="display:flex;align-items:center;gap:0.75rem;">
         <div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div>
         <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
-          <div style="height:100%;width:${Math.round((r.count/maxV)*100)}%;background:var(--blue);border-radius:999px;transition:width 0.6s ease;"></div>
+          <div style="height:100%;width:${Math.round((r.count/maxV)*100)}%;background:var(--blue);border-radius:999px;transition:width 0.6s;"></div>
         </div>
         <div style="font-size:0.75rem;font-weight:800;color:var(--dark);width:48px;text-align:right;">${r.count.toLocaleString()}</div>
       </div>`).join('');
   }
 
   function renderAnBeneficiary() {
+    // Age groups
     const ageC = document.getElementById('an-age-bars');
-    const maxA = Math.max(...AN_MOCK.ageGroups.map(a => a.val), 1);
-    ageC.innerHTML = AN_MOCK.ageGroups.map(a => `
-      <div style="display:flex;align-items:center;gap:0.75rem;">
-        <div style="font-size:0.75rem;font-weight:600;width:60px;">${a.label}</div>
-        <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
-          <div style="height:100%;width:${Math.round((a.val/maxA)*100)}%;background:#7c3aed;border-radius:999px;"></div>
-        </div>
-        <div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${a.val.toLocaleString()}</div>
-      </div>`).join('');
+    const ages = AN_DATA?.age_groups || [];
+    if (!ages.length) { ageC.innerHTML = AN_EMPTY; }
+    else {
+      const maxA = Math.max(...ages.map(a=>a.val), 1);
+      ageC.innerHTML = ages.map(a => `
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <div style="font-size:0.75rem;font-weight:600;width:60px;">${a.label}</div>
+          <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+            <div style="height:100%;width:${Math.round((a.val/maxA)*100)}%;background:#7c3aed;border-radius:999px;"></div>
+          </div>
+          <div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${a.val.toLocaleString()}</div>
+        </div>`).join('');
+    }
 
+    // Gender donut
     const genderC = document.getElementById('an-gender-donut');
-    const total = AN_MOCK.gender.reduce((s,g)=>s+g.val,0);
-    const malePct = Math.round((AN_MOCK.gender[0].val/total)*100);
-    genderC.innerHTML = `
-      <svg viewBox="0 0 120 120" width="140" height="140">
-        <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="20"/>
-        <circle cx="60" cy="60" r="50" fill="none" stroke="#1152d4" stroke-width="20"
-          stroke-dasharray="${malePct*3.14} ${(100-malePct)*3.14}"
-          stroke-dashoffset="78.5" transform="rotate(-90 60 60)"/>
-        <circle cx="60" cy="60" r="50" fill="none" stroke="#ec4899" stroke-width="20"
-          stroke-dasharray="${(100-malePct)*3.14} ${malePct*3.14}"
-          stroke-dashoffset="${78.5-(malePct*3.14)}" transform="rotate(-90 60 60)"/>
-      </svg>
-      <div style="display:flex;gap:1.25rem;">
-        ${AN_MOCK.gender.map(g=>`<div style="text-align:center;"><div style="width:10px;height:10px;border-radius:50%;background:${g.color};margin:0 auto 4px;"></div><div style="font-size:0.75rem;font-weight:700;">${g.label}</div><div style="font-size:0.8125rem;font-weight:800;color:var(--dark);">${Math.round((g.val/total)*100)}%</div></div>`).join('')}
-      </div>`;
+    const gender  = AN_DATA?.gender || [];
+    const gTotal  = gender.reduce((s,g)=>s+g.val, 0);
+    if (!gTotal) { genderC.innerHTML = AN_EMPTY; }
+    else {
+      const circ = 314;
+      let offset = 0;
+      const arcs = gender.map(g => {
+        const pct  = gTotal > 0 ? g.val/gTotal : 0;
+        const dash = pct * circ;
+        const arc  = `<circle cx="60" cy="60" r="50" fill="none" stroke="${g.color}" stroke-width="20" stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${78.5-offset}" transform="rotate(-90 60 60)"/>`;
+        offset += dash;
+        return arc;
+      }).join('');
+      genderC.innerHTML = `
+        <svg viewBox="0 0 120 120" width="140" height="140">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="20"/>
+          ${arcs}
+        </svg>
+        <div style="display:flex;gap:1.25rem;">
+          ${gender.map(g=>`<div style="text-align:center;"><div style="width:10px;height:10px;border-radius:50%;background:${g.color};margin:0 auto 4px;"></div><div style="font-size:0.75rem;font-weight:700;">${g.label}</div><div style="font-size:0.8125rem;font-weight:800;color:var(--dark);">${gTotal>0?Math.round((g.val/gTotal)*100):0}%</div></div>`).join('')}
+        </div>`;
+    }
 
+    // Top locations
     const locC = document.getElementById('an-top-locations');
-    const maxL = Math.max(...AN_MOCK.topLocations.map(l=>l.count),1);
-    locC.innerHTML = AN_MOCK.topLocations.map((l,i) => `
+    const locs = AN_DATA?.top_locations || [];
+    if (!locs.length) { locC.innerHTML = AN_EMPTY; return; }
+    const maxL = Math.max(...locs.map(l=>l.count), 1);
+    locC.innerHTML = locs.map((l,i) => `
       <div style="display:flex;align-items:center;gap:0.75rem;">
         <span style="font-size:0.8rem;font-weight:800;color:var(--gray-400);width:1.25rem;">${i+1}</span>
         <div style="font-size:0.8125rem;font-weight:600;flex:1;">${l.name}</div>
@@ -2913,81 +3053,96 @@
   }
 
   function renderAnDisability() {
-    const disC = document.getElementById('an-dis-bars');
-    const maxD = Math.max(...AN_MOCK.disabilities.map(d=>d.val),1);
     const colors = ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6','#06b6d4','#84cc16'];
-    disC.innerHTML = AN_MOCK.disabilities.map((d,i) => `
-      <div style="display:flex;align-items:center;gap:0.75rem;">
-        <div style="font-size:0.75rem;font-weight:600;width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div>
-        <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
-          <div style="height:100%;width:${Math.round((d.val/maxD)*100)}%;background:${colors[i%colors.length]};border-radius:999px;"></div>
-        </div>
-        <div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${d.val.toLocaleString()}</div>
-      </div>`).join('');
 
+    // Common disabilities
+    const disC = document.getElementById('an-dis-bars');
+    const dis  = AN_DATA?.disabilities || [];
+    if (!dis.length) { disC.innerHTML = AN_EMPTY; }
+    else {
+      const maxD = Math.max(...dis.map(d=>d.val), 1);
+      disC.innerHTML = dis.map((d,i) => `
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <div style="font-size:0.75rem;font-weight:600;width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div>
+          <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+            <div style="height:100%;width:${Math.round((d.val/maxD)*100)}%;background:${colors[i%colors.length]};border-radius:999px;"></div>
+          </div>
+          <div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${d.val.toLocaleString()}</div>
+        </div>`).join('');
+    }
+
+    // Multiple conditions
     const multiC = document.getElementById('an-multi-dis');
-    multiC.innerHTML = AN_MOCK.multiDis.map(m => `
-      <div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
-          <span style="font-size:0.8125rem;font-weight:600;">${m.label}</span>
-          <span style="font-size:0.8125rem;font-weight:800;color:var(--blue);">${m.pct}%</span>
-        </div>
-        <div style="height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
-          <div style="height:100%;width:${m.pct}%;background:var(--blue);border-radius:999px;"></div>
-        </div>
-      </div>`).join('');
+    const multi  = AN_DATA?.multi_dis || [];
+    if (!multi.length) { multiC.innerHTML = AN_EMPTY; }
+    else {
+      multiC.innerHTML = multi.map(m => `
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+            <span style="font-size:0.8125rem;font-weight:600;">${m.label}</span>
+            <span style="font-size:0.8125rem;font-weight:800;color:var(--blue);">${m.pct}%</span>
+          </div>
+          <div style="height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+            <div style="height:100%;width:${m.pct}%;background:var(--blue);border-radius:999px;"></div>
+          </div>
+        </div>`).join('');
+    }
 
-    const ageDisC = document.getElementById('an-dis-age');
-    const disTypes = ['Physical','Visual','Hearing','Intellectual','Other'];
-    const dgColors = ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981'];
+    // Disability by age
+    const ageDisC   = document.getElementById('an-dis-age');
+    const disAge    = AN_DATA?.dis_age    || [];
+    const disTypes  = AN_DATA?.dis_types  || [];
+    const dgColors  = ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981'];
+    if (!disAge.length || !disTypes.length) { ageDisC.innerHTML = AN_EMPTY; return; }
     ageDisC.innerHTML = `
       <div style="display:flex;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap;">
-        ${disTypes.map((t,i)=>`<div style="display:flex;align-items:center;gap:0.25rem;font-size:0.7rem;"><div style="width:10px;height:10px;border-radius:2px;background:${dgColors[i]};"></div>${t}</div>`).join('')}
+        ${disTypes.map((t,i)=>`<div style="display:flex;align-items:center;gap:0.25rem;font-size:0.7rem;"><div style="width:10px;height:10px;border-radius:2px;background:${dgColors[i%dgColors.length]};"></div>${t}</div>`).join('')}
       </div>
-      ${AN_MOCK.disAge.map(ag => {
-        const total = disTypes.reduce((s,t)=>s+(ag[t]||0),0);
+      ${disAge.map(ag => {
+        const tot = disTypes.reduce((s,t)=>s+(ag[t]||0), 0);
         return `<div style="display:flex;align-items:center;gap:0.75rem;">
           <div style="font-size:0.75rem;font-weight:600;width:50px;">${ag.group}</div>
           <div style="flex:1;height:14px;border-radius:3px;overflow:hidden;display:flex;">
-            ${disTypes.map((t,i)=>{const w=total>0?Math.round(((ag[t]||0)/total)*100):0;return w>0?`<div style="width:${w}%;background:${dgColors[i]};height:100%;" title="${t}: ${ag[t]}"></div>`:''}).join('')}
+            ${disTypes.map((t,i)=>{const w=tot>0?Math.round(((ag[t]||0)/tot)*100):0;return w>0?`<div style="width:${w}%;background:${dgColors[i%dgColors.length]};height:100%;" title="${t}: ${ag[t]||0}"></div>`:''}).join('')}
           </div>
-          <div style="font-size:0.7rem;color:var(--gray-400);width:36px;">${total}</div>
+          <div style="font-size:0.7rem;color:var(--gray-400);width:36px;">${tot}</div>
         </div>`;}).join('')}`;
   }
 
   function renderAnInterviewers() {
     const WL = { overloaded:'<span class="badge badge-red" style="font-size:0.65rem;">Overloaded</span>', balanced:'<span class="badge badge-green" style="font-size:0.65rem;">Balanced</span>', underutilized:'<span class="badge badge-orange" style="font-size:0.65rem;">Underutilized</span>' };
     const medals = ['🥇','🥈','🥉','4.','5.'];
-    const sorted = [...AN_MOCK.interviewers].sort((a,b)=>b.completed-a.completed);
-    const tbody = document.getElementById('an-int-tbody');
-    tbody.innerHTML = sorted.map((iv,i) => `<tr class="table-row-hover">
-      <td style="font-weight:800;color:var(--gray-400);">${i+1}</td>
-      <td style="font-weight:700;">${iv.name}</td>
-      <td><span style="font-family:monospace;font-size:0.75rem;color:var(--blue);">${iv.code}</span></td>
-      <td style="font-size:0.75rem;">${iv.region}</td>
-      <td style="font-weight:800;color:#16a34a;">${iv.completed}</td>
-      <td>${iv.avgDay}</td>
-      <td style="font-size:0.75rem;color:var(--gray-400);">${iv.last}</td>
-      <td>${WL[iv.workload]||''}</td>
-    </tr>`).join('');
+    const sorted = AN_DATA?.interviewers || [];
+    const tbody  = document.getElementById('an-int-tbody');
+    tbody.innerHTML = sorted.length
+      ? sorted.map((iv,i) => `<tr class="table-row-hover">
+          <td style="font-weight:800;color:var(--gray-400);">${i+1}</td>
+          <td style="font-weight:700;">${iv.name}</td>
+          <td><span style="font-family:monospace;font-size:0.75rem;color:var(--blue);">${iv.code}</span></td>
+          <td style="font-size:0.75rem;">${iv.region}</td>
+          <td style="font-weight:800;color:#16a34a;">${iv.completed}</td>
+          <td>${iv.avgDay}</td>
+          <td>${WL[iv.workload]||''}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:1.5rem;font-size:0.75rem;">No data available</td></tr>';
 
     document.getElementById('an-top5-int').innerHTML = sorted.slice(0,5).map((iv,i) => `
       <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
         <span style="font-size:1rem;min-width:1.5rem;">${medals[i]}</span>
         <div style="flex:1;min-width:0;">
           <div style="font-weight:700;font-size:0.8125rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${iv.name}</div>
-          <div style="font-size:0.7rem;color:var(--gray-400);">${iv.region.split('–')[0].trim()}</div>
+          <div style="font-size:0.7rem;color:var(--gray-400);">${(iv.region||'').split('–')[0].trim()}</div>
         </div>
         <span style="font-weight:800;color:#16a34a;">${iv.completed}</span>
-      </div>`).join('');
+      </div>`).join('') || AN_EMPTY;
 
     const wlCounts = { overloaded:0, balanced:0, underutilized:0 };
-    AN_MOCK.interviewers.forEach(iv => wlCounts[iv.workload]++);
-    const wlTotal = AN_MOCK.interviewers.length;
+    sorted.forEach(iv => { if (wlCounts[iv.workload] !== undefined) wlCounts[iv.workload]++; });
+    const wlTotal = sorted.length || 1;
     document.getElementById('an-workload-vis').innerHTML = [
-      {key:'overloaded',label:'Overloaded',color:'#ef4444'},
-      {key:'balanced',  label:'Balanced',  color:'#16a34a'},
-      {key:'underutilized',label:'Underutilized',color:'#f59e0b'},
+      {key:'overloaded',   label:'Overloaded',    color:'#ef4444'},
+      {key:'balanced',     label:'Balanced',      color:'#16a34a'},
+      {key:'underutilized',label:'Underutilized', color:'#f59e0b'},
     ].map(w => `
       <div style="display:flex;align-items:center;gap:0.75rem;">
         <div style="font-size:0.75rem;font-weight:600;width:100px;">${w.label}</div>
@@ -2998,42 +3153,248 @@
       </div>`).join('');
   }
 
-  function renderAnQuality() {
-    const score = AN_MOCK.completenessScore;
-    document.getElementById('an-gauge-pct').textContent = score + '%';
-    document.getElementById('an-gauge-label').textContent = score >= 90 ? 'Excellent data quality' : score >= 75 ? 'Good — minor gaps' : 'Needs improvement';
-    const circumference = 314;
-    const offset = circumference - (score / 100) * circumference;
-    const circle = document.getElementById('an-gauge-circle');
-    if (circle) { setTimeout(() => { circle.style.strokeDashoffset = offset; circle.style.stroke = score >= 90 ? '#16a34a' : score >= 75 ? '#1152d4' : '#ef4444'; }, 200); }
+  // ── Extended Analytics ─────────────────────────────────────
+  let AN_EXT = null;
 
-    const maxM = Math.max(...AN_MOCK.missingFields.map(f=>f.pct),1);
-    document.getElementById('an-missing-fields').innerHTML = AN_MOCK.missingFields.map(f => `
-      <div style="display:flex;align-items:center;gap:0.75rem;">
-        <div style="font-size:0.75rem;flex:1;">${f.field}</div>
-        <div style="width:80px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
-          <div style="height:100%;width:${Math.round((f.pct/maxM)*100)}%;background:#f59e0b;border-radius:999px;"></div>
-        </div>
-        <div style="font-size:0.7rem;font-weight:800;width:32px;text-align:right;color:#d97706;">${f.pct}%</div>
+  async function fetchExtendedAnalytics() {
+    if (AN_EXT) return;
+    try {
+      const json = await (await fetch('/api/get-analytics-extended.php')).json();
+      if (json.success) AN_EXT = json;
+    } catch(e) {}
+  }
+
+  const READINESS_COLORS = { severe:'#ef4444', moderate:'#f97316', low:'#eab308', stable:'#22c55e' };
+  const READINESS_KEYS   = ['severe','moderate','low','stable'];
+  const READINESS_LABELS = { severe:'Severe', moderate:'Moderate', low:'Low', stable:'Stable' };
+
+  async function renderAnReadiness() {
+    await fetchExtendedAnalytics();
+    const container = document.getElementById('an-readiness-chart');
+    const legend    = document.getElementById('an-readiness-legend');
+    const data      = AN_EXT?.readiness_trends || [];
+    if (!data.length) { container.innerHTML = AN_EMPTY; return; }
+
+    // Legend
+    legend.innerHTML = READINESS_KEYS.map(k=>
+      `<div style="display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;font-weight:600;">
+        <div style="width:10px;height:10px;border-radius:2px;background:${READINESS_COLORS[k]};"></div>${READINESS_LABELS[k]}
       </div>`).join('');
 
-    document.getElementById('an-flagged-count').textContent = AN_MOCK.flaggedCount;
+    const maxVal = Math.max(...data.map(d => READINESS_KEYS.reduce((s,k)=>s+(d[k]||0),0)), 1);
+    const usableH = 160;
+
+    let tip = document.getElementById('chart-tooltip');
+    if (!tip) { tip=document.createElement('div'); tip.id='chart-tooltip'; tip.style.cssText='position:fixed;background:#1f2937;color:white;font-size:0.7rem;font-weight:600;padding:0.3rem 0.625rem;border-radius:0.375rem;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9000;white-space:nowrap;'; document.body.appendChild(tip); }
+
+    container.style.display='flex';
+    container.style.alignItems='flex-end';
+    container.style.gap='0';
+    container.style.overflowX='auto';
+
+    container.innerHTML = data.map(d => {
+      const total = READINESS_KEYS.reduce((s,k)=>s+(d[k]||0),0);
+      const h = Math.max((total/maxVal)*usableH, total>0?4:3);
+      const segments = READINESS_KEYS.filter(k=>d[k]>0).map(k => {
+        const segH = Math.round(((d[k]||0)/total)*h);
+        return `<div style="height:${segH}px;background:${READINESS_COLORS[k]};width:100%;" title="${READINESS_LABELS[k]}: ${d[k]}"></div>`;
+      }).join('');
+      return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:32px;cursor:default;"
+        onmouseenter="document.getElementById('chart-tooltip').textContent='${d.label}: Total ${total} — Severe:${d.severe||0} Mod:${d.moderate||0} Low:${d.low||0} Stable:${d.stable||0}';document.getElementById('chart-tooltip').style.opacity='1';"
+        onmousemove="var t=document.getElementById('chart-tooltip');t.style.left=(event.clientX+12)+'px';t.style.top=(event.clientY-28)+'px';"
+        onmouseleave="document.getElementById('chart-tooltip').style.opacity='0';">
+        <div style="font-size:0.55rem;font-weight:700;color:#9ca3af;margin-bottom:2px;">${total||''}</div>
+        <div style="display:flex;flex-direction:column-reverse;width:80%;border-radius:3px 3px 0 0;overflow:hidden;height:${h}px;">${segments}</div>
+        <div style="font-size:0.6rem;color:#6b7280;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center;">${d.label.split(' ')[0]}</div>
+      </div>`;
+    }).join('');
+  }
+
+  async function renderAnEducation() {
+    await fetchExtendedAnalytics();
+    const enr = AN_EXT?.enrollment;
+    if (!enr) { document.getElementById('an-enrollment-donut').innerHTML=AN_EMPTY; return; }
+
+    const total   = (enr.enrolled||0) + (enr.not_enrolled||0);
+    const enrPct  = total>0 ? Math.round((enr.enrolled/total)*100) : 0;
+    const circ    = 2*Math.PI*50;
+    const dash    = enrPct/100*circ;
+    document.getElementById('an-enrollment-donut').innerHTML = `
+      <svg viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="20"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#22c55e" stroke-width="20"
+          stroke-dasharray="${dash.toFixed(2)} ${(circ-dash).toFixed(2)}" stroke-dashoffset="0"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#ef4444" stroke-width="20"
+          stroke-dasharray="${(circ-dash).toFixed(2)} ${dash.toFixed(2)}" stroke-dashoffset="${(-dash).toFixed(2)}"/>
+      </svg>
+      <div style="text-align:center;">
+        <div style="font-size:1.5rem;font-weight:800;color:var(--dark);">${enrPct}%</div>
+        <div style="font-size:0.75rem;color:var(--gray-500);">Enrolled</div>
+      </div>
+      <div style="display:flex;gap:1rem;font-size:0.75rem;">
+        <div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:#22c55e;"></div>Enrolled: <b>${(enr.enrolled||0).toLocaleString()}</b></div>
+        <div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></div>Not: <b>${(enr.not_enrolled||0).toLocaleString()}</b></div>
+      </div>`;
+
+    const reasons = enr.top_reasons || [];
+    const maxR = Math.max(...reasons.map(r=>r.count),1);
+    document.getElementById('an-enrollment-reasons').innerHTML = reasons.length
+      ? reasons.map(r=>`
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div style="font-size:0.75rem;flex:1;font-weight:500;">${r.reason}</div>
+            <div style="width:100px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${Math.round((r.count/maxR)*100)}%;background:#f97316;border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.72rem;font-weight:800;width:28px;text-align:right;">${r.count}</div>
+          </div>`).join('')
+      : AN_EMPTY;
+  }
+
+  async function renderAnEconomic() {
+    await fetchExtendedAnalytics();
+    // Income
+    const income = AN_EXT?.income || [];
+    const incColors = ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444'];
+    const maxI = Math.max(...income.map(i=>i.count),1);
+    document.getElementById('an-income-chart').innerHTML = income.length
+      ? income.map((item,i)=>`
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div style="font-size:0.75rem;font-weight:600;width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.label}</div>
+            <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${Math.round((item.count/maxI)*100)}%;background:${incColors[i%incColors.length]};border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.72rem;font-weight:800;width:36px;text-align:right;">${item.count}</div>
+            <div style="font-size:0.7rem;color:var(--gray-400);width:36px;">${item.pct}%</div>
+          </div>`).join('')
+      : AN_EMPTY;
+
+    // Expenses
+    const expData = AN_EXT?.expenses;
+    const expColors = ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981'];
+    if (!expData) { document.getElementById('an-expenses-chart').innerHTML=AN_EMPTY; return; }
+    document.getElementById('an-expenses-total').textContent = 'Average total monthly health expenses: ₱' + (expData.total_avg||0).toLocaleString();
+    const maxE = Math.max(...expData.breakdown.map(e=>e.avg),1);
+    document.getElementById('an-expenses-chart').innerHTML = expData.breakdown.length
+      ? expData.breakdown.map((e,i)=>`
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div style="font-size:0.75rem;font-weight:600;width:130px;">${e.label}</div>
+            <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${Math.round((e.avg/maxE)*100)}%;background:${expColors[i%expColors.length]};border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.72rem;font-weight:800;width:64px;text-align:right;">₱${e.avg.toLocaleString()}</div>
+          </div>`).join('')
+      : AN_EMPTY;
+  }
+
+  async function renderAnServices() {
+    await fetchExtendedAnalytics();
+    const gap = AN_EXT?.service_gap || [];
+    const container = document.getElementById('an-service-gap-chart');
+    if (!gap.length) { container.innerHTML=AN_EMPTY; return; }
+    container.innerHTML = gap.map(r=>`
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div style="font-size:0.72rem;font-weight:600;width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:3px;">
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <div style="font-size:0.65rem;color:var(--gray-400);width:42px;">Aware</div>
+            <div style="flex:1;height:8px;background:var(--gray-100);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${r.aware_pct}%;background:#1152d4;border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.7rem;font-weight:800;width:32px;text-align:right;">${r.aware_pct}%</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <div style="font-size:0.65rem;color:var(--gray-400);width:42px;">Availed</div>
+            <div style="flex:1;height:8px;background:var(--gray-100);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${r.availed_pct}%;background:#22c55e;border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.7rem;font-weight:800;width:32px;text-align:right;">${r.availed_pct}%</div>
+          </div>
+        </div>
+        <div style="font-size:0.65rem;color:#ef4444;font-weight:700;width:44px;text-align:right;" title="Gap">-${r.aware_pct-r.availed_pct}%</div>
+      </div>`).join('');
+  }
+
+  async function renderAnHealth() {
+    await fetchExtendedAnalytics();
+    const vacc     = AN_EXT?.vaccination;
+    const barriers = AN_EXT?.barriers || [];
+
+    if (vacc) {
+      document.getElementById('an-vacc-rate').textContent = (vacc.national_rate||0) + '%';
+      const byRegion = vacc.by_region || [];
+      const maxV = Math.max(...byRegion.map(r=>r.rate),1);
+      document.getElementById('an-vacc-bars').innerHTML = byRegion.length
+        ? byRegion.map(r=>`
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div style="font-size:0.72rem;font-weight:600;width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div>
+              <div style="flex:1;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+                <div style="height:100%;width:${r.rate}%;background:${r.rate>=80?'#22c55e':r.rate>=50?'#1152d4':'#ef4444'};border-radius:999px;"></div>
+              </div>
+              <div style="font-size:0.72rem;font-weight:800;width:36px;text-align:right;">${r.rate}%</div>
+            </div>`).join('')
+        : AN_EMPTY;
+    }
+
+    const maxB = Math.max(...barriers.map(b=>b.count),1);
+    document.getElementById('an-barriers-chart').innerHTML = barriers.length
+      ? barriers.map(b=>`
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div style="font-size:0.75rem;font-weight:500;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.label}</div>
+            <div style="width:120px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${Math.round((b.count/maxB)*100)}%;background:#f97316;border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.72rem;font-weight:800;width:28px;text-align:right;">${b.count}</div>
+          </div>`).join('')
+      : AN_EMPTY;
+  }
+
+  function renderAnQuality() {
+    const q = AN_DATA?.quality;
+    if (!q) return;
+    const score = q.completeness || 0;
+    document.getElementById('an-gauge-pct').textContent   = score + '%';
+    document.getElementById('an-gauge-label').textContent = score >= 90 ? 'Excellent data quality' : score >= 75 ? 'Good — minor gaps' : 'Needs improvement';
+    const circle = document.getElementById('an-gauge-circle');
+    if (circle) { setTimeout(() => { circle.style.strokeDashoffset = 314 - (score/100)*314; circle.style.stroke = score>=90?'#16a34a':score>=75?'#1152d4':'#ef4444'; }, 200); }
+
+    const missing = q.missing_fields || [];
+    const maxM   = Math.max(...missing.map(f=>f.pct), 1);
+    document.getElementById('an-missing-fields').innerHTML = missing.length
+      ? missing.map(f => `
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div style="font-size:0.75rem;flex:1;">${f.field}</div>
+            <div style="width:80px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${Math.round((f.pct/maxM)*100)}%;background:#f59e0b;border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.7rem;font-weight:800;width:32px;text-align:right;color:#d97706;">${f.pct}%</div>
+          </div>`).join('')
+      : AN_EMPTY;
+
+    document.getElementById('an-flagged-count').textContent = q.flagged_count || 0;
   }
 
   function downloadReport(type, format) {
+    const d = AN_DATA;
     let headers, rows;
     if (type === 'executive') {
       headers = ['Metric','Value'];
-      rows = [['Total Assessments',AN_MOCK.totalAssessments],['Completion Rate',AN_MOCK.completionRate+'%'],['Active Interviewers',AN_MOCK.activeInterviewers],['Avg/Day',AN_MOCK.avgPerDay],['Flagged Records',AN_MOCK.flaggedCount],['Data Completeness',AN_MOCK.completenessScore+'%']];
+      rows = [
+        ['Total Assessments', d?.summary?.total||0],
+        ['Completion Rate',   (d?.summary?.completion_rate||0)+'%'],
+        ['Active Interviewers',d?.summary?.active_interviewers||0],
+        ['Avg/Day',           d?.summary?.avg_per_day||0],
+        ['Flagged Records',   d?.quality?.flagged_count||0],
+        ['Data Completeness', (d?.quality?.completeness||0)+'%'],
+      ];
     } else if (type === 'regional') {
-      headers = ['Region','Completed','Pending','Rate%'];
-      rows = AN_MOCK.regions.map(r=>[r.region,r.count,'—','—']);
+      headers = ['Region','Completed'];
+      rows = (d?.regions||[]).map(r=>[r.region,r.count]);
     } else if (type === 'disability') {
       headers = ['Disability Type','Count'];
-      rows = AN_MOCK.disabilities.map(d=>[d.label,d.val]);
+      rows = (d?.disabilities||[]).map(x=>[x.label,x.val]);
     } else {
-      headers = ['Name','Code','Region','Completed','Avg/Day','Last Active','Workload'];
-      rows = AN_MOCK.interviewers.map(iv=>[iv.name,iv.code,iv.region,iv.completed,iv.avgDay,iv.last,iv.workload]);
+      headers = ['Rank','Name','Code','Region','Completed','Avg/Day','Workload'];
+      rows = (d?.interviewers||[]).map((iv,i)=>[i+1,iv.name,iv.code,iv.region,iv.completed,iv.avgDay,iv.workload]);
     }
     const csv = [headers,...rows].map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
     const a = document.createElement('a');
@@ -3044,19 +3405,20 @@
 
   function emailReport() {
     const email = document.getElementById('an-email-addr').value.trim();
-    const type = document.getElementById('an-email-type').value;
-    if (!email || !email.includes('@')) { showToast('an-reports-toast','Enter a valid email address.','error'); return; }
+    const type  = document.getElementById('an-email-type').value;
+    if (!email || !email.includes('@')) { showGlobalToast('Enter a valid email address.','error'); return; }
     document.getElementById('an-email-addr').value = '';
-    showToast('an-reports-toast',`${type.charAt(0).toUpperCase()+type.slice(1)} report queued for delivery to ${email}.`,'success');
+    showGlobalToast(`${type.charAt(0).toUpperCase()+type.slice(1)} report queued for delivery to ${email}.`,'success');
   }
 
   function exportAllAnalytics() {
+    const d = AN_DATA;
     const sections = [
-      {title:'Overview',headers:['Metric','Value'],rows:[['Total Assessments',AN_MOCK.totalAssessments],['Completion Rate',AN_MOCK.completionRate+'%'],['Active Interviewers',AN_MOCK.activeInterviewers],['Avg/Day',AN_MOCK.avgPerDay]]},
-      {title:'Regions',headers:['Region','Completed'],rows:AN_MOCK.regions.map(r=>[r.region,r.count])},
-      {title:'Disabilities',headers:['Type','Count'],rows:AN_MOCK.disabilities.map(d=>[d.label,d.val])},
+      {title:'Overview',   headers:['Metric','Value'],      rows:[['Total',d?.summary?.total||0],['Rate',(d?.summary?.completion_rate||0)+'%'],['Interviewers',d?.summary?.active_interviewers||0],['Avg/Day',d?.summary?.avg_per_day||0]]},
+      {title:'Regions',    headers:['Region','Count'],      rows:(d?.regions||[]).map(r=>[r.region,r.count])},
+      {title:'Disabilities',headers:['Type','Count'],       rows:(d?.disabilities||[]).map(x=>[x.label,x.val])},
     ];
-    const csv = sections.map(s => '# '+s.title+'\n'+[s.headers,...s.rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n')).join('\n\n');
+    const csv = sections.map(s=>'# '+s.title+'\n'+[s.headers,...s.rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n')).join('\n\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
     a.download = `analytics-full-${new Date().toISOString().slice(0,10)}.csv`;
