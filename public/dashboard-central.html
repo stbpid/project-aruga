@@ -39,10 +39,10 @@
       <a href="#" class="nav-item active" id="co-nav-overview" title="Overview" onclick="coShowView('overview');return false;"><span class="material-symbols-outlined">dashboard</span><span class="nav-label">Overview</span></a>
       <a href="#" class="nav-item" id="co-nav-beneficiaries" title="Beneficiaries" onclick="coShowView('beneficiaries');return false;"><span class="material-symbols-outlined">group</span><span class="nav-label">Beneficiaries</span></a>
       <a href="#" class="nav-item" id="co-nav-assessments" title="Assessments" onclick="coShowView('assessments');return false;"><span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span></a>
-      <a href="#" class="nav-item" title="Reports"><span class="material-symbols-outlined">bar_chart</span><span class="nav-label">Reports</span></a>
+      <a href="#" class="nav-item" id="co-nav-analytics" title="Analytics" onclick="coShowView('analytics');return false;"><span class="material-symbols-outlined">bar_chart</span><span class="nav-label">Analytics</span></a>
 
-      <div class="nav-section-label">Coordination</div>
-      <a href="#" class="nav-item" id="co-nav-regional" title="Regions" onclick="coShowView('regional');return false;"><span class="material-symbols-outlined">map</span><span class="nav-label">Regions</span></a>
+      <div class="nav-section-label">Management</div>
+      <a href="#" class="nav-item" id="co-nav-interviewers" title="Interviewers" onclick="coShowView('interviewers');return false;"><span class="material-symbols-outlined">badge</span><span class="nav-label">Interviewers</span></a>
       <a href="#" class="nav-item" id="co-nav-documents" title="Documents" onclick="coShowView('documents');return false;"><span class="material-symbols-outlined">folder_open</span><span class="nav-label">Documents</span></a>
 
       <div class="nav-section-label">Switch View</div>
@@ -70,97 +70,126 @@
     <!-- Overview View -->
     <div class="dash-content" id="co-view-overview">
       <div class="page-title">National Overview</div>
-      <div class="page-subtitle">Aggregated data across all regions — live from database</div>
+      <div class="page-subtitle">Real-time monitoring across all regions</div>
 
       <!-- Stats -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon blue"><span class="material-symbols-outlined">groups</span></div>
           <div class="stat-body">
-            <div class="stat-value" id="co-total">—</div>
-            <div class="stat-label">Total Profiled</div>
-            <div class="stat-change up" id="co-total-sub">Loading...</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon green"><span class="material-symbols-outlined">task_alt</span></div>
-          <div class="stat-body">
-            <div class="stat-value" id="co-completed">—</div>
-            <div class="stat-label">Completed</div>
-            <div class="stat-change up" id="co-completed-sub">Loading...</div>
+            <div class="stat-value" id="co-stat-total-beneficiaries">—</div>
+            <div class="stat-label">Total Beneficiaries</div>
+            <div class="stat-change up" id="co-stat-beneficiaries-sub">Loading...</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div>
           <div class="stat-body">
-            <div class="stat-value" id="co-interviewers">—</div>
+            <div class="stat-value" id="co-stat-active-interviewers">—</div>
             <div class="stat-label">Active Interviewers</div>
-            <div class="stat-change up" id="co-int-sub">Loading...</div>
+            <div class="stat-change up" id="co-stat-interviewers-sub">Loading...</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon blue"><span class="material-symbols-outlined">map</span></div>
           <div class="stat-body">
-            <div class="stat-value" id="co-regions">—</div>
-            <div class="stat-label">Regions with Data</div>
-            <div class="stat-change up">Active regions</div>
+            <div class="stat-value" id="co-stat-regions-covered">—</div>
+            <div class="stat-label">Regions Covered</div>
+            <div class="stat-change up" id="co-stat-regions-sub">Loading...</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><span class="material-symbols-outlined">trending_up</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="co-stat-completion-rate">—</div>
+            <div class="stat-label">Completion Rate</div>
+            <div class="stat-change up" id="co-stat-completion-sub">Loading...</div>
           </div>
         </div>
       </div>
 
-      <!-- Regional Performance (full width) -->
-      <div class="card" style="margin-bottom:1rem;">
-        <div class="card-header">
-          <div><div class="card-title">Regional Performance</div><div class="card-subtitle">Total profiled per region</div></div>
-        </div>
-        <div class="table-wrap">
-          <table class="dash-table">
-            <thead><tr><th>Region</th><th>Total Profiled</th><th>Target</th><th>Completion %</th></tr></thead>
-            <tbody id="co-region-tbody">
-              <tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Monthly Assessments -->
-      <div class="card" style="margin-bottom:1rem;display:flex;flex-direction:column;">
-        <div class="card-header" style="flex-wrap:wrap;gap:0.5rem;flex-shrink:0;">
-          <div>
-            <div class="card-title">Monthly Assessments</div>
-            <div class="card-subtitle" id="co-monthly-subtitle">Loading...</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-            <div style="display:flex;border:1px solid var(--border);border-radius:0.375rem;overflow:hidden;">
-              <button id="co-view-monthly" class="chart-view-btn active" data-coview="monthly">Monthly</button>
-              <button id="co-view-quarterly" class="chart-view-btn" data-coview="quarterly">Quarterly</button>
+      <!-- Row 1: Chart + Status Donut -->
+      <div class="grid-3-1" style="margin-bottom:1rem;">
+        <div class="card" style="display:flex;flex-direction:column;">
+          <div class="card-header" style="flex-wrap:wrap;gap:0.5rem;flex-shrink:0;">
+            <div>
+              <div class="card-title">Monthly Assessments</div>
+              <div class="card-subtitle" id="co-monthly-subtitle">Loading...</div>
             </div>
-            <div style="display:flex;align-items:center;gap:0.25rem;">
-              <button class="btn btn-secondary btn-sm" id="co-monthly-prev" title="Previous"><span class="material-symbols-outlined">chevron_left</span></button>
-              <span id="co-monthly-year" style="font-size:0.8125rem;font-weight:700;color:var(--dark);min-width:2.75rem;text-align:center;"></span>
-              <button class="btn btn-secondary btn-sm" id="co-monthly-next" title="Next"><span class="material-symbols-outlined">chevron_right</span></button>
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+              <div style="display:flex;border:1px solid var(--border);border-radius:0.375rem;overflow:hidden;">
+                <button id="co-view-monthly" class="chart-view-btn active" data-coview="monthly">Monthly</button>
+                <button id="co-view-quarterly" class="chart-view-btn" data-coview="quarterly">Quarterly</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.25rem;">
+                <button class="btn btn-secondary btn-sm" id="co-monthly-prev" title="Previous"><span class="material-symbols-outlined">chevron_left</span></button>
+                <span id="co-monthly-year" style="font-size:0.8125rem;font-weight:700;color:var(--dark);min-width:2.75rem;text-align:center;"></span>
+                <button class="btn btn-secondary btn-sm" id="co-monthly-next" title="Next"><span class="material-symbols-outlined">chevron_right</span></button>
+              </div>
             </div>
           </div>
+          <div class="bar-chart" id="co-monthly-bars" style="flex:1;margin-top:0.75rem;min-height:160px;"></div>
         </div>
-        <div class="bar-chart" id="co-monthly-bars" style="flex:1;margin-top:0.75rem;min-height:160px;"></div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Assessment Status</div>
+              <div class="card-subtitle" id="co-status-donut-subtitle">Status breakdown</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem 1rem 1.25rem;gap:0.75rem;">
+            <div style="position:relative;width:160px;height:160px;">
+              <svg id="co-status-donut-svg" viewBox="0 0 160 160" width="160" height="160" style="transform:rotate(-90deg);"></svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                <div id="co-status-donut-total" style="font-size:1.5rem;font-weight:800;color:var(--dark);line-height:1;">—</div>
+                <div style="font-size:0.65rem;color:var(--gray-400);font-weight:600;margin-top:2px;">TOTAL</div>
+              </div>
+            </div>
+            <div id="co-status-donut-legend" style="display:flex;flex-direction:column;gap:0.4rem;width:100%;max-width:180px;"></div>
+          </div>
+        </div>
       </div>
 
-      <!-- Disability Distribution (full width, filterable) -->
-      <div class="card" style="margin-bottom:1rem;">
-        <div class="card-header">
-          <div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown — filter by region</div></div>
-          <select id="co-dis-region-filter" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="renderCoDisBars()">
-            <option value="">All Regions</option>
-          </select>
+      <!-- Row 2: Region Coverage + Recent Activity -->
+      <div class="grid-2" style="margin-bottom:1rem;">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Coverage by Region</div>
+              <div class="card-subtitle" id="co-region-subtitle">Loading...</div>
+            </div>
+            <span class="badge badge-blue" id="co-region-badge">—</span>
+          </div>
+          <div id="co-region-rows">
+            <div style="padding:2rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Loading region data...</div>
+          </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;padding:0.25rem 0;">
-          <div id="co-dis-bars" style="display:flex;flex-direction:column;gap:0.625rem;">
-            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Recent Activity</div>
+              <div class="card-subtitle">Latest audit log entries</div>
+            </div>
           </div>
+          <div class="activity-list" id="co-activity-list">
+            <div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Issues This Month -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
           <div>
-            <div style="font-size:0.8125rem;font-weight:700;color:var(--dark);margin-bottom:0.75rem;">Summary</div>
-            <div id="co-dis-summary" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+            <div class="card-title">Top Issues This Month</div>
+            <div class="card-subtitle" id="co-top-issues-subtitle">Loading...</div>
           </div>
+          <span class="badge badge-blue" id="co-top-issues-badge" style="display:none;"></span>
+        </div>
+        <div id="co-top-issues-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0.75rem;padding-top:0.25rem;">
+          <div style="padding:2rem;text-align:center;color:var(--gray-400);font-size:0.75rem;grid-column:1/-1;">Loading...</div>
         </div>
       </div>
 
@@ -178,9 +207,22 @@
             <span class="material-symbols-outlined">search</span>
             <input type="text" id="co-ben-search" placeholder="Search name, ID, interviewer..." aria-label="Search">
           </div>
-          <select id="co-ben-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+          <select id="co-ben-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;">
             <option value="">All Regions</option>
           </select>
+          <select id="co-ben-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;">
+            <option value="">All Readiness</option>
+            <option value="severe">Severe</option>
+            <option value="moderate">Moderate</option>
+            <option value="low">Low</option>
+            <option value="stable">Stable</option>
+          </select>
+          <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;font-weight:600;color:var(--dark);cursor:pointer;white-space:nowrap;flex-shrink:0;">
+            <div id="co-ben-4ps-toggle" onclick="coToggle4ps()" style="width:34px;height:18px;border-radius:999px;background:#e5e7eb;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;">
+              <div id="co-ben-4ps-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+            </div>
+            4Ps Only
+          </label>
           <button class="btn btn-secondary btn-sm" id="co-ben-reset">Reset</button>
           <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="co-ben-count">—</span>
         </div>
@@ -227,171 +269,85 @@
     </div><!-- /co-view-assessments -->
 
     <!-- Regional View -->
-    <div class="dash-content" id="co-view-regional" style="display:none;">
-
-      <!-- Header -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
-        <div>
-          <div class="page-title" style="margin:0;">Regional Dashboard</div>
-          <div class="page-subtitle" style="margin:0;">Total profiled children by region, province, and city — from live database</div>
-        </div>
-        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-          <button class="btn btn-secondary btn-sm" onclick="coRgExportCSV()"><span class="material-symbols-outlined">download</span>Export CSV</button>
-          <button class="btn btn-primary btn-sm" onclick="coRgRefresh()"><span class="material-symbols-outlined">refresh</span>Refresh</button>
-        </div>
+    <div class="dash-content" id="co-view-interviewers" style="display:none;">
+      <div style="margin-bottom:1.5rem;">
+        <div class="page-title" style="margin:0;">Interviewers</div>
+        <div class="page-subtitle" style="margin:0;">All registered interviewers in the system</div>
       </div>
 
-      <!-- Summary Cards -->
-      <div class="stats-grid" style="margin-bottom:1rem;">
-        <div class="stat-card">
-          <div class="stat-icon blue"><span class="material-symbols-outlined">groups</span></div>
-          <div class="stat-body">
-            <div class="stat-value" id="co-rg-stat-total">—</div>
-            <div class="stat-label">Total Profiled</div>
-            <div class="stat-change up" id="co-rg-stat-total-sub">All regions</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon green"><span class="material-symbols-outlined">task_alt</span></div>
-          <div class="stat-body">
-            <div class="stat-value" id="co-rg-stat-completed">—</div>
-            <div class="stat-label">Completed</div>
-            <div class="stat-change up" id="co-rg-stat-completed-sub">—</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon purple"><span class="material-symbols-outlined">pending</span></div>
-          <div class="stat-body">
-            <div class="stat-value" id="co-rg-stat-inprog">—</div>
-            <div class="stat-label">In Progress</div>
-            <div class="stat-change" id="co-rg-stat-inprog-sub">—</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon blue"><span class="material-symbols-outlined">map</span></div>
-          <div class="stat-body">
-            <div class="stat-value" id="co-rg-stat-regions">—</div>
-            <div class="stat-label">Regions with Data</div>
-            <div class="stat-change up">Active regions</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Filters -->
       <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
         <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-          <div class="search-bar" style="flex:1;min-width:180px;max-width:280px;">
+          <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;">
             <span class="material-symbols-outlined">search</span>
-            <input type="text" id="co-rg-search" placeholder="Search region or province..." oninput="coApplyRgFilters()">
+            <input type="text" id="int-search" placeholder="Search name, code, region..." aria-label="Search interviewers">
           </div>
-          <select id="co-rg-filter-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="coApplyRgFilters()">
+          <select id="int-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
             <option value="">All Regions</option>
           </select>
-          <select id="co-rg-filter-status" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="coApplyRgFilters()">
-            <option value="">All Status</option>
-            <option value="high">High Completion (≥70%)</option>
-            <option value="mid">Mid (45–69%)</option>
-            <option value="low">Low (&lt;45%)</option>
-          </select>
-          <button class="btn btn-secondary btn-sm" onclick="coResetRgFilters()">Reset</button>
-          <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="co-rg-table-count">—</span>
+          <button class="btn btn-secondary btn-sm" id="int-reset">Reset</button>
         </div>
       </div>
-
-      <!-- Tabs -->
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;overflow-x:auto;">
-        <button class="settings-tab active" data-corgtab="overview" onclick="coShowRgTab('overview')"><span class="material-symbols-outlined">leaderboard</span>By Region</button>
-        <button class="settings-tab" data-corgtab="province" onclick="coShowRgTab('province')"><span class="material-symbols-outlined">location_city</span>By Province</button>
-        <button class="settings-tab" data-corgtab="city" onclick="coShowRgTab('city')"><span class="material-symbols-outlined">apartment</span>By City/Municipality</button>
-        <button class="settings-tab" data-corgtab="insights" onclick="coShowRgTab('insights')"><span class="material-symbols-outlined">insights</span>Key Insights</button>
-      </div>
-
-      <!-- Tab: By Region -->
-      <div class="settings-panel" id="co-rgtab-overview">
-        <div class="card" style="margin:0 0 1rem;">
-          <div class="table-wrap">
-            <table class="dash-table">
-              <thead>
-                <tr>
-                  <th style="cursor:pointer;" onclick="coSortRg('regions','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="coSortRg('regions','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th>Target</th>
-                  <th style="cursor:pointer;" onclick="coSortRg('regions','rate')">Completion % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="coSortRg('regions','interviewers')">Interviewers <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="coSortRg('regions','province_count')">Provinces <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                </tr>
-              </thead>
-              <tbody id="co-rg-region-tbody"><tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
-            </table>
-          </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Email</th>
+                <th style="cursor:pointer;user-select:none;" onclick="sortInterviewers('month')" title="Sort by monthly submissions">Submissions <span id="int-sort-icon" style="font-size:0.7rem;color:var(--gray-400);">↕</span></th>
+                <th style="cursor:pointer;user-select:none;" onclick="sortInterviewers('last_active')" title="Sort by last active">Last Active <span id="int-sort-icon-date" style="font-size:0.7rem;color:var(--gray-400);">↕</span></th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="int-tbody">
+              <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <span style="font-size:0.75rem;color:#6b7280;" id="int-page-info"></span>
+          <div class="pagination" id="int-pagination"></div>
         </div>
       </div>
+    </div><!-- /co-view-interviewers -->
 
-      <!-- Tab: By Province -->
-      <div class="settings-panel" id="co-rgtab-province" style="display:none;">
-        <div class="card" style="margin:0;">
-          <div class="table-wrap">
-            <table class="dash-table">
-              <thead>
-                <tr>
-                  <th style="cursor:pointer;" onclick="coSortRg('provinces','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="coSortRg('provinces','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="coSortRg('provinces','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                </tr>
-              </thead>
-              <tbody id="co-rg-province-tbody"><tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
-            </table>
+    <!-- Edit Interviewer Modal -->
+    <div id="edit-int-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
+      <div style="background:white;border-radius:1.25rem;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);">
+        <div style="padding:1.5rem 1.75rem 0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+            <div><div style="font-size:1rem;font-weight:800;color:var(--dark);">Interviewer Details</div><div style="font-size:0.75rem;color:var(--gray-400);">View interviewer information</div></div>
+            <button onclick="closeIntModal('edit')" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;"><span class="material-symbols-outlined">close</span></button>
+          </div>
+          <div style="font-size:0.7rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Basic Info</div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <div><label class="settings-label">Full Name</label><input type="text" id="edit-int-name" class="settings-input" readonly style="background:var(--gray-50);"></div>
+              <div><label class="settings-label">Code</label><input type="text" id="edit-int-code" class="settings-input" readonly style="background:var(--gray-50);font-family:monospace;font-weight:700;color:var(--blue);"></div>
+            </div>
+            <div><label class="settings-label">Region</label><input type="text" id="edit-int-region" class="settings-input" readonly style="background:var(--gray-50);"></div>
+            <div><label class="settings-label">Province</label><input type="text" id="edit-int-province" class="settings-input" readonly style="background:var(--gray-50);"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <div><label class="settings-label">Position</label><input type="text" id="edit-int-position" class="settings-input" readonly style="background:var(--gray-50);"></div>
+              <div><label class="settings-label">Office</label><input type="text" id="edit-int-office" class="settings-input" readonly style="background:var(--gray-50);"></div>
+            </div>
+          </div>
+          <div style="font-size:0.7rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;padding-top:0.5rem;border-top:1px solid var(--gray-100);">Account</div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
+            <div><label class="settings-label">Email</label><input type="text" id="edit-int-email" class="settings-input" readonly style="background:var(--gray-50);"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <div><label class="settings-label">Account Status</label><input type="text" id="edit-int-status" class="settings-input" readonly style="background:var(--gray-50);"></div>
+              <div><label class="settings-label">User Type</label><input type="text" id="edit-int-role" class="settings-input" readonly style="background:var(--gray-50);"></div>
+            </div>
+            <div><label class="settings-label">Last Active</label><div id="edit-int-last-active" style="font-size:0.8rem;color:var(--gray-600);padding:0.45rem 0;font-weight:600;">—</div></div>
           </div>
         </div>
-      </div>
-
-      <!-- Tab: By City -->
-      <div class="settings-panel" id="co-rgtab-city" style="display:none;">
-        <div class="card" style="margin:0;">
-          <div class="table-wrap">
-            <table class="dash-table">
-              <thead>
-                <tr>
-                  <th style="cursor:pointer;" onclick="coSortRg('cities','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="coSortRg('cities','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="coSortRg('cities','city')">City / Municipality <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="coSortRg('cities','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                </tr>
-              </thead>
-              <tbody id="co-rg-city-tbody"><tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
-            </table>
-          </div>
+        <div style="border-top:1px solid var(--gray-100);margin-top:0.5rem;">
+          <button onclick="closeIntModal('edit')" style="width:100%;padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 1.25rem 1.25rem;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Close</button>
         </div>
       </div>
-
-      <!-- Tab: Key Insights -->
-      <div class="settings-panel" id="co-rgtab-insights" style="display:none;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-
-          <div class="card" style="margin:0;">
-            <div class="card-header"><div class="card-title">Top 5 Regions</div><div class="card-subtitle">By total profiled</div></div>
-            <div id="co-rg-top5" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.75rem 1.25rem;"></div>
-          </div>
-
-          <div class="card" style="margin:0;">
-            <div class="card-header"><div class="card-title">Most Common Disabilities</div><div class="card-subtitle">Across all regions</div></div>
-            <div id="co-rg-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.75rem 1.25rem;"></div>
-          </div>
-
-          <div class="card" style="margin:0;">
-            <div class="card-header"><div class="card-title">Monthly Profiling Trend</div><div class="card-subtitle">Records added per month</div></div>
-            <div class="bar-chart" id="co-rg-monthly-bars" style="min-height:160px;margin-top:0.75rem;"></div>
-          </div>
-
-          <div class="card" style="margin:0;">
-            <div class="card-header"><div class="card-title">Regions Needing Attention</div><div class="card-subtitle">Lowest completion rates</div></div>
-            <div id="co-rg-low-regions" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.75rem 1.25rem;"></div>
-          </div>
-
-        </div>
-      </div>
-
-    </div><!-- /co-view-regional -->
+    </div>
 
     <!-- Documents View -->
     <div class="dash-content" id="co-view-documents" style="display:none;">
@@ -400,157 +356,222 @@
         <div class="page-subtitle" style="margin:0;">Central office files, templates, reports, and official issuances.</div>
       </div>
 
-      <!-- Section tabs -->
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;overflow-x:auto;">
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;margin-top:1.25rem;overflow-x:auto;">
         <button class="settings-tab active" data-doctab="templates" onclick="coShowDocTab('templates')"><span class="material-symbols-outlined">description</span>Forms &amp; Templates</button>
         <button class="settings-tab" data-doctab="reports" onclick="coShowDocTab('reports')"><span class="material-symbols-outlined">bar_chart</span>Reports</button>
-        <button class="settings-tab" data-doctab="issuances" onclick="coShowDocTab('issuances')"><span class="material-symbols-outlined">policy</span>Issuances</button>
-        <button class="settings-tab" data-doctab="references" onclick="coShowDocTab('references')"><span class="material-symbols-outlined">book</span>References</button>
       </div>
 
-      <!-- Tab: Forms & Templates -->
       <div id="co-doctab-templates">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">assignment</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Child Assessment Form</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official profiling form — all steps</div>
-                <div style="display:flex;gap:0.5rem;">
-                  <button class="btn btn-secondary btn-sm" style="opacity:0.6;cursor:not-allowed;" disabled><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">badge</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Interviewer Registration Form</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">For onboarding new field interviewers</div>
-                <div style="display:flex;gap:0.5rem;">
-                  <button class="btn btn-secondary btn-sm" style="opacity:0.6;cursor:not-allowed;" disabled><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">table_chart</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Data Encoding Template</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Excel template for bulk data entry</div>
-                <div style="display:flex;gap:0.5rem;">
-                  <button class="btn btn-secondary btn-sm" style="opacity:0.6;cursor:not-allowed;" disabled><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#7c3aed;font-size:1.25rem;">checklist</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Field Supervisor Checklist</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Quality assurance checklist for supervisors</div>
-                <div style="display:flex;gap:0.5rem;">
-                  <button class="btn btn-secondary btn-sm" style="opacity:0.6;cursor:not-allowed;" disabled><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">assignment</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Profiling Tool</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official child assessment profiling form</div><button class="btn btn-secondary btn-sm" id="dl-btn-profiling-tool" onclick="downloadDoc('profiling-tool','Profiling_Tool.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">gavel</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">NDA Consent Form</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Non-disclosure agreement for field interviewers</div><button class="btn btn-secondary btn-sm" id="dl-btn-nda-consent" onclick="downloadDoc('nda-consent','NDA_Consent_Form.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">handshake</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Contract of Commitment</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Commitment agreement for project participants</div><button class="btn btn-secondary btn-sm" id="dl-btn-contract-commitment" onclick="downloadDoc('contract-commitment','Contract_of_Commitment.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#7c3aed;font-size:1.25rem;">menu_book</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">System User Manual</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Step-by-step guide for using the platform</div><button class="btn btn-secondary btn-sm" id="dl-btn-user-manual" onclick="downloadDoc('user-manual','System_User_Manual.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fef9c3;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#ca8a04;font-size:1.25rem;">info</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Aruga Briefer</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Project overview and program briefer</div><button class="btn btn-secondary btn-sm" id="dl-btn-aruga-briefer" onclick="downloadDoc('aruga-briefer','Aruga_Briefer.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#dc2626;font-size:1.25rem;">rule</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Project Aruga Guidelines</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official operational guidelines and standards</div><button class="btn btn-secondary btn-sm" id="dl-btn-aruga-guidelines" onclick="downloadDoc('aruga-guidelines','Project_Aruga_Guidelines.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">slideshow</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Presentation Deck</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official Project Aruga slide deck</div><button class="btn btn-secondary btn-sm" id="dl-btn-presentation-deck" onclick="downloadDoc('presentation-deck','Presentation_Deck.pptx',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">groups</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Mapping of Potential Partners</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Documentation of partner organizations</div><button class="btn btn-secondary btn-sm" id="dl-btn-partners-mapping" onclick="downloadDoc('partners-mapping','Mapping_Potential_Partners.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">contract</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">MOA Template</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Memorandum of Agreement template</div><button class="btn btn-secondary btn-sm" id="dl-btn-moa-template" onclick="downloadDoc('moa-template','MOA_Template.docx',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
         </div>
       </div>
 
-      <!-- Tab: Reports -->
       <div id="co-doctab-reports" style="display:none;">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">summarize</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Monthly Progress Report</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Consolidated national profiling progress</div>
-                <span class="badge badge-blue" style="margin-bottom:0.75rem;display:inline-block;">Coming Soon</span>
-              </div>
-            </div>
-          </div>
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">map</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Regional Summary Report</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Per-region breakdown of all assessments</div>
-                <span class="badge badge-green" style="margin-bottom:0.75rem;display:inline-block;">Coming Soon</span>
-              </div>
-            </div>
-          </div>
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">disability_new</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Disability Distribution Report</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Breakdown by disability type nationally</div>
-                <span class="badge badge-orange" style="margin-bottom:0.75rem;display:inline-block;">Coming Soon</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab: Issuances -->
-      <div id="co-doctab-issuances" style="display:none;">
-        <div class="card" style="margin:0;">
-          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:1rem;text-align:center;">
-            <div style="width:4rem;height:4rem;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;">
-              <span class="material-symbols-outlined" style="color:var(--blue);font-size:2rem;">policy</span>
-            </div>
-            <div style="font-size:1.125rem;font-weight:800;color:var(--dark);">No Issuances Yet</div>
-            <div style="font-size:0.875rem;color:var(--gray-400);line-height:1.7;max-width:360px;">Department orders, memoranda, and official issuances will appear here once uploaded.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab: References -->
-      <div id="co-doctab-references" style="display:none;">
-        <div class="card" style="margin:0;">
-          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:1rem;text-align:center;">
-            <div style="width:4rem;height:4rem;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;">
-              <span class="material-symbols-outlined" style="color:var(--blue);font-size:2rem;">book</span>
-            </div>
-            <div style="font-size:1.125rem;font-weight:800;color:var(--dark);">No References Yet</div>
-            <div style="font-size:0.875rem;color:var(--gray-400);line-height:1.7;max-width:360px;">Reference materials, manuals, and guidelines will be available here in a future update.</div>
-          </div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">rate_review</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Presentation Evaluation</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Evaluation form for project presentations</div><button class="btn btn-secondary btn-sm" id="dl-btn-presentation-eval" onclick="downloadDoc('presentation-eval','Presentation_Evaluation.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
         </div>
       </div>
 
     </div><!-- /co-view-documents -->
+
+    <!-- Analytics View -->
+    <div class="dash-content" id="co-view-analytics" style="display:none;">
+
+      <div style="margin-bottom:1rem;">
+        <div class="page-title" style="margin:0;">Analytics</div>
+        <div class="page-subtitle" id="an-last-refresh" style="margin:0;">Auto-refreshes every 5 minutes</div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
+        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+          <select id="an-f-range" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+            <option value="30">Last 30 days</option>
+            <option value="7">Last 7 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="all">All time</option>
+          </select>
+          <select id="an-f-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+            <option value="">All Regions</option>
+          </select>
+          <select id="an-f-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+            <option value="">All Disabilities</option>
+            <option>Physical</option><option>Visual</option><option>Hearing</option>
+            <option>Intellectual</option><option>Psychosocial</option><option>Speech</option><option>Multiple</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="applyAnalyticsFilters()">Apply</button>
+          <button class="btn btn-secondary btn-sm" onclick="clearAnalyticsFilters()">Reset</button>
+          <button class="btn btn-secondary btn-sm" onclick="openAnReportSettings()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">tune</span>Report Settings</button>
+          <button class="btn btn-secondary btn-sm" onclick="exportAllAnalytics()" style="margin-left:auto;"><span class="material-symbols-outlined">download</span>Export All</button>
+        </div>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:1rem;">
+        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">assignment</span></div><div class="stat-body"><div class="stat-value" id="an-total">—</div><div class="stat-label">Total Assessments</div><div class="stat-change up" id="an-total-sub">Loading...</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><span class="material-symbols-outlined">task_alt</span></div><div class="stat-body"><div class="stat-value" id="an-rate">—</div><div class="stat-label">Completion Rate</div><div id="an-rate-badge" style="margin-top:0.25rem;"></div></div></div>
+        <div class="stat-card"><div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div><div class="stat-body"><div class="stat-value" id="an-interviewers">—</div><div class="stat-label">Active Interviewers</div><div class="stat-change up" id="an-int-sub">Loading...</div></div></div>
+        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">speed</span></div><div class="stat-body"><div class="stat-value" id="an-avg-day">—</div><div class="stat-label">Avg / Day</div><div class="stat-change up" id="an-avg-sub">Assessments per day</div></div></div>
+      </div>
+
+      <div class="grid-3-1" style="margin-bottom:1rem;">
+        <div class="card" style="display:flex;flex-direction:column;">
+          <div class="card-header" style="flex-wrap:wrap;gap:0.5rem;flex-shrink:0;">
+            <div><div class="card-title">Assessment Trends</div><div class="card-subtitle" id="an-trend-sub">Completions over time</div></div>
+            <div style="display:flex;border:1px solid var(--border);border-radius:0.375rem;overflow:hidden;">
+              <button class="chart-view-btn active" id="an-toggle-monthly" onclick="setAnTrendView('monthly')">Monthly</button>
+              <button class="chart-view-btn" id="an-toggle-quarterly" onclick="setAnTrendView('quarterly')">Quarterly</button>
+            </div>
+          </div>
+          <div class="bar-chart" id="an-trend-bars" style="flex:1;min-height:160px;margin-top:0.75rem;"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Status</div><div class="card-subtitle">National pace</div></div></div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;">
+            <div id="an-status-indicator" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;padding:1.5rem;">
+              <div id="an-status-icon" style="width:3.5rem;height:3.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="font-size:1.75rem;">hourglass_empty</span></div>
+              <div id="an-status-label" style="font-size:1rem;font-weight:800;">Loading...</div>
+              <div id="an-status-sub" style="font-size:0.75rem;color:var(--gray-400);text-align:center;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="an-section-header">By Region</div>
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header"><div class="card-title">Top Regions by Completions</div><div class="card-subtitle">Horizontal bar — sorted descending</div></div>
+        <div id="an-region-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+        <span style="font-size:0.75rem;color:var(--gray-500);" id="rg-table-count">—</span>
+        <button class="btn btn-secondary btn-sm" onclick="exportRegionsCSV()"><span class="material-symbols-outlined">download</span>Export CSV</button>
+      </div>
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;overflow-x:auto;">
+        <button class="settings-tab active" data-rgtab="overview" onclick="showRgTab('overview')"><span class="material-symbols-outlined">leaderboard</span>By Region</button>
+        <button class="settings-tab" data-rgtab="province" onclick="showRgTab('province')"><span class="material-symbols-outlined">location_city</span>By Province</button>
+        <button class="settings-tab" data-rgtab="city" onclick="showRgTab('city')"><span class="material-symbols-outlined">apartment</span>By City/Municipality</button>
+        <button class="settings-tab" data-rgtab="insights" onclick="showRgTab('insights')"><span class="material-symbols-outlined">insights</span>Key Insights</button>
+      </div>
+      <div class="settings-panel an-rg-panel" id="rgtab-overview" style="margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="table-wrap"><table class="dash-table"><thead><tr><th style="cursor:pointer;" onclick="sortRg('regions','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('regions','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th>Target</th><th style="cursor:pointer;" onclick="sortRg('regions','rate')">Completion % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('regions','interviewers')">Interviewers <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('regions','province_count')">Provinces <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th></tr></thead><tbody id="rg-region-tbody"><tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody></table></div></div>
+      </div>
+      <div class="settings-panel an-rg-panel" id="rgtab-province" style="display:none;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="table-wrap"><table class="dash-table"><thead><tr><th style="cursor:pointer;" onclick="sortRg('provinces','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('provinces','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('provinces','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th></tr></thead><tbody id="rg-province-tbody"><tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody></table></div></div>
+      </div>
+      <div class="settings-panel an-rg-panel" id="rgtab-city" style="display:none;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="table-wrap"><table class="dash-table"><thead><tr><th style="cursor:pointer;" onclick="sortRg('cities','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('cities','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('cities','city')">City / Municipality <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('cities','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th></tr></thead><tbody id="rg-city-tbody"><tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody></table></div></div>
+      </div>
+      <div class="settings-panel an-rg-panel" id="rgtab-insights" style="display:none;margin-bottom:1.25rem;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top 5 Regions</div><div class="card-subtitle">By total profiled</div></div><div id="rg-top5" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
+          <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Most Common Disabilities</div><div class="card-subtitle">Across all regions</div></div><div id="rg-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+          <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Monthly Profiling Trend</div><div class="card-subtitle">Records added per month</div></div><div class="bar-chart" id="rg-monthly-bars" style="min-height:160px;margin-top:0.75rem;"></div></div>
+          <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Regions Needing Attention</div><div class="card-subtitle">Lowest completion rates</div></div><div id="rg-low-regions" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
+        </div>
+      </div>
+
+      <div class="an-section-header">Beneficiaries</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Age Groups</div></div><div id="an-age-bars" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Gender Split</div></div><div id="an-gender-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Top 5 Locations</div><div class="card-subtitle">Where most beneficiaries are from</div></div><div id="an-top-locations" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
+      </div>
+
+      <div class="an-section-header">Disabilities</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;grid-column:1/-1;">
+          <div class="card-header"><div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown — filter by region</div></div><select id="adm-dis-region-filter" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="admRenderDisBars()"><option value="">All Regions</option></select></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;padding:0.5rem 0;">
+            <div id="adm-dis-bars" style="display:flex;flex-direction:column;gap:0.75rem;"><div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div></div>
+            <div style="padding-left:1rem;border-left:1px solid var(--border);"><div style="font-size:0.8125rem;font-weight:700;color:var(--dark);margin-bottom:0.75rem;">Summary</div><div id="adm-dis-summary" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
+          </div>
+        </div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Most Common Disabilities</div><div class="card-subtitle">Top 10</div></div><div id="an-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Multiple Conditions</div><div class="card-subtitle">% with 1, 2, or 3+ disabilities</div></div><div id="an-multi-dis" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div></div>
+        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Disability by Age Group</div></div><div id="an-dis-age" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <div class="an-section-header">Interviewer Performance</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Productivity Table</div><div class="card-subtitle">All interviewers ranked by completions</div></div><div class="table-wrap"><table class="dash-table"><thead><tr><th>Rank</th><th>Name</th><th>Code</th><th>Region</th><th>Completed</th><th>Avg/Day</th><th>Workload</th></tr></thead><tbody id="an-int-tbody"></tbody></table></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;">emoji_events</span><div class="card-title" style="margin:0;">Top 5 Performers</div></div></div><div id="an-top5-int" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Workload Distribution</div></div><div id="an-workload-vis" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <div class="an-section-header">Readiness Score Trends</div>
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-header"><div><div class="card-title">Readiness Score Trends</div><div class="card-subtitle">Monthly Severe / Moderate / Low / Stable counts — last 12 months</div></div><div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="an-readiness-legend"></div></div>
+        <div id="an-readiness-chart" style="min-height:200px;padding:0.5rem 0;"></div>
+      </div>
+
+      <div class="an-section-header">Education</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">School Enrollment Rate</div><div class="card-subtitle">Enrolled vs not enrolled</div></div><div id="an-enrollment-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top Reasons for Non-Enrollment</div><div class="card-subtitle">Most common reasons reported</div></div><div id="an-enrollment-reasons" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <div class="an-section-header">Economic</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Income Classification Breakdown</div><div class="card-subtitle">Distribution across income brackets</div></div><div id="an-income-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Average Monthly Health Expenses</div><div class="card-subtitle">By category across all households</div></div><div id="an-expenses-total" style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;"></div><div id="an-expenses-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <div class="an-section-header">Services</div>
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-header"><div class="card-title">Service Awareness vs. Availment Gap</div><div class="card-subtitle">Aware % vs Availed % by region</div></div>
+        <div id="an-service-gap-chart" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.25rem 0;"></div>
+      </div>
+
+      <div class="an-section-header">Health</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Vaccination Status</div><div class="card-subtitle">National rate and by region</div></div><div id="an-vacc-stat" style="display:flex;flex-direction:column;align-items:center;padding:1rem 0 0.5rem;gap:0.25rem;"><div id="an-vacc-rate" style="font-size:3rem;font-weight:800;color:#16a34a;line-height:1;">—</div><div style="font-size:0.8rem;color:var(--gray-500);">National vaccination rate</div></div><div id="an-vacc-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;margin-top:0.5rem;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Healthcare Barriers</div><div class="card-subtitle">Most common barriers to healthcare access</div></div><div id="an-barriers-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <div class="an-section-header">Data Quality</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Completeness Score</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1.5rem 0;"><div id="an-gauge-wrap" style="position:relative;width:120px;height:120px;"><svg viewBox="0 0 120 120" width="120" height="120"><circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="12"/><circle id="an-gauge-circle" cx="60" cy="60" r="50" fill="none" stroke="#1152d4" stroke-width="12" stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1s ease;"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;"><div id="an-gauge-pct" style="font-size:1.25rem;font-weight:800;color:var(--dark);">—</div><div style="font-size:0.6rem;color:var(--gray-400);">complete</div></div></div><div id="an-gauge-label" style="font-size:0.8125rem;text-align:center;color:var(--gray-500);"></div></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Missing Data</div><div class="card-subtitle">Top 5 skipped fields</div></div><div id="an-missing-fields" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Flagged Records</div></div><div id="an-flagged" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;gap:0.5rem;text-align:center;"><div id="an-flagged-count" style="font-size:2.5rem;font-weight:800;color:#ef4444;">—</div><div style="font-size:0.8125rem;color:var(--gray-500);">records require review</div></div></div>
+      </div>
+
+      <div class="an-section-header">Reports</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:var(--blue);font-size:1rem;">article</span></div><div class="card-title" style="margin:0;">Executive Summary</div></div></div><div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">1-page national overview with key metrics, completion rate, top regions.</div><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('executive','csv')"><span class="material-symbols-outlined">download</span>CSV</button><button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('executive','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1rem;">map</span></div><div class="card-title" style="margin:0;">Regional Breakdown</div></div></div><div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Per-region targets, completions, rates, and interviewer counts.</div><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('regional','csv')"><span class="material-symbols-outlined">download</span>CSV</button><button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('regional','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#ea580c;font-size:1rem;">accessible</span></div><div class="card-title" style="margin:0;">Disability Report</div></div></div><div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Disability type distribution, age groups, and prevalence analysis.</div><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('disability','csv')"><span class="material-symbols-outlined">download</span>CSV</button><button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('disability','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#7c3aed;font-size:1rem;">leaderboard</span></div><div class="card-title" style="margin:0;">Interviewer Performance</div></div></div><div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Productivity rankings, avg per day, and workload balance per interviewer.</div><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('interviewer','csv')"><span class="material-symbols-outlined">download</span>CSV</button><button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('interviewer','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button></div></div>
+      </div>
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-header"><div class="card-title">Email Report Delivery</div><div class="card-subtitle">Send any report to an email address</div></div>
+        <div style="display:flex;gap:0.75rem;align-items:flex-end;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;"><label class="settings-label">Report Type</label><select id="an-email-type" class="settings-input"><option value="executive">Executive Summary</option><option value="regional">Regional Breakdown</option><option value="disability">Disability Report</option><option value="interviewer">Interviewer Performance</option></select></div>
+          <div style="flex:2;min-width:240px;"><label class="settings-label">Email Address</label><input type="email" id="an-email-addr" class="settings-input" placeholder="e.g. director@dswd.gov.ph"></div>
+          <button class="btn btn-primary btn-sm" onclick="emailReport()" style="margin-bottom:1px;"><span class="material-symbols-outlined">send</span>Send</button>
+        </div>
+      </div>
+
+    </div><!-- /co-view-analytics -->
 
   </div>
 </div>
 
 <script src="/js/dashboard-auth.js"></script>
 <script src="/js/dashboard-common.js"></script>
+<script src="/js/dashboard-analytics.js"></script>
 <script>
   dashRequireAuth();
 
   // ── View switcher ──────────────────────────────────────────────
   function coShowView(view) {
-    ['overview','beneficiaries','assessments','regional','documents'].forEach(v => {
+    ['overview','beneficiaries','assessments','interviewers','documents','analytics'].forEach(v => {
       const el = document.getElementById('co-view-' + v);
       if (el) el.style.display = v === view ? 'block' : 'none';
     });
@@ -558,12 +579,13 @@
     const nav = document.getElementById('co-nav-' + view);
     if (nav) nav.classList.add('active');
     if (view === 'beneficiaries') coBenLoad();
-    if (view === 'regional') coLoadRegionsView();
+    if (view === 'interviewers') loadInterviewers();
+    if (view === 'analytics') { loadAnalyticsView(); loadRegionsView(); }
   }
 
   function coShowDocTab(tab) {
     document.querySelectorAll('[data-doctab]').forEach(t => t.classList.toggle('active', t.dataset.doctab === tab));
-    ['templates','reports','issuances','references'].forEach(t => {
+    ['templates','reports'].forEach(t => {
       const el = document.getElementById('co-doctab-' + t);
       if (el) el.style.display = t === tab ? '' : 'none';
     });
@@ -638,12 +660,27 @@
     }
   }
 
+  let co4psOnly = false;
+
+  function coToggle4ps() {
+    co4psOnly = !co4psOnly;
+    const toggle = document.getElementById('co-ben-4ps-toggle');
+    const knob   = document.getElementById('co-ben-4ps-knob');
+    toggle.style.background = co4psOnly ? '#1152d4' : '#e5e7eb';
+    knob.style.left = co4psOnly ? '18px' : '2px';
+    coBenFilter();
+  }
+
   function coBenFilter() {
-    const q = document.getElementById('co-ben-search').value.toLowerCase();
-    const region = document.getElementById('co-ben-region').value;
+    const q         = document.getElementById('co-ben-search').value.toLowerCase();
+    const region    = document.getElementById('co-ben-region').value;
+    const readiness = document.getElementById('co-ben-readiness').value.toLowerCase();
     coBenFiltered = coBenData.filter(r => {
-      const matchQ = !q || (r.name+r.aruga_id+r.interviewer+r.region+r.disability).toLowerCase().includes(q);
-      return matchQ && (!region || r.region === region);
+      if (q && !(r.name+r.aruga_id+r.interviewer+r.region+r.disability+(r.readiness_score||'')).toLowerCase().includes(q)) return false;
+      if (region && r.region !== region) return false;
+      if (readiness && (r.readiness_score||'').toLowerCase() !== readiness) return false;
+      if (co4psOnly && !r.is_4ps_member) return false;
+      return true;
     });
     coBenPage = 0; coBenRender();
   }
@@ -678,9 +715,12 @@
     });
     document.getElementById('co-ben-search').addEventListener('input', coBenFilter);
     document.getElementById('co-ben-region').addEventListener('change', coBenFilter);
+    document.getElementById('co-ben-readiness').addEventListener('change', coBenFilter);
     document.getElementById('co-ben-reset').addEventListener('click', () => {
       document.getElementById('co-ben-search').value = '';
       document.getElementById('co-ben-region').value = '';
+      document.getElementById('co-ben-readiness').value = '';
+      if (co4psOnly) coToggle4ps();
       coBenFilter();
     });
   });
@@ -707,53 +747,149 @@
         fetch('/api/get-regions-stats.php').then(r=>r.json()),
       ]);
 
-      // Stats cards
       if (statsRes.success) {
         const d = statsRes.data;
-        document.getElementById('co-total').textContent = (d.total_beneficiaries||0).toLocaleString();
-        document.getElementById('co-total-sub').textContent = 'All regions combined';
-        document.getElementById('co-completed').textContent = Math.round((d.completion_rate||0)*d.total_beneficiaries/100).toLocaleString();
-        document.getElementById('co-completed-sub').textContent = (d.completion_rate||0) + '% completion rate';
-        document.getElementById('co-interviewers').textContent = (d.active_interviewers||0).toLocaleString();
-        document.getElementById('co-int-sub').textContent = 'Currently active';
+        document.getElementById('co-stat-total-beneficiaries').textContent = (d.total_beneficiaries||0).toLocaleString();
+        document.getElementById('co-stat-beneficiaries-sub').textContent = 'Total records in system';
+        document.getElementById('co-stat-active-interviewers').textContent = (d.active_interviewers||0).toLocaleString();
+        document.getElementById('co-stat-interviewers-sub').textContent = 'Currently active';
+        document.getElementById('co-stat-regions-covered').textContent = d.regions_covered||0;
+        document.getElementById('co-stat-regions-sub').textContent = 'Covered regions';
+        document.getElementById('co-stat-completion-rate').textContent = (d.completion_rate||0) + '%';
+        document.getElementById('co-stat-completion-sub').textContent = 'Completed vs total';
       }
 
-      // Regional table + disability filter setup
       if (regionsRes.success && regionsRes.regions) {
         const regions = regionsRes.regions.filter(r => r.total > 0);
-        document.getElementById('co-regions').textContent = regions.length;
-
-        // Populate region filter
-        const sel = document.getElementById('co-dis-region-filter');
-        regions.forEach(r => { const o = document.createElement('option'); o.value = r.region; o.textContent = r.region; sel.appendChild(o); });
-
-        const tbody = document.getElementById('co-region-tbody');
-        tbody.innerHTML = regions.length ? regions.map(r => {
-          const target = CO_TARGETS[r.region] || null;
-          const pct = target ? Math.min(Math.round((r.total/target)*100),100) : r.rate;
-          const pctColor = pct >= 100 ? '#16a34a' : pct >= 70 ? '#1152d4' : pct >= 45 ? '#f59e0b' : '#ef4444';
-          return `<tr class="table-row-hover">
-            <td style="font-weight:600;">${r.region}</td>
-            <td style="font-weight:700;">${r.total.toLocaleString()}</td>
-            <td style="color:var(--gray-500);">${target ? target.toLocaleString() : '—'}</td>
-            <td>
-              <div style="display:flex;align-items:center;gap:0.5rem;">
-                <div style="width:80px;height:6px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
-                  <div style="height:100%;width:${pct}%;background:${pctColor};border-radius:999px;"></div>
-                </div>
-                <span style="font-weight:700;font-size:0.8rem;color:${pctColor};">${pct}%</span>
+        const maxCount = regions[0]?.total || 1;
+        document.getElementById('co-region-badge').textContent = regions.length + ' Region' + (regions.length !== 1 ? 's' : '');
+        document.getElementById('co-region-subtitle').textContent = 'All regions with submitted assessments';
+        const colorClass = (i) => i === 0 ? '' : i === 1 ? 'green' : 'orange';
+        document.getElementById('co-region-rows').innerHTML = regions.length
+          ? regions.map((r, i) => `
+            <div class="region-row">
+              <div class="region-info">
+                <span class="region-name">${r.region}</span>
+                <span class="region-count">${r.total.toLocaleString()}</span>
               </div>
-            </td>
-          </tr>`;
-        }).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data available.</td></tr>';
+              <div class="progress-bar"><div class="progress-fill ${colorClass(i)}" style="width:${Math.round((r.total/maxCount)*100)}%"></div></div>
+            </div>`).join('')
+          : '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No region data available.</div>';
       }
 
-      // Disabilities — global + placeholder per-region (API returns global only)
       coAllDisabilities = (regionsRes.success && regionsRes.disabilities) ? regionsRes.disabilities : [];
-      renderCoDisBars();
 
     } catch(e) {
       console.error('Central dashboard load error:', e);
+    }
+
+    coLoadStatusDonut();
+    coLoadRecentActivity();
+    coLoadTopIssues();
+  }
+
+  async function coLoadStatusDonut() {
+    const STATUS_COLORS = { severe:'#ef4444', moderate:'#f97316', low:'#eab308', stable:'#22c55e' };
+    const STATUS_LABELS = { severe:'Severe', moderate:'Moderate', low:'Low', stable:'Stable' };
+    try {
+      const json = await fetch('/api/get-assessment-status.php').then(r=>r.json());
+      if (!json.success) throw new Error();
+      const d = json.data;
+      const total = d.total || 0;
+      document.getElementById('co-status-donut-total').textContent = total.toLocaleString();
+      document.getElementById('co-status-donut-subtitle').textContent = total + ' total assessment' + (total !== 1 ? 's' : '');
+      const svg = document.getElementById('co-status-donut-svg');
+      const r = 68, cx = 80, cy = 80, stroke = 24;
+      const circ = 2 * Math.PI * r;
+      const statuses = ['severe','moderate','low','stable'];
+      const vals = statuses.map(s => d[s] || 0);
+      const sum = vals.reduce((a,b) => a+b, 0);
+      if (sum === 0) {
+        svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e5e7eb" stroke-width="${stroke}"/>`;
+      } else {
+        let offset = 0;
+        svg.innerHTML = statuses.map((s, i) => {
+          const pct = vals[i] / sum;
+          const dash = pct * circ;
+          const gap = circ - dash;
+          const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${STATUS_COLORS[s]}" stroke-width="${stroke}" stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-offset}"
+            style="cursor:pointer;"
+            onmouseenter="(function(el){document.querySelectorAll('#co-status-donut-svg circle[data-label]').forEach(c=>c.style.opacity='0.35');el.style.opacity='1';el.style.strokeWidth='${stroke+6}px';document.getElementById('co-status-donut-total').textContent='${vals[i].toLocaleString()}';document.getElementById('co-status-donut-subtitle').textContent='${STATUS_LABELS[s]} — ${Math.round(pct*100)}%';})(this)"
+            onmouseleave="(function(){document.querySelectorAll('#co-status-donut-svg circle[data-label]').forEach(c=>{c.style.opacity='1';c.style.strokeWidth='${stroke}px';});document.getElementById('co-status-donut-total').textContent='${total.toLocaleString()}';document.getElementById('co-status-donut-subtitle').textContent='${total} total assessment${total!==1?'s':''}';})()"
+            data-label="${STATUS_LABELS[s]}"/>`;
+          offset += dash;
+          return el;
+        }).join('') + `<circle cx="${cx}" cy="${cy}" r="${r - stroke/2 - 2}" fill="white" style="pointer-events:none;"/>`;
+      }
+      document.getElementById('co-status-donut-legend').innerHTML = statuses.map((s,i) => {
+        const v = d[s] || 0;
+        const pct = sum > 0 ? Math.round((v/sum)*100) : 0;
+        return `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.2rem 0.35rem;">
+          <div style="width:10px;height:10px;border-radius:50%;background:${STATUS_COLORS[s]};flex-shrink:0;"></div>
+          <div style="font-size:0.75rem;font-weight:600;flex:1;">${STATUS_LABELS[s]}</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--dark);">${v.toLocaleString()}</div>
+          <div style="font-size:0.7rem;color:var(--gray-400);width:32px;text-align:right;">${pct}%</div>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      const svg = document.getElementById('co-status-donut-svg');
+      if (svg) svg.innerHTML = `<circle cx="80" cy="80" r="68" fill="none" stroke="#e5e7eb" stroke-width="24"/>`;
+    }
+  }
+
+  const CO_AUDIT_DOT = { create:'#16a34a', update:'#1152d4', delete:'#dc2626', view:'#9ca3af' };
+  async function coLoadRecentActivity() {
+    const list = document.getElementById('co-activity-list');
+    try {
+      const json = await fetch('/api/get-audit-logs.php?limit=8').then(r=>r.json());
+      if (!json.success || !json.data.length) {
+        list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No recent activity.</div>';
+        return;
+      }
+      list.innerHTML = json.data.map(s => {
+        const dot = CO_AUDIT_DOT[s.action] || '#9ca3af';
+        const time = s.timestamp_raw ? new Date(s.timestamp_raw).toLocaleString('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true}) : '—';
+        return `<div class="activity-item">
+          <div class="activity-dot" style="background:${dot};"></div>
+          <div class="activity-text">
+            <div class="activity-main">${s.details}</div>
+            <div class="activity-time">${time} · ${s.user}</div>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Failed to load activity.</div>';
+    }
+  }
+
+  async function coLoadTopIssues() {
+    const SEV = {
+      critical: { bg:'#fff1f2', border:'#fca5a5', icon:'#dc2626', badge:'#ef4444', label:'Critical' },
+      high:     { bg:'#fff7ed', border:'#fdba74', icon:'#ea580c', badge:'#f97316', label:'High' },
+      moderate: { bg:'#fefce8', border:'#fde047', icon:'#ca8a04', badge:'#eab308', label:'Moderate' },
+    };
+    try {
+      const json = await fetch('/api/get-top-issues.php').then(r=>r.json());
+      if (!json.success) throw new Error();
+      const issues = json.issues || [];
+      document.getElementById('co-top-issues-subtitle').textContent = json.month_label + ' — ' + json.total_this_month.toLocaleString() + ' assessments processed';
+      const badge = document.getElementById('co-top-issues-badge');
+      badge.textContent = issues.length + ' alerts';
+      badge.style.display = '';
+      const grid = document.getElementById('co-top-issues-grid');
+      grid.innerHTML = issues.length ? issues.map(issue => {
+        const s = SEV[issue.severity] || SEV.moderate;
+        return `<div style="background:${s.bg};border:1.5px solid ${s.border};border-radius:0.75rem;padding:1rem 1.125rem;display:flex;flex-direction:column;gap:0.5rem;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;">
+            <span style="font-size:0.8125rem;font-weight:700;color:#1f2937;line-height:1.3;">${issue.title}</span>
+            <span style="font-size:0.65rem;font-weight:700;background:${s.badge};color:#fff;padding:0.15rem 0.45rem;border-radius:999px;white-space:nowrap;flex-shrink:0;">${s.label}</span>
+          </div>
+          <div style="font-size:1.75rem;font-weight:800;color:#111827;line-height:1;">${issue.count.toLocaleString()}</div>
+          <div style="font-size:0.72rem;color:#6b7280;line-height:1.5;">${issue.description}</div>
+        </div>`;
+      }).join('') : '<div style="padding:2rem;text-align:center;color:var(--gray-400);font-size:0.75rem;grid-column:1/-1;">No issues flagged this month.</div>';
+    } catch(e) {
+      document.getElementById('co-top-issues-grid').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray-400);font-size:0.75rem;grid-column:1/-1;">Unable to load issues.</div>';
     }
   }
 
@@ -1139,6 +1275,278 @@
 
   function coRgRefresh() { coRgLoaded=false; coLoadRegionsView(); }
 
+  // ── Interviewers ──────────────────────────────────────────────
+  const CO_INT_PER_PAGE = 10;
+  let intData = [], intFiltered = [], intPage = 0, intLoaded = false;
+  let intSortKey = 'month', intSortDir = -1;
+
+  function relativeTime(iso) {
+    if (!iso) return { text: 'Never', days: 9999 };
+    const diff = Math.floor((Date.now() - new Date(iso)) / 86400000);
+    let text;
+    if (diff === 0) text = 'Today';
+    else if (diff === 1) text = 'Yesterday';
+    else if (diff < 7) text = diff + ' days ago';
+    else if (diff < 14) text = '1 week ago';
+    else if (diff < 30) text = Math.floor(diff/7) + ' weeks ago';
+    else if (diff < 60) text = '1 month ago';
+    else text = Math.floor(diff/30) + ' months ago';
+    return { text, days: diff };
+  }
+
+  function lastActiveBadge(iso) {
+    const { text, days } = relativeTime(iso);
+    const cls = days <= 7 ? 'recent' : days <= 30 ? 'week' : 'old';
+    return `<span class="last-active-chip ${cls}" title="${iso ? new Date(iso).toLocaleString() : 'No activity'}">${text}</span>`;
+  }
+
+  function sortInterviewers(key) {
+    if (intSortKey === key) { intSortDir *= -1; } else { intSortKey = key; intSortDir = -1; }
+    document.getElementById('int-sort-icon').textContent = '↕';
+    document.getElementById('int-sort-icon-date').textContent = '↕';
+    if (key === 'last_active') {
+      document.getElementById('int-sort-icon-date').textContent = intSortDir === -1 ? '↓' : '↑';
+      intFiltered.sort((a, b) => { const da=a.last_active||'',db=b.last_active||''; return intSortDir*(da<db?1:da>db?-1:0); });
+    } else {
+      document.getElementById('int-sort-icon').textContent = intSortDir === -1 ? '↓' : '↑';
+      const field = key === 'month' ? 'submissions_month' : 'submissions_total';
+      intFiltered.sort((a, b) => intSortDir * ((b[field]||0) - (a[field]||0)));
+    }
+    intPage = 0; renderInterviewers();
+  }
+
+  async function loadInterviewers() {
+    if (intLoaded) return;
+    document.getElementById('int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    try {
+      const json = await (await fetch('/api/get-interviewers.php')).json();
+      intData = json.success ? json.data : [];
+      intLoaded = true;
+      const regions = [...new Set(intData.map(r => r.region).filter(r => r && r !== '—'))].sort();
+      const sel = document.getElementById('int-region');
+      regions.forEach(r => { const o = document.createElement('option'); o.value=r; o.textContent=r; sel.appendChild(o); });
+      intFiltered = [...intData]; intPage = 0; renderInterviewers();
+    } catch(e) {
+      document.getElementById('int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+    }
+    document.getElementById('int-search').addEventListener('input', filterInterviewers);
+    document.getElementById('int-region').addEventListener('change', filterInterviewers);
+    document.getElementById('int-reset').addEventListener('click', () => {
+      document.getElementById('int-search').value = '';
+      document.getElementById('int-region').value = '';
+      filterInterviewers();
+    });
+  }
+
+  function filterInterviewers() {
+    const q = document.getElementById('int-search').value.toLowerCase();
+    const region = document.getElementById('int-region').value;
+    intFiltered = intData.filter(r => {
+      const matchQ = !q || (r.name+r.code+r.region+(r.email||'')).toLowerCase().includes(q);
+      return matchQ && (!region || r.region === region);
+    });
+    intPage = 0; renderInterviewers();
+  }
+
+  function renderInterviewers() {
+    const total = intFiltered.length;
+    const totalPages = Math.max(1, Math.ceil(total / CO_INT_PER_PAGE));
+    const start = intPage * CO_INT_PER_PAGE;
+    const end = Math.min(start + CO_INT_PER_PAGE, total);
+    const page = intFiltered.slice(start, end);
+    document.getElementById('int-tbody').innerHTML = page.length
+      ? page.map((r, i) => {
+          const pendingMonth = (r.submissions_month||0) - (r.completed_month||0);
+          const tooltip = `This month: ${r.completed_month||0} completed, ${pendingMonth} pending | All time: ${r.completed_total||0} completed`;
+          const subCell = (r.submissions_total||0) === 0
+            ? `<span style="color:var(--gray-400);font-size:0.75rem;">No submissions</span>`
+            : `<span title="${tooltip}" style="cursor:default;"><span style="font-weight:700;color:var(--dark);">${r.submissions_month||0}</span><span style="color:var(--gray-400);font-size:0.72rem;"> this month</span><span style="color:var(--gray-300);"> / </span><span style="font-weight:600;color:var(--gray-600);">${r.submissions_total||0}</span><span style="color:var(--gray-400);font-size:0.72rem;"> total</span></span>`;
+          const emailDisplay = r.email && r.email !== '—'
+            ? `<a href="mailto:${r.email}" style="font-size:0.75rem;color:var(--blue);text-decoration:none;">${r.email}</a>`
+            : `<span style="color:var(--gray-400);font-size:0.75rem;">—</span>`;
+          return `<tr class="table-row-hover">
+            <td><div style="font-weight:600;color:#111811;">${r.name}</div></td>
+            <td><span style="font-family:monospace;font-size:0.8rem;font-weight:700;color:var(--blue);">${r.code}</span></td>
+            <td>${emailDisplay}</td>
+            <td>${subCell}</td>
+            <td>${lastActiveBadge(r.last_active)}</td>
+            <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openEditInterviewerModal(${start+i})" title="View"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+          </tr>`;
+        }).join('')
+      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
+    document.getElementById('int-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} interviewers` : 'No results';
+    coBuildPagination(intPage, totalPages, p => { intPage = p; renderInterviewers(); });
+  }
+
+  let editIntIndex = null;
+
+  function editIntEmailWarn() {
+    const orig = editIntIndex !== null ? (intData[editIntIndex]?.email||'') : '';
+    const cur = document.getElementById('edit-int-email').value.trim();
+    document.getElementById('edit-int-email-warn').style.display = (cur && cur !== orig) ? 'flex' : 'none';
+  }
+
+  function editIntStatusWarn() {
+    document.getElementById('edit-int-lock-warn').style.display = document.getElementById('edit-int-status').value === 'locked' ? 'flex' : 'none';
+  }
+
+  function editIntPwToggle() {
+    const opt = document.querySelector('input[name="edit-int-pw-opt"]:checked').value;
+    document.getElementById('edit-int-pw-section').style.display = opt === 'change' ? '' : 'none';
+    if (opt === 'keep') document.getElementById('edit-int-password').value = '';
+  }
+
+  function toggleEditIntPw() {
+    const inp = document.getElementById('edit-int-password');
+    const eye = document.getElementById('edit-int-pw-eye');
+    const hide = inp.type === 'password';
+    inp.type = hide ? 'text' : 'password';
+    eye.textContent = hide ? 'visibility_off' : 'visibility';
+  }
+
+  function generateEditIntPw() {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
+    let pw = '';
+    for (let i = 0; i < 12; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+    const inp = document.getElementById('edit-int-password');
+    inp.type = 'text'; inp.value = pw;
+    document.getElementById('edit-int-pw-eye').textContent = 'visibility_off';
+  }
+
+  function openEditInterviewerModal(filteredIndex) {
+    const r = intFiltered[filteredIndex]; if (!r) return;
+    const ROLE_LABELS = { field_officer:'Field Officer', stu_head:'STU Head', central:'Central', admin:'Admin' };
+    const STATUS_LABELS = { active:'Active', inactive:'Inactive', locked:'Locked' };
+    document.getElementById('edit-int-name').value     = r.name     || '—';
+    document.getElementById('edit-int-code').value     = r.code     || '—';
+    document.getElementById('edit-int-region').value   = r.region   || '—';
+    document.getElementById('edit-int-province').value = r.province || '—';
+    document.getElementById('edit-int-position').value = r.position || '—';
+    document.getElementById('edit-int-office').value   = r.office   || '—';
+    document.getElementById('edit-int-email').value    = (r.email && r.email !== '—') ? r.email : '—';
+    document.getElementById('edit-int-status').value   = STATUS_LABELS[r.status] || r.status || '—';
+    document.getElementById('edit-int-role').value     = ROLE_LABELS[r.dashboard_role] || r.dashboard_role || '—';
+    const la = r.last_active ? new Date(r.last_active).toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}) : 'No activity recorded';
+    document.getElementById('edit-int-last-active').textContent = la;
+    document.getElementById('edit-int-modal').style.display = 'flex';
+  }
+
+  async function confirmEditInterviewer() {
+    if (editIntIndex === null) return;
+    const r = intData[editIntIndex];
+    const name     = document.getElementById('edit-int-name').value.trim();
+    const region   = document.getElementById('edit-int-region').value.trim();
+    const province = document.getElementById('edit-int-province').value.trim();
+    const position = document.getElementById('edit-int-position').value.trim();
+    const office   = document.getElementById('edit-int-office').value.trim();
+    const email    = document.getElementById('edit-int-email').value.trim();
+    const status        = document.getElementById('edit-int-status').value;
+    const dashboardRole = document.getElementById('edit-int-role').value;
+    const pwOpt    = document.querySelector('input[name="edit-int-pw-opt"]:checked').value;
+    const password = pwOpt === 'change' ? document.getElementById('edit-int-password').value : '';
+    const errEl = document.getElementById('edit-int-err');
+    const btn   = document.getElementById('edit-int-submit-btn');
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent='Enter a valid email address.'; errEl.style.display=''; return; }
+    if (pwOpt === 'change' && password.length < 8) { errEl.textContent='New password must be at least 8 characters.'; errEl.style.display=''; return; }
+    errEl.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Saving...';
+    const payload = { interviewer_code:r.code, full_name:name, region, province, position, office, status, dashboard_role:dashboardRole };
+    if (email) payload.email = email;
+    if (password) payload.password = password;
+    try {
+      const res  = await fetch('/api/update-interviewer.php', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      const json = await res.json();
+      if (!json.success) { errEl.textContent=json.message||'Update failed.'; errEl.style.display=''; btn.disabled=false; btn.textContent='Update'; return; }
+    } catch(e) { errEl.textContent='Network error. Please try again.'; errEl.style.display=''; btn.disabled=false; btn.textContent='Update'; return; }
+    r.name=name||r.name; r.region=region||r.region; r.province=province||r.province;
+    r.position=position||r.position; r.office=office||r.office;
+    r.email=email||r.email; r.status=status; r.dashboard_role=dashboardRole;
+    btn.disabled=false; btn.textContent='Update';
+    closeIntModal('edit');
+    filterInterviewers();
+    if (typeof showGlobalToast==='function') showGlobalToast(r.name+' updated successfully.','success');
+  }
+
+  function closeIntModal(type) {
+    document.getElementById(type+'-int-modal').style.display = 'none';
+  }
+
+  // ── Documents ─────────────────────────────────────────────────
+  const docDownloadCounts = {};
+  async function downloadDoc(docId, filename, btn) {
+    if (btn.disabled) return;
+    const origHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;animation:spin 0.8s linear infinite;">autorenew</span>Downloading...';
+    try {
+      const res = await fetch('/api/documents/download/' + docId);
+      if (!res.ok) throw new Error('File not available (HTTP ' + res.status + ')');
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch(e) {
+      if (typeof showGlobalToast === 'function') showGlobalToast(e.message || 'Download failed. Please try again.', 'error');
+    }
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
+  }
+
+  // ── Report Settings ────────────────────────────────────────────
+  function openAnReportSettings() {
+    const list = document.getElementById('an-settings-list');
+    list.innerHTML = AN_SECTIONS.map(s => {
+      const on = anSectionVisibility[s.key] !== false;
+      const locked = s.locked;
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--gray-100);">
+        <div><span style="font-size:0.8125rem;font-weight:600;color:var(--dark);">${s.label}</span>${locked?'<span style="font-size:0.65rem;color:var(--gray-400);margin-left:0.4rem;">Always visible</span>':''}</div>
+        <div id="an-toggle-${s.key}" ${locked?'':'onclick="toggleAnSection(\''+s.key+'\')"'} style="width:40px;height:22px;border-radius:999px;background:${locked?'#22c55e':on?'#1152d4':'#e5e7eb'};position:relative;${locked?'cursor:not-allowed;opacity:0.7;':'cursor:pointer;'}transition:background 0.2s;flex-shrink:0;">
+          <div id="an-knob-${s.key}" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:${locked||on?'20':'2'}px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('an-report-settings-modal').style.display = 'flex';
+  }
+
+  function toggleAnSection(key) {
+    anSectionVisibility[key] = !anSectionVisibility[key];
+    const on = anSectionVisibility[key];
+    const toggle = document.getElementById('an-toggle-' + key);
+    const knob   = document.getElementById('an-knob-'   + key);
+    if (toggle) toggle.style.background = on ? '#1152d4' : '#e5e7eb';
+    if (knob)   knob.style.left = on ? '20px' : '2px';
+  }
+
+  function saveAnReportSettings() {
+    if (typeof applyAnSectionVisibility === 'function') applyAnSectionVisibility();
+    closeAnReportSettings();
+    if (typeof showGlobalToast === 'function') showGlobalToast('Analytics view saved.', 'success');
+  }
+
+  function closeAnReportSettings() {
+    document.getElementById('an-report-settings-modal').style.display = 'none';
+  }
+
 </script>
+
+<!-- Report Settings Modal -->
+<div id="an-report-settings-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
+  <div style="background:white;border-radius:1.25rem;width:100%;max-width:420px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);">
+    <div style="padding:1.5rem 1.75rem 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+        <div><div style="font-size:1rem;font-weight:800;color:var(--dark);">Report Settings</div><div style="font-size:0.75rem;color:var(--gray-400);">Toggle which sections appear in Analytics</div></div>
+        <button onclick="closeAnReportSettings()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;padding-bottom:1rem;" id="an-settings-list"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);margin-top:0.25rem;">
+      <button onclick="closeAnReportSettings()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
+      <button onclick="saveAnReportSettings()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Save View</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
