@@ -1295,6 +1295,56 @@ table.dash-table {
   line-height: 1.5;
 }
 
+.reg-filter-btn {
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.reg-filter-btn:hover { background: var(--gray-50); color: var(--dark); }
+.reg-filter-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+.settings-help {
+  font-size: 0.695rem;
+  color: var(--gray-400);
+  margin-top: 0.3rem;
+  line-height: 1.5;
+}
+
+/* Security toggle switch */
+.sec-toggle {
+  position: relative;
+  width: 2.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: #e5e7eb;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.sec-toggle.active { background: var(--blue); }
+.sec-toggle-knob {
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: left 0.2s;
+  pointer-events: none;
+}
+.sec-toggle.active .sec-toggle-knob { left: 1.125rem; }
+
 /* legacy inline toasts — hidden, replaced by global toast */
 .settings-toast { display: none !important; }
 

@@ -54,9 +54,6 @@
       <a href="#" class="nav-item" id="nav-interviewers" title="Interviewers" onclick="showView('interviewers');return false;">
         <span class="material-symbols-outlined">badge</span><span class="nav-label">Interviewers</span>
       </a>
-      <a href="#" class="nav-item" id="nav-regions" title="Regions" onclick="showView('regions');return false;">
-        <span class="material-symbols-outlined">map</span><span class="nav-label">Regions</span>
-      </a>
       <a href="#" class="nav-item" id="nav-settings" title="System Settings" onclick="showView('settings');return false;">
         <span class="material-symbols-outlined">settings</span><span class="nav-label">System Settings</span>
       </a>
@@ -667,9 +664,104 @@
 
       <!-- ── By Region ── -->
       <div class="an-section-header">By Region</div>
-      <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card" style="margin-bottom:1rem;">
         <div class="card-header"><div class="card-title">Top Regions by Completions</div><div class="card-subtitle">Horizontal bar — sorted descending</div></div>
         <div id="an-region-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+      </div>
+
+
+      <!-- Region export + count row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+        <span style="font-size:0.75rem;color:var(--gray-500);" id="rg-table-count">—</span>
+        <button class="btn btn-secondary btn-sm" onclick="exportRegionsCSV()"><span class="material-symbols-outlined">download</span>Export CSV</button>
+      </div>
+
+      <!-- Region sub-tabs -->
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;overflow-x:auto;">
+        <button class="settings-tab active" data-rgtab="overview" onclick="showRgTab('overview')"><span class="material-symbols-outlined">leaderboard</span>By Region</button>
+        <button class="settings-tab" data-rgtab="province" onclick="showRgTab('province')"><span class="material-symbols-outlined">location_city</span>By Province</button>
+        <button class="settings-tab" data-rgtab="city" onclick="showRgTab('city')"><span class="material-symbols-outlined">apartment</span>By City/Municipality</button>
+        <button class="settings-tab" data-rgtab="insights" onclick="showRgTab('insights')"><span class="material-symbols-outlined">insights</span>Key Insights</button>
+      </div>
+
+      <!-- Sub-tab: By Region table -->
+      <div class="settings-panel an-rg-panel" id="rgtab-overview" style="margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;">
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th style="cursor:pointer;" onclick="sortRg('regions','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('regions','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th>Target</th>
+                  <th style="cursor:pointer;" onclick="sortRg('regions','rate')">Completion % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('regions','interviewers')">Interviewers <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('regions','province_count')">Provinces <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                </tr>
+              </thead>
+              <tbody id="rg-region-tbody"><tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-tab: By Province -->
+      <div class="settings-panel an-rg-panel" id="rgtab-province" style="display:none;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;">
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th style="cursor:pointer;" onclick="sortRg('provinces','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('provinces','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('provinces','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                </tr>
+              </thead>
+              <tbody id="rg-province-tbody"><tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-tab: By City -->
+      <div class="settings-panel an-rg-panel" id="rgtab-city" style="display:none;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;">
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th style="cursor:pointer;" onclick="sortRg('cities','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('cities','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('cities','city')">City / Municipality <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                  <th style="cursor:pointer;" onclick="sortRg('cities','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
+                </tr>
+              </thead>
+              <tbody id="rg-city-tbody"><tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-tab: Key Insights -->
+      <div class="settings-panel an-rg-panel" id="rgtab-insights" style="display:none;margin-bottom:1.25rem;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Top 5 Regions</div><div class="card-subtitle">By total profiled</div></div>
+            <div id="rg-top5" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Most Common Disabilities</div><div class="card-subtitle">Across all regions</div></div>
+            <div id="rg-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Monthly Profiling Trend</div><div class="card-subtitle">Records added per month</div></div>
+            <div class="bar-chart" id="rg-monthly-bars" style="min-height:160px;margin-top:0.75rem;"></div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Regions Needing Attention</div><div class="card-subtitle">Lowest completion rates</div></div>
+            <div id="rg-low-regions" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+          </div>
+        </div>
       </div>
 
       <!-- ── Beneficiaries ── -->
@@ -849,22 +941,34 @@
         <div class="card" style="margin:0;">
           <div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:var(--blue);font-size:1rem;">article</span></div><div class="card-title" style="margin:0;">Executive Summary</div></div></div>
           <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">1-page national overview with key metrics, completion rate, top regions.</div>
-          <button class="btn btn-primary btn-sm" style="width:100%;" onclick="downloadReport('executive','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('executive','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+            <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('executive','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button>
+          </div>
         </div>
         <div class="card" style="margin:0;">
           <div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1rem;">map</span></div><div class="card-title" style="margin:0;">Regional Breakdown</div></div></div>
           <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Per-region targets, completions, rates, and interviewer counts.</div>
-          <button class="btn btn-primary btn-sm" style="width:100%;" onclick="downloadReport('regional','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('regional','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+            <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('regional','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button>
+          </div>
         </div>
         <div class="card" style="margin:0;">
           <div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#ea580c;font-size:1rem;">accessible</span></div><div class="card-title" style="margin:0;">Disability Report</div></div></div>
           <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Disability type distribution, age groups, and prevalence analysis.</div>
-          <button class="btn btn-primary btn-sm" style="width:100%;" onclick="downloadReport('disability','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('disability','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+            <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('disability','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button>
+          </div>
         </div>
         <div class="card" style="margin:0;">
           <div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#7c3aed;font-size:1rem;">leaderboard</span></div><div class="card-title" style="margin:0;">Interviewer Performance</div></div></div>
           <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Productivity rankings, avg per day, and workload balance per interviewer.</div>
-          <button class="btn btn-primary btn-sm" style="width:100%;" onclick="downloadReport('interviewer','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('interviewer','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+            <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('interviewer','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button>
+          </div>
         </div>
       </div>
       <div class="card" style="margin-bottom:1.25rem;">
@@ -899,175 +1003,6 @@
     </div>
 
     <!-- Regions View -->
-    <div class="dash-content" id="view-regions" style="display:none;">
-
-      <!-- Header -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
-        <div>
-          <div class="page-title" style="margin:0;">Regional Dashboard</div>
-          <div class="page-subtitle" style="margin:0;">Total profiled children by region, province, and city — from live database</div>
-        </div>
-        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-          <button class="btn btn-secondary btn-sm" onclick="exportRegionsCSV()"><span class="material-symbols-outlined">download</span>Export CSV</button>
-          <button class="btn btn-primary btn-sm" onclick="refreshRegionsView()"><span class="material-symbols-outlined">refresh</span>Refresh</button>
-        </div>
-      </div>
-
-      <!-- Summary Cards -->
-      <div class="stats-grid" style="margin-bottom:1rem;">
-        <div class="stat-card">
-          <div class="stat-icon blue"><span class="material-symbols-outlined">groups</span></div>
-          <div class="stat-body">
-            <div class="stat-value" id="rg-stat-total">—</div>
-            <div class="stat-label">Total Profiled</div>
-            <div class="stat-change up" id="rg-stat-total-sub">All regions</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon green"><span class="material-symbols-outlined">task_alt</span></div>
-          <div class="stat-body">
-            <div class="stat-value" id="rg-stat-completed">—</div>
-            <div class="stat-label">Completed</div>
-            <div class="stat-change up" id="rg-stat-completed-sub">—</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon purple"><span class="material-symbols-outlined">pending</span></div>
-          <div class="stat-body">
-            <div class="stat-value" id="rg-stat-inprog">—</div>
-            <div class="stat-label">In Progress</div>
-            <div class="stat-change" id="rg-stat-inprog-sub">—</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon blue"><span class="material-symbols-outlined">map</span></div>
-          <div class="stat-body">
-            <div class="stat-value" id="rg-stat-regions">—</div>
-            <div class="stat-label">Regions with Data</div>
-            <div class="stat-change up">Active regions</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Filters -->
-      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
-        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-          <div class="search-bar" style="flex:1;min-width:180px;max-width:280px;">
-            <span class="material-symbols-outlined">search</span>
-            <input type="text" id="rg-search" placeholder="Search region or province..." oninput="applyRgFilters()">
-          </div>
-          <select id="rg-filter-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="applyRgFilters()">
-            <option value="">All Regions</option>
-          </select>
-          <select id="rg-filter-status" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="applyRgFilters()">
-            <option value="">All Status</option>
-            <option value="high">High Completion (≥70%)</option>
-            <option value="mid">Mid (45–69%)</option>
-            <option value="low">Low (&lt;45%)</option>
-          </select>
-          <button class="btn btn-secondary btn-sm" onclick="resetRegionFilters()">Reset</button>
-          <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="rg-table-count">—</span>
-        </div>
-      </div>
-
-      <!-- Tabs -->
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;overflow-x:auto;">
-        <button class="settings-tab active" data-rgtab="overview" onclick="showRgTab('overview')"><span class="material-symbols-outlined">leaderboard</span>By Region</button>
-        <button class="settings-tab" data-rgtab="province" onclick="showRgTab('province')"><span class="material-symbols-outlined">location_city</span>By Province</button>
-        <button class="settings-tab" data-rgtab="city" onclick="showRgTab('city')"><span class="material-symbols-outlined">apartment</span>By City/Municipality</button>
-        <button class="settings-tab" data-rgtab="insights" onclick="showRgTab('insights')"><span class="material-symbols-outlined">insights</span>Key Insights</button>
-      </div>
-
-      <!-- Tab: By Region -->
-      <div class="settings-panel" id="rgtab-overview">
-        <div class="card" style="margin:0 0 1rem;">
-          <div class="table-wrap">
-            <table class="dash-table">
-              <thead>
-                <tr>
-                  <th style="cursor:pointer;" onclick="sortRg('regions','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('regions','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th>Target</th>
-                  <th style="cursor:pointer;" onclick="sortRg('regions','rate')">Completion % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('regions','interviewers')">Interviewers <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('regions','province_count')">Provinces <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                </tr>
-              </thead>
-              <tbody id="rg-region-tbody"><tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card" style="margin:0;display:none;">
-          <div class="card-header"><div class="card-title">Total Profiled by Region</div><div class="card-subtitle">Completed vs In Progress</div></div>
-          <div id="rg-bar-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
-        </div>
-      </div>
-
-      <!-- Tab: By Province -->
-      <div class="settings-panel" id="rgtab-province" style="display:none;">
-        <div class="card" style="margin:0;">
-          <div class="table-wrap">
-            <table class="dash-table">
-              <thead>
-                <tr>
-                  <th style="cursor:pointer;" onclick="sortRg('provinces','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('provinces','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('provinces','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                </tr>
-              </thead>
-              <tbody id="rg-province-tbody"><tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab: By City -->
-      <div class="settings-panel" id="rgtab-city" style="display:none;">
-        <div class="card" style="margin:0;">
-          <div class="table-wrap">
-            <table class="dash-table">
-              <thead>
-                <tr>
-                  <th style="cursor:pointer;" onclick="sortRg('cities','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('cities','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('cities','city')">City / Municipality <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('cities','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                </tr>
-              </thead>
-              <tbody id="rg-city-tbody"><tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab: Key Insights -->
-      <div class="settings-panel" id="rgtab-insights" style="display:none;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-
-          <div class="card" style="margin:0;">
-            <div class="card-header"><div class="card-title">Top 5 Regions</div><div class="card-subtitle">By total profiled</div></div>
-            <div id="rg-top5" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
-          </div>
-
-          <div class="card" style="margin:0;">
-            <div class="card-header"><div class="card-title">Most Common Disabilities</div><div class="card-subtitle">Across all regions</div></div>
-            <div id="rg-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
-          </div>
-
-          <div class="card" style="margin:0;">
-            <div class="card-header"><div class="card-title">Monthly Profiling Trend</div><div class="card-subtitle">Records added per month</div></div>
-            <div class="bar-chart" id="rg-monthly-bars" style="min-height:160px;margin-top:0.75rem;"></div>
-          </div>
-
-          <div class="card" style="margin:0;">
-            <div class="card-header"><div class="card-title">Regions Needing Attention</div><div class="card-subtitle">Lowest completion rates</div></div>
-            <div id="rg-low-regions" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
-          </div>
-
-        </div>
-      </div>
-
-    </div><!-- /view-regions -->
 
     <!-- Documents View -->
     <div class="dash-content" id="view-documents" style="display:none;">
@@ -1268,101 +1203,40 @@
 
       <!-- Settings Tab Bar -->
       <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1.5rem;overflow-x:auto;">
-        <button class="settings-tab active" data-tab="users" onclick="showSettingsTab('users')">
-          <span class="material-symbols-outlined">manage_accounts</span>User Accounts
-        </button>
-        <button class="settings-tab" data-tab="dropdowns" onclick="showSettingsTab('dropdowns')">
+        <button class="settings-tab active" data-tab="dropdowns" onclick="showSettingsTab('dropdowns')">
           <span class="material-symbols-outlined">list_alt</span>Dropdown Options
-        </button>
-        <button class="settings-tab" data-tab="rules" onclick="showSettingsTab('rules')">
-          <span class="material-symbols-outlined">tune</span>System Rules
         </button>
         <button class="settings-tab" data-tab="regions" onclick="showSettingsTab('regions')">
           <span class="material-symbols-outlined">map</span>Regions
+        </button>
+        <button class="settings-tab" data-tab="security" onclick="showSettingsTab('security')">
+          <span class="material-symbols-outlined">security</span>Security &amp; Sessions
         </button>
         <button class="settings-tab" data-tab="export" onclick="showSettingsTab('export')">
           <span class="material-symbols-outlined">download</span>Data Export
         </button>
       </div>
 
-      <!-- ── Tab: User Accounts ── -->
-      <div class="settings-panel" id="stab-users">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
-          <div class="card" style="margin:0;">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Add New User</div>
-                <div class="card-subtitle">Create a new admin or staff account</div>
-              </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;">
-              <div>
-                <label class="settings-label">Full Name</label>
-                <input type="text" id="nu-name" class="settings-input" placeholder="e.g. Maria Santos">
-              </div>
-              <div>
-                <label class="settings-label">Email Address</label>
-                <input type="email" id="nu-email" class="settings-input" placeholder="e.g. m.santos@dswd.gov.ph">
-              </div>
-              <div>
-                <label class="settings-label">Role</label>
-                <select id="nu-role" class="settings-input">
-                  <option value="">Select role...</option>
-                  <option value="admin">Administrator</option>
-                  <option value="central">Central Office</option>
-                  <option value="stu_head">STU Head</option>
-                  <option value="field_officer">Field Officer</option>
-                </select>
-              </div>
-              <div>
-                <label class="settings-label">Temporary Password</label>
-                <div style="display:flex;gap:0.5rem;">
-                  <input type="text" id="nu-password" class="settings-input" placeholder="Auto-generated" readonly style="flex:1;background:var(--gray-50);">
-                  <button class="btn btn-secondary btn-sm" onclick="generateTempPassword()" title="Generate password">
-                    <span class="material-symbols-outlined">refresh</span>
-                  </button>
-                </div>
-              </div>
-              <button class="btn btn-primary btn-sm" onclick="createUser()" style="margin-top:0.25rem;">
-                <span class="material-symbols-outlined">person_add</span>Create Account
-              </button>
-            </div>
-          </div>
-
-          <div class="card" style="margin:0;">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Existing Users</div>
-                <div class="card-subtitle">Active accounts in the system</div>
-              </div>
-              <button class="btn btn-secondary btn-sm" onclick="loadUsers()">
-                <span class="material-symbols-outlined">refresh</span>
-              </button>
-            </div>
-            <div id="users-list" style="display:flex;flex-direction:column;gap:0.5rem;max-height:340px;overflow-y:auto;">
-              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Click refresh to load users.</div>
-            </div>
-          </div>
-        </div>
-        <div id="users-toast" class="settings-toast" style="display:none;"></div>
-      </div>
-
-      <!-- ── Tab: Interviewer Codes ── -->
-
       <!-- ── Tab: Dropdown Options ── -->
-      <div class="settings-panel" id="stab-dropdowns" style="display:none;">
+      <div class="settings-panel" id="stab-dropdowns">
         <div style="display:grid;grid-template-columns:260px 1fr;gap:1rem;">
           <div class="card" style="margin:0;">
             <div class="card-header">
               <div class="card-title">Category</div>
             </div>
             <div style="display:flex;flex-direction:column;gap:0.25rem;">
-              <button class="dropdown-cat-btn active" onclick="selectDropdownCat('disability',this)">Disability Types</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('occupation',this)">Occupations</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('civil_status',this)">Civil Status</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('education',this)">Education Level</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('relationship',this)">Relationship to Child</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('housing',this)">Housing Type</button>
+              <button class="dropdown-cat-btn active" onclick="selectDropdownCat('List_Disability',this)">Disability Types</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Occupation',this)">Occupations</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Education',this)">Education Level</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Relationship',this)">Relationship to Child</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Religion',this)">Religion</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Illness',this)">Illness Types</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Materials',this)">House Materials</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Tenure',this)">Housing Tenure</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Water',this)">Water Source</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Toilet',this)">Toilet Type</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Garbage',this)">Garbage Disposal</button>
+              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Electricity',this)">Electricity Source</button>
             </div>
           </div>
           <div class="card" style="margin:0;">
@@ -1386,154 +1260,98 @@
         <div id="dropdowns-toast" class="settings-toast" style="display:none;"></div>
       </div>
 
-      <!-- ── Tab: System Rules ── -->
-      <div class="settings-panel" id="stab-rules" style="display:none;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-          <div class="card" style="margin:0;">
-            <div class="card-header">
-              <div class="card-title">Session &amp; Access</div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:1rem;">
-              <div>
-                <label class="settings-label">Session Timeout (minutes)</label>
-                <input type="number" id="rule-timeout" class="settings-input" value="30" min="5" max="480">
-                <div class="settings-hint">Users will be automatically logged out after this period of inactivity.</div>
-              </div>
-              <div>
-                <label class="settings-label">Max Login Attempts</label>
-                <input type="number" id="rule-attempts" class="settings-input" value="5" min="1" max="20">
-                <div class="settings-hint">Account will be temporarily locked after this many failed attempts.</div>
-              </div>
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
-                <div>
-                  <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">Require Strong Passwords</div>
-                  <div class="settings-hint" style="margin:0;">Min 8 chars, uppercase, number, symbol</div>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="rule-strong-pw" checked>
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div class="card" style="margin:0;">
-            <div class="card-header">
-              <div class="card-title">Assessment Rules</div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:1rem;">
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
-                <div>
-                  <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">Require All Steps</div>
-                  <div class="settings-hint" style="margin:0;">All 11 assessment steps must be completed before submission</div>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="rule-all-steps" checked>
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
-                <div>
-                  <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">Allow Draft Saving</div>
-                  <div class="settings-hint" style="margin:0;">Interviewers can save incomplete assessments as drafts</div>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="rule-drafts" checked>
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
-              <div>
-                <label class="settings-label">Max Age for Beneficiary (years)</label>
-                <input type="number" id="rule-max-age" class="settings-input" value="18" min="1" max="25">
-                <div class="settings-hint">Assessment form will reject records above this age.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card" style="margin:0;grid-column:1/-1;">
-            <div class="card-header">
-              <div class="card-title">Notifications</div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
-                <div>
-                  <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">Email Alerts for New Submissions</div>
-                  <div class="settings-hint" style="margin:0;">Notify admin when a new assessment is submitted</div>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="rule-email-sub">
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
-                <div>
-                  <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">Alert on Suspicious Login</div>
-                  <div class="settings-hint" style="margin:0;">Notify admin on repeated failed login attempts</div>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="rule-alert-login" checked>
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
-            </div>
-            <div style="margin-top:1rem;display:flex;justify-content:flex-end;">
-              <button class="btn btn-primary btn-sm" onclick="saveSystemRules()">
-                <span class="material-symbols-outlined">save</span>Save Rules
-              </button>
-            </div>
-          </div>
-        </div>
-        <div id="rules-toast" class="settings-toast" style="display:none;"></div>
-      </div>
-
       <!-- ── Tab: Regions ── -->
       <div class="settings-panel" id="stab-regions" style="display:none;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div style="display:grid;grid-template-columns:340px 1fr;gap:1rem;align-items:start;">
+
+          <!-- Add / Edit Form -->
           <div class="card" style="margin:0;">
             <div class="card-header">
               <div>
-                <div class="card-title">Add Region / Province</div>
-                <div class="card-subtitle">Expand coverage areas in the system</div>
+                <div class="card-title" id="reg-form-title">Add Region</div>
+                <div class="card-subtitle">Fill in the fields below and click Save.</div>
               </div>
             </div>
             <div style="display:flex;flex-direction:column;gap:0.75rem;">
+              <input type="hidden" id="reg-edit-id" value="">
               <div>
-                <label class="settings-label">Region Name</label>
+                <label class="settings-label">Region Name <span style="color:#dc2626;">*</span></label>
                 <input type="text" id="reg-name" class="settings-input" placeholder="e.g. Region XIV – BARMM">
               </div>
               <div>
-                <label class="settings-label">Region Code</label>
+                <label class="settings-label">Region Code <span style="color:#dc2626;">*</span></label>
                 <input type="text" id="reg-code" class="settings-input" placeholder="e.g. XIV">
               </div>
               <div>
-                <label class="settings-label">Province (optional)</label>
+                <label class="settings-label">Province</label>
                 <input type="text" id="reg-province" class="settings-input" placeholder="e.g. Maguindanao del Norte">
               </div>
               <div>
-                <label class="settings-label">Municipality / City (optional)</label>
+                <label class="settings-label">Municipality / City</label>
                 <input type="text" id="reg-municipality" class="settings-input" placeholder="e.g. Cotabato City">
               </div>
-              <button class="btn btn-primary btn-sm" onclick="saveRegion()" style="margin-top:0.25rem;">
-                <span class="material-symbols-outlined">add_location</span>Add Location
-              </button>
+              <div>
+                <label class="settings-label">Status</label>
+                <select id="reg-status" class="settings-input">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="saveRegion()">
+                  <span class="material-symbols-outlined" id="reg-save-icon">add_location</span>
+                  <span id="reg-save-label">Add Region</span>
+                </button>
+                <button class="btn btn-secondary btn-sm" id="reg-cancel-btn" style="display:none;" onclick="regCancelEdit()">
+                  <span class="material-symbols-outlined">close</span>Cancel
+                </button>
+              </div>
             </div>
           </div>
 
+          <!-- Regions List -->
           <div class="card" style="margin:0;">
             <div class="card-header">
               <div>
                 <div class="card-title">Registered Regions</div>
-                <div class="card-subtitle">All active coverage areas</div>
+                <div class="card-subtitle" id="reg-list-subtitle">All coverage areas in the system</div>
               </div>
-              <button class="btn btn-secondary btn-sm" onclick="loadRegionSettings()">
-                <span class="material-symbols-outlined">refresh</span>
-              </button>
+              <div style="display:flex;gap:0.5rem;">
+                <div class="search-bar" style="width:180px;">
+                  <span class="material-symbols-outlined">search</span>
+                  <input type="text" id="reg-search" placeholder="Search..." oninput="renderRegionSettings()" aria-label="Search regions">
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="loadRegionSettings()" title="Refresh">
+                  <span class="material-symbols-outlined">refresh</span>
+                </button>
+              </div>
             </div>
-            <div id="regions-list" style="max-height:340px;overflow-y:auto;">
-              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Click refresh to load regions.</div>
+
+            <!-- Status filter -->
+            <div style="display:flex;gap:0.375rem;margin-bottom:0.75rem;flex-wrap:wrap;">
+              <button class="reg-filter-btn active" data-filter="all" onclick="regSetFilter('all',this)">All</button>
+              <button class="reg-filter-btn" data-filter="active" onclick="regSetFilter('active',this)">Active</button>
+              <button class="reg-filter-btn" data-filter="inactive" onclick="regSetFilter('inactive',this)">Inactive</button>
+            </div>
+
+            <div id="regions-list" style="max-height:400px;overflow-y:auto;">
+              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading regions...</div>
             </div>
           </div>
         </div>
+
+        <!-- Edit Modal -->
+        <div id="reg-delete-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);">
+          <div style="background:white;border-radius:1rem;width:100%;max-width:360px;padding:1.75rem;box-shadow:0 24px 64px rgba(0,0,0,0.2);">
+            <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:0.5rem;">Remove Region?</div>
+            <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:1.5rem;">Remove <strong id="reg-delete-name"></strong> from the system? This does not delete existing assessment records.</div>
+            <div style="display:flex;gap:0.75rem;">
+              <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('reg-delete-modal').style.display='none'">Cancel</button>
+              <button class="btn btn-sm" style="flex:1;background:#dc2626;color:white;" onclick="regConfirmDelete()">Remove</button>
+            </div>
+          </div>
+        </div>
+
         <div id="regions-toast" class="settings-toast" style="display:none;"></div>
       </div>
 
@@ -1653,6 +1471,202 @@
         <div id="export-toast" class="settings-toast" style="display:none;"></div>
       </div>
 
+      <!-- ── Tab: Security & Session Settings ── -->
+      <div class="settings-panel" id="stab-security" style="display:none;">
+        <div style="margin-bottom:1.25rem;">
+          <div class="card-title" style="font-size:1.05rem;">Security &amp; Session Settings</div>
+          <div class="card-subtitle">Control session timeouts, login security rules, and password requirements for all users.</div>
+        </div>
+
+        <!-- Session Management -->
+        <div class="card" style="margin-bottom:1rem;">
+          <div class="card-header" style="margin-bottom:1rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <div style="width:2rem;height:2rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:var(--blue);font-size:1rem;">timer</span>
+              </div>
+              <div>
+                <div class="card-title" style="margin:0;">Session Management</div>
+                <div class="card-subtitle" style="margin:0;">Control how long user sessions remain active.</div>
+              </div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.25rem;">
+            <div>
+              <label class="settings-label">Idle Timeout</label>
+              <select id="sec-idle-timeout" class="settings-input" onchange="secMarkDirty()">
+                <option value="15">15 minutes</option>
+                <option value="30" selected>30 minutes</option>
+                <option value="60">60 minutes</option>
+                <option value="120">120 minutes</option>
+              </select>
+              <div class="settings-help">Automatically log out users after this period of inactivity.</div>
+            </div>
+            <div>
+              <label class="settings-label">Max Session Duration</label>
+              <select id="sec-abs-timeout" class="settings-input" onchange="secMarkDirty()">
+                <option value="4">4 hours</option>
+                <option value="8" selected>8 hours</option>
+                <option value="12">12 hours</option>
+                <option value="24">24 hours</option>
+              </select>
+              <div class="settings-help">Force re-login after this total session length, regardless of activity.</div>
+            </div>
+            <div>
+              <label class="settings-label">Timeout Warning</label>
+              <select id="sec-timeout-warning" class="settings-input" onchange="secMarkDirty()">
+                <option value="2">2 minutes before</option>
+                <option value="5" selected>5 minutes before</option>
+              </select>
+              <div class="settings-help">Show a warning banner this many minutes before session expires.</div>
+            </div>
+            <div>
+              <label class="settings-label">Remember Me Duration</label>
+              <select id="sec-remember-me" class="settings-input" onchange="secMarkDirty()">
+                <option value="7">7 days</option>
+                <option value="14">14 days</option>
+                <option value="30" selected>30 days</option>
+              </select>
+              <div class="settings-help">How long a "Remember Me" login token stays valid before requiring re-authentication.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Login Security -->
+        <div class="card" style="margin-bottom:1rem;">
+          <div class="card-header" style="margin-bottom:1rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <div style="width:2rem;height:2rem;border-radius:0.5rem;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#dc2626;font-size:1rem;">lock</span>
+              </div>
+              <div>
+                <div class="card-title" style="margin:0;">Login Security</div>
+                <div class="card-subtitle" style="margin:0;">Protect against brute-force and unauthorized access.</div>
+              </div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.25rem;">
+            <div>
+              <label class="settings-label">Max Failed Attempts</label>
+              <input type="number" id="sec-max-attempts" class="settings-input" min="3" max="10" value="5" oninput="secMarkDirty()">
+              <div class="settings-help">Lock an account after this many consecutive failed login attempts (3–10).</div>
+            </div>
+            <div>
+              <label class="settings-label">Lockout Duration</label>
+              <select id="sec-lockout" class="settings-input" onchange="secMarkDirty()">
+                <option value="15">15 minutes</option>
+                <option value="30" selected>30 minutes</option>
+                <option value="60">60 minutes</option>
+              </select>
+              <div class="settings-help">How long a locked account must wait before login attempts are allowed again.</div>
+            </div>
+            <div style="display:flex;flex-direction:column;justify-content:flex-start;gap:0.375rem;">
+              <label class="settings-label">Force Password Change on First Login</label>
+              <div style="display:flex;align-items:center;gap:0.625rem;margin-top:0.25rem;">
+                <button type="button" id="sec-force-pwchange-toggle" class="sec-toggle active" onclick="secToggle('sec-force-pwchange-toggle','sec-force-pwchange')">
+                  <span class="sec-toggle-knob"></span>
+                </button>
+                <input type="hidden" id="sec-force-pwchange" value="true">
+                <span id="sec-force-pwchange-label" style="font-size:0.8rem;color:var(--gray-600);font-weight:500;">Enabled</span>
+              </div>
+              <div class="settings-help">Newly created users must set a new password on their first sign-in.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Password Requirements -->
+        <div class="card" style="margin-bottom:1.5rem;">
+          <div class="card-header" style="margin-bottom:1rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <div style="width:2rem;height:2rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1rem;">password</span>
+              </div>
+              <div>
+                <div class="card-title" style="margin:0;">Password Requirements</div>
+                <div class="card-subtitle" style="margin:0;">Define minimum password strength rules for all accounts.</div>
+              </div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.25rem;">
+            <div>
+              <label class="settings-label">Min Password Length</label>
+              <input type="number" id="sec-min-length" class="settings-input" min="8" max="16" value="8" oninput="secMarkDirty()">
+              <div class="settings-help">Minimum number of characters required in a password (8–16).</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.375rem;">
+              <label class="settings-label">Require Uppercase</label>
+              <div style="display:flex;align-items:center;gap:0.625rem;margin-top:0.25rem;">
+                <button type="button" id="sec-uppercase-toggle" class="sec-toggle active" onclick="secToggle('sec-uppercase-toggle','sec-uppercase')">
+                  <span class="sec-toggle-knob"></span>
+                </button>
+                <input type="hidden" id="sec-uppercase" value="true">
+                <span id="sec-uppercase-label" style="font-size:0.8rem;color:var(--gray-600);font-weight:500;">Enabled</span>
+              </div>
+              <div class="settings-help">Password must include at least one uppercase letter (A–Z).</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.375rem;">
+              <label class="settings-label">Require Numbers</label>
+              <div style="display:flex;align-items:center;gap:0.625rem;margin-top:0.25rem;">
+                <button type="button" id="sec-numbers-toggle" class="sec-toggle active" onclick="secToggle('sec-numbers-toggle','sec-numbers')">
+                  <span class="sec-toggle-knob"></span>
+                </button>
+                <input type="hidden" id="sec-numbers" value="true">
+                <span id="sec-numbers-label" style="font-size:0.8rem;color:var(--gray-600);font-weight:500;">Enabled</span>
+              </div>
+              <div class="settings-help">Password must contain at least one numeric digit (0–9).</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.375rem;">
+              <label class="settings-label">Require Special Characters</label>
+              <div style="display:flex;align-items:center;gap:0.625rem;margin-top:0.25rem;">
+                <button type="button" id="sec-special-toggle" class="sec-toggle active" onclick="secToggle('sec-special-toggle','sec-special')">
+                  <span class="sec-toggle-knob"></span>
+                </button>
+                <input type="hidden" id="sec-special" value="true">
+                <span id="sec-special-label" style="font-size:0.8rem;color:var(--gray-600);font-weight:500;">Enabled</span>
+              </div>
+              <div class="settings-help">Password must include at least one special character (e.g. !@#$%).</div>
+            </div>
+            <div>
+              <label class="settings-label">Password Expiry</label>
+              <select id="sec-pw-expiry" class="settings-input" onchange="secMarkDirty()">
+                <option value="30">30 days</option>
+                <option value="60">60 days</option>
+                <option value="90" selected>90 days</option>
+                <option value="0">Never</option>
+              </select>
+              <div class="settings-help">Force users to create a new password after this many days. "Never" disables expiry.</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.375rem;">
+              <label class="settings-label">Prevent Password Reuse</label>
+              <div style="display:flex;align-items:center;gap:0.625rem;margin-top:0.25rem;">
+                <button type="button" id="sec-no-reuse-toggle" class="sec-toggle" onclick="secToggle('sec-no-reuse-toggle','sec-no-reuse')">
+                  <span class="sec-toggle-knob"></span>
+                </button>
+                <input type="hidden" id="sec-no-reuse" value="false">
+                <span id="sec-no-reuse-label" style="font-size:0.8rem;color:var(--gray-600);font-weight:500;">Disabled</span>
+              </div>
+              <div class="settings-help">Prevent users from reusing their last 5 passwords when changing credentials.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+          <button class="btn btn-secondary" onclick="secResetDefaults()">
+            <span class="material-symbols-outlined">restart_alt</span>Reset to Defaults
+          </button>
+          <button class="btn btn-primary" id="sec-save-btn" onclick="secSave()" disabled>
+            <span class="material-symbols-outlined" id="sec-save-icon">save</span>
+            <span id="sec-save-label">Save Settings</span>
+          </button>
+        </div>
+
+        <!-- Loading overlay -->
+        <div id="sec-loading" style="display:none;position:absolute;inset:0;background:rgba(255,255,255,0.7);z-index:10;align-items:center;justify-content:center;border-radius:0.75rem;">
+          <span class="material-symbols-outlined" style="font-size:2rem;color:var(--blue);animation:spin 0.8s linear infinite;">autorenew</span>
+        </div>
+      </div>
+
     </div><!-- /view-settings -->
 
     <!-- Audit Logs View -->
@@ -1733,7 +1747,6 @@
     dashPopulateUser();
     loadDashboardStats();
     loadRegionCoverage();
-    loadRecentBeneficiaries();
     loadRecentActivity();
     admLoadDisabilityDist();
     loadTopIssues();
@@ -1996,12 +2009,14 @@
       renderRecentBen(recentBenData);
       if (countEl) countEl.textContent = 'Showing ' + recentBenData.length + ' most recent beneficiaries';
     } catch(e) {
-      document.getElementById('beneficiaries-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+      const el = document.getElementById('beneficiaries-tbody');
+      if (el) el.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
     }
   }
 
   function renderRecentBen(data) {
     const tbody = document.getElementById('beneficiaries-tbody');
+    if (!tbody) return;
     if (!data.length) {
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No beneficiaries found.</td></tr>';
       return;
@@ -2015,8 +2030,9 @@
     </tr>`).join('');
   }
 
-  // Search filter on recent beneficiaries table
-  document.getElementById('admin-search').addEventListener('input', function() {
+  // Search filter on recent beneficiaries table (guard — element removed from overview)
+  const adminSearchEl = document.getElementById('admin-search');
+  if (adminSearchEl) adminSearchEl.addEventListener('input', function() {
     const q = this.value.toLowerCase();
     if (!q) { renderRecentBen(recentBenData); return; }
     renderRecentBen(recentBenData.filter(r =>
@@ -2521,8 +2537,9 @@
   function _showIntToastLegacy(msg) { showGlobalToast(msg, 'success'); }
 
   // ── View switcher ──────────────────────────────────────────────
-  const VIEWS = ['overview','beneficiaries','assessments','interviewers','analytics','regions','documents','settings','audit'];
+  const VIEWS = ['overview','beneficiaries','assessments','interviewers','analytics','documents','settings','audit'];
   function showView(view) {
+    if (secDirty && !confirm('You have unsaved security settings. Leave anyway?')) return;
     VIEWS.forEach(v => {
       const el = document.getElementById('view-' + v);
       if (el) el.style.display = v === view ? '' : 'none';
@@ -2533,9 +2550,8 @@
     if (view === 'beneficiaries') loadAllBeneficiaries();
     if (view === 'interviewers') loadInterviewers();
     if (view === 'audit') loadAuditLogs();
-    if (view === 'settings') showSettingsTab('users');
-    if (view === 'regions') loadRegionsView();
-    if (view === 'analytics') loadAnalyticsView();
+    if (view === 'settings') showSettingsTab('dropdowns');
+    if (view === 'analytics') { loadAnalyticsView(); loadRegionsView(); }
   }
 
   function adminShowDocTab(tab) {
@@ -2666,7 +2682,7 @@
   const AN_SECTIONS = [
     { key: 'overview',     label: 'Overview Stats',           selector: '.stats-grid'                                  },
     { key: 'trends',       label: 'Assessment Trends',        selector: '.grid-3-1'                                    },
-    { key: 'regions',      label: 'By Region',                headers: ['By Region'],      ids: ['an-region-bars']     },
+    { key: 'regions',      label: 'By Region',                headers: ['By Region'],      ids: ['an-region-bars','rg-stat-total','rg-stat-completed','rg-stat-inprog','rg-stat-regions','rgtab-overview','rgtab-province','rgtab-city','rgtab-insights'] },
     { key: 'beneficiary',  label: 'Beneficiaries',            headers: ['Beneficiaries'],  ids: ['an-age-bars','an-gender-donut','an-top-locations'] },
     { key: 'disability',   label: 'Disabilities',             headers: ['Disabilities'],   ids: ['an-dis-bars','an-multi-dis','an-dis-age'] },
     { key: 'interviewers', label: 'Interviewer Performance',  headers: ['Interviewer Performance'], ids: ['an-int-tbody','an-top5-int','an-workload-vis'] },
@@ -2861,6 +2877,7 @@
     parts.push(rangeMap[anFilters.range] || anFilters.range);
     if (anFilters.region)   parts.push(anFilters.region);
     if (anFilters.disability) parts.push(anFilters.disability);
+    applyRgFilters();
     showGlobalToast('Filter applied: ' + parts.join(' · '), 'success');
   }
 
@@ -3456,6 +3473,32 @@
       headers = ['Rank','Name','Code','Region','Completed','Avg/Day','Workload'];
       rows = (d?.interviewers||[]).map((iv,i)=>[i+1,iv.name,iv.code,iv.region,iv.completed,iv.avgDay,iv.workload]);
     }
+    if (format === 'pdf') {
+      const titles = { executive:'Executive Summary', regional:'Regional Breakdown', disability:'Disability Report', interviewer:'Interviewer Performance' };
+      const date = new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'});
+      const tableRows = rows.map(row=>`<tr>${row.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('');
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${titles[type]}</title><style>
+        body{font-family:Arial,sans-serif;margin:2rem;color:#111;}
+        h1{font-size:1.4rem;margin-bottom:0.25rem;}
+        .sub{font-size:0.85rem;color:#6b7280;margin-bottom:1.5rem;}
+        table{width:100%;border-collapse:collapse;font-size:0.875rem;}
+        th{background:#1152d4;color:#fff;padding:0.5rem 0.75rem;text-align:left;}
+        td{padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;}
+        tr:nth-child(even) td{background:#f9fafb;}
+        .footer{margin-top:2rem;font-size:0.75rem;color:#9ca3af;}
+      </style></head><body>
+        <h1>${titles[type]}</h1>
+        <div class="sub">Project Aruga &mdash; Generated ${date}</div>
+        <table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>
+        <div class="footer">Project Aruga &mdash; DSWD Child Assessment Profiling System</div>
+      </body></html>`;
+      const w = window.open('','_blank');
+      w.document.write(html);
+      w.document.close();
+      w.focus();
+      setTimeout(()=>{ w.print(); }, 400);
+      return;
+    }
     const csv = [headers,...rows].map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
@@ -3644,9 +3687,9 @@
   }
 
   function applyRgFilters() {
-    const q      = (document.getElementById('rg-search').value||'').toLowerCase();
-    const region = document.getElementById('rg-filter-region').value;
-    const status = document.getElementById('rg-filter-status').value;
+    const q      = '';
+    const region = (document.getElementById('an-f-region')||{}).value || '';
+    const status = '';
 
     const rateMatch = (rate) => {
       if (!status) return true;
@@ -3681,9 +3724,6 @@
   }
 
   function resetRegionFilters() {
-    document.getElementById('rg-search').value = '';
-    document.getElementById('rg-filter-region').value = '';
-    document.getElementById('rg-filter-status').value = '';
     applyRgFilters();
   }
 
@@ -3895,6 +3935,137 @@
 
   function refreshRegionsView() { rgLoaded=false; loadRegionsView(); }
 
+  // ── Security & Session Settings ───────────────────────────────
+
+  const SEC_DEFAULTS = {
+    idleTimeout: '30', absoluteTimeout: '8', timeoutWarning: '5', rememberMeDuration: '30',
+    maxFailedAttempts: '5', lockoutDuration: '30', forcePasswordChange: 'true',
+    passwordMinLength: '8', requireUppercase: 'true', requireNumbers: 'true',
+    requireSpecialChars: 'true', passwordExpiry: '90', preventPasswordReuse: 'false'
+  };
+
+  let secDirty = false;
+  let secLoaded = false;
+
+  function secToggle(btnId, hiddenId) {
+    const btn = document.getElementById(btnId);
+    const inp = document.getElementById(hiddenId);
+    const lbl = document.getElementById(hiddenId + '-label');
+    const isActive = btn.classList.toggle('active');
+    inp.value = isActive ? 'true' : 'false';
+    if (lbl) lbl.textContent = isActive ? 'Enabled' : 'Disabled';
+    secMarkDirty();
+  }
+
+  function secSetToggle(btnId, hiddenId, val) {
+    const btn = document.getElementById(btnId);
+    const inp = document.getElementById(hiddenId);
+    const lbl = document.getElementById(hiddenId + '-label');
+    const on = val === true || val === 'true';
+    btn.classList.toggle('active', on);
+    inp.value = on ? 'true' : 'false';
+    if (lbl) lbl.textContent = on ? 'Enabled' : 'Disabled';
+  }
+
+  function secMarkDirty() {
+    secDirty = true;
+    document.getElementById('sec-save-btn').disabled = false;
+  }
+
+  function secGetValues() {
+    return {
+      idleTimeout:          document.getElementById('sec-idle-timeout').value,
+      absoluteTimeout:      document.getElementById('sec-abs-timeout').value,
+      timeoutWarning:       document.getElementById('sec-timeout-warning').value,
+      rememberMeDuration:   document.getElementById('sec-remember-me').value,
+      maxFailedAttempts:    document.getElementById('sec-max-attempts').value,
+      lockoutDuration:      document.getElementById('sec-lockout').value,
+      forcePasswordChange:  document.getElementById('sec-force-pwchange').value,
+      passwordMinLength:    document.getElementById('sec-min-length').value,
+      requireUppercase:     document.getElementById('sec-uppercase').value,
+      requireNumbers:       document.getElementById('sec-numbers').value,
+      requireSpecialChars:  document.getElementById('sec-special').value,
+      passwordExpiry:       document.getElementById('sec-pw-expiry').value,
+      preventPasswordReuse: document.getElementById('sec-no-reuse').value,
+    };
+  }
+
+  function secApplyValues(d) {
+    document.getElementById('sec-idle-timeout').value    = d.idleTimeout        || '30';
+    document.getElementById('sec-abs-timeout').value     = d.absoluteTimeout    || '8';
+    document.getElementById('sec-timeout-warning').value = d.timeoutWarning     || '5';
+    document.getElementById('sec-remember-me').value     = d.rememberMeDuration || '30';
+    document.getElementById('sec-max-attempts').value    = d.maxFailedAttempts  || '5';
+    document.getElementById('sec-lockout').value         = d.lockoutDuration    || '30';
+    document.getElementById('sec-pw-expiry').value       = d.passwordExpiry     || '90';
+    document.getElementById('sec-min-length').value      = d.passwordMinLength  || '8';
+    secSetToggle('sec-force-pwchange-toggle', 'sec-force-pwchange', d.forcePasswordChange);
+    secSetToggle('sec-uppercase-toggle',      'sec-uppercase',      d.requireUppercase);
+    secSetToggle('sec-numbers-toggle',        'sec-numbers',        d.requireNumbers);
+    secSetToggle('sec-special-toggle',        'sec-special',        d.requireSpecialChars);
+    secSetToggle('sec-no-reuse-toggle',       'sec-no-reuse',       d.preventPasswordReuse);
+  }
+
+  async function secLoad() {
+    if (secLoaded) return;
+    const panel = document.getElementById('stab-security');
+    panel.style.position = 'relative';
+    const overlay = document.getElementById('sec-loading');
+    overlay.style.display = 'flex';
+    try {
+      const res  = await fetch('/api/settings/security');
+      const json = await res.json();
+      if (json.success && json.data) secApplyValues(json.data);
+      else secApplyValues(SEC_DEFAULTS);
+    } catch(e) {
+      secApplyValues(SEC_DEFAULTS);
+    }
+    overlay.style.display = 'none';
+    secLoaded = true;
+    secDirty = false;
+    document.getElementById('sec-save-btn').disabled = true;
+  }
+
+  async function secSave() {
+    if (!confirm('Update security settings? This will affect all users immediately.')) return;
+    const btn  = document.getElementById('sec-save-btn');
+    const icon = document.getElementById('sec-save-icon');
+    const lbl  = document.getElementById('sec-save-label');
+    btn.disabled = true;
+    icon.style.animation = 'spin 0.8s linear infinite';
+    icon.textContent = 'autorenew';
+    lbl.textContent  = 'Saving…';
+    try {
+      const res = await fetch('/api/settings/security', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(secGetValues())
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || 'Save failed');
+      secDirty = false;
+      showGlobalToast('Security settings updated successfully.', 'success');
+    } catch(e) {
+      btn.disabled = false;
+      showGlobalToast('Failed to save: ' + e.message + '. Please try again.', 'error');
+    } finally {
+      icon.style.animation = '';
+      icon.textContent = 'save';
+      lbl.textContent  = 'Save Settings';
+      if (!secDirty) btn.disabled = true;
+    }
+  }
+
+  function secResetDefaults() {
+    if (!confirm('Reset all security settings to default values?')) return;
+    secApplyValues(SEC_DEFAULTS);
+    secMarkDirty();
+  }
+
+  window.addEventListener('beforeunload', function(e) {
+    if (secDirty) { e.preventDefault(); e.returnValue = ''; }
+  });
+
   // ── System Settings ────────────────────────────────────────────
 
   function showSettingsTab(tab) {
@@ -3902,8 +4073,10 @@
     document.querySelectorAll('.settings-panel').forEach(p => p.style.display = 'none');
     const panel = document.getElementById('stab-' + tab);
     if (panel) panel.style.display = '';
-    if (tab === 'dropdowns') renderDropdownItems('disability');
+    if (tab === 'dropdowns') loadDropdownOptions();
+    if (tab === 'regions') loadRegionSettings();
     if (tab === 'export') populateExportRegions();
+    if (tab === 'security') secLoad();
   }
 
   function showGlobalToast(msg, type) {
@@ -4030,17 +4203,30 @@
   }
 
   // ── Dropdown Options ───────────────────────────────────────────
-  const DD_DEFAULTS = {
-    disability:   ['Physical','Visual','Hearing','Intellectual','Psychosocial','Speech','Multiple'],
-    occupation:   ['Farmer','Fisher','Vendor','Laborer','Unemployed','OFW','Government Employee','Private Employee','Self-Employed'],
-    civil_status: ['Single','Married','Widowed','Separated','Annulled','Live-in'],
-    education:    ['No Formal Education','Elementary Level','Elementary Graduate','High School Level','High School Graduate','Vocational','College Level','College Graduate','Post-Graduate'],
-    relationship: ['Mother','Father','Grandparent','Sibling','Aunt/Uncle','Guardian','Other'],
-    housing:      ['Owned','Rented','Shared','Informal Settler','Government Housing','Other'],
+  const DD_LABELS = {
+    List_Disability:'Disability Types', List_Occupation:'Occupations', List_Education:'Education Level',
+    List_Relationship:'Relationship to Child', List_Religion:'Religion', List_Illness:'Illness Types',
+    List_Materials:'House Materials', List_Tenure:'Housing Tenure', List_Water:'Water Source',
+    List_Toilet:'Toilet Type', List_Garbage:'Garbage Disposal', List_Electricity:'Electricity Source',
   };
-  const DD_LABELS = { disability:'Disability Types', occupation:'Occupations', civil_status:'Civil Status', education:'Education Level', relationship:'Relationship to Child', housing:'Housing Type' };
-  let ddItems = JSON.parse(JSON.stringify(DD_DEFAULTS));
-  let currentDDCat = 'disability';
+  let ddItems = {};
+  let ddLoaded = false;
+  let currentDDCat = 'List_Disability';
+
+  function loadDropdownOptions() {
+    if (ddLoaded) { renderDropdownItems(currentDDCat); return; }
+    document.getElementById('dd-items-list').innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>';
+    fetch('/api/get-options.php')
+      .then(r => r.json())
+      .then(json => {
+        ddItems = json;
+        ddLoaded = true;
+        renderDropdownItems(currentDDCat);
+      })
+      .catch(() => {
+        document.getElementById('dd-items-list').innerHTML = '<div style="text-align:center;color:#dc2626;font-size:0.75rem;padding:2rem;">Failed to load options.</div>';
+      });
+  }
 
   function selectDropdownCat(cat, btn) {
     currentDDCat = cat;
@@ -4048,6 +4234,7 @@
     btn.classList.add('active');
     document.getElementById('dd-cat-title').textContent = DD_LABELS[cat] || cat;
     document.getElementById('dd-new-item').value = '';
+    if (!ddLoaded) { loadDropdownOptions(); return; }
     renderDropdownItems(cat);
   }
 
@@ -4068,6 +4255,7 @@
   function addDropdownItem() {
     const val = document.getElementById('dd-new-item').value.trim();
     if (!val) return;
+    if (!ddItems[currentDDCat]) ddItems[currentDDCat] = [];
     if (ddItems[currentDDCat].includes(val)) { showToast('dropdowns-toast', 'That option already exists.', 'error'); return; }
     ddItems[currentDDCat].push(val);
     document.getElementById('dd-new-item').value = '';
@@ -4092,47 +4280,148 @@
 
   // ── Regions ────────────────────────────────────────────────────
   let regionsSettingsData = [];
+  let regFilterStatus = 'all';
+  let regDeleteTarget = null;
 
   function loadRegionSettings() {
     const list = document.getElementById('regions-list');
     list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:1rem;">Loading...</div>';
-    fetch('/api/get-region-coverage.php')
+    fetch('/api/get-locations.php')
       .then(r => r.json())
       .then(json => {
-        regionsSettingsData = json.success ? json.data.map(r => r.region) : [];
+        regionsSettingsData = [];
+        Object.entries(json).forEach(([region, provinces]) => {
+          Object.entries(provinces).forEach(([province, cities]) => {
+            regionsSettingsData.push({ region, province, municipality: Object.keys(cities).join(', '), code: '', status: 'active' });
+          });
+        });
         renderRegionSettings();
       })
       .catch(() => {
         regionsSettingsData = [];
         renderRegionSettings();
-        showToast('regions-toast', 'Could not load regions from server. Showing local entries only.', 'info');
+        showToast('regions-toast', 'Could not load regions from server.', 'error');
       });
+  }
+
+  function regSetFilter(val, btn) {
+    regFilterStatus = val;
+    document.querySelectorAll('.reg-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderRegionSettings();
   }
 
   function renderRegionSettings() {
     const list = document.getElementById('regions-list');
-    if (!regionsSettingsData.length) { list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No regions found.</div>'; return; }
-    list.innerHTML = '<div style="display:flex;flex-direction:column;gap:0.375rem;padding:0.25rem 0;">' +
-      regionsSettingsData.map(r => `
-        <div class="dd-item-row">
-          <span style="display:flex;align-items:center;gap:0.5rem;">
-            <span class="material-symbols-outlined" style="font-size:0.875rem;color:var(--blue);">map</span>${r}
-          </span>
-        </div>`).join('') + '</div>';
+    const q = (document.getElementById('reg-search')?.value || '').toLowerCase();
+    let rows = regionsSettingsData;
+    if (regFilterStatus !== 'all') rows = rows.filter(r => (r.status || 'active') === regFilterStatus);
+    if (q) rows = rows.filter(r => (r.region+r.code+r.province+r.municipality).toLowerCase().includes(q));
+    const sub = document.getElementById('reg-list-subtitle');
+    if (sub) sub.textContent = rows.length + ' region' + (rows.length !== 1 ? 's' : '') + ' found';
+    if (!rows.length) {
+      list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No regions found.</div>';
+      return;
+    }
+    list.innerHTML = rows.map((r, i) => {
+      const status = r.status || 'active';
+      const statusBadge = status === 'active'
+        ? '<span style="font-size:0.65rem;font-weight:700;background:#f0fdf4;color:#16a34a;padding:0.1rem 0.45rem;border-radius:999px;">Active</span>'
+        : '<span style="font-size:0.65rem;font-weight:700;background:#f9fafb;color:#6b7280;padding:0.1rem 0.45rem;border-radius:999px;">Inactive</span>';
+      return `<div class="dd-item-row" style="flex-direction:column;align-items:stretch;gap:0.25rem;padding:0.625rem 0.75rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;min-width:0;">
+            <span class="material-symbols-outlined" style="font-size:0.9rem;color:var(--blue);flex-shrink:0;">map</span>
+            <div style="min-width:0;">
+              <div style="font-weight:600;font-size:0.8125rem;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region || r.name || '—'}</div>
+              <div style="font-size:0.68rem;color:var(--gray-400);">${r.code ? 'Code: '+r.code : ''}${r.province ? ' · '+r.province : ''}${r.municipality ? ' · '+r.municipality : ''}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.375rem;flex-shrink:0;">
+            ${statusBadge}
+            <button class="btn btn-ghost btn-sm" title="Edit" onclick="regStartEdit(${i})" style="padding:0.2rem;">
+              <span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span>
+            </button>
+            <button class="btn btn-ghost btn-sm" title="Remove" onclick="regStartDelete(${i})" style="padding:0.2rem;color:#dc2626;">
+              <span class="material-symbols-outlined" style="font-size:0.875rem;">delete</span>
+            </button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
   }
 
-  function saveRegion() {
-    const name = document.getElementById('reg-name').value.trim();
-    const code = document.getElementById('reg-code').value.trim();
-    if (!name || !code) { showToast('regions-toast', 'Region name and code are required.', 'error'); return; }
-    if (regionsSettingsData.includes(name)) { showToast('regions-toast', 'That region already exists.', 'error'); return; }
-    regionsSettingsData.push(name);
+  function regStartEdit(idx) {
+    const r = regionsSettingsData[idx];
+    if (!r) return;
+    document.getElementById('reg-edit-id').value = idx;
+    document.getElementById('reg-name').value = r.region || r.name || '';
+    document.getElementById('reg-code').value = r.code || '';
+    document.getElementById('reg-province').value = r.province || '';
+    document.getElementById('reg-municipality').value = r.municipality || '';
+    document.getElementById('reg-status').value = r.status || 'active';
+    document.getElementById('reg-form-title').textContent = 'Edit Region';
+    document.getElementById('reg-save-icon').textContent = 'save';
+    document.getElementById('reg-save-label').textContent = 'Save Changes';
+    document.getElementById('reg-cancel-btn').style.display = '';
+  }
+
+  function regCancelEdit() {
+    document.getElementById('reg-edit-id').value = '';
     document.getElementById('reg-name').value = '';
     document.getElementById('reg-code').value = '';
     document.getElementById('reg-province').value = '';
     document.getElementById('reg-municipality').value = '';
+    document.getElementById('reg-status').value = 'active';
+    document.getElementById('reg-form-title').textContent = 'Add Region';
+    document.getElementById('reg-save-icon').textContent = 'add_location';
+    document.getElementById('reg-save-label').textContent = 'Add Region';
+    document.getElementById('reg-cancel-btn').style.display = 'none';
+  }
+
+  function saveRegion() {
+    const name     = document.getElementById('reg-name').value.trim();
+    const code     = document.getElementById('reg-code').value.trim();
+    const province = document.getElementById('reg-province').value.trim();
+    const muni     = document.getElementById('reg-municipality').value.trim();
+    const status   = document.getElementById('reg-status').value;
+    const editIdx  = document.getElementById('reg-edit-id').value;
+
+    if (!name || !code) { showToast('regions-toast', 'Region name and code are required.', 'error'); return; }
+
+    if (editIdx !== '') {
+      regionsSettingsData[editIdx] = { ...regionsSettingsData[editIdx], region: name, name, code, province, municipality: muni, status };
+      showToast('regions-toast', `"${name}" updated.`, 'success');
+      regCancelEdit();
+    } else {
+      const dup = regionsSettingsData.find(r => (r.code || '').toLowerCase() === code.toLowerCase());
+      if (dup) { showToast('regions-toast', 'A region with that code already exists.', 'error'); return; }
+      regionsSettingsData.unshift({ region: name, name, code, province, municipality: muni, status });
+      document.getElementById('reg-name').value = '';
+      document.getElementById('reg-code').value = '';
+      document.getElementById('reg-province').value = '';
+      document.getElementById('reg-municipality').value = '';
+      showToast('regions-toast', `"${name}" added.`, 'success');
+    }
     renderRegionSettings();
-    showToast('regions-toast', `"${name}" added to regions.`, 'success');
+  }
+
+  function regStartDelete(idx) {
+    regDeleteTarget = idx;
+    const r = regionsSettingsData[idx];
+    document.getElementById('reg-delete-name').textContent = r.region || r.name || 'this region';
+    const modal = document.getElementById('reg-delete-modal');
+    modal.style.display = 'flex';
+  }
+
+  function regConfirmDelete() {
+    if (regDeleteTarget === null) return;
+    const name = regionsSettingsData[regDeleteTarget].region || regionsSettingsData[regDeleteTarget].name;
+    regionsSettingsData.splice(regDeleteTarget, 1);
+    regDeleteTarget = null;
+    document.getElementById('reg-delete-modal').style.display = 'none';
+    renderRegionSettings();
+    showToast('regions-toast', `"${name}" removed.`, 'success');
   }
 
   // ── Data Export ────────────────────────────────────────────────
