@@ -25,13 +25,13 @@
         <div class="sidebar-brand-sub">Admin Dashboard</div>
       </div>
       <button class="sidebar-toggle-btn" id="sidebar-minimize-btn" title="Toggle sidebar">
-        <span class="material-symbols-outlined">chevron_left</span>
+        <span class="material-symbols-outlined">left_panel_close</span>
       </button>
     </div>
     <div class="sidebar-mini-logo">
       <img src="/images/logo.webp" alt="Project Aruga">
       <button class="sidebar-mini-toggle" id="sidebar-expand-btn" title="Expand sidebar">
-        <span class="material-symbols-outlined">chevron_right</span>
+        <span class="material-symbols-outlined">left_panel_open</span>
       </button>
     </div>
 
@@ -205,8 +205,9 @@
           <div class="card-header">
             <div>
               <div class="card-title">Recent Activity</div>
-              <div class="card-subtitle">Interviewer login sessions</div>
+              <div class="card-subtitle">Latest audit log entries</div>
             </div>
+            <a href="#" onclick="showView('audit');return false;" style="font-size:0.72rem;color:var(--blue);font-weight:600;text-decoration:none;">View all</a>
           </div>
           <div class="activity-list" id="activity-list">
             <div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Loading...</div>
@@ -214,43 +215,6 @@
         </div>
       </div>
 
-      <!-- Beneficiaries Table -->
-      <div class="card" style="margin-bottom:1.5rem;">
-        <div class="card-header">
-          <div>
-            <div class="card-title">Recent Beneficiaries</div>
-            <div class="card-subtitle">Latest entries across all regions</div>
-          </div>
-          <div style="display:flex;gap:0.5rem;align-items:center;">
-            <div class="search-bar" style="width:200px;">
-              <span class="material-symbols-outlined">search</span>
-              <input type="text" id="admin-search" name="admin-search" placeholder="Search..." aria-label="Search beneficiaries">
-            </div>
-            <button class="btn btn-primary btn-sm">
-              <span class="material-symbols-outlined">download</span>Export
-            </button>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table class="dash-table">
-            <thead>
-              <tr>
-                <th>Beneficiary</th>
-                <th>Age</th>
-                <th>Disability</th>
-                <th>Region</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="beneficiaries-tbody">
-              <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div style="display:flex;align-items:center;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;">
-          <span style="font-size:0.75rem;color:#6b7280;" id="beneficiaries-count">—</span>
-        </div>
-      </div>
 
 
       <!-- Top Issues This Month -->
@@ -2060,27 +2024,30 @@
     ));
   });
 
-  // ── Recent Activity (Sessions) ─────────────────────────────────
+  // ── Recent Activity (Audit Logs overview) ──────────────────────
+  const AUDIT_DOT_COLOR = { create:'#16a34a', update:'#1152d4', delete:'#dc2626', view:'#9ca3af' };
   async function loadRecentActivity() {
     const list = document.getElementById('activity-list');
     try {
-      const res = await fetch('/api/get-recent-sessions.php');
+      const res = await fetch('/api/get-audit-logs.php?limit=8');
       const json = await res.json();
       if (!json.success || !json.data.length) {
-        list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No recent sessions.</div>';
+        list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No recent activity.</div>';
         return;
       }
-      list.innerHTML = json.data.map(s => `
-        <div class="activity-item">
-          <div class="activity-dot" style="background:#1152d4;"></div>
+      list.innerHTML = json.data.map(s => {
+        const dot = AUDIT_DOT_COLOR[s.action] || '#9ca3af';
+        const time = s.timestamp_raw ? new Date(s.timestamp_raw).toLocaleString('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true}) : '—';
+        return `<div class="activity-item">
+          <div class="activity-dot" style="background:${dot};"></div>
           <div class="activity-text">
-            <div class="activity-main">${s.name} logged in — ${s.region}</div>
-            <div class="activity-time">${s.time} · ${s.code}</div>
+            <div class="activity-main">${s.details}</div>
+            <div class="activity-time">${time} · ${s.user}</div>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
     } catch(e) {
-      list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Failed to load sessions.</div>';
+      list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Failed to load activity.</div>';
     }
   }
 

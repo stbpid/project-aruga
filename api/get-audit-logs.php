@@ -64,7 +64,15 @@ foreach ($res['data'] as $log) {
         $code = is_array($newVals) ? ($newVals['interviewer_code'] ?? '') : '';
         $details = 'Interviewer added' . ($name ? ': ' . $name : '') . ($code ? ' (' . $code . ')' : '');
     } elseif ($action === 'update' && $table === 'interviewers') {
-        $changed = is_array($newVals) ? array_keys(array_filter($newVals, fn($v) => $v !== null && $v !== '')) : [];
+        $oldVals = $log['old_values'] ?? null;
+        if (is_string($oldVals)) $oldVals = json_decode($oldVals, true);
+        $changed = [];
+        if (is_array($newVals)) {
+            foreach ($newVals as $k => $v) {
+                $old = is_array($oldVals) ? ($oldVals[$k] ?? null) : null;
+                if ($v !== $old) $changed[] = $k;
+            }
+        }
         $details = 'Interviewer updated' . (count($changed) ? ' — fields: ' . implode(', ', $changed) : '');
     } else {
         $details = ucfirst($action) . ' on ' . str_replace('_', ' ', $table);
