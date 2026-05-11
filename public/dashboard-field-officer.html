@@ -8,6 +8,68 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
   <link rel="stylesheet" href="/css/dashboard.css">
+  <style>
+    .fo-skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: fo-shimmer 1.4s infinite;
+      border-radius: 0.375rem;
+      display: inline-block;
+    }
+    @keyframes fo-shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .fo-error-msg {
+      font-size: 0.75rem;
+      color: #ef4444;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    .fo-perf-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8125rem;
+      padding: 0.375rem 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .fo-perf-row:last-child { border-bottom: none; }
+    .action-item {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 0.5rem;
+      padding: 0.875rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      margin-bottom: 0.625rem;
+    }
+    .action-item:last-child { margin-bottom: 0; }
+    .readiness-badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    .readiness-severe   { background:#fee2e2;color:#dc2626; }
+    .readiness-moderate { background:#fef3c7;color:#d97706; }
+    .readiness-low      { background:#dbeafe;color:#2563eb; }
+    .readiness-stable   { background:#d1fae5;color:#059669; }
+    .readiness-default  { background:#f3f4f6;color:#6b7280; }
+    /* Detail modal */
+    .fo-modal-backdrop {
+      position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;
+    }
+    .fo-modal-box {
+      background:#fff;border-radius:0.75rem;width:100%;max-width:480px;padding:1.5rem;position:relative;max-height:90vh;overflow-y:auto;
+    }
+    .fo-modal-close {
+      position:absolute;top:1rem;right:1rem;background:none;border:none;cursor:pointer;color:#6b7280;
+    }
+  </style>
 </head>
 <body>
 
@@ -22,26 +84,30 @@
         <div class="sidebar-brand-sub">Field Officer</div>
       </div>
       <button class="sidebar-toggle-btn" id="sidebar-minimize-btn" title="Toggle sidebar">
-        <span class="material-symbols-outlined">chevron_left</span>
+        <span class="material-symbols-outlined">left_panel_close</span>
       </button>
     </div>
     <div class="sidebar-mini-logo">
       <img src="/images/logo.webp" alt="Project Aruga">
       <button class="sidebar-mini-toggle" id="sidebar-expand-btn" title="Expand sidebar">
-        <span class="material-symbols-outlined">chevron_right</span>
+        <span class="material-symbols-outlined">left_panel_open</span>
       </button>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">My Work</div>
-      <a href="/dashboard-field-officer.html" class="nav-item active" title="My Dashboard"><span class="material-symbols-outlined">dashboard</span><span class="nav-label">My Dashboard</span></a>
-      <a href="#" class="nav-item" title="My Beneficiaries"><span class="material-symbols-outlined">group</span><span class="nav-label">My Beneficiaries</span></a>
-      <a href="#" class="nav-item" title="New Assessment"><span class="material-symbols-outlined">add_circle</span><span class="nav-label">New Assessment</span></a>
-      <a href="#" class="nav-item" title="My Submissions"><span class="material-symbols-outlined">history</span><span class="nav-label">My Submissions</span></a>
+      <a href="#" class="nav-item active" id="nav-overview" title="My Dashboard" onclick="showView('overview');return false;">
+        <span class="material-symbols-outlined">dashboard</span><span class="nav-label">My Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" id="nav-beneficiaries" title="My Beneficiaries" onclick="showView('beneficiaries');return false;">
+        <span class="material-symbols-outlined">group</span><span class="nav-label">My Beneficiaries</span>
+      </a>
+      <a href="#" class="nav-item" id="nav-assessments" title="Assessments" onclick="showView('assessments');return false;"><span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span></a>
 
       <div class="nav-section-label">Tools</div>
-      <a href="/profiling.html" class="nav-item" title="Profiling Tool"><span class="material-symbols-outlined">edit_note</span><span class="nav-label">Profiling Tool</span></a>
-      <a href="#" class="nav-item" title="Scan QR Code"><span class="material-symbols-outlined">qr_code_scanner</span><span class="nav-label">Scan QR Code</span></a>
-      <a href="#" class="nav-item" title="Help &amp; Guide"><span class="material-symbols-outlined">help</span><span class="nav-label">Help &amp; Guide</span></a>
+      <a href="https://project-aruga.vercel.app/" target="_blank" rel="noopener" class="nav-item" title="Profiling Tool"><span class="material-symbols-outlined">edit_note</span><span class="nav-label">Profiling Tool</span></a>
+      <a href="#" class="nav-item" id="nav-documents" title="Documents" onclick="showView('documents');return false;"><span class="material-symbols-outlined">folder_open</span><span class="nav-label">Documents</span></a>
+      <a href="#" class="nav-item" id="nav-qr" title="Scan QR Code" onclick="showView('qr');return false;"><span class="material-symbols-outlined">qr_code_scanner</span><span class="nav-label">Scan QR Code</span></a>
+      <a href="#" class="nav-item" id="nav-help" title="Help &amp; Guide" onclick="showView('help');return false;"><span class="material-symbols-outlined">help</span><span class="nav-label">Help &amp; Guide</span></a>
 
       <div class="nav-section-label">Switch View</div>
       <a href="/dashboard-admin.html" class="nav-item" title="Admin"><span class="material-symbols-outlined">shield_person</span><span class="nav-label">Admin</span></a>
@@ -64,17 +130,10 @@
   </aside>
 
   <div class="dash-main">
-    <header class="dash-header">
-      <button class="hamburger" id="hamburger-btn"><span class="material-symbols-outlined">menu</span></button>
-      <div class="dash-header-title">Field Officer — My Dashboard</div>
-      <div class="dash-header-actions">
-        <a href="/profiling.html" class="btn btn-primary btn-sm">
-          <span class="material-symbols-outlined">add</span>New Assessment
-        </a>
-      </div>
-    </header>
+    <header class="dash-header" style="display:none;"></header>
 
-    <div class="dash-content">
+    <!-- ── OVERVIEW VIEW ─────────────────────────────────────── -->
+    <div class="dash-content" id="view-overview">
 
       <!-- Welcome Banner -->
       <div style="background:linear-gradient(135deg,#1152d4 0%,#2563eb 100%);border-radius:0.75rem;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
@@ -83,125 +142,650 @@
           <div style="font-size:1.125rem;font-weight:700;color:white;" id="welcome-name">Field Officer</div>
           <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:0.25rem;" id="welcome-sub">Code: · Region V (Bicol)</div>
         </div>
-        <a href="/profiling.html" style="background:white;color:#1152d4;border:none;border-radius:0.5rem;padding:0.5rem 1rem;font-family:'Poppins',sans-serif;font-size:0.8125rem;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:0.375rem;">
+        <a href="https://project-aruga.vercel.app/" target="_blank" rel="noopener" style="background:white;color:#1152d4;border:none;border-radius:0.5rem;padding:0.5rem 1rem;font-family:'Poppins',sans-serif;font-size:0.8125rem;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:0.375rem;">
           <span class="material-symbols-outlined" style="font-size:1rem;">edit_note</span>
           Start Assessment
         </a>
       </div>
 
-      <div class="stats-grid">
+      <!-- Stats Cards -->
+      <div class="stats-grid" style="margin-bottom:1.25rem;">
         <div class="stat-card">
           <div class="stat-icon blue"><span class="material-symbols-outlined">assignment</span></div>
-          <div class="stat-body"><div class="stat-value">124</div><div class="stat-label">Total Submitted</div><div class="stat-change up">My assessments</div></div>
+          <div class="stat-body">
+            <div class="stat-value" id="stat-total"><span class="fo-skeleton" style="width:2rem;height:1.75rem;">&nbsp;&nbsp;&nbsp;</span></div>
+            <div class="stat-label">Total Submitted</div>
+            <div class="stat-change">My assessments</div>
+          </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon green"><span class="material-symbols-outlined">check_circle</span></div>
-          <div class="stat-body"><div class="stat-value">112</div><div class="stat-label">Accepted</div><div class="stat-change up">90.3% approval rate</div></div>
+          <div class="stat-body">
+            <div class="stat-value" id="stat-accepted"><span class="fo-skeleton" style="width:2rem;height:1.75rem;">&nbsp;&nbsp;&nbsp;</span></div>
+            <div class="stat-label">Accepted</div>
+            <div class="stat-change up" id="stat-approval-rate">—</div>
+          </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon orange"><span class="material-symbols-outlined">pending</span></div>
-          <div class="stat-body"><div class="stat-value">11</div><div class="stat-label">Under Review</div><div class="stat-change down">Awaiting approval</div></div>
+          <div class="stat-body">
+            <div class="stat-value" id="stat-review"><span class="fo-skeleton" style="width:2rem;height:1.75rem;">&nbsp;&nbsp;&nbsp;</span></div>
+            <div class="stat-label">Under Review</div>
+            <div class="stat-change down">Awaiting approval</div>
+          </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon red"><span class="material-symbols-outlined">cancel</span></div>
-          <div class="stat-body"><div class="stat-value">1</div><div class="stat-label">Needs Correction</div><div class="stat-change down">Action required</div></div>
+          <div class="stat-body">
+            <div class="stat-value" id="stat-correction"><span class="fo-skeleton" style="width:2rem;height:1.75rem;">&nbsp;&nbsp;&nbsp;</span></div>
+            <div class="stat-label">Needs Correction</div>
+            <div class="stat-change down">Action required</div>
+          </div>
         </div>
       </div>
 
       <div class="grid-2" style="margin-bottom:1rem;">
 
-        <!-- My Beneficiaries -->
+        <!-- My Recent Beneficiaries -->
         <div class="card">
           <div class="card-header">
-            <div><div class="card-title">My Recent Beneficiaries</div><div class="card-subtitle">Latest submissions</div></div>
-            <div class="search-bar" style="width:150px;">
-              <span class="material-symbols-outlined">search</span>
-              <input type="text" id="officer-search" name="officer-search" placeholder="Search..." aria-label="Search beneficiaries">
+            <div>
+              <div class="card-title">My Recent Beneficiaries</div>
+              <div class="card-subtitle">Latest submissions</div>
             </div>
           </div>
           <div class="table-wrap">
             <table class="dash-table">
-              <thead><tr><th>Name</th><th>Age</th><th>Municipality</th><th>Status</th></tr></thead>
-              <tbody>
+              <thead>
                 <tr>
-                  <td><div style="font-weight:600;color:#111811;">Pedro M. Lim</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00512</div></td>
-                  <td>7</td><td>Naga City</td><td><span class="badge badge-green">Accepted</span></td>
+                  <th>Name</th>
+                  <th>Readiness</th>
+                  <th>Date</th>
+                  <th>Status</th>
                 </tr>
-                <tr>
-                  <td><div style="font-weight:600;color:#111811;">Rosa G. Santos</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00503</div></td>
-                  <td>11</td><td>Legazpi City</td><td><span class="badge badge-green">Accepted</span></td>
-                </tr>
-                <tr>
-                  <td><div style="font-weight:600;color:#111811;">Carlos R. Cruz</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00498</div></td>
-                  <td>9</td><td>Daraga</td><td><span class="badge badge-yellow">Pending</span></td>
-                </tr>
-                <tr>
-                  <td><div style="font-weight:600;color:#111811;">Maria T. Garcia</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00441</div></td>
-                  <td>14</td><td>Pili</td><td><span class="badge badge-red">Correction</span></td>
-                </tr>
-                <tr>
-                  <td><div style="font-weight:600;color:#111811;">Jose A. Reyes</div><div style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00432</div></td>
-                  <td>6</td><td>Iriga City</td><td><span class="badge badge-green">Accepted</span></td>
-                </tr>
+              </thead>
+              <tbody id="beneficiaries-tbody">
+                <tr><td colspan="4" style="text-align:center;padding:1.5rem;"><span class="fo-skeleton" style="width:80%;height:1rem;">&nbsp;</span></td></tr>
               </tbody>
             </table>
           </div>
           <div style="padding-top:0.75rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;">
-            <a href="#" style="font-size:0.75rem;color:#1152d4;font-weight:600;text-decoration:none;">View all 124 beneficiaries →</a>
+            <a href="#" onclick="showView('beneficiaries');return false;" style="font-size:0.75rem;color:#1152d4;font-weight:600;text-decoration:none;">View all beneficiaries →</a>
           </div>
         </div>
 
-        <!-- Personal Stats -->
+        <!-- Right column -->
         <div style="display:flex;flex-direction:column;gap:1rem;">
+
+          <!-- Monthly Progress -->
           <div class="card">
             <div class="card-header">
-              <div><div class="card-title">Monthly Progress</div><div class="card-subtitle">May 2026 target: 30 assessments</div></div>
+              <div>
+                <div class="card-title">Monthly Progress</div>
+                <div class="card-subtitle" id="progress-subtitle">Loading...</div>
+              </div>
             </div>
             <div style="text-align:center;margin-bottom:0.75rem;">
-              <div style="font-size:2rem;font-weight:800;color:#1152d4;">18</div>
-              <div style="font-size:0.75rem;color:#6b7280;">of 30 target this month</div>
+              <div style="font-size:2rem;font-weight:800;color:#1152d4;" id="progress-submitted">
+                <span class="fo-skeleton" style="width:3rem;height:2rem;">&nbsp;&nbsp;&nbsp;</span>
+              </div>
+              <div style="font-size:0.75rem;color:#6b7280;" id="progress-label">of — target this month</div>
             </div>
-            <div class="progress-bar" style="height:0.75rem;margin-bottom:0.5rem;"><div class="progress-fill" style="width:60%"></div></div>
-            <div style="font-size:0.7rem;color:#6b7280;text-align:center;">60% — 12 more to reach target</div>
+            <div class="progress-bar" style="height:0.75rem;margin-bottom:0.5rem;">
+              <div class="progress-fill" id="progress-bar-fill" style="width:0%;transition:width 0.6s ease;"></div>
+            </div>
+            <div style="font-size:0.7rem;color:#6b7280;text-align:center;" id="progress-pct">—</div>
           </div>
 
-          <div class="card">
+          <!-- Action Required -->
+          <div class="card" id="action-required-card">
             <div class="card-header">
               <div><div class="card-title">Action Required</div></div>
+              <span class="badge badge-red" id="action-count" style="display:none;"></span>
             </div>
-            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:0.5rem;padding:0.875rem;display:flex;gap:0.75rem;align-items:flex-start;">
-              <span class="material-symbols-outlined" style="color:#dc2626;font-size:1.125rem;flex-shrink:0;">error</span>
-              <div>
-                <div style="font-size:0.8125rem;font-weight:600;color:#dc2626;margin-bottom:0.25rem;">BEN-2026-00441 needs correction</div>
-                <div style="font-size:0.75rem;color:#6b7280;line-height:1.4;">Incomplete household information. Please update the family composition section.</div>
-                <button style="margin-top:0.625rem;background:#dc2626;color:white;border:none;border-radius:0.375rem;padding:0.375rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;">Fix Now</button>
+            <div id="action-required-body">
+              <div style="text-align:center;padding:1rem;">
+                <span class="fo-skeleton" style="width:90%;height:3rem;">&nbsp;</span>
               </div>
             </div>
           </div>
 
+          <!-- My Performance -->
           <div class="card">
             <div class="card-header">
-              <div><div class="card-title">My Performance</div><div class="card-subtitle">All-time stats</div></div>
+              <div>
+                <div class="card-title">My Performance</div>
+                <div class="card-subtitle">All-time stats</div>
+              </div>
+            </div>
+            <div id="performance-body">
+              <div class="fo-perf-row"><span style="color:#6b7280;">Approval Rate</span><span class="fo-skeleton" style="width:3rem;height:1rem;">&nbsp;&nbsp;&nbsp;</span></div>
+              <div class="fo-perf-row"><span style="color:#6b7280;">Avg. Completion Time</span><span class="fo-skeleton" style="width:3rem;height:1rem;">&nbsp;&nbsp;&nbsp;</span></div>
+              <div class="fo-perf-row"><span style="color:#6b7280;">Data Quality Score</span><span class="fo-skeleton" style="width:3rem;height:1rem;">&nbsp;&nbsp;&nbsp;</span></div>
+              <div class="fo-perf-row"><span style="color:#6b7280;">Active Days (This Month)</span><span class="fo-skeleton" style="width:3rem;height:1rem;">&nbsp;&nbsp;&nbsp;</span></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /view-overview -->
+
+    <!-- ── BENEFICIARIES VIEW ────────────────────────────────── -->
+    <div class="dash-content" id="view-beneficiaries" style="display:none;">
+
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <div>
+          <div class="page-title" style="margin:0;">My Beneficiaries</div>
+          <div class="page-subtitle" style="margin:0;">All beneficiaries I have assessed</div>
+        </div>
+        <a href="https://project-aruga.vercel.app/" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="margin-left:auto;">
+          <span class="material-symbols-outlined">add</span>New Assessment
+        </a>
+      </div>
+
+      <!-- Search bar -->
+      <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;">
+        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+          <div class="search-bar" style="flex:1;min-width:200px;max-width:360px;">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" id="ben-search" placeholder="Search by name or ARUGA ID..." aria-label="Search beneficiaries">
+          </div>
+          <span style="font-size:0.75rem;color:#6b7280;margin-left:auto;" id="ben-count"></span>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card">
+        <div class="table-wrap">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>ARUGA ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Sex</th>
+                <th>Barangay</th>
+                <th>Readiness Score</th>
+                <th>Date Assessed</th>
+              </tr>
+            </thead>
+            <tbody id="ben-tbody">
+              <tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <span style="font-size:0.75rem;color:#6b7280;" id="ben-page-info">—</span>
+          <div class="pagination" id="ben-pagination"></div>
+        </div>
+      </div>
+
+    </div><!-- /view-beneficiaries -->
+
+    <!-- ── ASSESSMENTS VIEW ──────────────────────────────────── -->
+    <div class="dash-content" id="view-assessments" style="display:none;">
+      <div style="margin-bottom:1.25rem;">
+        <div class="page-title" style="margin:0;">Assessments</div>
+        <div class="page-subtitle" style="margin:0;">My assessment records</div>
+      </div>
+      <div class="card" style="margin-top:0.5rem;">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:1rem;text-align:center;">
+          <div style="width:4rem;height:4rem;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;">
+            <span class="material-symbols-outlined" style="color:#1152d4;font-size:2rem;">construction</span>
+          </div>
+          <div style="font-size:1.125rem;font-weight:800;color:#111827;">Coming Soon</div>
+          <div style="font-size:0.875rem;color:#9ca3af;line-height:1.7;max-width:360px;">The Assessments module is currently under development. It will provide a full view of all your assessment records, statuses, and detailed reports. Check back in a future update.</div>
+        </div>
+      </div>
+    </div><!-- /view-assessments -->
+
+    <!-- ── QR SCANNER VIEW ───────────────────────────────────── -->
+    <div class="dash-content" id="view-qr" style="display:none;">
+      <style>
+        #qr-video-wrap {
+          position:relative;width:100%;max-width:420px;margin:0 auto;border-radius:1rem;overflow:hidden;background:#000;aspect-ratio:1/1;
+        }
+        #qr-video {
+          width:100%;height:100%;object-fit:cover;display:block;
+        }
+        .qr-frame {
+          position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;
+        }
+        .qr-frame-box {
+          width:62%;height:62%;position:relative;
+        }
+        .qr-frame-box::before,.qr-frame-box::after,
+        .qr-frame-corner-br,.qr-frame-corner-bl {
+          content:'';position:absolute;width:28px;height:28px;border-color:#fff;border-style:solid;
+        }
+        .qr-frame-box::before { top:0;left:0;border-width:3px 0 0 3px;border-radius:4px 0 0 0; }
+        .qr-frame-box::after  { top:0;right:0;border-width:3px 3px 0 0;border-radius:0 4px 0 0; }
+        .qr-frame-corner-br   { bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 4px 0; }
+        .qr-frame-corner-bl   { bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 4px; }
+        .qr-scan-line {
+          position:absolute;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,#1152d4,transparent);
+          animation:qr-sweep 2s ease-in-out infinite;top:10%;
+        }
+        @keyframes qr-sweep {
+          0%   { top:10%; opacity:1; }
+          50%  { top:85%; opacity:1; }
+          100% { top:10%; opacity:1; }
+        }
+        .qr-overlay-text {
+          position:absolute;bottom:1rem;left:0;right:0;text-align:center;color:rgba(255,255,255,0.85);font-size:0.75rem;font-weight:500;font-family:'Poppins',sans-serif;
+        }
+        .qr-btn-row {
+          display:flex;gap:0.625rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;
+        }
+        .qr-ctrl-btn {
+          display:flex;align-items:center;gap:0.375rem;padding:0.5rem 1rem;border-radius:0.5rem;font-family:'Poppins',sans-serif;font-size:0.8rem;font-weight:600;border:none;cursor:pointer;transition:opacity 0.15s;
+        }
+        .qr-ctrl-btn:hover { opacity:0.85; }
+        #qr-result-card {
+          border-radius:0.75rem;border:2px solid #bbf7d0;background:#f0fdf4;padding:1.25rem;margin-top:1rem;display:none;
+        }
+        #qr-error-card {
+          border-radius:0.75rem;border:2px solid #fecaca;background:#fef2f2;padding:1rem;margin-top:1rem;display:none;
+        }
+        .qr-manual-wrap {
+          display:flex;gap:0.5rem;margin-top:0.625rem;
+        }
+        .qr-manual-wrap input {
+          flex:1;padding:0.5rem 0.75rem;border:1px solid #d1d5db;border-radius:0.5rem;font-family:'Poppins',sans-serif;font-size:0.8125rem;outline:none;
+        }
+        .qr-manual-wrap input:focus { border-color:#1152d4;box-shadow:0 0 0 3px rgba(17,82,212,0.12); }
+      </style>
+
+      <div style="margin-bottom:1.25rem;">
+        <div class="page-title" style="margin:0;">Scan QR Code</div>
+        <div class="page-subtitle" style="margin:0;">Scan beneficiary QR code to quickly access their profile</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;" class="qr-layout">
+        <style>
+          @media(max-width:700px){ .qr-layout{ grid-template-columns:1fr !important; } }
+        </style>
+
+        <!-- Left: scanner -->
+        <div class="card" style="padding:1.25rem;">
+          <div style="text-align:center;margin-bottom:0.875rem;">
+            <div style="font-size:0.9rem;font-weight:700;color:#111827;margin-bottom:0.25rem;">Scan Beneficiary QR Code</div>
+            <div style="font-size:0.75rem;color:#6b7280;">Position the QR code within the frame</div>
+          </div>
+
+          <!-- Camera view -->
+          <div id="qr-video-wrap" style="display:none;">
+            <video id="qr-video" autoplay playsinline muted></video>
+            <canvas id="qr-canvas" style="display:none;"></canvas>
+            <div class="qr-frame">
+              <div class="qr-frame-box">
+                <span class="qr-frame-corner-br"></span>
+                <span class="qr-frame-corner-bl"></span>
+                <div class="qr-scan-line"></div>
+              </div>
+            </div>
+            <div class="qr-overlay-text">Align QR code within the frame</div>
+          </div>
+
+          <!-- Idle state -->
+          <div id="qr-idle" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem 1rem;background:#f9fafb;border-radius:0.75rem;border:2px dashed #d1d5db;">
+            <span class="material-symbols-outlined" style="font-size:3.5rem;color:#9ca3af;margin-bottom:0.75rem;">qr_code_scanner</span>
+            <div style="font-size:0.875rem;font-weight:600;color:#6b7280;margin-bottom:0.25rem;">Camera is off</div>
+            <div style="font-size:0.75rem;color:#9ca3af;">Click "Start Scan" to begin</div>
+          </div>
+
+          <!-- Permission denied -->
+          <div id="qr-denied" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;background:#fef2f2;border-radius:0.75rem;border:2px dashed #fecaca;text-align:center;">
+            <span class="material-symbols-outlined" style="font-size:2.5rem;color:#dc2626;margin-bottom:0.75rem;">no_photography</span>
+            <div style="font-size:0.875rem;font-weight:700;color:#dc2626;margin-bottom:0.375rem;">Camera Access Denied</div>
+            <div style="font-size:0.75rem;color:#6b7280;line-height:1.5;">Please allow camera access in your browser settings, then refresh the page to try again.</div>
+          </div>
+
+          <!-- Initializing -->
+          <div id="qr-loading" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem 1rem;">
+            <div style="width:2.5rem;height:2.5rem;border:3px solid #e5e7eb;border-top-color:#1152d4;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:0.75rem;"></div>
+            <div style="font-size:0.8rem;color:#6b7280;">Initializing camera…</div>
+          </div>
+
+          <!-- Controls -->
+          <div class="qr-btn-row">
+            <button id="qr-start-btn" class="qr-ctrl-btn" style="background:#1152d4;color:white;" onclick="qrStart()">
+              <span class="material-symbols-outlined" style="font-size:1rem;">play_circle</span>Start Scan
+            </button>
+            <button id="qr-stop-btn" class="qr-ctrl-btn" style="background:#6b7280;color:white;display:none;" onclick="qrStop()">
+              <span class="material-symbols-outlined" style="font-size:1rem;">stop_circle</span>Stop
+            </button>
+            <button id="qr-switch-btn" class="qr-ctrl-btn" style="background:#f3f4f6;color:#374151;display:none;" onclick="qrSwitchCamera()" title="Switch camera">
+              <span class="material-symbols-outlined" style="font-size:1rem;">flip_camera_ios</span>Switch
+            </button>
+            <button id="qr-torch-btn" class="qr-ctrl-btn" style="background:#f3f4f6;color:#374151;display:none;" onclick="qrToggleTorch()" title="Toggle flashlight">
+              <span class="material-symbols-outlined" style="font-size:1rem;" id="qr-torch-icon">flashlight_on</span>
+            </button>
+          </div>
+
+          <!-- Error card -->
+          <div id="qr-error-card">
+            <div style="display:flex;gap:0.5rem;align-items:flex-start;">
+              <span class="material-symbols-outlined" style="color:#dc2626;font-size:1.1rem;flex-shrink:0;">error</span>
+              <div>
+                <div style="font-size:0.8125rem;font-weight:600;color:#dc2626;" id="qr-error-msg">Invalid QR code. Please try again.</div>
+                <button onclick="qrRetry()" style="margin-top:0.5rem;background:none;border:none;color:#1152d4;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;padding:0;">Try Again</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: result + manual -->
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+
+          <!-- Scan Result -->
+          <div id="qr-result-card" class="card" style="display:none;border:2px solid #bbf7d0;background:#f0fdf4;">
+            <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+              <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.5rem;">check_circle</span>
+              <div>
+                <div style="font-size:0.8125rem;font-weight:700;color:#15803d;">QR Code Scanned!</div>
+                <div style="font-size:0.7rem;color:#6b7280;">Beneficiary found</div>
+              </div>
+            </div>
+            <div style="background:white;border-radius:0.5rem;padding:0.875rem;margin-bottom:0.875rem;border:1px solid #d1fae5;">
+              <div style="display:flex;gap:0.75rem;align-items:center;">
+                <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">person</span>
+                </div>
+                <div>
+                  <div style="font-size:0.9rem;font-weight:700;color:#111827;" id="qr-result-name">—</div>
+                  <div style="font-size:0.7rem;color:#9ca3af;font-family:monospace;" id="qr-result-id">—</div>
+                </div>
+              </div>
+              <div style="margin-top:0.75rem;display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.75rem;">
+                <div><span style="color:#9ca3af;">Age:</span> <span style="font-weight:600;" id="qr-result-age">—</span></div>
+                <div><span style="color:#9ca3af;">Barangay:</span> <span style="font-weight:600;" id="qr-result-barangay">—</span></div>
+                <div><span style="color:#9ca3af;">Status:</span> <span id="qr-result-status">—</span></div>
+                <div><span style="color:#9ca3af;">Readiness:</span> <span style="font-weight:600;" id="qr-result-readiness">—</span></div>
+              </div>
             </div>
             <div style="display:flex;flex-direction:column;gap:0.5rem;">
-              <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8125rem;">
-                <span style="color:#6b7280;">Approval Rate</span><span style="font-weight:700;color:#10b981;">90.3%</span>
+              <a id="qr-assessment-btn" href="https://project-aruga.vercel.app/" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:0.375rem;background:#1152d4;color:white;border-radius:0.5rem;padding:0.6rem;font-family:'Poppins',sans-serif;font-size:0.8rem;font-weight:700;text-decoration:none;">
+                <span class="material-symbols-outlined" style="font-size:1rem;">edit_note</span>Start Assessment
+              </a>
+              <button onclick="qrReset()" style="display:flex;align-items:center;justify-content:center;gap:0.375rem;background:#f3f4f6;color:#374151;border:none;border-radius:0.5rem;padding:0.6rem;font-family:'Poppins',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;width:100%;">
+                <span class="material-symbols-outlined" style="font-size:1rem;">qr_code_scanner</span>Scan Another
+              </button>
+            </div>
+          </div>
+
+          <!-- Manual Entry -->
+          <div class="card">
+            <div style="font-size:0.875rem;font-weight:700;color:#111827;margin-bottom:0.25rem;">Enter ARUGA ID Manually</div>
+            <div style="font-size:0.75rem;color:#6b7280;margin-bottom:0.75rem;">Use this if the QR code is damaged or unreadable</div>
+            <div class="qr-manual-wrap">
+              <input type="text" id="qr-manual-input" placeholder="e.g. ARUGA-2024-00123" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+              <button onclick="qrManualLookup()" style="background:#1152d4;color:white;border:none;border-radius:0.5rem;padding:0.5rem 1rem;font-family:'Poppins',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+                Search
+              </button>
+            </div>
+            <div id="qr-manual-status" style="font-size:0.75rem;margin-top:0.5rem;"></div>
+          </div>
+
+          <!-- How to use -->
+          <div class="card" style="background:#f8faff;border:1px solid #dbeafe;">
+            <div style="font-size:0.8rem;font-weight:700;color:#1152d4;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.375rem;">
+              <span class="material-symbols-outlined" style="font-size:1rem;">info</span>How to Use
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+              <div style="display:flex;gap:0.625rem;align-items:flex-start;font-size:0.75rem;">
+                <span style="background:#1152d4;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">1</span>
+                <span style="color:#4b5563;">Click <strong>Start Scan</strong> and allow camera access when prompted</span>
               </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8125rem;">
-                <span style="color:#6b7280;">Avg. Completion Time</span><span style="font-weight:700;color:#374151;">48 mins</span>
+              <div style="display:flex;gap:0.625rem;align-items:flex-start;font-size:0.75rem;">
+                <span style="background:#1152d4;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">2</span>
+                <span style="color:#4b5563;">Point the camera at the QR code on the beneficiary's document</span>
               </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8125rem;">
-                <span style="color:#6b7280;">Data Quality Score</span><span style="font-weight:700;color:#1152d4;">87/100</span>
+              <div style="display:flex;gap:0.625rem;align-items:flex-start;font-size:0.75rem;">
+                <span style="background:#1152d4;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">3</span>
+                <span style="color:#4b5563;">Hold steady until the QR code is recognized</span>
               </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8125rem;">
-                <span style="color:#6b7280;">Active Days (May)</span><span style="font-weight:700;color:#374151;">15 days</span>
+              <div style="display:flex;gap:0.625rem;align-items:flex-start;font-size:0.75rem;">
+                <span style="background:#1152d4;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">4</span>
+                <span style="color:#4b5563;">Choose an action from the results panel</span>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div><!-- /view-qr -->
 
-    </div>
+    <!-- ── HELP & GUIDE VIEW ─────────────────────────────────── -->
+    <div class="dash-content" id="view-help" style="display:none;">
+      <style>
+        .hg-title { font-weight:700; font-size:14px; color:#1f2937; font-family:'Poppins',sans-serif; }
+        .hg-body  { font-weight:400; font-size:14px; color:#4b5563; line-height:1.7; font-family:'Poppins',sans-serif; }
+        .hg-step-badge { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#1152d4;color:#fff;font-size:12px;font-weight:700;flex-shrink:0; }
+        .hg-tip  { background:#eff6ff;border-left:4px solid #1152d4;border-radius:0 8px 8px 0;padding:12px 16px; }
+        .hg-warn { background:#fefce8;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:12px 16px; }
+        .hg-section { background:#fff;border-radius:0.75rem;border:1px solid #e5e7eb;padding:1.5rem;margin-bottom:1.25rem; }
+        .hg-step-block { background:#f9fafb;border-radius:0.75rem;border:1px solid #e5e7eb;padding:1.25rem;margin-bottom:0.75rem; }
+      </style>
+
+      <!-- Banner -->
+      <div style="background:linear-gradient(135deg,#2563eb 0%,#4338ca 100%);border-radius:0.75rem;padding:1.75rem 2rem;margin-bottom:1.25rem;color:white;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+          <div style="width:2.75rem;height:2.75rem;background:rgba(255,255,255,0.2);border-radius:0.5rem;display:flex;align-items:center;justify-content:center;">
+            <span class="material-symbols-outlined" style="font-size:1.5rem;">menu_book</span>
+          </div>
+          <div>
+            <div style="font-size:0.7rem;opacity:0.8;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">DSWD Social Technology Bureau</div>
+            <div style="font-size:1.375rem;font-weight:800;">User Guide</div>
+          </div>
+        </div>
+        <p style="opacity:0.9;font-size:0.875rem;max-width:560px;line-height:1.6;">A simple, step-by-step guide to help DSWD social workers and interviewers use the Project Aruga profiling system with ease and confidence.</p>
+      </div>
+
+      <!-- TOC -->
+      <div class="hg-section" style="margin-bottom:1.25rem;">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.875rem;">
+          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">format_list_bulleted</span>
+          <span class="hg-title" style="font-size:15px;">WHAT'S IN THIS GUIDE</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.5rem;">
+          <a href="#hg-getting-started" style="display:flex;align-items:center;gap:0.5rem;padding:0.625rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;">
+            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;">login</span><span class="hg-body" style="color:#1152d4;">1. Getting Started</span>
+          </a>
+          <a href="#hg-logging-in" style="display:flex;align-items:center;gap:0.5rem;padding:0.625rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;">
+            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;">key</span><span class="hg-body" style="color:#1152d4;">2. How to Log In</span>
+          </a>
+          <a href="#hg-profiling-steps" style="display:flex;align-items:center;gap:0.5rem;padding:0.625rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;">
+            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;">assignment</span><span class="hg-body" style="color:#1152d4;">3. Filling Out the Form</span>
+          </a>
+          <a href="#hg-submitting" style="display:flex;align-items:center;gap:0.5rem;padding:0.625rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;">
+            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;">check_circle</span><span class="hg-body" style="color:#1152d4;">4. Reviewing &amp; Submitting</span>
+          </a>
+          <a href="#hg-qr-code" style="display:flex;align-items:center;gap:0.5rem;padding:0.625rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;">
+            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;">qr_code</span><span class="hg-body" style="color:#1152d4;">5. Aruga ID &amp; QR Code</span>
+          </a>
+          <a href="#hg-tips" style="display:flex;align-items:center;gap:0.5rem;padding:0.625rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;">
+            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;">lightbulb</span><span class="hg-body" style="color:#1152d4;">6. Tips &amp; Common Questions</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Section 1 -->
+      <div id="hg-getting-started" class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">login</span>
+          <h2 class="hg-title" style="font-size:17px;">1. Getting Started</h2>
+        </div>
+        <p class="hg-body" style="margin-bottom:1rem;">Before you begin conducting home visits and profiling beneficiaries, make sure you have the following ready:</p>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+            <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;margin-top:2px;">check_circle</span>
+            <div><p class="hg-title" style="margin-bottom:2px;">Your Interviewer Code</p><p class="hg-body">This is the 8-character code assigned to you by your supervisor. You will need this every time you log in. It looks like this: <strong style="color:#1152d4;">AB12CD34</strong></p></div>
+          </div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+            <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;margin-top:2px;">check_circle</span>
+            <div><p class="hg-title" style="margin-bottom:2px;">A Device with Internet Connection</p><p class="hg-body">The system works on smartphones, tablets, and computers. Use a modern browser like Google Chrome or Microsoft Edge for the best experience.</p></div>
+          </div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+            <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;margin-top:2px;">check_circle</span>
+            <div><p class="hg-title" style="margin-bottom:2px;">The Beneficiary's Information</p><p class="hg-body">Have the household's 4Ps ID ready (if applicable), along with the child's personal details, health records, and family information.</p></div>
+          </div>
+        </div>
+        <div class="hg-tip"><div style="display:flex;gap:0.5rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;margin-top:2px;">info</span><p class="hg-body"><strong style="color:#111827;">Good to know:</strong> The system is designed for one beneficiary per session. After submitting, you can start a new session for the next beneficiary.</p></div></div>
+      </div>
+
+      <!-- Section 2 -->
+      <div id="hg-logging-in" class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">key</span>
+          <h2 class="hg-title" style="font-size:17px;">2. How to Log In</h2>
+        </div>
+        <p class="hg-body" style="margin-bottom:1rem;">Follow these simple steps to access the profiling tool:</p>
+        <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;">
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">1</span><div><p class="hg-title" style="margin-bottom:4px;">Open the Project Aruga website</p><p class="hg-body">Visit the system on your browser. You will see the login page with a <strong style="color:#111827;">Data Privacy Agreement</strong> on the right side.</p></div></div>
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">2</span><div><p class="hg-title" style="margin-bottom:4px;">Read and accept the Data Privacy Agreement</p><p class="hg-body">Scroll through the agreement text, then check the box. This is required before you can proceed.</p></div></div>
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">3</span><div><p class="hg-title" style="margin-bottom:4px;">Enter your Interviewer Code</p><p class="hg-body">Type your 8-character code in the field labeled <strong style="color:#111827;">Interviewer Code</strong>. The code will appear in uppercase automatically.</p></div></div>
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">4</span><div><p class="hg-title" style="margin-bottom:4px;">Click "Submit and Proceed"</p><p class="hg-body">The system will verify your code. If correct, you will be taken directly to the profiling tool.</p></div></div>
+        </div>
+        <div class="hg-warn"><div style="display:flex;gap:0.5rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#d97706;font-size:1.1rem;margin-top:2px;">warning</span><p class="hg-body"><strong style="color:#111827;">Important:</strong> Do not share your Interviewer Code with anyone. Each code is linked to your account and all submitted records will be tagged under your name.</p></div></div>
+      </div>
+
+      <!-- Section 3 -->
+      <div id="hg-profiling-steps" class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">assignment</span>
+          <h2 class="hg-title" style="font-size:17px;">3. Filling Out the Profiling Form</h2>
+        </div>
+        <p class="hg-body" style="margin-bottom:1rem;">The profiling form is divided into <strong style="color:#111827;">10 steps</strong>. You must complete each step before moving to the next.</p>
+        <div style="display:flex;flex-direction:column;gap:0.625rem;margin-bottom:1rem;">
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">1</span><h3 class="hg-title">Pre-Qualification</h3></div><p class="hg-body" style="margin-left:2.5rem;">Asks if the beneficiary is a 4Ps member. If yes, enter their 18-digit Household ID.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">2</span><h3 class="hg-title">Respondent Profile</h3></div><p class="hg-body" style="margin-left:2.5rem;">Enter the details of the person you are interviewing — usually a parent or guardian.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">3</span><h3 class="hg-title">Child Profile</h3></div><p class="hg-body" style="margin-left:2.5rem;">Enter the child's complete name, address, date of birth, religion, IP group, educational level, disabilities, and critical illnesses.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">4</span><h3 class="hg-title">Family Profile</h3></div><p class="hg-body" style="margin-left:2.5rem;">List all household members — name, age, sex, civil status, occupation, and any disabilities. Click "Add Another Family Member" to add more.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">5</span><h3 class="hg-title">Socio Economic</h3></div><p class="hg-body" style="margin-left:2.5rem;">Describe the family's living situation — house materials, ownership, electricity, water, toilet, and garbage disposal.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">6</span><h3 class="hg-title">Health</h3></div><p class="hg-body" style="margin-left:2.5rem;">Vaccinations, ongoing conditions, monthly health expenses, and barriers to accessing care.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">7</span><h3 class="hg-title">Education</h3></div><p class="hg-body" style="margin-left:2.5rem;">Whether the child is enrolled in school, grade level, accessibility features, and learning support received.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">8</span><h3 class="hg-title">Economic Capacity</h3></div><p class="hg-body" style="margin-left:2.5rem;">Family's monthly income and its source. The system will classify the income level automatically.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">9</span><h3 class="hg-title">Service Availment</h3></div><p class="hg-body" style="margin-left:2.5rem;">Financial assistance received, awareness of social services, and challenges in accessing them.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">10</span><h3 class="hg-title">Assessment Notes</h3></div><p class="hg-body" style="margin-left:2.5rem;">Write your professional observations — Strengths, Assessment, and Recommended Actions. Select a <strong style="color:#111827;">Readiness Score</strong> to indicate urgency of intervention.</p></div>
+        </div>
+        <div class="hg-tip"><div style="display:flex;gap:0.5rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;margin-top:2px;">info</span><p class="hg-body"><strong style="color:#111827;">Validation:</strong> If you miss a required field, the system will highlight it in red. Fix all errors before moving to the next step.</p></div></div>
+      </div>
+
+      <!-- Section 4 -->
+      <div id="hg-submitting" class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">check_circle</span>
+          <h2 class="hg-title" style="font-size:17px;">4. Reviewing &amp; Submitting the Assessment</h2>
+        </div>
+        <p class="hg-body" style="margin-bottom:1rem;">After completing all 10 steps, you will be taken to the <strong style="color:#111827;">Review Page</strong> — a full summary of everything you entered.</p>
+        <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;">
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">1</span><div><p class="hg-title" style="margin-bottom:4px;">Check the Summary</p><p class="hg-body">Scroll through the review page and make sure all the information is correct.</p></div></div>
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">2</span><div><p class="hg-title" style="margin-bottom:4px;">Go Back if Needed</p><p class="hg-body">If you notice a mistake, click <strong style="color:#111827;">"Edit Forms"</strong> to go back and make corrections.</p></div></div>
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">3</span><div><p class="hg-title" style="margin-bottom:4px;">Click "Submit Assessment"</p><p class="hg-body">Once satisfied, click the blue <strong style="color:#111827;">"Submit Assessment"</strong> button. The system will save the record and take you to the Success page.</p></div></div>
+        </div>
+        <div class="hg-warn"><div style="display:flex;gap:0.5rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#d97706;font-size:1.1rem;margin-top:2px;">warning</span><p class="hg-body"><strong style="color:#111827;">Once submitted, you cannot edit the record.</strong> Please double-check all information before clicking Submit.</p></div></div>
+      </div>
+
+      <!-- Section 5 -->
+      <div id="hg-qr-code" class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">qr_code</span>
+          <h2 class="hg-title" style="font-size:17px;">5. The Aruga ID &amp; QR Code</h2>
+        </div>
+        <p class="hg-body" style="margin-bottom:1rem;">After a successful submission, the system generates a unique <strong style="color:#111827;">Aruga ID</strong> and a <strong style="color:#111827;">QR Code</strong> for the beneficiary.</p>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;margin-top:2px;">print</span><div><p class="hg-title" style="margin-bottom:4px;">Print the QR Code</p><p class="hg-body">Click <strong style="color:#111827;">"Print QR Code"</strong> to print it. Give the printout to the beneficiary's family for safekeeping.</p></div></div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;margin-top:2px;">download</span><div><p class="hg-title" style="margin-bottom:4px;">Save a Digital Copy</p><p class="hg-body">Click <strong style="color:#111827;">"Save Digital Copy"</strong> to download the QR code as an image file.</p></div></div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;margin-top:2px;">qr_code_scanner</span><div><p class="hg-title" style="margin-bottom:4px;">How the QR Code is Used</p><p class="hg-body">When scanned, it opens the beneficiary's verified profile page showing their Aruga ID and registration date.</p></div></div>
+        </div>
+        <div class="hg-tip"><div style="display:flex;gap:0.5rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;margin-top:2px;">info</span><p class="hg-body"><strong style="color:#111827;">New Beneficiary:</strong> Once done, click <strong style="color:#111827;">"New Beneficiary"</strong> on the success page to start a fresh session for the next family.</p></div></div>
+      </div>
+
+      <!-- Section 6 -->
+      <div id="hg-tips" class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">lightbulb</span>
+          <h2 class="hg-title" style="font-size:17px;">6. Tips &amp; Common Questions</h2>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div style="padding:1rem 0;border-bottom:1px solid #f3f4f6;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>What is the session timer for?</p><p class="hg-body" style="margin-left:1.75rem;">The timer shows how long you have been in the current session. It does not log you out automatically.</p></div>
+          <div style="padding:1rem 0;border-bottom:1px solid #f3f4f6;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>What if I press the back button on my phone?</p><p class="hg-body" style="margin-left:1.75rem;">The system will show an "End Session?" warning to prevent you from accidentally losing your work.</p></div>
+          <div style="padding:1rem 0;border-bottom:1px solid #f3f4f6;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>A required field is highlighted red. What do I do?</p><p class="hg-body" style="margin-left:1.75rem;">Read the error message below the field, fix the input, and click Next again. All red fields must be resolved before you can proceed.</p></div>
+          <div style="padding:1rem 0;border-bottom:1px solid #f3f4f6;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>The dropdown is empty / not loading?</p><p class="hg-body" style="margin-left:1.75rem;">Wait a few seconds and try again. Make sure you have a stable internet connection. If it continues, try refreshing the page (note: refreshing will clear the current session).</p></div>
+          <div style="padding:1rem 0;border-bottom:1px solid #f3f4f6;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>Can I profile the same beneficiary twice?</p><p class="hg-body" style="margin-left:1.75rem;">The system will create a new record each time. Please coordinate with your supervisor to avoid duplicate submissions.</p></div>
+          <div style="padding:1rem 0;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>I need help. Who do I contact?</p><p class="hg-body" style="margin-left:1.75rem;">Reach out to the DSWD Social Technology Bureau at <a href="mailto:stb_projectaruga@dswd.gov.ph" style="color:#1152d4;">stb_projectaruga@dswd.gov.ph</a> or call <strong style="color:#111827;">(02) 8931-8108 local 1234</strong>.</p></div>
+        </div>
+      </div>
+
+      <!-- Footer card -->
+      <div style="background:linear-gradient(135deg,#eff6ff 0%,#eef2ff 100%);border-radius:0.75rem;border:1px solid #bfdbfe;padding:1.5rem;margin-bottom:1rem;">
+        <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem;">
+          <div style="width:3rem;height:3rem;background:#1152d4;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-outlined" style="color:white;font-size:1.5rem;">support_agent</span>
+          </div>
+          <div><h3 class="hg-title" style="font-size:15px;margin-bottom:4px;">Need More Help?</h3><p class="hg-body">Our support team is ready to assist you. Don't hesitate to reach out if you have questions not covered in this guide.</p></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;">
+          <a href="/contact.html" style="background:white;border-radius:0.5rem;padding:1rem;border:1px solid #e5e7eb;display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
+            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.375rem;">contact_support</span>
+            <div><p class="hg-title" style="font-size:13px;">Contact Us</p><p class="hg-body" style="font-size:12px;">Get in touch with support</p></div>
+          </a>
+          <a href="/privacy.html" style="background:white;border-radius:0.5rem;padding:1rem;border:1px solid #e5e7eb;display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
+            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.375rem;">policy</span>
+            <div><p class="hg-title" style="font-size:13px;">Privacy Policy</p><p class="hg-body" style="font-size:12px;">Learn how we protect your data</p></div>
+          </a>
+        </div>
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #bfdbfe;text-align:center;">
+          <p class="hg-body" style="font-size:12px;color:#9ca3af;">Last Updated: April 2026 &nbsp;·&nbsp; Version 1.0</p>
+        </div>
+      </div>
+
+    </div><!-- /view-help -->
+
+    <!-- Documents View -->
+    <div class="dash-content" id="view-documents" style="display:none;">
+      <div style="margin-bottom:0.25rem;">
+        <div class="page-title" style="margin:0;">Documents</div>
+        <div class="page-subtitle" style="margin:0;">Central office files, templates, reports, and official issuances.</div>
+      </div>
+
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;margin-top:1.25rem;overflow-x:auto;">
+        <button class="settings-tab active" data-fodoctab="templates" onclick="foShowDocTab('templates')"><span class="material-symbols-outlined">description</span>Forms &amp; Templates</button>
+        <button class="settings-tab" data-fodoctab="reports" onclick="foShowDocTab('reports')"><span class="material-symbols-outlined">bar_chart</span>Reports</button>
+      </div>
+
+      <div id="fo-doctab-templates">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">assignment</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Profiling Tool</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official child assessment profiling form</div><button class="btn btn-secondary btn-sm" id="dl-btn-profiling-tool" onclick="downloadDoc('profiling-tool','Profiling_Tool.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">gavel</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">NDA Consent Form</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Non-disclosure agreement for field interviewers</div><button class="btn btn-secondary btn-sm" id="dl-btn-nda-consent" onclick="downloadDoc('nda-consent','NDA_Consent_Form.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">handshake</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Contract of Commitment</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Commitment agreement for project participants</div><button class="btn btn-secondary btn-sm" id="dl-btn-contract-commitment" onclick="downloadDoc('contract-commitment','Contract_of_Commitment.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#7c3aed;font-size:1.25rem;">menu_book</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">System User Manual</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Step-by-step guide for using the platform</div><button class="btn btn-secondary btn-sm" id="dl-btn-user-manual" onclick="downloadDoc('user-manual','System_User_Manual.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fef9c3;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#ca8a04;font-size:1.25rem;">info</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Aruga Briefer</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Project overview and program briefer</div><button class="btn btn-secondary btn-sm" id="dl-btn-aruga-briefer" onclick="downloadDoc('aruga-briefer','Aruga_Briefer.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#dc2626;font-size:1.25rem;">rule</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Project Aruga Guidelines</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official operational guidelines and standards</div><button class="btn btn-secondary btn-sm" id="dl-btn-aruga-guidelines" onclick="downloadDoc('aruga-guidelines','Project_Aruga_Guidelines.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">slideshow</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Presentation Deck</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official Project Aruga slide deck</div><button class="btn btn-secondary btn-sm" id="dl-btn-presentation-deck" onclick="downloadDoc('presentation-deck','Presentation_Deck.pptx',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">groups</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Mapping of Potential Partners</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Documentation of partner organizations</div><button class="btn btn-secondary btn-sm" id="dl-btn-partners-mapping" onclick="downloadDoc('partners-mapping','Mapping_Potential_Partners.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">contract</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">MOA Template</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Memorandum of Agreement template</div><button class="btn btn-secondary btn-sm" id="dl-btn-moa-template" onclick="downloadDoc('moa-template','MOA_Template.docx',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+        </div>
+      </div>
+
+      <div id="fo-doctab-reports" style="display:none;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">rate_review</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Presentation Evaluation</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Evaluation form for project presentations</div><button class="btn btn-secondary btn-sm" id="dl-btn-presentation-eval" onclick="downloadDoc('presentation-eval','Presentation_Evaluation.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+        </div>
+      </div>
+    </div><!-- /view-documents -->
+
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div id="ben-modal" style="display:none;" class="fo-modal-backdrop" onclick="closeBenModal(event)">
+  <div class="fo-modal-box">
+    <button class="fo-modal-close" onclick="closeBenModalDirect()">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+    <div id="ben-modal-content">Loading...</div>
   </div>
 </div>
 
@@ -209,14 +793,534 @@
 <script src="/js/dashboard-common.js"></script>
 <script>
   dashRequireAuth();
-  document.addEventListener('DOMContentLoaded', function() {
+
+  let currentView = 'overview';
+  let benPage = 1;
+  let benSearchVal = '';
+  let benSearchTimer = null;
+  let foCode = '';
+
+  function showView(view) {
+    if (currentView === 'qr' && view !== 'qr') qrStop();
+    ['overview','beneficiaries','assessments','qr','help','documents'].forEach(v => {
+      const el = document.getElementById('view-' + v);
+      if (el) el.style.display = v === view ? '' : 'none';
+      const nav = document.getElementById('nav-' + v);
+      if (nav) nav.classList.toggle('active', v === view);
+    });
+    currentView = view;
+    if (view === 'beneficiaries') {
+      benPage = 1;
+      loadBeneficiaries();
+    }
+  }
+
+  function foShowDocTab(tab) {
+    document.querySelectorAll('[data-fodoctab]').forEach(t => t.classList.toggle('active', t.dataset.fodoctab === tab));
+    ['templates','reports'].forEach(t => {
+      const el = document.getElementById('fo-doctab-' + t);
+      if (el) el.style.display = t === tab ? '' : 'none';
+    });
+  }
+
+  function downloadDoc(docId, filename, btn) {
+    if (btn.disabled) return;
+    const origHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">autorenew</span>Downloading...';
+    fetch('/api/documents/download/' + docId)
+      .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.blob(); })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+      })
+      .catch(e => { alert('File not available. Please try again later.'); })
+      .finally(() => { btn.disabled = false; btn.innerHTML = origHTML; });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
     dashPopulateUser();
     const user = dashGetUser();
+    foCode = user.code || '';
+
     const wName = document.getElementById('welcome-name');
-    const wSub = document.getElementById('welcome-sub');
+    const wSub  = document.getElementById('welcome-sub');
     if (wName) wName.textContent = user.name || 'Field Officer';
-    if (wSub) wSub.textContent = `Code: ${user.code} · ${user.region || 'Region V (Bicol)'}`;
+    if (wSub)  wSub.textContent  = 'Code: ' + (foCode || '—') + ' · ' + (user.region || 'Region V (Bicol)');
+
+    if (!foCode) return;
+
+    loadStats(foCode);
+    loadRecentBeneficiaries(foCode);
+    loadMonthlyProgress(foCode);
+    loadActionRequired(foCode);
+    loadPerformance(foCode);
+
+    // Real-time search
+    document.getElementById('ben-search').addEventListener('input', function () {
+      clearTimeout(benSearchTimer);
+      benSearchVal = this.value.trim();
+      benPage = 1;
+      benSearchTimer = setTimeout(loadBeneficiaries, 320);
+    });
   });
+
+  // ── Helpers ──────────────────────────────────────────────────
+
+  function esc(str) {
+    if (str === null || str === undefined) return '—';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function readinessBadge(r) {
+    if (!r || r === '—') return '<span class="readiness-badge readiness-default">—</span>';
+    const cls = { severe:'readiness-severe', moderate:'readiness-moderate', low:'readiness-low', stable:'readiness-stable' };
+    const key = r.toLowerCase();
+    return `<span class="readiness-badge ${cls[key] || 'readiness-default'}">${esc(r)}</span>`;
+  }
+
+  function statusBadge(s) {
+    if (!s) return '<span class="badge badge-yellow">Pending</span>';
+    const map = { accepted:'badge-green', correction:'badge-red', pending:'badge-yellow' };
+    const labels = { accepted:'Accepted', correction:'Correction', pending:'Pending' };
+    const k = s.toLowerCase();
+    return `<span class="badge ${map[k]||'badge-yellow'}">${labels[k]||esc(s)}</span>`;
+  }
+
+  function buildPagination(containerId, currentPage, totalPages, onPageClick) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
+    let html = '';
+    if (currentPage > 1) html += `<button class="page-btn" onclick="${onPageClick}(${currentPage-1})">&lsaquo;</button>`;
+    const start = Math.max(1, currentPage - 2);
+    const end   = Math.min(totalPages, currentPage + 2);
+    if (start > 1) html += `<button class="page-btn" onclick="${onPageClick}(1)">1</button>${start > 2 ? '<span class="page-ellipsis">…</span>' : ''}`;
+    for (let i = start; i <= end; i++) {
+      html += `<button class="page-btn${i===currentPage?' active':''}" onclick="${onPageClick}(${i})">${i}</button>`;
+    }
+    if (end < totalPages) html += `${end < totalPages-1 ? '<span class="page-ellipsis">…</span>' : ''}<button class="page-btn" onclick="${onPageClick}(${totalPages})">${totalPages}</button>`;
+    if (currentPage < totalPages) html += `<button class="page-btn" onclick="${onPageClick}(${currentPage+1})">&rsaquo;</button>`;
+    el.innerHTML = html;
+  }
+
+  // ── Overview Loaders ─────────────────────────────────────────
+
+  async function loadStats(code) {
+    try {
+      const res  = await fetch('/api/field-officer/stats.php?interviewerCode=' + encodeURIComponent(code));
+      const json = await res.json();
+      if (!json.success) throw new Error();
+      const d = json.data;
+      document.getElementById('stat-total').textContent      = d.totalSubmitted;
+      document.getElementById('stat-accepted').textContent   = d.accepted;
+      document.getElementById('stat-review').textContent     = d.underReview;
+      document.getElementById('stat-correction').textContent = d.needsCorrection;
+      const rate = d.totalSubmitted > 0 ? ((d.accepted / d.totalSubmitted) * 100).toFixed(1) : '0.0';
+      document.getElementById('stat-approval-rate').textContent = rate + '% approval rate';
+    } catch (e) {
+      ['stat-total','stat-accepted','stat-review','stat-correction'].forEach(id => {
+        document.getElementById(id).textContent = '—';
+      });
+    }
+  }
+
+  async function loadRecentBeneficiaries(code) {
+    const tbody = document.getElementById('beneficiaries-tbody');
+    try {
+      const res  = await fetch('/api/field-officer/recent-beneficiaries.php?interviewerCode=' + encodeURIComponent(code) + '&limit=5');
+      const json = await res.json();
+      if (!json.success) throw new Error();
+      const rows = json.data;
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:1.5rem;font-size:0.75rem;">No submissions yet. <a href="https://project-aruga.vercel.app/" target="_blank" rel="noopener" style="color:#1152d4;font-weight:600;">Start your first assessment!</a></td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td><div style="font-weight:600;color:#111811;">${esc(r.name)}</div></td>
+          <td>${readinessBadge(r.readiness)}</td>
+          <td>${esc(r.date)}</td>
+          <td>${statusBadge(r.status)}</td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="4" class="fo-error-msg">Failed to load beneficiaries</td></tr>';
+    }
+  }
+
+  async function loadMonthlyProgress(code) {
+    try {
+      const res  = await fetch('/api/field-officer/monthly-progress.php?interviewerCode=' + encodeURIComponent(code));
+      const json = await res.json();
+      if (!json.success) throw new Error();
+      const d = json.data;
+      document.getElementById('progress-subtitle').textContent  = (d.month || '') + ' target: ' + d.target + ' assessments';
+      document.getElementById('progress-submitted').textContent = d.submitted;
+      document.getElementById('progress-label').textContent     = 'of ' + d.target + ' target this month';
+      document.getElementById('progress-bar-fill').style.width  = d.percentage + '%';
+      const remaining = Math.max(0, d.target - d.submitted);
+      document.getElementById('progress-pct').textContent       = d.percentage + '% — ' + remaining + ' more to reach target';
+    } catch (e) {
+      document.getElementById('progress-subtitle').textContent = 'Could not load progress';
+    }
+  }
+
+  async function loadActionRequired(code) {
+    const body    = document.getElementById('action-required-body');
+    const countEl = document.getElementById('action-count');
+    try {
+      const res  = await fetch('/api/field-officer/action-required.php?interviewerCode=' + encodeURIComponent(code));
+      const json = await res.json();
+      if (!json.success) throw new Error();
+      const items = json.data;
+      if (!items.length) {
+        body.innerHTML = `<div style="display:flex;gap:0.75rem;align-items:center;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:0.5rem;padding:0.875rem;">
+          <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.125rem;">check_circle</span>
+          <div style="font-size:0.8125rem;color:#15803d;font-weight:500;">All clear! No submissions need correction.</div>
+        </div>`;
+        return;
+      }
+      countEl.textContent  = items.length;
+      countEl.style.display = '';
+      body.innerHTML = items.map(item => `
+        <div class="action-item">
+          <span class="material-symbols-outlined" style="color:#dc2626;font-size:1.125rem;flex-shrink:0;">error</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.8125rem;font-weight:600;color:#dc2626;margin-bottom:0.25rem;">${esc(item.aruga_id)} — ${esc(item.name)}</div>
+            <div style="font-size:0.75rem;color:#6b7280;line-height:1.4;">${esc(item.correction_notes)}</div>
+            <div style="font-size:0.65rem;color:#9ca3af;margin-top:0.25rem;">Flagged: ${esc(item.updated_at)}</div>
+            <a href="https://project-aruga.vercel.app/?id=${encodeURIComponent(item.id)}" target="_blank" rel="noopener" style="display:inline-block;margin-top:0.625rem;background:#dc2626;color:white;border-radius:0.375rem;padding:0.375rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;text-decoration:none;">Fix Now</a>
+          </div>
+        </div>
+      `).join('');
+    } catch (e) {
+      body.innerHTML = '<div class="fo-error-msg">Failed to load action items</div>';
+    }
+  }
+
+  async function loadPerformance(code) {
+    const body = document.getElementById('performance-body');
+    try {
+      const res  = await fetch('/api/field-officer/performance.php?interviewerCode=' + encodeURIComponent(code));
+      const json = await res.json();
+      if (!json.success) throw new Error();
+      const d = json.data;
+      body.innerHTML = `
+        <div class="fo-perf-row"><span style="color:#6b7280;">Approval Rate</span><span style="font-weight:700;color:#10b981;">${d.approvalRate}%</span></div>
+        <div class="fo-perf-row"><span style="color:#6b7280;">Avg. Completion Time</span><span style="font-weight:700;color:#374151;">${d.avgCompletion} mins</span></div>
+        <div class="fo-perf-row"><span style="color:#6b7280;">Data Quality Score</span><span style="font-weight:700;color:#1152d4;">${d.qualityScore}/100</span></div>
+        <div class="fo-perf-row"><span style="color:#6b7280;">Active Days (This Month)</span><span style="font-weight:700;color:#374151;">${d.activeDays} days</span></div>
+      `;
+    } catch (e) {
+      body.innerHTML = '<div class="fo-error-msg">Failed to load performance data</div>';
+    }
+  }
+
+  // ── Beneficiaries Tab ────────────────────────────────────────
+
+  async function loadBeneficiaries() {
+    const tbody  = document.getElementById('ben-tbody');
+    const info   = document.getElementById('ben-page-info');
+    const countEl= document.getElementById('ben-count');
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+
+    const params = new URLSearchParams({
+      interviewerCode: foCode,
+      page: benPage,
+    });
+    if (benSearchVal) params.set('search', benSearchVal);
+
+    try {
+      const res  = await fetch('/api/beneficiaries.php?' + params.toString());
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message);
+
+      const rows = json.data;
+      const pg   = json.pagination;
+
+      countEl.textContent = pg.total + ' beneficiar' + (pg.total === 1 ? 'y' : 'ies');
+
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:3rem;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
+            <span class="material-symbols-outlined" style="font-size:2.5rem;color:#d1d5db;">group_off</span>
+            <div style="font-size:0.875rem;font-weight:600;color:#6b7280;">${benSearchVal ? 'No results for "' + esc(benSearchVal) + '"' : 'No beneficiaries yet. Start your first assessment!'}</div>
+            ${!benSearchVal ? '<a href="https://project-aruga.vercel.app/" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Start Assessment</a>' : ''}
+          </div>
+        </td></tr>`;
+        info.textContent = '';
+        document.getElementById('ben-pagination').innerHTML = '';
+        return;
+      }
+
+      tbody.innerHTML = rows.map(r => `
+        <tr style="cursor:pointer;" onclick="openBenModalFromList(${JSON.stringify(r).replace(/"/g,'&quot;')})">
+          <td style="font-family:monospace;font-size:0.75rem;color:#6b7280;">${esc(r.arugaId)}</td>
+          <td style="font-weight:600;color:#111811;">${esc(r.name)}</td>
+          <td>${esc(r.age)}</td>
+          <td>${esc(r.sex)}</td>
+          <td>${esc(r.barangay)}</td>
+          <td>${readinessBadge(r.readinessScore)}</td>
+          <td style="color:#6b7280;font-size:0.8125rem;">${esc(r.dateAssessed)}</td>
+        </tr>
+      `).join('');
+
+      const from = (pg.page - 1) * pg.limit + 1;
+      const to   = Math.min(pg.page * pg.limit, pg.total);
+      info.textContent = `Showing ${from}–${to} of ${pg.total}`;
+
+      buildPagination('ben-pagination', pg.page, pg.totalPages, 'goBenPage');
+
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="7" class="fo-error-msg">Failed to load beneficiaries. Please try again.</td></tr>';
+    }
+  }
+
+  function goBenPage(page) {
+    benPage = page;
+    loadBeneficiaries();
+    document.getElementById('view-beneficiaries').scrollTop = 0;
+  }
+
+  // ── Detail Modal ─────────────────────────────────────────────
+
+  function openBenModal(r) {
+    const modal = document.getElementById('ben-modal');
+    const content = document.getElementById('ben-modal-content');
+    content.innerHTML = `
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
+        <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">person</span>
+        </div>
+        <div>
+          <div style="font-size:1rem;font-weight:700;color:#111811;">${esc(r.name)}</div>
+          <div style="font-size:0.75rem;color:#9ca3af;font-family:monospace;">${esc(r.aruga_id || r.arugaId || '—')}</div>
+        </div>
+        <div style="margin-left:auto;">${statusBadge(r.status)}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;font-size:0.8125rem;">
+        <div><div style="color:#9ca3af;font-size:0.7rem;font-weight:600;text-transform:uppercase;margin-bottom:0.2rem;">Age</div><div style="font-weight:600;">${esc(r.age)}</div></div>
+        <div><div style="color:#9ca3af;font-size:0.7rem;font-weight:600;text-transform:uppercase;margin-bottom:0.2rem;">Barangay</div><div style="font-weight:600;">${esc(r.barangay)}</div></div>
+        <div><div style="color:#9ca3af;font-size:0.7rem;font-weight:600;text-transform:uppercase;margin-bottom:0.2rem;">Readiness</div><div>${readinessBadge(r.readiness || r.readinessScore)}</div></div>
+        <div><div style="color:#9ca3af;font-size:0.7rem;font-weight:600;text-transform:uppercase;margin-bottom:0.2rem;">Date Assessed</div><div style="font-weight:600;">${esc(r.date || r.dateAssessed)}</div></div>
+      </div>
+    `;
+    modal.style.display = 'flex';
+  }
+
+  function openBenModalFromList(r) { openBenModal(r); }
+
+  function closeBenModal(e) {
+    if (e.target === document.getElementById('ben-modal')) closeBenModalDirect();
+  }
+  function closeBenModalDirect() {
+    document.getElementById('ben-modal').style.display = 'none';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeBenModalDirect();
+  });
+
+  // ── QR Scanner ───────────────────────────────────────────────
+
+  let qrStream = null;
+  let qrAnimFrame = null;
+  let qrFacingMode = 'environment';
+  let qrTorchOn = false;
+  let qrScanning = false;
+  let qrLastScan = 0;
+
+  function qrEl(id) { return document.getElementById(id); }
+
+  function qrSetState(state) {
+    qrEl('qr-idle').style.display    = state === 'idle'    ? 'flex' : 'none';
+    qrEl('qr-loading').style.display = state === 'loading' ? 'flex' : 'none';
+    qrEl('qr-denied').style.display  = state === 'denied'  ? 'flex' : 'none';
+    qrEl('qr-video-wrap').style.display = state === 'active' ? '' : 'none';
+    qrEl('qr-start-btn').style.display  = state === 'active' || state === 'loading' ? 'none' : '';
+    qrEl('qr-stop-btn').style.display   = state === 'active' ? '' : 'none';
+    qrEl('qr-switch-btn').style.display = state === 'active' ? '' : 'none';
+    qrEl('qr-torch-btn').style.display  = state === 'active' ? '' : 'none';
+  }
+
+  async function qrStart() {
+    qrEl('qr-error-card').style.display = 'none';
+    qrSetState('loading');
+    try {
+      const constraints = {
+        video: { facingMode: qrFacingMode, width: { ideal: 1280 }, height: { ideal: 1280 } }
+      };
+      qrStream = await navigator.mediaDevices.getUserMedia(constraints);
+      const video = qrEl('qr-video');
+      video.srcObject = qrStream;
+      await video.play();
+      qrScanning = true;
+      qrSetState('active');
+      qrScanLoop();
+    } catch (err) {
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        qrSetState('denied');
+      } else {
+        qrSetState('idle');
+        qrShowError('Could not access camera. ' + err.message);
+      }
+    }
+  }
+
+  function qrStop() {
+    qrScanning = false;
+    if (qrAnimFrame) { cancelAnimationFrame(qrAnimFrame); qrAnimFrame = null; }
+    if (qrStream) {
+      qrStream.getTracks().forEach(t => t.stop());
+      qrStream = null;
+    }
+    const video = qrEl('qr-video');
+    if (video) { video.srcObject = null; }
+    qrTorchOn = false;
+    qrSetState('idle');
+    qrEl('qr-error-card').style.display = 'none';
+  }
+
+  function qrScanLoop() {
+    if (!qrScanning) return;
+    const video = qrEl('qr-video');
+    const canvas = qrEl('qr-canvas');
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width  = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      try {
+        const result = window._jsQR ? window._jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' }) : null;
+        if (result && result.data) {
+          const now = Date.now();
+          if (now - qrLastScan > 2000) {
+            qrLastScan = now;
+            qrHandleResult(result.data);
+          }
+        }
+      } catch(e) {}
+    }
+    qrAnimFrame = requestAnimationFrame(qrScanLoop);
+  }
+
+  async function qrSwitchCamera() {
+    qrFacingMode = qrFacingMode === 'environment' ? 'user' : 'environment';
+    qrStop();
+    await qrStart();
+  }
+
+  async function qrToggleTorch() {
+    if (!qrStream) return;
+    const track = qrStream.getVideoTracks()[0];
+    if (!track) return;
+    try {
+      qrTorchOn = !qrTorchOn;
+      await track.applyConstraints({ advanced: [{ torch: qrTorchOn }] });
+      qrEl('qr-torch-icon').textContent = qrTorchOn ? 'flashlight_off' : 'flashlight_on';
+    } catch(e) {
+      qrEl('qr-torch-btn').style.display = 'none';
+    }
+  }
+
+  function qrHandleResult(raw) {
+    let arugaId = null;
+    try {
+      const parsed = JSON.parse(raw);
+      arugaId = parsed.arugaId || parsed.aruga_id || parsed.id || null;
+    } catch(e) {
+      if (/^ARUGA-/i.test(raw.trim())) {
+        arugaId = raw.trim().toUpperCase();
+      }
+    }
+    if (!arugaId) {
+      qrShowError('Invalid QR code. Please scan a valid Aruga beneficiary QR code.');
+      return;
+    }
+    qrLookup(arugaId);
+  }
+
+  async function qrLookup(arugaId) {
+    qrEl('qr-error-card').style.display = 'none';
+    try {
+      const res  = await fetch('/api/field-officer/qr-lookup.php?arugaId=' + encodeURIComponent(arugaId));
+      const json = await res.json();
+      if (!json.success || !json.data) {
+        qrShowError('Beneficiary not found for ID: ' + esc(arugaId));
+        return;
+      }
+      qrShowResult(json.data);
+    } catch(e) {
+      qrShowError('Network error. Please check your connection and try again.');
+    }
+  }
+
+  function qrShowResult(d) {
+    qrStop();
+    qrEl('qr-result-name').textContent     = d.name     || '—';
+    qrEl('qr-result-id').textContent       = d.arugaId  || d.aruga_id || '—';
+    qrEl('qr-result-age').textContent      = d.age      || '—';
+    qrEl('qr-result-barangay').textContent = d.barangay || '—';
+    qrEl('qr-result-readiness').textContent= d.readinessScore || '—';
+    const statusEl = qrEl('qr-result-status');
+    const s = (d.status || '').toLowerCase();
+    const badgeMap = { accepted:'badge-green', correction:'badge-red', pending:'badge-yellow' };
+    const labelMap = { accepted:'Accepted', correction:'Correction', pending:'Pending' };
+    statusEl.innerHTML = `<span class="badge ${badgeMap[s]||'badge-yellow'}">${labelMap[s]||esc(d.status)||'Pending'}</span>`;
+    const id = d.arugaId || d.aruga_id || '';
+    qrEl('qr-assessment-btn').href = 'https://project-aruga.vercel.app/?arugaId=' + encodeURIComponent(id);
+    qrEl('qr-result-card').style.display = '';
+  }
+
+  function qrShowError(msg) {
+    qrEl('qr-error-msg').textContent = msg;
+    qrEl('qr-error-card').style.display = '';
+  }
+
+  function qrRetry() {
+    qrEl('qr-error-card').style.display = 'none';
+    if (!qrScanning) qrStart();
+  }
+
+  function qrReset() {
+    qrEl('qr-result-card').style.display = 'none';
+    qrEl('qr-error-card').style.display  = 'none';
+    qrEl('qr-manual-input').value = '';
+    qrEl('qr-manual-status').textContent = '';
+    qrStart();
+  }
+
+  async function qrManualLookup() {
+    const val = qrEl('qr-manual-input').value.trim().toUpperCase();
+    const statusEl = qrEl('qr-manual-status');
+    if (!val) { statusEl.style.color='#dc2626'; statusEl.textContent='Please enter an ARUGA ID.'; return; }
+    statusEl.style.color='#6b7280'; statusEl.textContent='Searching…';
+    qrEl('qr-result-card').style.display = 'none';
+    qrEl('qr-error-card').style.display  = 'none';
+    try {
+      const res  = await fetch('/api/field-officer/qr-lookup.php?arugaId=' + encodeURIComponent(val));
+      const json = await res.json();
+      if (!json.success || !json.data) {
+        statusEl.style.color='#dc2626'; statusEl.textContent='No beneficiary found for "' + val + '".';
+        return;
+      }
+      statusEl.textContent = '';
+      qrShowResult(json.data);
+    } catch(e) {
+      statusEl.style.color='#dc2626'; statusEl.textContent='Network error. Please try again.';
+    }
+  }
 </script>
+<!-- jsQR library for QR decoding -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" onload="window._jsQR=jsQR"></script>
 </body>
 </html>

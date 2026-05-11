@@ -22,13 +22,13 @@
         <div class="sidebar-brand-sub">STU Head</div>
       </div>
       <button class="sidebar-toggle-btn" id="sidebar-minimize-btn" title="Toggle sidebar">
-        <span class="material-symbols-outlined">chevron_left</span>
+        <span class="material-symbols-outlined">left_panel_close</span>
       </button>
     </div>
     <div class="sidebar-mini-logo">
       <img src="/images/logo.webp" alt="Project Aruga">
       <button class="sidebar-mini-toggle" id="sidebar-expand-btn" title="Expand sidebar">
-        <span class="material-symbols-outlined">chevron_right</span>
+        <span class="material-symbols-outlined">left_panel_open</span>
       </button>
     </div>
     <nav class="sidebar-nav">
@@ -43,6 +43,7 @@
       <a href="#" class="nav-item" title="Pending Reviews"><span class="material-symbols-outlined">task_alt</span><span class="nav-label">Pending Reviews</span></a>
       <a href="#" class="nav-item" title="Schedule"><span class="material-symbols-outlined">calendar_month</span><span class="nav-label">Schedule</span></a>
       <a href="#" class="nav-item" title="Alerts"><span class="material-symbols-outlined">notifications</span><span class="nav-label">Alerts</span></a>
+      <a href="#" class="nav-item" id="nav-documents" title="Documents" onclick="stuShowDocuments();return false;"><span class="material-symbols-outlined">folder_open</span><span class="nav-label">Documents</span></a>
 
       <div class="nav-section-label">Switch View</div>
       <a href="/dashboard-admin.html" class="nav-item" title="Admin"><span class="material-symbols-outlined">shield_person</span><span class="nav-label">Admin</span></a>
@@ -65,13 +66,7 @@
   </aside>
 
   <div class="dash-main">
-    <header class="dash-header">
-      <button class="hamburger" id="hamburger-btn"><span class="material-symbols-outlined">menu</span></button>
-      <div class="dash-header-title">STU Head — Unit Overview</div>
-      <div class="dash-header-actions"></div>
-    </header>
-
-    <div class="dash-content">
+    <div class="dash-content" id="stu-view-main">
       <div class="page-title">Unit Overview</div>
       <div class="page-subtitle">STU-V-01 · Region V (Bicol) · May 2026</div>
 
@@ -170,6 +165,37 @@
         </div>
       </div>
     </div>
+
+    <!-- Documents View -->
+    <div class="dash-content" id="stu-view-documents" style="display:none;">
+      <div style="margin-bottom:0.25rem;">
+        <div class="page-title" style="margin:0;">Documents</div>
+        <div class="page-subtitle" style="margin:0;">Central office files, templates, reports, and official issuances.</div>
+      </div>
+      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;margin-top:1.25rem;overflow-x:auto;">
+        <button class="settings-tab active" data-stududoctab="templates" onclick="stuDocTab('templates')"><span class="material-symbols-outlined">description</span>Forms &amp; Templates</button>
+        <button class="settings-tab" data-stududoctab="reports" onclick="stuDocTab('reports')"><span class="material-symbols-outlined">bar_chart</span>Reports</button>
+      </div>
+      <div id="stu-doctab-templates">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">assignment</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Profiling Tool</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official child assessment profiling form</div><button class="btn btn-secondary btn-sm" onclick="stuDownloadDoc('profiling-tool','Profiling_Tool.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">gavel</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">NDA Consent Form</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Non-disclosure agreement for field interviewers</div><button class="btn btn-secondary btn-sm" onclick="stuDownloadDoc('nda-consent','NDA_Consent_Form.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">handshake</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Contract of Commitment</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Commitment agreement for project participants</div><button class="btn btn-secondary btn-sm" onclick="stuDownloadDoc('contract-commitment','Contract_of_Commitment.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#7c3aed;font-size:1.25rem;">menu_book</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">System User Manual</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Step-by-step guide for using the platform</div><button class="btn btn-secondary btn-sm" onclick="stuDownloadDoc('user-manual','System_User_Manual.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fef9c3;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#ca8a04;font-size:1.25rem;">info</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Aruga Briefer</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Project overview and program briefer</div><button class="btn btn-secondary btn-sm" onclick="stuDownloadDoc('aruga-briefer','Aruga_Briefer.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#dc2626;font-size:1.25rem;">rule</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Project Aruga Guidelines</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official operational guidelines and standards</div><button class="btn btn-secondary btn-sm" onclick="stuDownloadDoc('aruga-guidelines','Project_Aruga_Guidelines.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">slideshow</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Presentation Deck</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official Project Aruga slide deck</div><button class="btn btn-secondary btn-sm" onclick="stuDownloadDoc('presentation-deck','Presentation_Deck.pptx',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">groups</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Mapping of Potential Partners</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Documentation of partner organizations</div><button class="btn btn-secondary btn-sm" onclick="stuDownloadDoc('partners-mapping','Mapping_Potential_Partners.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">contract</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">MOA Template</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Memorandum of Agreement template</div><button class="btn btn-secondary btn-sm" onclick="stuDownloadDoc('moa-template','MOA_Template.docx',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+        </div>
+      </div>
+      <div id="stu-doctab-reports" style="display:none;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+          <div class="card" style="margin:0;"><div style="display:flex;align-items:flex-start;gap:0.75rem;"><div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">rate_review</span></div><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Presentation Evaluation</div><div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Evaluation form for project presentations</div><button class="btn btn-secondary btn-sm" onclick="stuDownloadDoc('presentation-eval','Presentation_Evaluation.pdf',this)"><span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download</button></div></div></div>
+        </div>
+      </div>
+    </div><!-- /stu-view-documents -->
+
   </div>
 </div>
 
@@ -185,6 +211,40 @@
     ['tab-interviewers','tab-pending','tab-recent'].forEach(id => {
       document.getElementById(id).style.display = id === tabId ? '' : 'none';
     });
+  }
+
+  function stuShowDocuments() {
+    document.getElementById('stu-view-main').style.display = 'none';
+    document.getElementById('stu-view-documents').style.display = '';
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const nav = document.getElementById('nav-documents');
+    if (nav) nav.classList.add('active');
+  }
+
+  function stuDocTab(tab) {
+    document.querySelectorAll('[data-stududoctab]').forEach(t => t.classList.toggle('active', t.dataset.stududoctab === tab));
+    ['templates','reports'].forEach(t => {
+      const el = document.getElementById('stu-doctab-' + t);
+      if (el) el.style.display = t === tab ? '' : 'none';
+    });
+  }
+
+  function stuDownloadDoc(docId, filename, btn) {
+    if (btn.disabled) return;
+    const origHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">autorenew</span>Downloading...';
+    fetch('/api/documents/download/' + docId)
+      .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.blob(); })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+      })
+      .catch(() => { alert('File not available. Please try again later.'); })
+      .finally(() => { btn.disabled = false; btn.innerHTML = origHTML; });
   }
 </script>
 </body>

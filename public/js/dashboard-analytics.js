@@ -1,19 +1,20 @@
 // ── Shared Analytics + Regions JS ─────────────────────────────
 
 const AN_SECTIONS = [
-  { key: 'overview',     label: 'Overview Stats',           selector: '.stats-grid'                                  },
-  { key: 'trends',       label: 'Assessment Trends',        selector: '.grid-3-1'                                    },
-  { key: 'regions',      label: 'By Region',                headers: ['By Region'],      ids: ['an-region-bars','rgtab-overview','rgtab-province','rgtab-city','rgtab-insights'] },
-  { key: 'beneficiary',  label: 'Beneficiaries',            headers: ['Beneficiaries'],  ids: ['an-age-bars','an-gender-donut','an-top-locations'] },
-  { key: 'disability',   label: 'Disabilities',             headers: ['Disabilities'],   ids: ['an-dis-bars','an-multi-dis','an-dis-age'] },
+  { key: 'overview',     label: 'Overview Stats',           selector: '.stats-grid' },
+  { key: 'trends',       label: 'Assessment Trends',        selector: '.grid-3-1' },
+  { key: 'regions',      label: 'By Region',                headers: ['By Region'],               ids: ['an-region-bars','rgtab-province','rgtab-city','rg-table-count'] },
+  { key: 'beneficiary',  label: 'Beneficiaries',            headers: ['Beneficiaries'],           ids: ['an-gender-donut','an-family-size-donut','an-age-bars','an-4ps-chart','an-religion-donut','an-top-locations'] },
+  { key: 'disability',   label: 'Disabilities',             headers: ['Disabilities'],            ids: ['adm-dis-bars','an-multi-dis','an-dis-age'] },
+  { key: 'housing',      label: 'Housing',                  headers: ['Housing'],                 ids: ['an-housing-materials','an-tenure-status','an-house-mod','an-water-supply'] },
   { key: 'interviewers', label: 'Interviewer Performance',  headers: ['Interviewer Performance'], ids: ['an-int-tbody','an-top5-int','an-workload-vis'] },
   { key: 'readiness',    label: 'Readiness Score Trends',   headers: ['Readiness Score Trends'],  ids: ['an-readiness-chart'] },
-  { key: 'education',    label: 'Education',                headers: ['Education'],      ids: ['an-enrollment-donut','an-enrollment-reasons'] },
-  { key: 'economic',     label: 'Economic',                 headers: ['Economic'],       ids: ['an-income-chart','an-expenses-chart'] },
-  { key: 'services',     label: 'Services',                 headers: ['Services'],       ids: ['an-service-gap-chart'] },
-  { key: 'health',       label: 'Health',                   headers: ['Health'],         ids: ['an-vacc-rate','an-barriers-chart'] },
-  { key: 'quality',      label: 'Data Quality',             headers: ['Data Quality'],   ids: ['an-gauge-pct','an-missing-fields','an-flagged-count'] },
-  { key: 'reports',      label: 'Reports',                  headers: ['Reports'],        ids: ['an-email-type'], locked: true },
+  { key: 'education',    label: 'Education',                headers: ['Education'],               ids: ['an-enrollment-donut','an-enrollment-reasons','an-educ-attainment'] },
+  { key: 'economic',     label: 'Economic',                 headers: ['Economic'],                ids: ['an-income-chart','an-min-wage','an-expenses-chart'] },
+  { key: 'services',     label: 'Services',                 headers: ['Services'],                ids: ['an-financial-assist-donut','an-service-gap-chart'] },
+  { key: 'health',       label: 'Health',                   headers: ['Health'],                  ids: ['an-immunization-donut','an-health-issues-donut','an-health-availed-donut','an-vacc-rate','an-barriers-chart'] },
+  { key: 'quality',      label: 'Data Quality',             headers: ['Data Quality'],            ids: ['an-gauge-pct','an-missing-fields','an-flagged-count'] },
+  { key: 'reports',      label: 'Reports',                  headers: ['Reports'],                 ids: ['an-email-type'], locked: true },
 ];
 
 let anSectionVisibility = {};
@@ -21,7 +22,7 @@ AN_SECTIONS.forEach(s => { anSectionVisibility[s.key] = true; });
 
 let anTrendView = 'monthly';
 let anAutoRefresh;
-let anFilters = { range: '30', region: '', disability: '' };
+let anFilters = { range: 'all', region: '', disability: '' };
 let AN_DATA = null;
 let AN_CACHE_TS = 0;
 const AN_CACHE_TTL = 5 * 60 * 1000;
@@ -35,16 +36,23 @@ async function loadAnalyticsView() {
   renderAnAll();
   renderAnReadiness();
   renderAnEducation();
+  renderAnEducationExtra();
   renderAnEconomic();
+  renderAnEconomicExtra();
   renderAnServices();
+  renderAnServicesExtra();
   renderAnHealth();
+  renderAnBeneficiaryExtras();
+  renderAnHousing();
   admLoadDisabilityDist();
   updateAnTimestamp();
   clearInterval(anAutoRefresh);
   anAutoRefresh = setInterval(async () => {
     AN_CACHE_TS = 0; AN_EXT = null; AN_EXT_CACHE_KEY = '';
     await Promise.all([fetchAnalyticsData(), fetchExtendedAnalytics()]);
-    renderAnAll(); renderAnReadiness(); renderAnEducation(); renderAnEconomic(); renderAnServices(); renderAnHealth(); updateAnTimestamp();
+    renderAnAll(); renderAnReadiness(); renderAnEducation(); renderAnEducationExtra();
+    renderAnEconomic(); renderAnEconomicExtra(); renderAnServices(); renderAnServicesExtra();
+    renderAnHealth(); renderAnBeneficiaryExtras(); renderAnHousing(); updateAnTimestamp();
   }, 300000);
 }
 
@@ -86,24 +94,26 @@ function populateAnFilters() {
 async function applyAnalyticsFilters() {
   anFilters.range      = document.getElementById('an-f-range').value;
   anFilters.region     = document.getElementById('an-f-region').value;
-  anFilters.disability = document.getElementById('an-f-disability').value;
+  anFilters.disability = '';
   AN_CACHE_TS = 0; AN_EXT = null; AN_EXT_CACHE_KEY = '';
   await Promise.all([fetchAnalyticsData(), fetchExtendedAnalytics()]);
-  renderAnAll(); renderAnTrend(); renderAnReadiness(); renderAnEducation(); renderAnEconomic(); renderAnServices(); renderAnHealth();
+  renderAnAll(); renderAnTrend(); renderAnReadiness();
+  renderAnEducation(); renderAnEducationExtra();
+  renderAnEconomic(); renderAnEconomicExtra();
+  renderAnServices(); renderAnServicesExtra();
+  renderAnHealth(); renderAnBeneficiaryExtras(); renderAnHousing();
   const parts = [];
   const rangeMap = {'30':'Last 30 days','7':'Last 7 days','90':'Last 90 days','all':'All time'};
   parts.push(rangeMap[anFilters.range] || anFilters.range);
-  if (anFilters.region)   parts.push(anFilters.region);
-  if (anFilters.disability) parts.push(anFilters.disability);
+  if (anFilters.region) parts.push(anFilters.region);
   applyRgFilters();
   if (typeof showGlobalToast === 'function') showGlobalToast('Filter applied: ' + parts.join(' · '), 'success');
 }
 
 async function clearAnalyticsFilters() {
-  document.getElementById('an-f-range').value = '30';
+  document.getElementById('an-f-range').value = 'all';
   document.getElementById('an-f-region').value = '';
-  document.getElementById('an-f-disability').value = '';
-  anFilters = { range:'30', region:'', disability:'' };
+  anFilters = { range:'all', region:'', disability:'' };
   await applyAnalyticsFilters();
 }
 
@@ -477,3 +487,187 @@ function exportRegionsCSV(){
 }
 
 function refreshRegionsView(){rgLoaded=false;loadRegionsView();}
+
+// ── Shared donut renderer ─────────────────────────────────────
+function anRenderDonut(elId, slices, centerVal, centerLabel) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const total = slices.reduce((s,x)=>s+x.val,0);
+  if (!total) { el.innerHTML = AN_EMPTY; return; }
+  const circ = 2*Math.PI*50;
+  let offset = 0;
+  const segs = slices.map(s=>{
+    const dash = (s.val/total)*circ;
+    const seg = '<circle cx="60" cy="60" r="50" fill="none" stroke="'+s.color+'" stroke-width="20" stroke-dasharray="'+dash.toFixed(2)+' '+(circ-dash).toFixed(2)+'" stroke-dashoffset="'+(-offset).toFixed(2)+'"/>';
+    offset += dash;
+    return seg;
+  }).join('');
+  el.innerHTML = '<svg viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);">'+segs+'</svg>'
+    +'<div style="text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:var(--dark);">'+centerVal+'</div><div style="font-size:0.75rem;color:var(--gray-500);">'+centerLabel+'</div></div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;justify-content:center;font-size:0.75rem;">'+slices.map(s=>'<div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:'+s.color+';"></div>'+s.label+': <b>'+s.val.toLocaleString()+'</b></div>').join('')+'</div>';
+}
+
+function anRenderHorizBars(elId, items, colorPalette) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (!items || !items.length) { el.innerHTML = AN_EMPTY; return; }
+  const maxV = Math.max(...items.map(i=>i.val||i.count||0), 1);
+  const colors = colorPalette || ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444','#06b6d4'];
+  const total = items.reduce((s,x)=>s+(x.val||x.count||0),0);
+  el.innerHTML = items.map((item,i)=>{
+    const v = item.val||item.count||0;
+    const pct = total>0?Math.round(v/total*100):0;
+    return '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background=\'var(--blue-light)\'" onmouseout="this.style.background=\'\'"><div style="font-size:0.75rem;font-weight:600;width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+item.label+'</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:'+Math.round((v/maxV)*100)+'%;background:'+colors[i%colors.length]+';border-radius:999px;"></div></div><div style="font-size:0.72rem;font-weight:800;width:32px;text-align:right;">'+v+'</div><div style="font-size:0.7rem;color:var(--gray-400);width:34px;">'+pct+'%</div></div>';
+  }).join('');
+}
+
+async function renderAnBeneficiaryExtras() {
+  await fetchExtendedAnalytics();
+  const ext = AN_EXT;
+  const fs = ext && ext.family_size;
+  if (fs) {
+    anRenderDonut('an-family-size-donut', [
+      {label:'1-4 Members', val:fs.small||0, color:'#1152d4'},
+      {label:'5-7 Members', val:fs.medium||0, color:'#7c3aed'},
+      {label:'8+ Members',  val:fs.large||0, color:'#ec4899'}
+    ], fs.avg ? fs.avg+' avg' : '-', 'Avg size');
+  }
+  const ps = ext && ext.fourps;
+  const psEl = document.getElementById('an-4ps-chart');
+  if (ps && psEl) {
+    const psPct = ps.total > 0 ? Math.round((ps.yes / ps.total) * 100) : 0;
+    const notPct = 100 - psPct;
+    psEl.style.flexDirection = 'column';
+    psEl.style.alignItems = '';
+    psEl.innerHTML = '<div style="width:100%;padding:0.5rem 0;">'
+      +'<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.875rem;padding:0.5rem 0.75rem;background:#f0fdf4;border-radius:0.5rem;border:1px solid #bbf7d0;">'
+      +'<div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:white;font-size:1.2rem;">check_circle</span></div>'
+      +'<div style="flex:1;"><div style="font-size:0.8125rem;font-weight:700;color:#15803d;">4Ps Members</div><div style="font-size:0.72rem;color:#16a34a;">'+(ps.yes||0).toLocaleString()+' households</div></div>'
+      +'<div style="font-size:1.75rem;font-weight:800;color:#15803d;">'+psPct+'%</div></div>'
+      +'<div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:#f9fafb;border-radius:0.5rem;border:1px solid var(--border);">'
+      +'<div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#9ca3af;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:white;font-size:1.2rem;">remove_circle</span></div>'
+      +'<div style="flex:1;"><div style="font-size:0.8125rem;font-weight:700;color:var(--gray-700);">Non-4Ps</div><div style="font-size:0.72rem;color:var(--gray-400);">'+(ps.no||0).toLocaleString()+' households</div></div>'
+      +'<div style="font-size:1.75rem;font-weight:800;color:var(--gray-500);">'+notPct+'%</div></div>'
+      +'<div style="margin-top:1rem;"><div style="height:12px;border-radius:999px;overflow:hidden;background:#e5e7eb;display:flex;"><div style="width:'+psPct+'%;background:#22c55e;border-radius:999px 0 0 999px;transition:width 0.6s ease;"></div></div>'
+      +'<div style="display:flex;justify-content:space-between;margin-top:0.3rem;font-size:0.7rem;color:var(--gray-400);"><span>0%</span><span style="color:var(--gray-500);font-weight:600;">Total: '+(ps.total||0).toLocaleString()+'</span><span>100%</span></div></div></div>';
+  }
+  const rel = ext && ext.religion;
+  if (rel && rel.length) {
+    const colors = ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#9ca3af'];
+    anRenderDonut('an-religion-donut', rel.map((r,i)=>({label:r.label, val:r.count, color:colors[i%colors.length]})), rel[0]?rel[0].label:'-', 'Most common');
+  }
+  const disTypes = (ext && ext.dis_types_ranked) || [];
+  anRenderHorizBars('an-dis-type-bars', disTypes.map(d=>({label:d.label, val:d.count})));
+  const tbody = document.getElementById('an-dis-type-tbody');
+  if (tbody) tbody.innerHTML = disTypes.length
+    ? disTypes.map((d,i)=>'<tr><td>'+(i+1)+'</td><td>'+d.label+'</td><td><b>'+d.count.toLocaleString()+'</b></td></tr>').join('')
+    : '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:1rem;">No data</td></tr>';
+}
+
+async function renderAnHousing() {
+  await fetchExtendedAnalytics();
+  const h = AN_EXT && AN_EXT.housing;
+  if (!h) return;
+  anRenderHorizBars('an-housing-materials', h.materials, ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444']);
+  anRenderHorizBars('an-tenure-status', h.tenure, ['#22c55e','#1152d4','#f59e0b','#ec4899','#9ca3af']);
+  anRenderHorizBars('an-water-supply', h.water_source, ['#06b6d4','#1152d4','#7c3aed','#10b981','#f59e0b']);
+  anRenderDonut('an-house-mod', [
+    {label:'With Modification', val:h.mod_yes||0, color:'#22c55e'},
+    {label:'Without', val:h.mod_no||0, color:'#e5e7eb'}
+  ], h.mod_total>0?Math.round((h.mod_yes/h.mod_total)*100)+'%':'-', 'Modified');
+}
+
+async function renderAnEducationExtra() {
+  await fetchExtendedAnalytics();
+  anRenderHorizBars('an-educ-attainment', AN_EXT && AN_EXT.educ_attainment, ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444','#06b6d4','#9ca3af']);
+}
+
+async function renderAnEconomicExtra() {
+  await fetchExtendedAnalytics();
+  const mw = AN_EXT && AN_EXT.min_wage;
+  if (!mw) return;
+  anRenderHorizBars('an-min-wage', [
+    {label:'Below Minimum Wage', val:mw.below||0},
+    {label:'At Minimum Wage',    val:mw.at||0},
+    {label:'Above Minimum Wage', val:mw.above||0}
+  ], ['#ef4444','#f59e0b','#22c55e']);
+}
+
+async function renderAnServicesExtra() {
+  await fetchExtendedAnalytics();
+  const fa = AN_EXT && AN_EXT.financial_assist;
+  if (!fa) return;
+  anRenderDonut('an-financial-assist-donut', [
+    {label:'Receiving', val:fa.yes||0, color:'#22c55e'},
+    {label:'Not Receiving', val:fa.no||0, color:'#e5e7eb'}
+  ], fa.total>0?Math.round((fa.yes/fa.total)*100)+'%':'-', 'Receiving');
+}
+
+function applyAnSectionVisibility() {
+  AN_SECTIONS.forEach(function(s) {
+    const show = anSectionVisibility[s.key] !== false;
+    if (s.headers) {
+      document.querySelectorAll('.an-section-header').forEach(function(h) {
+        if (s.headers.includes(h.textContent.trim())) h.style.display = show ? '' : 'none';
+      });
+    }
+    if (s.selector) {
+      document.querySelectorAll(s.selector).forEach(function(el) { el.style.display = show ? '' : 'none'; });
+    }
+    if (s.ids) {
+      const cardsSeen = new Set(), gridsSeen = new Set();
+      s.ids.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const card = el.closest('.card');
+        if (card && !cardsSeen.has(card)) { cardsSeen.add(card); card.style.display = show ? '' : 'none'; }
+      });
+      s.ids.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const grid = el.closest('[style*="grid-template-columns"]');
+        if (!grid || gridsSeen.has(grid)) return;
+        gridsSeen.add(grid);
+        const cards = Array.from(grid.querySelectorAll(':scope > .card'));
+        if (!cards.length) return;
+        const allHidden = cards.every(function(c) { return c.style.display === 'none'; });
+        grid.style.display = allHidden ? 'none' : '';
+        grid.style.marginBottom = allHidden ? '0' : '';
+      });
+    }
+  });
+}
+
+function openAnReportSettings() {
+  const list = document.getElementById('an-settings-list');
+  if (!list) return;
+  list.innerHTML = AN_SECTIONS.map(function(s) {
+    const on = anSectionVisibility[s.key] !== false;
+    const locked = s.locked;
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--gray-100);">'
+      +'<div><span style="font-size:0.8125rem;font-weight:600;color:var(--dark);">'+s.label+'</span>'+(locked ? '<span style="font-size:0.65rem;color:var(--gray-400);margin-left:0.4rem;">Always visible</span>' : '')+'</div>'
+      +'<div id="an-toggle-'+s.key+'" '+(locked ? '' : 'onclick="toggleAnSection(\''+s.key+'\')"')+' style="width:40px;height:22px;border-radius:999px;background:'+(locked?'#9ca3af':on?'#1152d4':'#e5e7eb')+';position:relative;'+(locked?'cursor:not-allowed;opacity:0.7;':'cursor:pointer;')+'transition:background 0.2s;flex-shrink:0;">'
+      +'<div id="an-knob-'+s.key+'" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:'+(locked||on?'20':'2')+'px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div></div></div>';
+  }).join('');
+  document.getElementById('an-report-settings-modal').style.display = 'flex';
+}
+
+function toggleAnSection(key) {
+  anSectionVisibility[key] = !anSectionVisibility[key];
+  const on = anSectionVisibility[key];
+  const toggle = document.getElementById('an-toggle-' + key);
+  const knob   = document.getElementById('an-knob-'   + key);
+  if (toggle) toggle.style.background = on ? '#1152d4' : '#e5e7eb';
+  if (knob)   knob.style.left = on ? '20px' : '2px';
+}
+
+function saveAnReportSettings() {
+  applyAnSectionVisibility();
+  closeAnReportSettings();
+  if (typeof showGlobalToast === 'function') showGlobalToast('Analytics view saved.', 'success');
+}
+
+function closeAnReportSettings() {
+  const m = document.getElementById('an-report-settings-modal');
+  if (m) m.style.display = 'none';
+}

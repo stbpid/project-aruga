@@ -20,57 +20,67 @@ if ($range !== 'all') {
     $dateFilter = '&created_at=gte.' . urlencode($since);
 }
 
-// ── Fetch children for region lookup + filter ─────────────────
-$childRes = supabaseRequest('GET', 'children?select=assessment_id,region&limit=100000');
-$children = ($childRes['success'] && is_array($childRes['data'])) ? $childRes['data'] : [];
+// ── Fetch all needed tables ──────────────────────────────────
+$assRes    = supabaseRequest('GET', 'assessments?select=id,readiness_score,created_at&limit=100000' . $dateFilter);
+$childRes  = supabaseRequest('GET', 'children?select=assessment_id,region,sex,religion,religion_other&limit=100000');
+$preqRes   = supabaseRequest('GET', 'pre_qualification?select=assessment_id,is_4ps_member&limit=100000');
+$famRes    = supabaseRequest('GET', 'family_members?select=assessment_id&limit=100000');
+$eduRes    = supabaseRequest('GET', 'education_info?select=assessment_id,is_currently_enrolled,not_enrolled_reason&limit=100000');
+$ceduRes   = supabaseRequest('GET', 'child_education_health?select=assessment_id,highest_education,disabilities&limit=100000');
+$econRes   = supabaseRequest('GET', 'economic_capacity?select=assessment_id,income_classification,monthly_income&limit=100000');
+$healthRes = supabaseRequest('GET', 'health_info?select=assessment_id,has_all_vaccinations,has_ongoing_health_conditions,availed_services_6months,has_barriers_to_healthcare,healthcare_barriers_details,expense_food,expense_medication,expense_therapy,expense_hygiene,expense_assistive_device,expense_other&limit=100000');
+$svcRes    = supabaseRequest('GET', 'service_availment?select=assessment_id,is_aware_of_social_services,has_availed_services,receives_financial_assistance&limit=100000');
+$socioRes  = supabaseRequest('GET', 'socio_economic?select=assessment_id,housing_materials,tenure_status,has_accessibility_modifications,water_source&limit=100000');
 
-$regionMap      = [];
+$rawAss    = ($assRes['success']    && is_array($assRes['data']))    ? $assRes['data']    : [];
+$rawChild  = ($childRes['success']  && is_array($childRes['data']))  ? $childRes['data']  : [];
+$rawPreq   = ($preqRes['success']   && is_array($preqRes['data']))   ? $preqRes['data']   : [];
+$rawFam    = ($famRes['success']    && is_array($famRes['data']))    ? $famRes['data']    : [];
+$rawEdus   = ($eduRes['success']    && is_array($eduRes['data']))    ? $eduRes['data']    : [];
+$rawCedu   = ($ceduRes['success']   && is_array($ceduRes['data']))   ? $ceduRes['data']   : [];
+$rawEcons  = ($econRes['success']   && is_array($econRes['data']))   ? $econRes['data']   : [];
+$rawHealth = ($healthRes['success'] && is_array($healthRes['data'])) ? $healthRes['data'] : [];
+$rawSvcs   = ($svcRes['success']    && is_array($svcRes['data']))    ? $svcRes['data']    : [];
+$rawSocio  = ($socioRes['success']  && is_array($socioRes['data']))  ? $socioRes['data']  : [];
+
+// Region filter
+$regionMap = [];
+foreach ($rawChild as $c) $regionMap[$c['assessment_id']] = $c['region'] ?? '—';
+
 $filteredAssIds = [];
-foreach ($children as $c) {
-    $regionMap[$c['assessment_id']] = $c['region'] ?? '—';
-    if (!$regionFilter || stripos($c['region'] ?? '', $regionFilter) !== false) {
-        $filteredAssIds[$c['assessment_id']] = true;
+if ($regionFilter) {
+    foreach ($rawChild as $c) {
+        if (stripos($c['region'] ?? '', $regionFilter) !== false)
+            $filteredAssIds[$c['assessment_id']] = true;
     }
 }
+$hasRegion = !empty($regionFilter);
 
-// ── Core fetches ─────────────────────────────────────────────
-$assRes    = supabaseRequest('GET', 'assessments?select=id,readiness_score,created_at&limit=100000' . $dateFilter);
-$eduRes    = supabaseRequest('GET', 'education_info?select=assessment_id,is_currently_enrolled,not_enrolled_reason&limit=100000');
-$econRes   = supabaseRequest('GET', 'economic_capacity?select=assessment_id,income_classification,monthly_income&limit=100000');
-$healthRes = supabaseRequest('GET', 'health_info?select=assessment_id,has_all_vaccinations,has_barriers_to_healthcare,healthcare_barriers_details,expense_food,expense_medication,expense_therapy,expense_hygiene,expense_assistive_device,expense_other&limit=100000');
-$svcRes    = supabaseRequest('GET', 'service_availment?select=assessment_id,is_aware_of_social_services,has_availed_services&limit=100000');
-
-// Apply region + date filter to each dataset
-function filterRows(array $rows, array $filteredAssIds, bool $hasRegionFilter): array {
-    if (!$hasRegionFilter) return $rows;
-    return array_values(array_filter($rows, fn($r) => isset($filteredAssIds[$r['assessment_id'] ?? $r['id'] ?? ''])));
-}
-
-$hasRegion   = !empty($regionFilter);
-$rawAss      = ($assRes['success']    && is_array($assRes['data']))    ? $assRes['data']    : [];
-$rawEdus     = ($eduRes['success']    && is_array($eduRes['data']))    ? $eduRes['data']    : [];
-$rawEcons    = ($econRes['success']   && is_array($econRes['data']))   ? $econRes['data']   : [];
-$rawHealths  = ($healthRes['success'] && is_array($healthRes['data'])) ? $healthRes['data'] : [];
-$rawSvcs     = ($svcRes['success']    && is_array($svcRes['data']))    ? $svcRes['data']    : [];
-
-// Filter assessments by region
 $assessments = $hasRegion
     ? array_values(array_filter($rawAss, fn($a) => isset($filteredAssIds[$a['id']])))
     : $rawAss;
-
 $assIdSet = array_flip(array_column($assessments, 'id'));
 
-$edus    = array_values(array_filter($rawEdus,    fn($r) => isset($assIdSet[$r['assessment_id']])));
-$econs   = array_values(array_filter($rawEcons,   fn($r) => isset($assIdSet[$r['assessment_id']])));
-$healths = array_values(array_filter($rawHealths, fn($r) => isset($assIdSet[$r['assessment_id']])));
-$svcs    = array_values(array_filter($rawSvcs,    fn($r) => isset($assIdSet[$r['assessment_id']])));
+function filterByAss(array $rows, array $assIdSet, string $key = 'assessment_id'): array {
+    return array_values(array_filter($rows, fn($r) => isset($assIdSet[$r[$key] ?? ''])));
+}
 
-// ── 1. Readiness Score Trends (last 12 months) ───────────────
+$children = filterByAss($rawChild,  $assIdSet);
+$preqs    = filterByAss($rawPreq,   $assIdSet);
+$fams     = filterByAss($rawFam,    $assIdSet);
+$edus     = filterByAss($rawEdus,   $assIdSet);
+$cedus    = filterByAss($rawCedu,   $assIdSet);
+$econs    = filterByAss($rawEcons,  $assIdSet);
+$healths  = filterByAss($rawHealth, $assIdSet);
+$svcs     = filterByAss($rawSvcs,   $assIdSet);
+$socios   = filterByAss($rawSocio,  $assIdSet);
+
+// ── 1. Readiness Score Trends (Jan–Dec of current year) ──────
 $readinessMonths = [];
-$now = new DateTime();
-for ($i = 11; $i >= 0; $i--) {
-    $dt  = (clone $now)->modify("-{$i} months");
-    $key = $dt->format('Y-m');
+$year = date('Y');
+for ($m = 1; $m <= 12; $m++) {
+    $key = $year . '-' . str_pad($m, 2, '0', STR_PAD_LEFT);
+    $dt  = new DateTime($key . '-01');
     $readinessMonths[$key] = ['label' => $dt->format('M Y'), 'severe'=>0,'moderate'=>0,'low'=>0,'stable'=>0];
 }
 foreach ($assessments as $a) {
@@ -82,7 +92,7 @@ foreach ($assessments as $a) {
 }
 $readinessTrends = array_values($readinessMonths);
 
-// ── 2. School Enrollment ─────────────────────────────────────
+// ── 2. Enrollment ────────────────────────────────────────────
 $enrolled = 0; $notEnrolled = 0; $reasonCounts = [];
 foreach ($edus as $e) {
     if (!empty($e['is_currently_enrolled'])) { $enrolled++; }
@@ -109,7 +119,20 @@ $incomeTotal = array_sum($incomeCounts);
 $incomeBreakdown = array_map(fn($l,$c)=>['label'=>$l,'count'=>$c,'pct'=>$incomeTotal>0?round($c/$incomeTotal*100):0],
     array_keys($incomeCounts), array_values($incomeCounts));
 
-// ── 4. Service Awareness vs Availment Gap ────────────────────
+// ── 4. Minimum Wage Level ─────────────────────────────────────
+// Philippine daily minimum wage ~₱610 (NCR); monthly ~₱13,000 as reference
+$minWageMonthly = 13000;
+$mwBelow = 0; $mwAt = 0; $mwAbove = 0;
+foreach ($econs as $e) {
+    $inc = (float)($e['monthly_income'] ?? 0);
+    if ($inc <= 0) continue;
+    if ($inc < $minWageMonthly * 0.9)      $mwBelow++;
+    elseif ($inc <= $minWageMonthly * 1.1) $mwAt++;
+    else                                    $mwAbove++;
+}
+$minWage = ['below' => $mwBelow, 'at' => $mwAt, 'above' => $mwAbove];
+
+// ── 5. Service Awareness vs Availment Gap ────────────────────
 $regionSvc = [];
 foreach ($svcs as $s) {
     $region = $regionMap[$s['assessment_id']] ?? '—';
@@ -130,28 +153,32 @@ foreach ($regionSvc as $region => $d) {
 }
 usort($serviceGap, fn($a,$b)=>$b['aware_pct']-$a['aware_pct']);
 
-// ── 5. Healthcare Barriers ───────────────────────────────────
+// ── 6. Financial Assistance ───────────────────────────────────
+$faYes = 0; $faNo = 0;
+foreach ($svcs as $s) {
+    if (!empty($s['receives_financial_assistance'])) $faYes++;
+    else $faNo++;
+}
+$financialAssist = ['yes'=>$faYes, 'no'=>$faNo, 'total'=>count($svcs)];
+
+// ── 7. Healthcare Barriers ───────────────────────────────────
 $barrierCounts = [];
 foreach ($healths as $h) {
     if (empty($h['has_barriers_to_healthcare'])) continue;
     $detail = trim($h['healthcare_barriers_details'] ?? '');
     if (!$detail) { $barrierCounts['Not specified'] = ($barrierCounts['Not specified']??0)+1; continue; }
     $parts = preg_split('/[,;]+/', $detail);
-    foreach ($parts as $p) {
-        $p = trim($p);
-        if ($p) $barrierCounts[$p] = ($barrierCounts[$p]??0)+1;
-    }
+    foreach ($parts as $p) { $p = trim($p); if ($p) $barrierCounts[$p] = ($barrierCounts[$p]??0)+1; }
 }
 arsort($barrierCounts);
 $barriers = array_map(fn($l,$c)=>['label'=>$l,'count'=>$c],
     array_slice(array_keys($barrierCounts),0,8),
     array_slice(array_values($barrierCounts),0,8));
 
-// ── 6. Vaccination Status ────────────────────────────────────
+// ── 8. Vaccination / Immunization ────────────────────────────
 $vaccTotal = count($healths);
 $vaccYes   = count(array_filter($healths, fn($h)=>!empty($h['has_all_vaccinations'])));
 $vaccRate  = $vaccTotal>0 ? round($vaccYes/$vaccTotal*100) : 0;
-
 $regionVacc = [];
 foreach ($healths as $h) {
     $region = $regionMap[$h['assessment_id']] ?? '—';
@@ -166,7 +193,23 @@ foreach ($regionVacc as $region=>$d) {
 }
 usort($vaccByRegion, fn($a,$b)=>$b['rate']-$a['rate']);
 
-// ── 7. Health Expenses ───────────────────────────────────────
+// ── 9. Ongoing Health Issues ─────────────────────────────────
+$hiYes = 0; $hiNo = 0;
+foreach ($healths as $h) {
+    if (!empty($h['has_ongoing_health_conditions'])) $hiYes++;
+    else $hiNo++;
+}
+$healthIssues = ['yes'=>$hiYes, 'no'=>$hiNo, 'total'=>count($healths)];
+
+// ── 10. Availed Health Services (last 6 months) ──────────────
+$haYes = 0; $haNo = 0;
+foreach ($healths as $h) {
+    if (!empty($h['availed_services_6months'])) $haYes++;
+    else $haNo++;
+}
+$healthAvailed = ['yes'=>$haYes, 'no'=>$haNo, 'total'=>count($healths)];
+
+// ── 11. Health Expenses ──────────────────────────────────────
 $expKeys   = ['expense_medication','expense_therapy','expense_hygiene','expense_assistive_device','expense_other'];
 $expLabels = ['Medication','Therapy','Hygiene','Assistive Device','Other'];
 $expSums   = array_fill(0, count($expKeys), 0);
@@ -179,8 +222,7 @@ foreach ($healths as $h) {
     }
     if ($hasAny) $expCount++;
 }
-$expenses = [];
-$totalAvg = 0;
+$expenses = []; $totalAvg = 0;
 foreach ($expKeys as $idx=>$key) {
     $avg = $expCount>0 ? round($expSums[$idx]/$expCount,2) : 0;
     $totalAvg += $avg;
@@ -188,13 +230,124 @@ foreach ($expKeys as $idx=>$key) {
 }
 usort($expenses, fn($a,$b)=>$b['avg']<=>$a['avg']);
 
+// ── 12. Family Size — count rows in family_members per assessment ─
+$famCountMap = [];
+foreach ($fams as $f) {
+    $aid = $f['assessment_id'] ?? '';
+    if ($aid) $famCountMap[$aid] = ($famCountMap[$aid] ?? 0) + 1;
+}
+$fsSmall = 0; $fsMed = 0; $fsLarge = 0; $fsTotal = 0; $fsSum = 0;
+foreach ($famCountMap as $aid => $cnt) {
+    if (!isset($assIdSet[$aid])) continue;
+    $fsTotal++; $fsSum += $cnt;
+    if ($cnt <= 4)      $fsSmall++;
+    elseif ($cnt <= 7)  $fsMed++;
+    else                $fsLarge++;
+}
+$familySize = [
+    'small'  => $fsSmall,
+    'medium' => $fsMed,
+    'large'  => $fsLarge,
+    'total'  => $fsTotal,
+    'avg'    => $fsTotal > 0 ? round($fsSum / $fsTotal, 1) : 0,
+];
+
+// ── 13. 4Ps Membership ───────────────────────────────────────
+$psYes = 0; $psNo = 0;
+foreach ($preqs as $p) {
+    if (!empty($p['is_4ps_member'])) $psYes++;
+    else $psNo++;
+}
+$fourps = ['yes'=>$psYes, 'no'=>$psNo, 'total'=>count($preqs)];
+
+// ── 14. Religion ─────────────────────────────────────────────
+$relCounts = [];
+foreach ($children as $c) {
+    $rel = trim($c['religion'] ?? '');
+    if ($rel === 'Other' || $rel === '') $rel = trim($c['religion_other'] ?? '') ?: 'Other';
+    if ($rel) $relCounts[$rel] = ($relCounts[$rel] ?? 0) + 1;
+}
+arsort($relCounts);
+$religion = array_map(fn($l,$c)=>['label'=>$l,'count'=>$c],
+    array_slice(array_keys($relCounts),0,6),
+    array_slice(array_values($relCounts),0,6));
+
+// ── 15. Disability Types (ranked) ────────────────────────────
+$disTypeCounts = [];
+foreach ($cedus as $c) {
+    $dis = $c['disabilities'] ?? [];
+    if (is_string($dis)) $dis = json_decode($dis, true) ?? [];
+    if (!is_array($dis)) continue;
+    foreach ($dis as $d) {
+        $d = trim($d);
+        if ($d) $disTypeCounts[$d] = ($disTypeCounts[$d] ?? 0) + 1;
+    }
+}
+arsort($disTypeCounts);
+$disTypesRanked = array_map(fn($l,$c)=>['label'=>$l,'count'=>$c],
+    array_keys($disTypeCounts), array_values($disTypeCounts));
+
+// ── 16. Housing ──────────────────────────────────────────────
+$matCounts = []; $tenureCounts = []; $waterCounts = []; $modYes = 0; $modNo = 0;
+foreach ($socios as $s) {
+    $mat = trim($s['housing_materials'] ?? '');
+    if ($mat) $matCounts[$mat] = ($matCounts[$mat] ?? 0) + 1;
+
+    $tenure = trim($s['tenure_status'] ?? '');
+    if ($tenure) $tenureCounts[$tenure] = ($tenureCounts[$tenure] ?? 0) + 1;
+
+    $water = trim($s['water_source'] ?? '');
+    if ($water) $waterCounts[$water] = ($waterCounts[$water] ?? 0) + 1;
+
+    if (!empty($s['has_accessibility_modifications'])) $modYes++;
+    else $modNo++;
+}
+arsort($matCounts); arsort($tenureCounts); arsort($waterCounts);
+$housing = [
+    'materials'  => array_map(fn($l,$c)=>['label'=>$l,'val'=>$c], array_keys($matCounts), array_values($matCounts)),
+    'tenure'     => array_map(fn($l,$c)=>['label'=>$l,'val'=>$c], array_keys($tenureCounts), array_values($tenureCounts)),
+    'water_source'=> array_map(fn($l,$c)=>['label'=>$l,'val'=>$c], array_keys($waterCounts), array_values($waterCounts)),
+    'mod_yes'    => $modYes,
+    'mod_no'     => $modNo,
+    'mod_total'  => $modYes + $modNo,
+];
+
+// ── 17. Educational Attainment ───────────────────────────────
+$attCounts = [];
+foreach ($cedus as $c) {
+    $att = trim($c['highest_education'] ?? '');
+    if ($att) $attCounts[$att] = ($attCounts[$att] ?? 0) + 1;
+}
+// Order by typical school progression
+$attOrder = ['No Formal Education','Kindergarten','Elementary','Junior High School','Senior High School','Vocational/Technical','College','Post-Graduate'];
+$attOrdered = [];
+foreach ($attOrder as $level) {
+    if (isset($attCounts[$level])) {
+        $attOrdered[] = ['label'=>$level,'val'=>$attCounts[$level]];
+        unset($attCounts[$level]);
+    }
+}
+// Append any remaining levels not in the order list
+arsort($attCounts);
+foreach ($attCounts as $l=>$v) $attOrdered[] = ['label'=>$l,'val'=>$v];
+
 echo json_encode([
     'success'          => true,
     'readiness_trends' => $readinessTrends,
     'enrollment'       => ['enrolled'=>$enrolled,'not_enrolled'=>$notEnrolled,'top_reasons'=>$topReasons],
     'income'           => $incomeBreakdown,
+    'min_wage'         => $minWage,
     'service_gap'      => $serviceGap,
+    'financial_assist' => $financialAssist,
     'barriers'         => $barriers,
     'vaccination'      => ['national_rate'=>$vaccRate,'total'=>$vaccTotal,'vaccinated'=>$vaccYes,'by_region'=>$vaccByRegion],
+    'health_issues'    => $healthIssues,
+    'health_availed'   => $healthAvailed,
     'expenses'         => ['total_avg'=>round($totalAvg,2),'breakdown'=>$expenses],
+    'family_size'      => $familySize,
+    'fourps'           => $fourps,
+    'religion'         => $religion,
+    'dis_types_ranked' => $disTypesRanked,
+    'housing'          => $housing,
+    'educ_attainment'  => $attOrdered,
 ]);

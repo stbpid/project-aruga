@@ -25,13 +25,13 @@
         <div class="sidebar-brand-sub">Central Office</div>
       </div>
       <button class="sidebar-toggle-btn" id="sidebar-minimize-btn" title="Toggle sidebar">
-        <span class="material-symbols-outlined">chevron_left</span>
+        <span class="material-symbols-outlined">left_panel_close</span>
       </button>
     </div>
     <div class="sidebar-mini-logo">
       <img src="/images/logo.webp" alt="Project Aruga">
       <button class="sidebar-mini-toggle" id="sidebar-expand-btn" title="Expand sidebar">
-        <span class="material-symbols-outlined">chevron_right</span>
+        <span class="material-symbols-outlined">left_panel_open</span>
       </button>
     </div>
     <nav class="sidebar-nav">
@@ -386,26 +386,23 @@
     <!-- Analytics View -->
     <div class="dash-content" id="co-view-analytics" style="display:none;">
 
+      <!-- Header -->
       <div style="margin-bottom:1rem;">
         <div class="page-title" style="margin:0;">Analytics</div>
         <div class="page-subtitle" id="an-last-refresh" style="margin:0;">Auto-refreshes every 5 minutes</div>
       </div>
 
+      <!-- Filters -->
       <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
         <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
           <select id="an-f-range" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+            <option value="all">All time</option>
             <option value="30">Last 30 days</option>
             <option value="7">Last 7 days</option>
             <option value="90">Last 90 days</option>
-            <option value="all">All time</option>
           </select>
           <select id="an-f-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
             <option value="">All Regions</option>
-          </select>
-          <select id="an-f-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
-            <option value="">All Disabilities</option>
-            <option>Physical</option><option>Visual</option><option>Hearing</option>
-            <option>Intellectual</option><option>Psychosocial</option><option>Speech</option><option>Multiple</option>
           </select>
           <button class="btn btn-primary btn-sm" onclick="applyAnalyticsFilters()">Apply</button>
           <button class="btn btn-secondary btn-sm" onclick="clearAnalyticsFilters()">Reset</button>
@@ -414,6 +411,7 @@
         </div>
       </div>
 
+      <!-- Overview -->
       <div class="stats-grid" style="margin-bottom:1rem;">
         <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">assignment</span></div><div class="stat-body"><div class="stat-value" id="an-total">—</div><div class="stat-label">Total Assessments</div><div class="stat-change up" id="an-total-sub">Loading...</div></div></div>
         <div class="stat-card"><div class="stat-icon green"><span class="material-symbols-outlined">task_alt</span></div><div class="stat-body"><div class="stat-value" id="an-rate">—</div><div class="stat-label">Completion Rate</div><div id="an-rate-badge" style="margin-top:0.25rem;"></div></div></div>
@@ -421,6 +419,7 @@
         <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">speed</span></div><div class="stat-body"><div class="stat-value" id="an-avg-day">—</div><div class="stat-label">Avg / Day</div><div class="stat-change up" id="an-avg-sub">Assessments per day</div></div></div>
       </div>
 
+      <!-- Assessment Trends -->
       <div class="grid-3-1" style="margin-bottom:1rem;">
         <div class="card" style="display:flex;flex-direction:column;">
           <div class="card-header" style="flex-wrap:wrap;gap:0.5rem;flex-shrink:0;">
@@ -433,71 +432,83 @@
           <div class="bar-chart" id="an-trend-bars" style="flex:1;min-height:160px;margin-top:0.75rem;"></div>
         </div>
         <div class="card">
-          <div class="card-header"><div><div class="card-title">Status</div><div class="card-subtitle">National pace</div></div></div>
+          <div class="card-header"><div><div class="card-title">National Pace</div><div class="card-subtitle">Based on daily completion rate vs. target</div></div></div>
           <div style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;">
             <div id="an-status-indicator" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;padding:1.5rem;">
               <div id="an-status-icon" style="width:3.5rem;height:3.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="font-size:1.75rem;">hourglass_empty</span></div>
               <div id="an-status-label" style="font-size:1rem;font-weight:800;">Loading...</div>
               <div id="an-status-sub" style="font-size:0.75rem;color:var(--gray-400);text-align:center;"></div>
             </div>
+            <div style="border-top:1px solid var(--border);padding:0.75rem 1rem 0.25rem;display:flex;flex-direction:column;gap:0.35rem;">
+              <div style="font-size:0.7rem;color:var(--gray-400);font-weight:600;letter-spacing:0.05em;">HOW IT'S CALCULATED</div>
+              <div style="font-size:0.75rem;color:var(--gray-500);">Compares current avg/day to the daily rate needed to hit the national target by deadline.</div>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- By Region -->
       <div class="an-section-header">By Region</div>
       <div class="card" style="margin-bottom:1rem;">
-        <div class="card-header"><div class="card-title">Top Regions by Completions</div><div class="card-subtitle">Horizontal bar — sorted descending</div></div>
+        <div class="card-header"><div class="card-title">All Regions — Completions Overview</div><div class="card-subtitle">Sorted by total profiled, descending</div></div>
         <div id="an-region-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+      <div style="margin-bottom:0.75rem;">
         <span style="font-size:0.75rem;color:var(--gray-500);" id="rg-table-count">—</span>
-        <button class="btn btn-secondary btn-sm" onclick="exportRegionsCSV()"><span class="material-symbols-outlined">download</span>Export CSV</button>
       </div>
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;overflow-x:auto;">
-        <button class="settings-tab active" data-rgtab="overview" onclick="showRgTab('overview')"><span class="material-symbols-outlined">leaderboard</span>By Region</button>
-        <button class="settings-tab" data-rgtab="province" onclick="showRgTab('province')"><span class="material-symbols-outlined">location_city</span>By Province</button>
-        <button class="settings-tab" data-rgtab="city" onclick="showRgTab('city')"><span class="material-symbols-outlined">apartment</span>By City/Municipality</button>
-        <button class="settings-tab" data-rgtab="insights" onclick="showRgTab('insights')"><span class="material-symbols-outlined">insights</span>Key Insights</button>
-      </div>
-      <div class="settings-panel an-rg-panel" id="rgtab-overview" style="margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="table-wrap"><table class="dash-table"><thead><tr><th style="cursor:pointer;" onclick="sortRg('regions','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('regions','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th>Target</th><th style="cursor:pointer;" onclick="sortRg('regions','rate')">Completion % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('regions','interviewers')">Interviewers <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('regions','province_count')">Provinces <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th></tr></thead><tbody id="rg-region-tbody"><tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody></table></div></div>
-      </div>
-      <div class="settings-panel an-rg-panel" id="rgtab-province" style="display:none;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="table-wrap"><table class="dash-table"><thead><tr><th style="cursor:pointer;" onclick="sortRg('provinces','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('provinces','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('provinces','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th></tr></thead><tbody id="rg-province-tbody"><tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody></table></div></div>
-      </div>
-      <div class="settings-panel an-rg-panel" id="rgtab-city" style="display:none;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="table-wrap"><table class="dash-table"><thead><tr><th style="cursor:pointer;" onclick="sortRg('cities','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('cities','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('cities','city')">City / Municipality <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('cities','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th></tr></thead><tbody id="rg-city-tbody"><tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody></table></div></div>
-      </div>
-      <div class="settings-panel an-rg-panel" id="rgtab-insights" style="display:none;margin-bottom:1.25rem;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-          <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top 5 Regions</div><div class="card-subtitle">By total profiled</div></div><div id="rg-top5" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
-          <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Most Common Disabilities</div><div class="card-subtitle">Across all regions</div></div><div id="rg-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
-          <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Monthly Profiling Trend</div><div class="card-subtitle">Records added per month</div></div><div class="bar-chart" id="rg-monthly-bars" style="min-height:160px;margin-top:0.75rem;"></div></div>
-          <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Regions Needing Attention</div><div class="card-subtitle">Lowest completion rates</div></div><div id="rg-low-regions" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
+      <div id="rgtab-overview" style="display:none;"><tbody id="rg-region-tbody"></tbody></div>
+      <div id="rgtab-province" style="margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">By Province</div><div class="card-subtitle">Sorted by column — click header to reorder</div></div>
+          <div class="table-wrap"><table class="dash-table"><thead><tr><th style="cursor:pointer;" onclick="sortRg('provinces','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('provinces','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('provinces','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th></tr></thead><tbody id="rg-province-tbody"><tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody></table></div>
         </div>
       </div>
+      <div id="rgtab-city" style="margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">By City / Municipality</div><div class="card-subtitle">Sorted by column — click header to reorder</div></div>
+          <div class="table-wrap"><table class="dash-table"><thead><tr><th style="cursor:pointer;" onclick="sortRg('cities','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('cities','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('cities','city')">City / Municipality <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('cities','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th></tr></thead><tbody id="rg-city-tbody"><tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div id="rgtab-insights" style="display:none;"></div>
+      <div id="rg-dis-bars" style="display:none;"></div>
+      <div id="rg-top5" style="display:none;"></div>
+      <div id="rg-low-regions" style="display:none;"></div>
+      <div id="rg-monthly-bars" style="display:none;"></div>
 
+      <!-- Beneficiaries -->
       <div class="an-section-header">Beneficiaries</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Sex Disaggregation</div><div class="card-subtitle">Male vs. Female distribution</div></div><div id="an-gender-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Family Size</div><div class="card-subtitle">Number of household members</div></div><div id="an-family-size-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
         <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Age Groups</div></div><div id="an-age-bars" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Gender Split</div></div><div id="an-gender-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
-        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Top 5 Locations</div><div class="card-subtitle">Where most beneficiaries are from</div></div><div id="an-top-locations" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">4Ps Beneficiaries</div><div class="card-subtitle">Pantawid Pamilya membership</div></div><div id="an-4ps-chart" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Religious Affiliations</div><div class="card-subtitle">Top religious groups</div></div><div id="an-religion-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top 5 Locations</div><div class="card-subtitle">Where most beneficiaries are from</div></div><div id="an-top-locations" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
       </div>
 
+      <!-- Disabilities -->
       <div class="an-section-header">Disabilities</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;grid-column:1/-1;">
-          <div class="card-header"><div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown — filter by region</div></div><select id="adm-dis-region-filter" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="admRenderDisBars()"><option value="">All Regions</option></select></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;padding:0.5rem 0;">
-            <div id="adm-dis-bars" style="display:flex;flex-direction:column;gap:0.75rem;"><div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div></div>
-            <div style="padding-left:1rem;border-left:1px solid var(--border);"><div style="font-size:0.8125rem;font-weight:700;color:var(--dark);margin-bottom:0.75rem;">Summary</div><div id="adm-dis-summary" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
-          </div>
-        </div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Most Common Disabilities</div><div class="card-subtitle">Top 10</div></div><div id="an-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown</div></div></div><div id="adm-dis-bars" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"><div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div></div></div>
         <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Multiple Conditions</div><div class="card-subtitle">% with 1, 2, or 3+ disabilities</div></div><div id="an-multi-dis" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div></div>
-        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Disability by Age Group</div></div><div id="an-dis-age" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Disability by Age Group</div></div><div id="an-dis-age" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+        <div id="an-dis-bars" style="display:none;"></div>
+        <div id="adm-dis-summary" style="display:none;"></div>
+        <div id="adm-dis-region-filter" style="display:none;"></div>
+        <div id="an-dis-type-bars" style="display:none;"></div>
+        <div id="an-dis-type-tbody" style="display:none;"></div>
       </div>
 
+      <!-- Housing -->
+      <div class="an-section-header">Housing</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Type of Construction Materials</div><div class="card-subtitle">Most common housing materials used</div></div><div id="an-housing-materials" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Tenure Status of House and Lot</div><div class="card-subtitle">Ownership and occupancy arrangements</div></div><div id="an-tenure-status" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">House Modification for CWD</div><div class="card-subtitle">Homes with accessibility modifications</div></div><div id="an-house-mod" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Water Supply</div><div class="card-subtitle">Primary water source by household</div></div><div id="an-water-supply" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <!-- Interviewer Performance -->
       <div class="an-section-header">Interviewer Performance</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
         <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Productivity Table</div><div class="card-subtitle">All interviewers ranked by completions</div></div><div class="table-wrap"><table class="dash-table"><thead><tr><th>Rank</th><th>Name</th><th>Code</th><th>Region</th><th>Completed</th><th>Avg/Day</th><th>Workload</th></tr></thead><tbody id="an-int-tbody"></tbody></table></div></div>
@@ -505,36 +516,49 @@
         <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Workload Distribution</div></div><div id="an-workload-vis" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
       </div>
 
+      <!-- Readiness -->
       <div class="an-section-header">Readiness Score Trends</div>
       <div class="card" style="margin-bottom:1.25rem;">
-        <div class="card-header"><div><div class="card-title">Readiness Score Trends</div><div class="card-subtitle">Monthly Severe / Moderate / Low / Stable counts — last 12 months</div></div><div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="an-readiness-legend"></div></div>
+        <div class="card-header"><div><div class="card-title">Monthly Severity Breakdown</div><div class="card-subtitle">Severe / Moderate / Low / Stable counts — Jan to Dec</div></div><div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="an-readiness-legend"></div></div>
         <div id="an-readiness-chart" style="min-height:200px;padding:0.5rem 0;"></div>
       </div>
 
+      <!-- Education -->
       <div class="an-section-header">Education</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">School Enrollment Rate</div><div class="card-subtitle">Enrolled vs not enrolled</div></div><div id="an-enrollment-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Educational Enrollment Status</div><div class="card-subtitle">Currently enrolled vs. not enrolled</div></div><div id="an-enrollment-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
         <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top Reasons for Non-Enrollment</div><div class="card-subtitle">Most common reasons reported</div></div><div id="an-enrollment-reasons" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Highest Educational Attainment</div><div class="card-subtitle">Completed education level of beneficiaries</div></div><div id="an-educ-attainment" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
       </div>
 
+      <!-- Economic -->
       <div class="an-section-header">Economic</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Income Classification Breakdown</div><div class="card-subtitle">Distribution across income brackets</div></div><div id="an-income-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Estimated Monthly Income of Families</div><div class="card-subtitle">Distribution across income brackets</div></div><div id="an-income-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Minimum Wage Level</div><div class="card-subtitle">Households at, above, or below minimum wage</div></div><div id="an-min-wage" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
         <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Average Monthly Health Expenses</div><div class="card-subtitle">By category across all households</div></div><div id="an-expenses-total" style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;"></div><div id="an-expenses-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
       </div>
 
+      <!-- Services -->
       <div class="an-section-header">Services</div>
-      <div class="card" style="margin-bottom:1.25rem;">
-        <div class="card-header"><div class="card-title">Service Awareness vs. Availment Gap</div><div class="card-subtitle">Aware % vs Availed % by region</div></div>
-        <div id="an-service-gap-chart" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.25rem 0;"></div>
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Service Availment</div><div class="card-subtitle">Financial Assistance recipients</div></div><div id="an-financial-assist-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Service Awareness vs. Availment Gap</div><div class="card-subtitle">Aware % vs Availed % by region</div></div><div id="an-service-gap-chart" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.25rem 0;"></div></div>
       </div>
 
+      <!-- Health -->
       <div class="an-section-header">Health</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Availment of Immunization</div><div class="card-subtitle">Children with complete vaccinations</div></div><div id="an-immunization-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Has Ongoing Health Issues</div><div class="card-subtitle">Children with active health conditions</div></div><div id="an-health-issues-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Availment to Health Services</div><div class="card-subtitle">Availed health services in last 6 months</div></div><div id="an-health-availed-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Vaccination Status</div><div class="card-subtitle">National rate and by region</div></div><div id="an-vacc-stat" style="display:flex;flex-direction:column;align-items:center;padding:1rem 0 0.5rem;gap:0.25rem;"><div id="an-vacc-rate" style="font-size:3rem;font-weight:800;color:#16a34a;line-height:1;">—</div><div style="font-size:0.8rem;color:var(--gray-500);">National vaccination rate</div></div><div id="an-vacc-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;margin-top:0.5rem;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Healthcare Barriers</div><div class="card-subtitle">Most common barriers to healthcare access</div></div><div id="an-barriers-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Vaccination Status by Region</div><div class="card-subtitle">Rate per region</div></div><div id="an-vacc-stat" style="display:flex;flex-direction:column;align-items:center;padding:0.5rem 0 0.25rem;gap:0.25rem;"><div id="an-vacc-rate" style="font-size:3rem;font-weight:800;color:#16a34a;line-height:1;">—</div><div style="font-size:0.8rem;color:var(--gray-500);">National vaccination rate</div></div><div id="an-vacc-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;margin-top:0.5rem;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Reasons for Not Availing Health Services</div><div class="card-subtitle">Most common barriers reported</div></div><div id="an-barriers-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
       </div>
 
+      <!-- Data Quality -->
       <div class="an-section-header">Data Quality</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
         <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Completeness Score</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1.5rem 0;"><div id="an-gauge-wrap" style="position:relative;width:120px;height:120px;"><svg viewBox="0 0 120 120" width="120" height="120"><circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="12"/><circle id="an-gauge-circle" cx="60" cy="60" r="50" fill="none" stroke="#1152d4" stroke-width="12" stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1s ease;"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;"><div id="an-gauge-pct" style="font-size:1.25rem;font-weight:800;color:var(--dark);">—</div><div style="font-size:0.6rem;color:var(--gray-400);">complete</div></div></div><div id="an-gauge-label" style="font-size:0.8125rem;text-align:center;color:var(--gray-500);"></div></div></div>
@@ -542,6 +566,7 @@
         <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Flagged Records</div></div><div id="an-flagged" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;gap:0.5rem;text-align:center;"><div id="an-flagged-count" style="font-size:2.5rem;font-weight:800;color:#ef4444;">—</div><div style="font-size:0.8125rem;color:var(--gray-500);">records require review</div></div></div>
       </div>
 
+      <!-- Reports -->
       <div class="an-section-header">Reports</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1.25rem;">
         <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:var(--blue);font-size:1rem;">article</span></div><div class="card-title" style="margin:0;">Executive Summary</div></div></div><div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">1-page national overview with key metrics, completion rate, top regions.</div><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('executive','csv')"><span class="material-symbols-outlined">download</span>CSV</button><button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('executive','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button></div></div>
@@ -560,6 +585,26 @@
 
     </div><!-- /co-view-analytics -->
 
+  </div>
+</div>
+
+<!-- Report Settings Modal -->
+<div id="an-report-settings-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
+  <div style="background:white;border-radius:1.25rem;width:100%;max-width:420px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.22);">
+    <div style="padding:1.5rem 1.75rem 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+        <div>
+          <div style="font-size:1rem;font-weight:800;color:var(--dark);">Report Settings</div>
+          <div style="font-size:0.75rem;color:var(--gray-400);">Toggle which sections appear in Analytics</div>
+        </div>
+        <button onclick="closeAnReportSettings()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;padding-bottom:1rem;" id="an-settings-list"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);margin-top:0.25rem;">
+      <button onclick="closeAnReportSettings()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
+      <button onclick="saveAnReportSettings()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Save View</button>
+    </div>
   </div>
 </div>
 

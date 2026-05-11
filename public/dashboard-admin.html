@@ -376,7 +376,26 @@
               <div><label class="settings-label">Full Name</label><input type="text" id="edit-int-name" class="settings-input" placeholder="Full name"></div>
               <div><label class="settings-label">Code</label><input type="text" id="edit-int-code" class="settings-input" readonly style="background:var(--gray-50);font-family:monospace;font-weight:700;color:var(--blue);"></div>
             </div>
-            <div><label class="settings-label">Region</label><input type="text" id="edit-int-region" class="settings-input" placeholder="Region"></div>
+            <div><label class="settings-label">Region</label><select id="edit-int-region" class="settings-input">
+              <option value="">Select region...</option>
+              <option value="NCR (National Capital Region)">NCR (National Capital Region)</option>
+              <option value="Region I (Ilocos Region)">Region I (Ilocos Region)</option>
+              <option value="Region II (Cagayan Valley)">Region II (Cagayan Valley)</option>
+              <option value="Region III (Central Luzon)">Region III (Central Luzon)</option>
+              <option value="Region IV-A (CALABARZON)">Region IV-A (CALABARZON)</option>
+              <option value="Region IV-B (MIMAROPA)">Region IV-B (MIMAROPA)</option>
+              <option value="Region V (Bicol Region)">Region V (Bicol Region)</option>
+              <option value="Region VI (Western Visayas)">Region VI (Western Visayas)</option>
+              <option value="Region VII (Central Visayas)">Region VII (Central Visayas)</option>
+              <option value="Region VIII (Eastern Visayas)">Region VIII (Eastern Visayas)</option>
+              <option value="Region IX (Zamboanga Peninsula)">Region IX (Zamboanga Peninsula)</option>
+              <option value="Region X (Northern Mindanao)">Region X (Northern Mindanao)</option>
+              <option value="Region XI (Davao Region)">Region XI (Davao Region)</option>
+              <option value="Region XII (SOCCSKSARGEN)">Region XII (SOCCSKSARGEN)</option>
+              <option value="Region XIII (Caraga)">Region XIII (Caraga)</option>
+              <option value="CAR (Cordillera Administrative Region)">CAR (Cordillera Administrative Region)</option>
+              <option value="BARMM (Bangsamoro)">BARMM (Bangsamoro)</option>
+            </select></div>
             <div><label class="settings-label">Province</label><input type="text" id="edit-int-province" class="settings-input" placeholder="Province"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
               <div><label class="settings-label">Position</label><input type="text" id="edit-int-position" class="settings-input" placeholder="Position"></div>
@@ -485,12 +504,23 @@
             </div>
             <div><label class="settings-label">Region <span style="color:#dc2626;">*</span></label><select id="add-int-region" class="settings-input">
               <option value="">Select region...</option>
-              <option>NCR – Metro Manila</option><option>Region I – Ilocos Region</option><option>Region II – Cagayan Valley</option>
-              <option>Region III – Central Luzon</option><option>Region IV-A – CALABARZON</option><option>Region IV-B – MIMAROPA</option>
-              <option>Region V – Bicol Region</option><option>Region VI – Western Visayas</option><option>Region VII – Central Visayas</option>
-              <option>Region VIII – Eastern Visayas</option><option>Region IX – Zamboanga Peninsula</option><option>Region X – Northern Mindanao</option>
-              <option>Region XI – Davao Region</option><option>Region XII – SOCCSKSARGEN</option><option>Region XIII – Caraga</option>
-              <option>CAR – Cordillera</option><option>BARMM</option>
+              <option value="NCR (National Capital Region)">NCR (National Capital Region)</option>
+              <option value="Region I (Ilocos Region)">Region I (Ilocos Region)</option>
+              <option value="Region II (Cagayan Valley)">Region II (Cagayan Valley)</option>
+              <option value="Region III (Central Luzon)">Region III (Central Luzon)</option>
+              <option value="Region IV-A (CALABARZON)">Region IV-A (CALABARZON)</option>
+              <option value="Region IV-B (MIMAROPA)">Region IV-B (MIMAROPA)</option>
+              <option value="Region V (Bicol Region)">Region V (Bicol Region)</option>
+              <option value="Region VI (Western Visayas)">Region VI (Western Visayas)</option>
+              <option value="Region VII (Central Visayas)">Region VII (Central Visayas)</option>
+              <option value="Region VIII (Eastern Visayas)">Region VIII (Eastern Visayas)</option>
+              <option value="Region IX (Zamboanga Peninsula)">Region IX (Zamboanga Peninsula)</option>
+              <option value="Region X (Northern Mindanao)">Region X (Northern Mindanao)</option>
+              <option value="Region XI (Davao Region)">Region XI (Davao Region)</option>
+              <option value="Region XII (SOCCSKSARGEN)">Region XII (SOCCSKSARGEN)</option>
+              <option value="Region XIII (Caraga)">Region XIII (Caraga)</option>
+              <option value="CAR (Cordillera Administrative Region)">CAR (Cordillera Administrative Region)</option>
+              <option value="BARMM (Bangsamoro)">BARMM (Bangsamoro)</option>
             </select></div>
             <div><label class="settings-label">Province</label><input type="text" id="add-int-province" class="settings-input" placeholder="e.g. Cebu"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
@@ -577,18 +607,13 @@
       <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
         <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
           <select id="an-f-range" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+            <option value="all">All time</option>
             <option value="30">Last 30 days</option>
             <option value="7">Last 7 days</option>
             <option value="90">Last 90 days</option>
-            <option value="all">All time</option>
           </select>
           <select id="an-f-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
             <option value="">All Regions</option>
-          </select>
-          <select id="an-f-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
-            <option value="">All Disabilities</option>
-            <option>Physical</option><option>Visual</option><option>Hearing</option>
-            <option>Intellectual</option><option>Psychosocial</option><option>Speech</option><option>Multiple</option>
           </select>
           <button class="btn btn-primary btn-sm" onclick="applyAnalyticsFilters()">Apply</button>
           <button class="btn btn-secondary btn-sm" onclick="clearAnalyticsFilters()">Reset</button>
@@ -649,7 +674,7 @@
           <div class="bar-chart" id="an-trend-bars" style="flex:1;min-height:160px;margin-top:0.75rem;"></div>
         </div>
         <div class="card">
-          <div class="card-header"><div><div class="card-title">Status</div><div class="card-subtitle">National pace</div></div></div>
+          <div class="card-header"><div><div class="card-title">National Pace</div><div class="card-subtitle">Based on daily completion rate vs. target</div></div></div>
           <div style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;">
             <div id="an-status-indicator" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;padding:1.5rem;">
               <div id="an-status-icon" style="width:3.5rem;height:3.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;">
@@ -658,6 +683,10 @@
               <div id="an-status-label" style="font-size:1rem;font-weight:800;">Loading...</div>
               <div id="an-status-sub" style="font-size:0.75rem;color:var(--gray-400);text-align:center;"></div>
             </div>
+            <div style="border-top:1px solid var(--border);padding:0.75rem 1rem 0.25rem;display:flex;flex-direction:column;gap:0.35rem;">
+              <div style="font-size:0.7rem;color:var(--gray-400);font-weight:600;letter-spacing:0.05em;">HOW IT'S CALCULATED</div>
+              <div style="font-size:0.75rem;color:var(--gray-500);">Compares current avg/day to the daily rate needed to hit the national target by deadline.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -665,49 +694,22 @@
       <!-- ── By Region ── -->
       <div class="an-section-header">By Region</div>
       <div class="card" style="margin-bottom:1rem;">
-        <div class="card-header"><div class="card-title">Top Regions by Completions</div><div class="card-subtitle">Horizontal bar — sorted descending</div></div>
+        <div class="card-header"><div class="card-title">All Regions — Completions Overview</div><div class="card-subtitle">Sorted by total profiled, descending</div></div>
         <div id="an-region-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
       </div>
 
-
-      <!-- Region export + count row -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+      <!-- Region count row -->
+      <div style="margin-bottom:0.75rem;">
         <span style="font-size:0.75rem;color:var(--gray-500);" id="rg-table-count">—</span>
-        <button class="btn btn-secondary btn-sm" onclick="exportRegionsCSV()"><span class="material-symbols-outlined">download</span>Export CSV</button>
       </div>
 
-      <!-- Region sub-tabs -->
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;overflow-x:auto;">
-        <button class="settings-tab active" data-rgtab="overview" onclick="showRgTab('overview')"><span class="material-symbols-outlined">leaderboard</span>By Region</button>
-        <button class="settings-tab" data-rgtab="province" onclick="showRgTab('province')"><span class="material-symbols-outlined">location_city</span>By Province</button>
-        <button class="settings-tab" data-rgtab="city" onclick="showRgTab('city')"><span class="material-symbols-outlined">apartment</span>By City/Municipality</button>
-        <button class="settings-tab" data-rgtab="insights" onclick="showRgTab('insights')"><span class="material-symbols-outlined">insights</span>Key Insights</button>
-      </div>
+      <!-- By Region table stub — kept for JS compatibility -->
+      <div id="rgtab-overview" style="display:none;"><tbody id="rg-region-tbody"></tbody></div>
 
-      <!-- Sub-tab: By Region table -->
-      <div class="settings-panel an-rg-panel" id="rgtab-overview" style="margin-bottom:1.25rem;">
+      <!-- By Province table -->
+      <div id="rgtab-province" style="margin-bottom:1.25rem;">
         <div class="card" style="margin:0;">
-          <div class="table-wrap">
-            <table class="dash-table">
-              <thead>
-                <tr>
-                  <th style="cursor:pointer;" onclick="sortRg('regions','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('regions','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th>Target</th>
-                  <th style="cursor:pointer;" onclick="sortRg('regions','rate')">Completion % <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('regions','interviewers')">Interviewers <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                  <th style="cursor:pointer;" onclick="sortRg('regions','province_count')">Provinces <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th>
-                </tr>
-              </thead>
-              <tbody id="rg-region-tbody"><tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sub-tab: By Province -->
-      <div class="settings-panel an-rg-panel" id="rgtab-province" style="display:none;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">By Province</div><div class="card-subtitle">Sorted by column — click header to reorder</div></div>
           <div class="table-wrap">
             <table class="dash-table">
               <thead>
@@ -723,9 +725,10 @@
         </div>
       </div>
 
-      <!-- Sub-tab: By City -->
-      <div class="settings-panel an-rg-panel" id="rgtab-city" style="display:none;margin-bottom:1.25rem;">
+      <!-- By City table -->
+      <div id="rgtab-city" style="margin-bottom:1.25rem;">
         <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">By City / Municipality</div><div class="card-subtitle">Sorted by column — click header to reorder</div></div>
           <div class="table-wrap">
             <table class="dash-table">
               <thead>
@@ -742,42 +745,39 @@
         </div>
       </div>
 
-      <!-- Sub-tab: Key Insights -->
-      <div class="settings-panel an-rg-panel" id="rgtab-insights" style="display:none;margin-bottom:1.25rem;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-          <div class="card" style="margin:0;">
-            <div class="card-header"><div class="card-title">Top 5 Regions</div><div class="card-subtitle">By total profiled</div></div>
-            <div id="rg-top5" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
-          </div>
-          <div class="card" style="margin:0;">
-            <div class="card-header"><div class="card-title">Most Common Disabilities</div><div class="card-subtitle">Across all regions</div></div>
-            <div id="rg-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
-          </div>
-          <div class="card" style="margin:0;">
-            <div class="card-header"><div class="card-title">Monthly Profiling Trend</div><div class="card-subtitle">Records added per month</div></div>
-            <div class="bar-chart" id="rg-monthly-bars" style="min-height:160px;margin-top:0.75rem;"></div>
-          </div>
-          <div class="card" style="margin:0;">
-            <div class="card-header"><div class="card-title">Regions Needing Attention</div><div class="card-subtitle">Lowest completion rates</div></div>
-            <div id="rg-low-regions" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
-          </div>
-        </div>
-      </div>
+      <!-- stubs kept for JS compatibility -->
+      <div id="rgtab-insights" style="display:none;"></div>
+      <div id="rg-dis-bars" style="display:none;"></div>
+      <div id="rg-top5" style="display:none;"></div>
+      <div id="rg-low-regions" style="display:none;"></div>
+      <div id="rg-monthly-bars" style="display:none;"></div>
 
       <!-- ── Beneficiaries ── -->
       <div class="an-section-header">Beneficiaries</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
         <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Sex Disaggregation</div><div class="card-subtitle">Male vs. Female distribution</div></div>
+          <div id="an-gender-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+        </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Family Size</div><div class="card-subtitle">Number of household members</div></div>
+          <div id="an-family-size-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+        </div>
+        <div class="card" style="margin:0;">
           <div class="card-header"><div class="card-title">Age Groups</div></div>
           <div id="an-age-bars" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
         </div>
         <div class="card" style="margin:0;">
-          <div class="card-header"><div class="card-title">Gender Split</div></div>
-          <div id="an-gender-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+          <div class="card-header"><div class="card-title">4Ps Beneficiaries</div><div class="card-subtitle">Pantawid Pamilya membership</div></div>
+          <div id="an-4ps-chart" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
         </div>
-        <div class="card" style="margin:0;grid-column:1/-1;">
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Religious Affiliations</div><div class="card-subtitle">Top religious groups</div></div>
+          <div id="an-religion-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+        </div>
+        <div class="card" style="margin:0;">
           <div class="card-header"><div class="card-title">Top 5 Locations</div><div class="card-subtitle">Where most beneficiaries are from</div></div>
-          <div id="an-top-locations" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+          <div id="an-top-locations" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
         </div>
       </div>
 
@@ -785,36 +785,51 @@
       <div class="an-section-header">Disabilities</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
 
-        <!-- Disability Type Distribution (from Overview) -->
+        <!-- Disability Type Distribution -->
         <div class="card" style="margin:0;grid-column:1/-1;">
           <div class="card-header">
-            <div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown — filter by region</div></div>
-            <select id="adm-dis-region-filter" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;" onchange="admRenderDisBars()">
-              <option value="">All Regions</option>
-            </select>
+            <div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown</div></div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;padding:0.5rem 0;">
-            <div id="adm-dis-bars" style="display:flex;flex-direction:column;gap:0.75rem;">
-              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>
-            </div>
-            <div style="padding-left:1rem;border-left:1px solid var(--border);">
-              <div style="font-size:0.8125rem;font-weight:700;color:var(--dark);margin-bottom:0.75rem;">Summary</div>
-              <div id="adm-dis-summary" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
-            </div>
+          <div id="adm-dis-bars" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;">
+            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>
           </div>
         </div>
 
         <div class="card" style="margin:0;">
-          <div class="card-header"><div class="card-title">Most Common Disabilities</div><div class="card-subtitle">Top 10</div></div>
-          <div id="an-dis-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
-        </div>
-        <div class="card" style="margin:0;">
           <div class="card-header"><div class="card-title">Multiple Conditions</div><div class="card-subtitle">% with 1, 2, or 3+ disabilities</div></div>
           <div id="an-multi-dis" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div>
         </div>
-        <div class="card" style="margin:0;grid-column:1/-1;">
+        <div class="card" style="margin:0;">
           <div class="card-header"><div class="card-title">Disability by Age Group</div></div>
           <div id="an-dis-age" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+        </div>
+
+        <!-- stubs kept for JS compatibility -->
+        <div id="an-dis-bars" style="display:none;"></div>
+        <div id="adm-dis-summary" style="display:none;"></div>
+        <div id="adm-dis-region-filter" style="display:none;"></div>
+        <div id="an-dis-type-bars" style="display:none;"></div>
+        <div id="an-dis-type-tbody" style="display:none;"></div>
+      </div>
+
+      <!-- ── Housing ── -->
+      <div class="an-section-header">Housing</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Type of Construction Materials</div><div class="card-subtitle">Most common housing materials used</div></div>
+          <div id="an-housing-materials" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+        </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Tenure Status of House and Lot</div><div class="card-subtitle">Ownership and occupancy arrangements</div></div>
+          <div id="an-tenure-status" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+        </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">House Modification for CWD</div><div class="card-subtitle">Homes with accessibility modifications</div></div>
+          <div id="an-house-mod" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+        </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Water Supply</div><div class="card-subtitle">Primary water source by household</div></div>
+          <div id="an-water-supply" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
         </div>
       </div>
 
@@ -844,7 +859,7 @@
       <div class="an-section-header">Readiness Score Trends</div>
       <div class="card" style="margin-bottom:1.25rem;">
         <div class="card-header">
-          <div><div class="card-title">Readiness Score Trends</div><div class="card-subtitle">Monthly Severe / Moderate / Low / Stable counts — last 12 months</div></div>
+          <div><div class="card-title">Monthly Severity Breakdown</div><div class="card-subtitle">Severe / Moderate / Low / Stable counts — last 12 months</div></div>
           <div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="an-readiness-legend"></div>
         </div>
         <div id="an-readiness-chart" style="min-height:200px;padding:0.5rem 0;"></div>
@@ -854,21 +869,29 @@
       <div class="an-section-header">Education</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
         <div class="card" style="margin:0;">
-          <div class="card-header"><div class="card-title">School Enrollment Rate</div><div class="card-subtitle">Enrolled vs not enrolled</div></div>
+          <div class="card-header"><div class="card-title">Educational Enrollment Status</div><div class="card-subtitle">Currently enrolled vs. not enrolled</div></div>
           <div id="an-enrollment-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
         </div>
         <div class="card" style="margin:0;">
           <div class="card-header"><div class="card-title">Top Reasons for Non-Enrollment</div><div class="card-subtitle">Most common reasons reported</div></div>
           <div id="an-enrollment-reasons" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
         </div>
+        <div class="card" style="margin:0;grid-column:1/-1;">
+          <div class="card-header"><div class="card-title">Highest Educational Attainment</div><div class="card-subtitle">Completed education level of beneficiaries</div></div>
+          <div id="an-educ-attainment" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+        </div>
       </div>
 
       <!-- ── Economic ── -->
       <div class="an-section-header">Economic</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;grid-column:1/-1;">
-          <div class="card-header"><div class="card-title">Income Classification Breakdown</div><div class="card-subtitle">Distribution across income brackets</div></div>
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Estimated Monthly Income of Families</div><div class="card-subtitle">Distribution across income brackets</div></div>
           <div id="an-income-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+        </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Minimum Wage Level</div><div class="card-subtitle">Households at, above, or below minimum wage</div></div>
+          <div id="an-min-wage" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
         </div>
         <div class="card" style="margin:0;grid-column:1/-1;">
           <div class="card-header"><div class="card-title">Average Monthly Health Expenses</div><div class="card-subtitle">By category across all households</div></div>
@@ -879,24 +902,44 @@
 
       <!-- ── Services ── -->
       <div class="an-section-header">Services</div>
-      <div class="card" style="margin-bottom:1.25rem;">
-        <div class="card-header"><div class="card-title">Service Awareness vs. Availment Gap</div><div class="card-subtitle">Aware % vs Availed % by region</div></div>
-        <div id="an-service-gap-chart" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.25rem 0;"></div>
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Service Availment</div><div class="card-subtitle">Financial Assistance recipients</div></div>
+          <div id="an-financial-assist-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+        </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Service Awareness vs. Availment Gap</div><div class="card-subtitle">Aware % vs Availed % by region</div></div>
+          <div id="an-service-gap-chart" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.25rem 0;"></div>
+        </div>
       </div>
 
       <!-- ── Health ── -->
       <div class="an-section-header">Health</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Availment of Immunization</div><div class="card-subtitle">Children with complete vaccinations</div></div>
+          <div id="an-immunization-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+        </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Has Ongoing Health Issues</div><div class="card-subtitle">Children with active health conditions</div></div>
+          <div id="an-health-issues-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+        </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header"><div class="card-title">Availment to Health Services</div><div class="card-subtitle">Availed health services in last 6 months</div></div>
+          <div id="an-health-availed-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+        </div>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
         <div class="card" style="margin:0;">
-          <div class="card-header"><div class="card-title">Vaccination Status</div><div class="card-subtitle">National rate and by region</div></div>
-          <div id="an-vacc-stat" style="display:flex;flex-direction:column;align-items:center;padding:1rem 0 0.5rem;gap:0.25rem;">
+          <div class="card-header"><div class="card-title">Vaccination Status by Region</div><div class="card-subtitle">Rate per region</div></div>
+          <div id="an-vacc-stat" style="display:flex;flex-direction:column;align-items:center;padding:0.5rem 0 0.25rem;gap:0.25rem;">
             <div id="an-vacc-rate" style="font-size:3rem;font-weight:800;color:#16a34a;line-height:1;">—</div>
             <div style="font-size:0.8rem;color:var(--gray-500);">National vaccination rate</div>
           </div>
           <div id="an-vacc-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;margin-top:0.5rem;"></div>
         </div>
         <div class="card" style="margin:0;">
-          <div class="card-header"><div class="card-title">Healthcare Barriers</div><div class="card-subtitle">Most common barriers to healthcare access</div></div>
+          <div class="card-header"><div class="card-title">Reasons for Not Availing Health Services</div><div class="card-subtitle">Most common barriers reported</div></div>
           <div id="an-barriers-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
         </div>
       </div>
@@ -2680,19 +2723,20 @@
   // ── Analytics View ────────────────────────────────────────────
 
   const AN_SECTIONS = [
-    { key: 'overview',     label: 'Overview Stats',           selector: '.stats-grid'                                  },
-    { key: 'trends',       label: 'Assessment Trends',        selector: '.grid-3-1'                                    },
-    { key: 'regions',      label: 'By Region',                headers: ['By Region'],      ids: ['an-region-bars','rg-stat-total','rg-stat-completed','rg-stat-inprog','rg-stat-regions','rgtab-overview','rgtab-province','rgtab-city','rgtab-insights'] },
-    { key: 'beneficiary',  label: 'Beneficiaries',            headers: ['Beneficiaries'],  ids: ['an-age-bars','an-gender-donut','an-top-locations'] },
-    { key: 'disability',   label: 'Disabilities',             headers: ['Disabilities'],   ids: ['an-dis-bars','an-multi-dis','an-dis-age'] },
+    { key: 'overview',     label: 'Overview Stats',           selector: '.stats-grid' },
+    { key: 'trends',       label: 'Assessment Trends',        selector: '.grid-3-1' },
+    { key: 'regions',      label: 'By Region',                headers: ['By Region'],               ids: ['an-region-bars','rgtab-province','rgtab-city','rg-table-count'] },
+    { key: 'beneficiary',  label: 'Beneficiaries',            headers: ['Beneficiaries'],           ids: ['an-gender-donut','an-family-size-donut','an-age-bars','an-4ps-chart','an-religion-donut','an-top-locations'] },
+    { key: 'disability',   label: 'Disabilities',             headers: ['Disabilities'],            ids: ['adm-dis-bars','an-multi-dis','an-dis-age'] },
+    { key: 'housing',      label: 'Housing',                  headers: ['Housing'],                 ids: ['an-housing-materials','an-tenure-status','an-house-mod','an-water-supply'] },
     { key: 'interviewers', label: 'Interviewer Performance',  headers: ['Interviewer Performance'], ids: ['an-int-tbody','an-top5-int','an-workload-vis'] },
     { key: 'readiness',    label: 'Readiness Score Trends',   headers: ['Readiness Score Trends'],  ids: ['an-readiness-chart'] },
-    { key: 'education',    label: 'Education',                headers: ['Education'],      ids: ['an-enrollment-donut','an-enrollment-reasons'] },
-    { key: 'economic',     label: 'Economic',                 headers: ['Economic'],       ids: ['an-income-chart','an-expenses-chart'] },
-    { key: 'services',     label: 'Services',                 headers: ['Services'],       ids: ['an-service-gap-chart'] },
-    { key: 'health',       label: 'Health',                   headers: ['Health'],         ids: ['an-vacc-rate','an-barriers-chart'] },
-    { key: 'quality',      label: 'Data Quality',             headers: ['Data Quality'],   ids: ['an-gauge-pct','an-missing-fields','an-flagged-count'] },
-    { key: 'reports',      label: 'Reports',                  headers: ['Reports'],        ids: ['an-email-type'], locked: true },
+    { key: 'education',    label: 'Education',                headers: ['Education'],               ids: ['an-enrollment-donut','an-enrollment-reasons','an-educ-attainment'] },
+    { key: 'economic',     label: 'Economic',                 headers: ['Economic'],                ids: ['an-income-chart','an-min-wage','an-expenses-chart'] },
+    { key: 'services',     label: 'Services',                 headers: ['Services'],                ids: ['an-financial-assist-donut','an-service-gap-chart'] },
+    { key: 'health',       label: 'Health',                   headers: ['Health'],                  ids: ['an-immunization-donut','an-health-issues-donut','an-health-availed-donut','an-vacc-rate','an-barriers-chart'] },
+    { key: 'quality',      label: 'Data Quality',             headers: ['Data Quality'],            ids: ['an-gauge-pct','an-missing-fields','an-flagged-count'] },
+    { key: 'reports',      label: 'Reports',                  headers: ['Reports'],                 ids: ['an-email-type'], locked: true },
   ];
 
   let anSectionVisibility = {};
@@ -2725,38 +2769,47 @@
   function applyAnSectionVisibility() {
     AN_SECTIONS.forEach(s => {
       const show = anSectionVisibility[s.key] !== false;
-      // header
+
+      // Hide/show section header
       if (s.headers) {
         document.querySelectorAll('#view-analytics .an-section-header').forEach(h => {
           if (s.headers.includes(h.textContent.trim())) h.style.display = show ? '' : 'none';
         });
       }
-      // selector (overview stats grid, trend chart)
+
+      // Hide/show selector elements (stats-grid, grid-3-1)
       if (s.selector) {
         const el = document.querySelector('#view-analytics ' + s.selector);
         if (el) el.style.display = show ? '' : 'none';
       }
-      // parent cards/grids of ids
+
+      // Hide/show individual cards + their parent grid wrappers
       if (s.ids) {
-        const seen = new Set();
+        const cardsSeen = new Set();
+        const gridsSeen = new Set();
+
         s.ids.forEach(id => {
           const el = document.getElementById(id);
           if (!el) return;
-          let p = el.closest('.card');
-          if (!p) p = el.closest('[style*="grid-template-columns"]');
-          if (p && !seen.has(p)) { seen.add(p); p.style.display = show ? '' : 'none'; }
+          const card = el.closest('.card');
+          if (card && !cardsSeen.has(card)) {
+            cardsSeen.add(card);
+            card.style.display = show ? '' : 'none';
+          }
         });
-        // Also hide the wrapping grid row if all children hidden
-        const wrappers = new Set();
+
+        // After toggling cards, check each parent grid — if ALL card children are hidden, hide the grid too
         s.ids.forEach(id => {
           const el = document.getElementById(id);
           if (!el) return;
-          let grid = el.closest('[style*="grid-template-columns"]');
-          if (grid) wrappers.add(grid);
-        });
-        wrappers.forEach(grid => {
-          // Only hide if this entire grid belongs to this section
-          // (don't hide shared grids)
+          const grid = el.closest('[style*="grid-template-columns"]');
+          if (!grid || gridsSeen.has(grid)) return;
+          gridsSeen.add(grid);
+          const cards = Array.from(grid.querySelectorAll(':scope > .card'));
+          if (!cards.length) return;
+          const allHidden = cards.every(c => c.style.display === 'none');
+          grid.style.display = allHidden ? 'none' : '';
+          grid.style.marginBottom = allHidden ? '0' : '';
         });
       }
     });
@@ -2772,7 +2825,7 @@
           <span style="font-size:0.8125rem;font-weight:600;color:var(--dark);">${s.label}</span>
           ${locked ? '<span style="font-size:0.65rem;color:var(--gray-400);margin-left:0.4rem;">Always visible</span>' : ''}
         </div>
-        <div id="an-toggle-${s.key}" ${locked ? '' : `onclick="toggleAnSection('${s.key}')"`} style="width:40px;height:22px;border-radius:999px;background:${locked?'#22c55e':on?'#1152d4':'#e5e7eb'};position:relative;${locked?'cursor:not-allowed;opacity:0.7;':'cursor:pointer;'}transition:background 0.2s;flex-shrink:0;">
+        <div id="an-toggle-${s.key}" ${locked ? '' : `onclick="toggleAnSection('${s.key}')"`} style="width:40px;height:22px;border-radius:999px;background:${locked?'#9ca3af':on?'#1152d4':'#e5e7eb'};position:relative;${locked?'cursor:not-allowed;opacity:0.7;':'cursor:pointer;'}transition:background 0.2s;flex-shrink:0;">
           <div id="an-knob-${s.key}" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:${locked||on?'20':'2'}px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
         </div>
       </div>`;
@@ -2801,7 +2854,7 @@
 
   let anTrendView = 'monthly';
   let anAutoRefresh;
-  let anFilters = { range: '30', region: '', disability: '' };
+  let anFilters = { range: 'all', region: '', disability: '' };
   let AN_DATA = null;
   let AN_CACHE_TS = 0;
   const AN_CACHE_TTL = 5 * 60 * 1000;
@@ -2814,13 +2867,24 @@
     renderAnAll();
     renderAnReadiness();
     renderAnEducation();
+    renderAnEducationExtra();
     renderAnEconomic();
+    renderAnEconomicExtra();
     renderAnServices();
+    renderAnServicesExtra();
     renderAnHealth();
+    renderAnBeneficiaryExtras();
+    renderAnHousing();
     admLoadDisabilityDist();
     updateAnTimestamp();
     clearInterval(anAutoRefresh);
-    anAutoRefresh = setInterval(async () => { AN_CACHE_TS = 0; AN_EXT = null; AN_EXT_CACHE_KEY = ''; await Promise.all([fetchAnalyticsData(), fetchExtendedAnalytics()]); renderAnAll(); renderAnReadiness(); renderAnEducation(); renderAnEconomic(); renderAnServices(); renderAnHealth(); updateAnTimestamp(); }, 300000);
+    anAutoRefresh = setInterval(async () => {
+      AN_CACHE_TS = 0; AN_EXT = null; AN_EXT_CACHE_KEY = '';
+      await Promise.all([fetchAnalyticsData(), fetchExtendedAnalytics()]);
+      renderAnAll(); renderAnReadiness(); renderAnEducation(); renderAnEducationExtra();
+      renderAnEconomic(); renderAnEconomicExtra(); renderAnServices(); renderAnServicesExtra();
+      renderAnHealth(); renderAnBeneficiaryExtras(); renderAnHousing(); updateAnTimestamp();
+    }, 300000);
   }
 
   async function fetchAnalyticsData(force = false) {
@@ -2860,7 +2924,7 @@
   async function applyAnalyticsFilters() {
     anFilters.range      = document.getElementById('an-f-range').value;
     anFilters.region     = document.getElementById('an-f-region').value;
-    anFilters.disability = document.getElementById('an-f-disability').value;
+    anFilters.disability = '';
     AN_CACHE_TS = 0;
     AN_EXT      = null;
     AN_EXT_CACHE_KEY = '';
@@ -2869,9 +2933,14 @@
     renderAnTrend();
     renderAnReadiness();
     renderAnEducation();
+    renderAnEducationExtra();
     renderAnEconomic();
+    renderAnEconomicExtra();
     renderAnServices();
+    renderAnServicesExtra();
     renderAnHealth();
+    renderAnBeneficiaryExtras();
+    renderAnHousing();
     const parts = [];
     const rangeMap = {'30':'Last 30 days','7':'Last 7 days','90':'Last 90 days','all':'All time'};
     parts.push(rangeMap[anFilters.range] || anFilters.range);
@@ -2884,8 +2953,8 @@
   async function clearAnalyticsFilters() {
     document.getElementById('an-f-range').value = '30';
     document.getElementById('an-f-region').value = '';
-    document.getElementById('an-f-disability').value = '';
-    anFilters = { range:'30', region:'', disability:'' };
+    anFilters.disability = '';
+    anFilters = { range:'all', region:'', disability:'' };
     await applyAnalyticsFilters();
   }
 
@@ -3423,6 +3492,195 @@
             <div style="font-size:0.72rem;font-weight:800;width:28px;text-align:right;">${b.count}</div>
           </div>`).join('')
       : AN_EMPTY;
+
+    // Immunization donut
+    if (vacc) {
+      const vYes = vacc.vaccinated||0, vNo = (vacc.total||0)-(vacc.vaccinated||0);
+      anRenderDonut('an-immunization-donut', [
+        {label:'Complete', val:vYes, color:'#22c55e'},
+        {label:'Incomplete', val:vNo, color:'#ef4444'}
+      ], vacc.national_rate+'%', 'Immunized');
+    }
+
+    // Ongoing health issues donut
+    const hi = AN_EXT?.health_issues;
+    if (hi) {
+      anRenderDonut('an-health-issues-donut', [
+        {label:'Has Issues', val:hi.yes||0, color:'#ef4444'},
+        {label:'None', val:hi.no||0, color:'#22c55e'}
+      ], hi.total>0?Math.round((hi.yes/hi.total)*100)+'%':'—', 'With Issues');
+    }
+
+    // Health services availed donut
+    const ha = AN_EXT?.health_availed;
+    if (ha) {
+      anRenderDonut('an-health-availed-donut', [
+        {label:'Availed', val:ha.yes||0, color:'#1152d4'},
+        {label:'Did Not Avail', val:ha.no||0, color:'#9ca3af'}
+      ], ha.total>0?Math.round((ha.yes/ha.total)*100)+'%':'—', 'Availed');
+    }
+  }
+
+  // ── Shared donut renderer ────────────────────────────────────
+  function anRenderDonut(elId, slices, centerVal, centerLabel) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const total = slices.reduce((s,x)=>s+x.val,0);
+    if (!total) { el.innerHTML = AN_EMPTY; return; }
+    const circ = 2*Math.PI*50;
+    let offset = 0;
+    const segs = slices.map(s=>{
+      const dash = (s.val/total)*circ;
+      const seg = `<circle cx="60" cy="60" r="50" fill="none" stroke="${s.color}" stroke-width="20"
+        stroke-dasharray="${dash.toFixed(2)} ${(circ-dash).toFixed(2)}"
+        stroke-dashoffset="${(-offset).toFixed(2)}"/>`;
+      offset += dash;
+      return seg;
+    }).join('');
+    el.innerHTML = `
+      <svg viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);">${segs}</svg>
+      <div style="text-align:center;">
+        <div style="font-size:1.5rem;font-weight:800;color:var(--dark);">${centerVal}</div>
+        <div style="font-size:0.75rem;color:var(--gray-500);">${centerLabel}</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;justify-content:center;font-size:0.75rem;">
+        ${slices.map(s=>`<div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:${s.color};"></div>${s.label}: <b>${s.val.toLocaleString()}</b></div>`).join('')}
+      </div>`;
+  }
+
+  // ── New section renderers ────────────────────────────────────
+  function anRenderHorizBars(elId, items, colorPalette) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    if (!items || !items.length) { el.innerHTML = AN_EMPTY; return; }
+    const maxV = Math.max(...items.map(i=>i.val||i.count||0), 1);
+    const colors = colorPalette || ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444','#06b6d4'];
+    el.innerHTML = items.map((item,i)=>{
+      const v = item.val||item.count||0;
+      const total = items.reduce((s,x)=>s+(x.val||x.count||0),0);
+      const pct = total>0?Math.round(v/total*100):0;
+      return `<div title="${item.label}: ${v.toLocaleString()} (${pct}%)" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
+        <div style="font-size:0.75rem;font-weight:600;width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.label}</div>
+        <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+          <div style="height:100%;width:${Math.round((v/maxV)*100)}%;background:${colors[i%colors.length]};border-radius:999px;"></div>
+        </div>
+        <div style="font-size:0.72rem;font-weight:800;width:32px;text-align:right;">${v}</div>
+        <div style="font-size:0.7rem;color:var(--gray-400);width:34px;">${pct}%</div>
+      </div>`;
+    }).join('');
+  }
+
+  async function renderAnBeneficiaryExtras() {
+    await fetchExtendedAnalytics();
+    const ext = AN_EXT;
+
+    // Family size donut
+    const fs = ext?.family_size;
+    if (fs) {
+      anRenderDonut('an-family-size-donut', [
+        {label:'1–4 Members', val:fs.small||0, color:'#1152d4'},
+        {label:'5–7 Members', val:fs.medium||0, color:'#7c3aed'},
+        {label:'8+ Members',  val:fs.large||0, color:'#ec4899'}
+      ], fs.avg ? fs.avg+' avg' : '—', 'Avg size');
+    }
+
+    // 4Ps graph
+    const ps = ext?.fourps;
+    const psEl = document.getElementById('an-4ps-chart');
+    if (ps && psEl) {
+      const psPct = ps.total > 0 ? Math.round((ps.yes / ps.total) * 100) : 0;
+      const notPct = 100 - psPct;
+      psEl.style.flexDirection = 'column';
+      psEl.style.alignItems = '';
+      psEl.innerHTML = `
+        <div style="width:100%;padding:0.5rem 0;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.875rem;padding:0.5rem 0.75rem;background:#f0fdf4;border-radius:0.5rem;border:1px solid #bbf7d0;">
+            <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-outlined" style="color:white;font-size:1.2rem;">check_circle</span>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:0.8125rem;font-weight:700;color:#15803d;">4Ps Members</div>
+              <div style="font-size:0.72rem;color:#16a34a;">${(ps.yes||0).toLocaleString()} households</div>
+            </div>
+            <div style="font-size:1.75rem;font-weight:800;color:#15803d;">${psPct}%</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:#f9fafb;border-radius:0.5rem;border:1px solid var(--border);">
+            <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#9ca3af;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-outlined" style="color:white;font-size:1.2rem;">remove_circle</span>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:0.8125rem;font-weight:700;color:var(--gray-700);">Non-4Ps</div>
+              <div style="font-size:0.72rem;color:var(--gray-400);">${(ps.no||0).toLocaleString()} households</div>
+            </div>
+            <div style="font-size:1.75rem;font-weight:800;color:var(--gray-500);">${notPct}%</div>
+          </div>
+          <div style="margin-top:1rem;">
+            <div style="height:12px;border-radius:999px;overflow:hidden;background:#e5e7eb;display:flex;">
+              <div style="width:${psPct}%;background:#22c55e;border-radius:999px 0 0 999px;transition:width 0.6s ease;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:0.3rem;font-size:0.7rem;color:var(--gray-400);">
+              <span>0%</span><span style="color:var(--gray-500);font-weight:600;">Total: ${(ps.total||0).toLocaleString()}</span><span>100%</span>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Religion donut
+    const rel = ext?.religion;
+    if (rel && rel.length) {
+      const colors = ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#9ca3af'];
+      anRenderDonut('an-religion-donut', rel.map((r,i)=>({label:r.label, val:r.count, color:colors[i%colors.length]})),
+        rel[0]?.label||'—', 'Most common');
+    }
+
+    // Disability type bars + table
+    const disTypes = ext?.dis_types_ranked || [];
+    anRenderHorizBars('an-dis-type-bars', disTypes.map(d=>({label:d.label, val:d.count})));
+    const tbody = document.getElementById('an-dis-type-tbody');
+    if (tbody) tbody.innerHTML = disTypes.length
+      ? disTypes.map((d,i)=>`<tr><td>${i+1}</td><td>${d.label}</td><td><b>${d.count.toLocaleString()}</b></td></tr>`).join('')
+      : `<tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:1rem;">No data</td></tr>`;
+  }
+
+  async function renderAnHousing() {
+    await fetchExtendedAnalytics();
+    const h = AN_EXT?.housing;
+    if (!h) return;
+    anRenderHorizBars('an-housing-materials', h.materials, ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444']);
+    anRenderHorizBars('an-tenure-status', h.tenure, ['#22c55e','#1152d4','#f59e0b','#ec4899','#9ca3af']);
+    anRenderHorizBars('an-water-supply', h.water_source, ['#06b6d4','#1152d4','#7c3aed','#10b981','#f59e0b']);
+    // House modification donut
+    anRenderDonut('an-house-mod', [
+      {label:'With Modification', val:h.mod_yes||0, color:'#22c55e'},
+      {label:'Without', val:h.mod_no||0, color:'#e5e7eb'}
+    ], h.mod_total>0?Math.round((h.mod_yes/h.mod_total)*100)+'%':'—', 'Modified');
+  }
+
+  async function renderAnEducationExtra() {
+    await fetchExtendedAnalytics();
+    const att = AN_EXT?.educ_attainment;
+    anRenderHorizBars('an-educ-attainment', att, ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444','#06b6d4','#9ca3af']);
+  }
+
+  async function renderAnEconomicExtra() {
+    await fetchExtendedAnalytics();
+    const mw = AN_EXT?.min_wage;
+    if (!mw) return;
+    anRenderHorizBars('an-min-wage', [
+      {label:'Below Minimum Wage', val:mw.below||0},
+      {label:'At Minimum Wage',    val:mw.at||0},
+      {label:'Above Minimum Wage', val:mw.above||0}
+    ], ['#ef4444','#f59e0b','#22c55e']);
+  }
+
+  async function renderAnServicesExtra() {
+    await fetchExtendedAnalytics();
+    const fa = AN_EXT?.financial_assist;
+    if (!fa) return;
+    anRenderDonut('an-financial-assist-donut', [
+      {label:'Receiving', val:fa.yes||0, color:'#22c55e'},
+      {label:'Not Receiving', val:fa.no||0, color:'#e5e7eb'}
+    ], fa.total>0?Math.round((fa.yes/fa.total)*100)+'%':'—', 'Receiving');
   }
 
   function renderAnQuality() {
@@ -3644,25 +3902,23 @@
   let rgCurrentTab = 'overview';
 
   async function loadRegionsView() {
-    if (!rgLoaded) {
-      ['rg-region-tbody','rg-province-tbody','rg-city-tbody'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
-      });
-      try {
-        const json = await (await fetch('/api/get-regions-stats.php')).json();
-        if (json.success) {
-          RG_DATA.summary    = json.summary    || {};
-          RG_DATA.regions    = json.regions    || [];
-          RG_DATA.provinces  = json.provinces  || [];
-          RG_DATA.cities     = json.cities     || [];
-          RG_DATA.disabilities = json.disabilities || [];
-          RG_DATA.monthly_trend = json.monthly_trend || [];
-        }
-      } catch(e) {}
-      rgLoaded = true;
-      populateRgRegionFilter();
-    }
+    const provTbody = document.getElementById('rg-province-tbody');
+    const cityTbody = document.getElementById('rg-city-tbody');
+    if (provTbody) provTbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    if (cityTbody) cityTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    try {
+      const json = await (await fetch('/api/get-regions-stats.php')).json();
+      if (json.success) {
+        RG_DATA.summary       = json.summary       || {};
+        RG_DATA.regions       = json.regions       || [];
+        RG_DATA.provinces     = json.provinces     || [];
+        RG_DATA.cities        = json.cities        || [];
+        RG_DATA.disabilities  = json.disabilities  || [];
+        RG_DATA.monthly_trend = json.monthly_trend || [];
+        rgLoaded = true;
+      }
+    } catch(e) { console.error('loadRegionsView fetch failed', e); }
+    populateRgRegionFilter();
     buildRgSummaryCards();
     applyRgFilters();
     showRgTab('overview');
@@ -3677,13 +3933,14 @@
 
   function buildRgSummaryCards() {
     const s = RG_DATA.summary;
-    document.getElementById('rg-stat-total').textContent     = (s.total_profiled||0).toLocaleString();
-    document.getElementById('rg-stat-total-sub').textContent = 'All regions';
-    document.getElementById('rg-stat-completed').textContent = (s.completed||0).toLocaleString();
-    document.getElementById('rg-stat-completed-sub').textContent = s.total_profiled>0 ? Math.round((s.completed/s.total_profiled)*100)+'% of total' : '—';
-    document.getElementById('rg-stat-inprog').textContent    = s.in_progress > 0 ? s.in_progress.toLocaleString() : '—';
-    document.getElementById('rg-stat-inprog-sub').textContent= 'Assessments in Progress';
-    document.getElementById('rg-stat-regions').textContent   = s.regions_count||0;
+    const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setText('rg-stat-total',         (s.total_profiled||0).toLocaleString());
+    setText('rg-stat-total-sub',     'All regions');
+    setText('rg-stat-completed',     (s.completed||0).toLocaleString());
+    setText('rg-stat-completed-sub', s.total_profiled>0 ? Math.round((s.completed/s.total_profiled)*100)+'% of total' : '—');
+    setText('rg-stat-inprog',        s.in_progress > 0 ? s.in_progress.toLocaleString() : '—');
+    setText('rg-stat-inprog-sub',    'Assessments in Progress');
+    setText('rg-stat-regions',       s.regions_count||0);
   }
 
   function applyRgFilters() {
@@ -3715,12 +3972,12 @@
       rateMatch(r.rate)
     );
 
-    document.getElementById('rg-table-count').textContent = filteredRegions.length+' region'+(filteredRegions.length!==1?'s':'');
+    const rgRegionLabel = region ? filteredRegions.length+' region'+(filteredRegions.length!==1?'s':'')+' matching filter' : 'Showing all '+filteredRegions.length+' regions';
+    document.getElementById('rg-table-count').textContent = rgRegionLabel;
     renderRgRegionTable(filteredRegions);
     renderRgProvinceTable(filteredProvinces);
     renderRgCityTable(filteredCities);
     renderRgBarChart(filteredRegions);
-    renderRgInsights();
   }
 
   function resetRegionFilters() {
@@ -3756,15 +4013,16 @@
     'Region II (Cagayan Valley)': 100,
     'Region III (Central Luzon)': 100,
     'Region IV-A (CALABARZON)': 100,
-    'Region IV-A (MIMAROPA)': 150,
-    'Region V (Bicol)': 100,
+    'Region IV-B (MIMAROPA)': 150,
+    'Region V (Bicol Region)': 100,
     'Region VI (Western Visayas)': 150,
-    'Region XI (Davao)': 150,
-    'National Capital Region': 140,
+    'Region XI (Davao Region)': 150,
+    'NCR (National Capital Region)': 140,
   };
 
   function renderRgRegionTable(data) {
     const tbody = document.getElementById('rg-region-tbody');
+    if (!tbody) return;
     const withData = data.filter(r => r.total > 0);
     const sorted = sortedData(withData, 'regions');
     tbody.innerHTML = sorted.length
@@ -3919,11 +4177,6 @@
 
   function showRgTab(tab) {
     rgCurrentTab = tab;
-    document.querySelectorAll('[data-rgtab]').forEach(t=>t.classList.toggle('active',t.dataset.rgtab===tab));
-    document.querySelectorAll('[id^="rgtab-"]').forEach(p=>p.style.display='none');
-    const panel = document.getElementById('rgtab-'+tab);
-    if (panel) panel.style.display='';
-    if (tab==='insights') renderRgInsights();
   }
 
   function exportRegionsCSV() {

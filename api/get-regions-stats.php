@@ -61,11 +61,61 @@ if ($disRes['success'] && is_array($disRes['data'])) {
     }
 }
 
+// Normalize legacy region strings to canonical format
+function normalizeRegion($r) {
+    $r = trim($r);
+    $map = [
+        'NCR'                         => 'NCR (National Capital Region)',
+        'NCR – Metro Manila'          => 'NCR (National Capital Region)',
+        'NCR - Metro Manila'          => 'NCR (National Capital Region)',
+        'National Capital Region'     => 'NCR (National Capital Region)',
+        'Region I – Ilocos Region'    => 'Region I (Ilocos Region)',
+        'Region I - Ilocos Region'    => 'Region I (Ilocos Region)',
+        'Region II – Cagayan Valley'  => 'Region II (Cagayan Valley)',
+        'Region II - Cagayan Valley'  => 'Region II (Cagayan Valley)',
+        'Region III – Central Luzon'  => 'Region III (Central Luzon)',
+        'Region III - Central Luzon'  => 'Region III (Central Luzon)',
+        'Region IV-A – CALABARZON'    => 'Region IV-A (CALABARZON)',
+        'Region IV-A - CALABARZON'    => 'Region IV-A (CALABARZON)',
+        'CALABARZON'                  => 'Region IV-A (CALABARZON)',
+        'Region IV-B – MIMAROPA'      => 'Region IV-B (MIMAROPA)',
+        'Region IV-B - MIMAROPA'      => 'Region IV-B (MIMAROPA)',
+        'MIMAROPA'                    => 'Region IV-B (MIMAROPA)',
+        'Region V – Bicol Region'     => 'Region V (Bicol Region)',
+        'Region V - Bicol Region'     => 'Region V (Bicol Region)',
+        'Bicol Region'                => 'Region V (Bicol Region)',
+        'Region VI – Western Visayas' => 'Region VI (Western Visayas)',
+        'Region VI - Western Visayas' => 'Region VI (Western Visayas)',
+        'Region VII – Central Visayas'=> 'Region VII (Central Visayas)',
+        'Region VII - Central Visayas'=> 'Region VII (Central Visayas)',
+        'Region VIII – Eastern Visayas'=> 'Region VIII (Eastern Visayas)',
+        'Region VIII - Eastern Visayas'=> 'Region VIII (Eastern Visayas)',
+        'Region IX – Zamboanga Peninsula'=> 'Region IX (Zamboanga Peninsula)',
+        'Region IX - Zamboanga Peninsula'=> 'Region IX (Zamboanga Peninsula)',
+        'Region X – Northern Mindanao'=> 'Region X (Northern Mindanao)',
+        'Region X - Northern Mindanao'=> 'Region X (Northern Mindanao)',
+        'Region XI – Davao Region'    => 'Region XI (Davao Region)',
+        'Region XI - Davao Region'    => 'Region XI (Davao Region)',
+        'Region XII – SOCCSKSARGEN'   => 'Region XII (SOCCSKSARGEN)',
+        'Region XII - SOCCSKSARGEN'   => 'Region XII (SOCCSKSARGEN)',
+        'Region XIII – Caraga'        => 'Region XIII (Caraga)',
+        'Region XIII - Caraga'        => 'Region XIII (Caraga)',
+        'Caraga'                      => 'Region XIII (Caraga)',
+        'CAR – Cordillera'            => 'CAR (Cordillera Administrative Region)',
+        'CAR - Cordillera'            => 'CAR (Cordillera Administrative Region)',
+        'CAR'                         => 'CAR (Cordillera Administrative Region)',
+        'Cordillera'                  => 'CAR (Cordillera Administrative Region)',
+        'BARMM'                       => 'BARMM (Bangsamoro)',
+        'Bangsamoro'                  => 'BARMM (Bangsamoro)',
+    ];
+    return $map[$r] ?? $r;
+}
+
 // Build interviewer counts per region
 $intRegionCount = [];
 if ($intRes['success'] && is_array($intRes['data'])) {
     foreach ($intRes['data'] as $iv) {
-        $r = trim($iv['region'] ?? '');
+        $r = normalizeRegion($iv['region'] ?? '');
         if ($r === '') continue;
         $intRegionCount[$r] = ($intRegionCount[$r] ?? 0) + 1;
     }
@@ -80,7 +130,7 @@ $monthlyMap  = [];
 $totalProfiled = 0;
 
 foreach ($childRes['data'] as $row) {
-    $region   = trim($row['region']            ?? '');
+    $region   = normalizeRegion(trim($row['region']   ?? ''));
     $province = trim($row['province']          ?? '');
     $city     = trim($row['city_municipality'] ?? '');
     $barangay = trim($row['barangay']          ?? '');

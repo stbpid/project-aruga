@@ -8,6 +8,55 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(['success' => false]); exit;
 }
 
+function normalizeRegion($r) {
+    $r = trim($r ?? '');
+    $map = [
+        'NCR'                          => 'NCR (National Capital Region)',
+        'NCR – Metro Manila'           => 'NCR (National Capital Region)',
+        'NCR - Metro Manila'           => 'NCR (National Capital Region)',
+        'National Capital Region'      => 'NCR (National Capital Region)',
+        'Region I – Ilocos Region'     => 'Region I (Ilocos Region)',
+        'Region I - Ilocos Region'     => 'Region I (Ilocos Region)',
+        'Region II – Cagayan Valley'   => 'Region II (Cagayan Valley)',
+        'Region II - Cagayan Valley'   => 'Region II (Cagayan Valley)',
+        'Region III – Central Luzon'   => 'Region III (Central Luzon)',
+        'Region III - Central Luzon'   => 'Region III (Central Luzon)',
+        'Region IV-A – CALABARZON'     => 'Region IV-A (CALABARZON)',
+        'Region IV-A - CALABARZON'     => 'Region IV-A (CALABARZON)',
+        'CALABARZON'                   => 'Region IV-A (CALABARZON)',
+        'Region IV-B – MIMAROPA'       => 'Region IV-B (MIMAROPA)',
+        'Region IV-B - MIMAROPA'       => 'Region IV-B (MIMAROPA)',
+        'MIMAROPA'                     => 'Region IV-B (MIMAROPA)',
+        'Region V – Bicol Region'      => 'Region V (Bicol Region)',
+        'Region V - Bicol Region'      => 'Region V (Bicol Region)',
+        'Bicol Region'                 => 'Region V (Bicol Region)',
+        'Region VI – Western Visayas'  => 'Region VI (Western Visayas)',
+        'Region VI - Western Visayas'  => 'Region VI (Western Visayas)',
+        'Region VII – Central Visayas' => 'Region VII (Central Visayas)',
+        'Region VII - Central Visayas' => 'Region VII (Central Visayas)',
+        'Region VIII – Eastern Visayas'=> 'Region VIII (Eastern Visayas)',
+        'Region VIII - Eastern Visayas'=> 'Region VIII (Eastern Visayas)',
+        'Region IX – Zamboanga Peninsula'=> 'Region IX (Zamboanga Peninsula)',
+        'Region IX - Zamboanga Peninsula'=> 'Region IX (Zamboanga Peninsula)',
+        'Region X – Northern Mindanao' => 'Region X (Northern Mindanao)',
+        'Region X - Northern Mindanao' => 'Region X (Northern Mindanao)',
+        'Region XI – Davao Region'     => 'Region XI (Davao Region)',
+        'Region XI - Davao Region'     => 'Region XI (Davao Region)',
+        'Region XII – SOCCSKSARGEN'    => 'Region XII (SOCCSKSARGEN)',
+        'Region XII - SOCCSKSARGEN'    => 'Region XII (SOCCSKSARGEN)',
+        'Region XIII – Caraga'         => 'Region XIII (Caraga)',
+        'Region XIII - Caraga'         => 'Region XIII (Caraga)',
+        'Caraga'                       => 'Region XIII (Caraga)',
+        'CAR – Cordillera'             => 'CAR (Cordillera Administrative Region)',
+        'CAR - Cordillera'             => 'CAR (Cordillera Administrative Region)',
+        'CAR'                          => 'CAR (Cordillera Administrative Region)',
+        'Cordillera'                   => 'CAR (Cordillera Administrative Region)',
+        'BARMM'                        => 'BARMM (Bangsamoro)',
+        'Bangsamoro'                   => 'BARMM (Bangsamoro)',
+    ];
+    return $map[$r] ?? ($r ?: '—');
+}
+
 $limit          = isset($_GET['limit'])          ? (int)$_GET['limit']              : 50;
 $offset         = isset($_GET['offset'])         ? (int)$_GET['offset']             : 0;
 $search         = isset($_GET['search'])         ? trim($_GET['search'])            : '';
@@ -59,7 +108,7 @@ foreach ($res['data'] as $a) {
     if (!is_array($disabilities)) $disabilities = [];
     $disability = !empty($disabilities) ? $disabilities[0] : '—';
 
-    $childRegion   = $child['region'] ?? '—';
+    $childRegion   = normalizeRegion($child['region'] ?? '');
     $arugaId       = $a['aruga_id']         ?? '—';
     $code          = $a['interviewer_code'] ?? '—';
     $date          = $a['created_at'] ? date('M j, Y', strtotime($a['created_at'])) : '—';
@@ -67,7 +116,7 @@ foreach ($res['data'] as $a) {
     $is4ps         = $pqMap[$a['id']] ?? false;
 
     // Filters
-    if ($region !== '' && stripos($childRegion, $region) === false) continue;
+    if ($region !== '' && $childRegion !== normalizeRegion($region)) continue;
     if ($readinessScore !== '' && strtolower($readiness) !== strtolower($readinessScore)) continue;
     if ($disabilityType !== '') {
         $found = false;

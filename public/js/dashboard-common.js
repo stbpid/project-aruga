@@ -28,13 +28,13 @@ window.dashToast = new DashToast();
 
 // Sidebar toggle
 function initSidebar() {
-  const sidebar = document.getElementById('dash-sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
-  const hamburger = document.getElementById('hamburger-btn');
-  const layout = document.getElementById('dash-layout');
-  const main = document.querySelector('.dash-main');
-  const collapseBtn = document.getElementById('sidebar-minimize-btn');
-  const expandBtn = document.getElementById('sidebar-expand-btn');
+  const sidebar    = document.getElementById('dash-sidebar');
+  const overlay    = document.getElementById('sidebar-overlay');
+  const hamburger  = document.getElementById('hamburger-btn');
+  const layout     = document.getElementById('dash-layout');
+  const main       = document.querySelector('.dash-main');
+  const collapseBtn= document.getElementById('sidebar-minimize-btn');
+  const expandBtn  = document.getElementById('sidebar-expand-btn');
 
   function isMobile() { return window.innerWidth < 768; }
 
@@ -50,14 +50,27 @@ function initSidebar() {
     sidebar?.classList.add('minimized');
     main?.classList.add('sidebar-minimized');
     layout?.classList.add('sidebar-collapsed');
+    try { localStorage.setItem('sidebar_minimized', '1'); } catch(e){}
   }
   function expand() {
     sidebar?.classList.remove('minimized');
     main?.classList.remove('sidebar-minimized');
     layout?.classList.remove('sidebar-collapsed');
+    try { localStorage.setItem('sidebar_minimized', '0'); } catch(e){}
   }
 
-  hamburger?.addEventListener('click', () => { if (isMobile()) openMobile(); });
+  // Restore persisted state
+  try {
+    if (localStorage.getItem('sidebar_minimized') === '1' && !isMobile()) minimize();
+  } catch(e){}
+
+  hamburger?.addEventListener('click', () => {
+    if (isMobile()) {
+      sidebar?.classList.contains('open') ? closeMobile() : openMobile();
+    } else {
+      sidebar?.classList.contains('minimized') ? expand() : minimize();
+    }
+  });
   overlay?.addEventListener('click', closeMobile);
   collapseBtn?.addEventListener('click', minimize);
   expandBtn?.addEventListener('click', expand);
@@ -133,8 +146,14 @@ function drawBars(containerId, data, maxVal) {
   `).join('');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function _initDashCommon() {
   initSidebar();
   initNotifDropdown();
   initActiveNav();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _initDashCommon);
+} else {
+  _initDashCommon();
+}
