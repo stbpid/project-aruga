@@ -34,16 +34,15 @@
     <nav class="sidebar-nav">
       <div class="nav-section-label">My Unit</div>
       <a href="/dashboard-stu-head.html" class="nav-item active" title="Overview"><span class="material-symbols-outlined">dashboard</span><span class="nav-label">Overview</span></a>
-      <a href="#" class="nav-item" title="Beneficiaries"><span class="material-symbols-outlined">group</span><span class="nav-label">Beneficiaries</span></a>
+      <a href="#" class="nav-item" id="nav-beneficiaries" title="Beneficiaries" onclick="stuShowView('beneficiaries');return false;"><span class="material-symbols-outlined">group</span><span class="nav-label">Beneficiaries</span></a>
       <a href="#" class="nav-item" title="Assessments"><span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span></a>
-      <a href="#" class="nav-item" title="My Interviewers"><span class="material-symbols-outlined">badge</span><span class="nav-label">My Interviewers</span></a>
-      <a href="#" class="nav-item" title="Unit Reports"><span class="material-symbols-outlined">bar_chart</span><span class="nav-label">Unit Reports</span></a>
+      <a href="#" class="nav-item" id="nav-interviewers" title="My Interviewers" onclick="stuShowView('main');switchTabById('tab-interviewers');return false;"><span class="material-symbols-outlined">badge</span><span class="nav-label">My Interviewers</span></a>
+      <a href="#" class="nav-item" id="nav-analytics" title="Analytics" onclick="stuShowView('analytics');return false;"><span class="material-symbols-outlined">bar_chart</span><span class="nav-label">Analytics</span></a>
 
       <div class="nav-section-label">Operations</div>
       <a href="#" class="nav-item" title="Pending Reviews"><span class="material-symbols-outlined">task_alt</span><span class="nav-label">Pending Reviews</span></a>
-      <a href="#" class="nav-item" title="Schedule"><span class="material-symbols-outlined">calendar_month</span><span class="nav-label">Schedule</span></a>
       <a href="#" class="nav-item" title="Alerts"><span class="material-symbols-outlined">notifications</span><span class="nav-label">Alerts</span></a>
-      <a href="#" class="nav-item" id="nav-documents" title="Documents" onclick="stuShowDocuments();return false;"><span class="material-symbols-outlined">folder_open</span><span class="nav-label">Documents</span></a>
+      <a href="#" class="nav-item" id="nav-documents" title="Documents" onclick="stuShowView('documents');return false;"><span class="material-symbols-outlined">folder_open</span><span class="nav-label">Documents</span></a>
 
       <div class="nav-section-label">Switch View</div>
       <a href="/dashboard-admin.html" class="nav-item" title="Admin"><span class="material-symbols-outlined">shield_person</span><span class="nav-label">Admin</span></a>
@@ -68,24 +67,24 @@
   <div class="dash-main">
     <div class="dash-content" id="stu-view-main">
       <div class="page-title">Unit Overview</div>
-      <div class="page-subtitle">STU-V-01 · Region V (Bicol) · May 2026</div>
+      <div class="page-subtitle" id="stu-page-subtitle">Loading...</div>
 
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon blue"><span class="material-symbols-outlined">groups</span></div>
-          <div class="stat-body"><div class="stat-value">987</div><div class="stat-label">Unit Beneficiaries</div><div class="stat-change up">↑ 23 this week</div></div>
+          <div class="stat-body"><div class="stat-value" id="stat-beneficiaries">—</div><div class="stat-label">Region Beneficiaries</div><div class="stat-change" id="stat-beneficiaries-sub"></div></div>
         </div>
         <div class="stat-card">
           <div class="stat-icon green"><span class="material-symbols-outlined">check_circle</span></div>
-          <div class="stat-body"><div class="stat-value">609</div><div class="stat-label">Completed</div><div class="stat-change up">61.7% rate</div></div>
+          <div class="stat-body"><div class="stat-value" id="stat-completed">—</div><div class="stat-label">Completed</div><div class="stat-change up" id="stat-completed-rate"></div></div>
         </div>
         <div class="stat-card">
           <div class="stat-icon orange"><span class="material-symbols-outlined">pending_actions</span></div>
-          <div class="stat-body"><div class="stat-value">378</div><div class="stat-label">Pending</div><div class="stat-change down">38.3% remaining</div></div>
+          <div class="stat-body"><div class="stat-value" id="stat-pending">—</div><div class="stat-label">Pending</div><div class="stat-change down" id="stat-pending-rate"></div></div>
         </div>
         <div class="stat-card">
           <div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div>
-          <div class="stat-body"><div class="stat-value">10</div><div class="stat-label">Interviewers</div><div class="stat-change up">8 active today</div></div>
+          <div class="stat-body"><div class="stat-value" id="stat-interviewers">—</div><div class="stat-label">Interviewers</div><div class="stat-change" id="stat-interviewers-sub"></div></div>
         </div>
       </div>
 
@@ -100,14 +99,9 @@
         <div id="tab-interviewers">
           <div class="table-wrap">
             <table class="dash-table">
-              <thead><tr><th>Interviewer</th><th>Code</th><th>Province</th><th>Submitted</th><th>Pending</th><th>Last Active</th><th>Status</th></tr></thead>
-              <tbody>
-                <tr><td style="font-weight:600;">Juan A. Alcantara</td><td style="font-family:monospace;font-size:0.75rem;">R5001JAA</td><td>Camarines Sur</td><td>124</td><td>12</td><td>Today, 2:34 PM</td><td><span class="badge badge-green">Active</span></td></tr>
-                <tr><td style="font-weight:600;">Maria R. Santos</td><td style="font-family:monospace;font-size:0.75rem;">R5002MRS</td><td>Albay</td><td>98</td><td>8</td><td>Today, 1:15 PM</td><td><span class="badge badge-green">Active</span></td></tr>
-                <tr><td style="font-weight:600;">Pedro C. Cruz</td><td style="font-family:monospace;font-size:0.75rem;">R5003PCC</td><td>Sorsogon</td><td>87</td><td>15</td><td>Today, 11:00 AM</td><td><span class="badge badge-green">Active</span></td></tr>
-                <tr><td style="font-weight:600;">Ana M. Bautista</td><td style="font-family:monospace;font-size:0.75rem;">R5004AMB</td><td>Catanduanes</td><td>76</td><td>5</td><td>Yesterday</td><td><span class="badge badge-yellow">Idle</span></td></tr>
-                <tr><td style="font-weight:600;">Carlo D. Reyes</td><td style="font-family:monospace;font-size:0.75rem;">R5005CDR</td><td>Masbate</td><td>63</td><td>20</td><td>Yesterday</td><td><span class="badge badge-yellow">Idle</span></td></tr>
-                <tr><td style="font-weight:600;">Liza P. Mendoza</td><td style="font-family:monospace;font-size:0.75rem;">R5006LPM</td><td>Camarines Norte</td><td>41</td><td>0</td><td>3 days ago</td><td><span class="badge badge-gray">Offline</span></td></tr>
+              <thead><tr><th>Interviewer</th><th>Code</th><th>Province</th><th>Submitted</th><th>Completed</th><th>Last Active</th><th>Status</th></tr></thead>
+              <tbody id="interviewers-tbody">
+                <tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr>
               </tbody>
             </table>
           </div>
@@ -118,49 +112,29 @@
             <table class="dash-table">
               <thead><tr><th>Beneficiary</th><th>Interviewer</th><th>Submitted</th><th>Issue</th><th>Action</th></tr></thead>
               <tbody>
-                <tr><td style="font-weight:600;">Maria T. Garcia<br><span style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00441</span></td><td>R5001JAA</td><td>May 2, 2026</td><td><span class="badge badge-yellow">Incomplete data</span></td><td><button class="btn btn-primary btn-sm">Review</button></td></tr>
-                <tr><td style="font-weight:600;">Jose B. Ramos<br><span style="font-size:0.65rem;color:#9ca3af;">BEN-2026-00438</span></td><td>R5003PCC</td><td>May 1, 2026</td><td><span class="badge badge-red">Flagged</span></td><td><button class="btn btn-primary btn-sm">Review</button></td></tr>
+                <tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:2rem;">No data available</td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
         <div id="tab-recent" style="display:none;">
-          <div class="activity-list">
-            <div class="activity-item"><div class="activity-dot" style="background:#10b981"></div><div class="activity-text"><div class="activity-main">Pedro Cruz submitted assessment — Sorsogon</div><div class="activity-time">Today 2:45 PM · BEN-2026-00512</div></div></div>
-            <div class="activity-item"><div class="activity-dot" style="background:#1152d4"></div><div class="activity-text"><div class="activity-main">Juan Alcantara submitted 3 assessments — CamSur</div><div class="activity-time">Today 1:30 PM · Batch</div></div></div>
-            <div class="activity-item"><div class="activity-dot" style="background:#10b981"></div><div class="activity-text"><div class="activity-main">Maria Santos submitted assessment — Albay</div><div class="activity-time">Today 12:10 PM · BEN-2026-00509</div></div></div>
-            <div class="activity-item"><div class="activity-dot" style="background:#f59e0b"></div><div class="activity-text"><div class="activity-main">Ana Bautista assessment flagged for review</div><div class="activity-time">Yesterday · BEN-2026-00441</div></div></div>
-          </div>
+          <div style="text-align:center;color:#9ca3af;padding:2rem;">No data available</div>
         </div>
       </div>
 
       <!-- Progress vs Target -->
       <div class="card">
         <div class="card-header">
-          <div><div class="card-title">Monthly Progress vs Target</div><div class="card-subtitle">STU-V-01 performance tracking</div></div>
+          <div><div class="card-title">Region Progress</div><div class="card-subtitle" id="progress-subtitle">—</div></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:0.875rem;">
           <div>
             <div style="display:flex;justify-content:space-between;font-size:0.8125rem;margin-bottom:0.375rem;">
               <span style="font-weight:600;color:#374151;">Overall Completion</span>
-              <span style="font-weight:700;color:#1152d4;">609 / 987 (61.7%)</span>
+              <span style="font-weight:700;color:#1152d4;" id="progress-overall-label">—</span>
             </div>
-            <div class="progress-bar" style="height:0.75rem;"><div class="progress-fill" style="width:61.7%"></div></div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:0.8125rem;margin-bottom:0.375rem;">
-              <span style="font-weight:600;color:#374151;">Monthly Target (May)</span>
-              <span style="font-weight:700;color:#10b981;">178 / 200 (89%)</span>
-            </div>
-            <div class="progress-bar" style="height:0.75rem;"><div class="progress-fill green" style="width:89%"></div></div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:0.8125rem;margin-bottom:0.375rem;">
-              <span style="font-weight:600;color:#374151;">Data Quality Score</span>
-              <span style="font-weight:700;color:#f59e0b;">78 / 100</span>
-            </div>
-            <div class="progress-bar" style="height:0.75rem;"><div class="progress-fill orange" style="width:78%"></div></div>
+            <div class="progress-bar" style="height:0.75rem;"><div class="progress-fill" id="progress-overall-bar" style="width:0%"></div></div>
           </div>
         </div>
       </div>
@@ -196,6 +170,161 @@
       </div>
     </div><!-- /stu-view-documents -->
 
+    <!-- Beneficiaries View -->
+    <div class="dash-content" id="stu-view-beneficiaries" style="display:none;">
+      <div style="margin-bottom:1rem;">
+        <div class="page-title" style="margin:0;">Region Beneficiaries</div>
+        <div class="page-subtitle" id="stu-bene-subtitle" style="margin:0;">Loading...</div>
+      </div>
+      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
+        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="stu-bene-search" class="settings-input" style="max-width:240px;height:2rem;font-size:0.8125rem;" placeholder="Search name, ID, barangay…">
+          <select id="stu-bene-status" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+            <option value="">All Status</option>
+            <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="stuLoadBeneficiaries(1)">Search</button>
+          <button class="btn btn-secondary btn-sm" onclick="stuClearBeneFilters()">Reset</button>
+          <span id="stu-bene-count" style="font-size:0.75rem;color:var(--gray-400);margin-left:auto;"></span>
+        </div>
+      </div>
+      <div class="card" style="margin:0;">
+        <div class="table-wrap">
+          <table class="dash-table">
+            <thead><tr><th>Name</th><th>Aruga ID</th><th>Age</th><th>Sex</th><th>Barangay</th><th>Interviewer</th><th>Readiness</th><th>Date Assessed</th><th>Status</th></tr></thead>
+            <tbody id="stu-bene-tbody"><tr><td colspan="9" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+        <div id="stu-bene-pagination" style="display:flex;justify-content:center;gap:0.5rem;padding:1rem;flex-wrap:wrap;"></div>
+      </div>
+    </div><!-- /stu-view-beneficiaries -->
+
+    <!-- Analytics View -->
+    <div class="dash-content" id="stu-view-analytics" style="display:none;">
+      <div style="margin-bottom:1rem;">
+        <div class="page-title" style="margin:0;">Analytics</div>
+        <div class="page-subtitle" id="stu-an-last-refresh" style="margin:0;">Auto-refreshes every 5 minutes</div>
+      </div>
+      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
+        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+          <select id="stu-an-f-range" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+            <option value="all">All time</option>
+            <option value="30">Last 30 days</option>
+            <option value="7">Last 7 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+          <input id="stu-an-f-region" type="hidden">
+          <span id="stu-an-region-label" class="btn btn-secondary btn-sm" style="cursor:default;font-size:0.75rem;pointer-events:none;opacity:0.8;"></span>
+          <button class="btn btn-primary btn-sm" onclick="stuApplyAnalyticsFilters()">Apply</button>
+          <button class="btn btn-secondary btn-sm" onclick="stuClearAnalyticsFilters()">Reset</button>
+          <button class="btn btn-secondary btn-sm" onclick="stuExportAllAnalytics()" style="margin-left:auto;"><span class="material-symbols-outlined">download</span>Export All</button>
+        </div>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:1rem;">
+        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">assignment</span></div><div class="stat-body"><div class="stat-value" id="stu-an-total">—</div><div class="stat-label">Total Assessments</div><div class="stat-change up" id="stu-an-total-sub">Loading...</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><span class="material-symbols-outlined">task_alt</span></div><div class="stat-body"><div class="stat-value" id="stu-an-rate">—</div><div class="stat-label">Completion Rate</div><div id="stu-an-rate-badge" style="margin-top:0.25rem;"></div></div></div>
+        <div class="stat-card"><div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div><div class="stat-body"><div class="stat-value" id="stu-an-interviewers">—</div><div class="stat-label">Active Interviewers</div><div class="stat-change up" id="stu-an-int-sub">Loading...</div></div></div>
+        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">speed</span></div><div class="stat-body"><div class="stat-value" id="stu-an-avg-day">—</div><div class="stat-label">Avg / Day</div><div class="stat-change up">Assessments per day</div></div></div>
+      </div>
+
+      <div class="grid-3-1" style="margin-bottom:1rem;">
+        <div class="card" style="display:flex;flex-direction:column;">
+          <div class="card-header" style="flex-wrap:wrap;gap:0.5rem;flex-shrink:0;">
+            <div><div class="card-title">Assessment Trends</div><div class="card-subtitle" id="stu-an-trend-sub">Completions over time</div></div>
+            <div style="display:flex;border:1px solid var(--border);border-radius:0.375rem;overflow:hidden;">
+              <button class="chart-view-btn active" id="stu-an-toggle-monthly" onclick="stuSetAnTrendView('monthly')">Monthly</button>
+              <button class="chart-view-btn" id="stu-an-toggle-quarterly" onclick="stuSetAnTrendView('quarterly')">Quarterly</button>
+            </div>
+          </div>
+          <div class="bar-chart" id="stu-an-trend-bars" style="flex:1;min-height:160px;margin-top:0.75rem;"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Region Pace</div><div class="card-subtitle">Completion rate vs. target</div></div></div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;">
+            <div id="stu-an-status-indicator" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;padding:1.5rem;">
+              <div id="stu-an-status-icon" style="width:3.5rem;height:3.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="font-size:1.75rem;">hourglass_empty</span></div>
+              <div id="stu-an-status-label" style="font-size:1rem;font-weight:800;">Loading...</div>
+              <div id="stu-an-status-sub" style="font-size:0.75rem;color:var(--gray-400);text-align:center;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="an-section-header">By Province</div>
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-header"><div class="card-title">All Provinces — Completions Overview</div><div class="card-subtitle">Sorted by total profiled, descending</div></div>
+        <div id="stu-an-region-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+      </div>
+
+      <div class="an-section-header">Beneficiaries</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Sex Disaggregation</div></div><div id="stu-an-gender-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Age Groups</div></div><div id="stu-an-age-bars" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">4Ps Beneficiaries</div></div><div id="stu-an-4ps-chart" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Family Size</div></div><div id="stu-an-family-size-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Religious Affiliations</div></div><div id="stu-an-religion-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top 5 Locations</div></div><div id="stu-an-top-locations" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <div class="an-section-header">Disabilities</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Disability Type Distribution</div></div><div id="stu-adm-dis-bars" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"><div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Multiple Conditions</div></div><div id="stu-an-multi-dis" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Disability by Age Group</div></div><div id="stu-an-dis-age" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+        <div id="stu-an-dis-bars" style="display:none;"></div>
+      </div>
+
+      <div class="an-section-header">Housing</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Type of Construction Materials</div></div><div id="stu-an-housing-materials" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Tenure Status of House and Lot</div></div><div id="stu-an-tenure-status" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">House Modification for CWD</div></div><div id="stu-an-house-mod" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Water Supply</div></div><div id="stu-an-water-supply" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <div class="an-section-header">Interviewer Performance</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Productivity Table</div><div class="card-subtitle">Interviewers in region ranked by completions</div></div><div class="table-wrap"><table class="dash-table"><thead><tr><th>Rank</th><th>Name</th><th>Code</th><th>Province</th><th>Completed</th><th>Avg/Day</th><th>Workload</th></tr></thead><tbody id="stu-an-int-tbody"></tbody></table></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;">emoji_events</span><div class="card-title" style="margin:0;">Top 5 Performers</div></div></div><div id="stu-an-top5-int" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Workload Distribution</div></div><div id="stu-an-workload-vis" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <div class="an-section-header">Education</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Educational Enrollment Status</div></div><div id="stu-an-enrollment-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top Reasons for Non-Enrollment</div></div><div id="stu-an-enrollment-reasons" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Highest Educational Attainment</div></div><div id="stu-an-educ-attainment" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <div class="an-section-header">Economic</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Estimated Monthly Income of Families</div></div><div id="stu-an-income-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Minimum Wage Level</div></div><div id="stu-an-min-wage" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Average Monthly Health Expenses</div></div><div id="stu-an-expenses-total" style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;"></div><div id="stu-an-expenses-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <div class="an-section-header">Health</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Availment of Immunization</div></div><div id="stu-an-immunization-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Has Ongoing Health Issues</div></div><div id="stu-an-health-issues-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Availment to Health Services</div></div><div id="stu-an-health-availed-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Vaccination Rate</div></div><div id="stu-an-vacc-stat" style="display:flex;flex-direction:column;align-items:center;padding:0.5rem 0 0.25rem;gap:0.25rem;"><div id="stu-an-vacc-rate" style="font-size:3rem;font-weight:800;color:#16a34a;line-height:1;">—</div><div style="font-size:0.8rem;color:var(--gray-500);">Region vaccination rate</div></div><div id="stu-an-vacc-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;margin-top:0.5rem;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Reasons for Not Availing Health Services</div></div><div id="stu-an-barriers-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <div class="an-section-header">Data Quality</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Completeness Score</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1.5rem 0;"><div style="position:relative;width:120px;height:120px;"><svg viewBox="0 0 120 120" width="120" height="120"><circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="12"/><circle id="stu-an-gauge-circle" cx="60" cy="60" r="50" fill="none" stroke="#1152d4" stroke-width="12" stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1s ease;"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;"><div id="stu-an-gauge-pct" style="font-size:1.25rem;font-weight:800;color:var(--dark);">—</div><div style="font-size:0.6rem;color:var(--gray-400);">complete</div></div></div><div id="stu-an-gauge-label" style="font-size:0.8125rem;text-align:center;color:var(--gray-500);"></div></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Missing Data</div><div class="card-subtitle">Top 5 skipped fields</div></div><div id="stu-an-missing-fields" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Flagged Records</div></div><div id="stu-an-flagged" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;gap:0.5rem;text-align:center;"><div id="stu-an-flagged-count" style="font-size:2.5rem;font-weight:800;color:#ef4444;">—</div><div style="font-size:0.8125rem;color:var(--gray-500);">records require review</div></div></div>
+      </div>
+
+    </div><!-- /stu-view-analytics -->
+
   </div>
 </div>
 
@@ -203,7 +332,98 @@
 <script src="/js/dashboard-common.js"></script>
 <script>
   dashRequireAuth();
-  document.addEventListener('DOMContentLoaded', dashPopulateUser);
+  document.addEventListener('DOMContentLoaded', () => {
+    dashPopulateUser();
+    stuLoadDashboard();
+    document.getElementById('stu-bene-search')?.addEventListener('keydown', e => { if (e.key === 'Enter') stuLoadBeneficiaries(1); });
+  });
+
+  function stuLastActiveLabel(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffDays === 0) {
+      return 'Today ' + d.toLocaleTimeString('en-PH', {hour:'2-digit',minute:'2-digit'});
+    } else if (diffDays === 1) {
+      return 'Yesterday';
+    } else {
+      return diffDays + ' days ago';
+    }
+  }
+
+  function stuStatusBadge(status, lastActive) {
+    const s = (status || '').toLowerCase();
+    if (s === 'inactive') return '<span class="badge badge-gray">Inactive</span>';
+    if (!lastActive) return '<span class="badge badge-gray">No activity</span>';
+    const diffMs = new Date() - new Date(lastActive);
+    const diffDays = diffMs / 86400000;
+    if (diffDays < 1) return '<span class="badge badge-green">Active</span>';
+    if (diffDays < 3) return '<span class="badge badge-yellow">Idle</span>';
+    return '<span class="badge badge-gray">Offline</span>';
+  }
+
+  async function stuLoadDashboard() {
+    const region = sessionStorage.getItem('interviewer_region') || '';
+    if (!region) return;
+
+    const now = new Date();
+    const monthName = now.toLocaleString('en-PH', {month:'long'});
+    const year = now.getFullYear();
+
+    document.getElementById('stu-page-subtitle').textContent = region + ' · ' + monthName + ' ' + year;
+
+    // Load stats
+    try {
+      const r = await fetch('/api/stu-head/stats.php?region=' + encodeURIComponent(region));
+      const j = await r.json();
+      if (j.success && j.data) {
+        const d = j.data;
+        const total = d.total_beneficiaries || 0;
+        const comp  = d.completed || 0;
+        const pend  = d.pending || 0;
+        const intv  = d.interviewer_count || 0;
+        const rate  = total > 0 ? ((comp / total) * 100).toFixed(1) : 0;
+        const pendRate = total > 0 ? ((pend / total) * 100).toFixed(1) : 0;
+
+        document.getElementById('stat-beneficiaries').textContent = total.toLocaleString();
+        document.getElementById('stat-completed').textContent = comp.toLocaleString();
+        document.getElementById('stat-pending').textContent = pend.toLocaleString();
+        document.getElementById('stat-interviewers').textContent = intv.toLocaleString();
+        document.getElementById('stat-completed-rate').textContent = rate + '% rate';
+        document.getElementById('stat-pending-rate').textContent = pendRate + '% remaining';
+        document.getElementById('stat-interviewers-sub').textContent = 'in ' + region;
+
+        document.getElementById('progress-subtitle').textContent = region + ' performance tracking';
+        document.getElementById('progress-overall-label').textContent = comp.toLocaleString() + ' / ' + total.toLocaleString() + ' (' + rate + '%)';
+        document.getElementById('progress-overall-bar').style.width = rate + '%';
+      }
+    } catch(e) {}
+
+    // Load interviewers
+    try {
+      const r = await fetch('/api/stu-head/interviewers.php?region=' + encodeURIComponent(region));
+      const j = await r.json();
+      const tbody = document.getElementById('interviewers-tbody');
+      if (j.success && Array.isArray(j.data) && j.data.length > 0) {
+        tbody.innerHTML = j.data.map(i => `
+          <tr>
+            <td style="font-weight:600;">${i.name}</td>
+            <td style="font-family:monospace;font-size:0.75rem;">${i.code}</td>
+            <td>${i.province}</td>
+            <td>${i.submissions_total}</td>
+            <td>${i.completed_total}</td>
+            <td>${stuLastActiveLabel(i.last_active)}</td>
+            <td>${stuStatusBadge(i.status, i.last_active)}</td>
+          </tr>`).join('');
+      } else {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:2rem;">No interviewers found for this region.</td></tr>';
+      }
+    } catch(e) {
+      document.getElementById('interviewers-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:#ef4444;padding:2rem;">Failed to load interviewers.</td></tr>';
+    }
+  }
 
   function switchTab(el, tabId) {
     document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
@@ -213,12 +433,11 @@
     });
   }
 
-  function stuShowDocuments() {
-    document.getElementById('stu-view-main').style.display = 'none';
-    document.getElementById('stu-view-documents').style.display = '';
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    const nav = document.getElementById('nav-documents');
-    if (nav) nav.classList.add('active');
+  function switchTabById(tabId) {
+    const tabs = { 'tab-interviewers': 0, 'tab-pending': 1, 'tab-recent': 2 };
+    const tabEls = document.querySelectorAll('.tab-item');
+    const idx = tabs[tabId];
+    if (tabEls[idx]) switchTab(tabEls[idx], tabId);
   }
 
   function stuDocTab(tab) {
@@ -227,6 +446,476 @@
       const el = document.getElementById('stu-doctab-' + t);
       if (el) el.style.display = t === tab ? '' : 'none';
     });
+  }
+
+  // ── Beneficiaries ─────────────────────────────────────────────
+  let stuBenePage = 1;
+  const STU_BENE_LIMIT = 50;
+
+  async function stuLoadBeneficiaries(page) {
+    stuBenePage = page || 1;
+    const region = sessionStorage.getItem('interviewer_region') || '';
+    if (!region) return;
+
+    const now = new Date();
+    const sub = document.getElementById('stu-bene-subtitle');
+    if (sub) sub.textContent = region + ' · ' + now.toLocaleString('en-PH', {month:'long'}) + ' ' + now.getFullYear();
+
+    const search = document.getElementById('stu-bene-search')?.value.trim() || '';
+    const status = document.getElementById('stu-bene-status')?.value || '';
+    const offset = (stuBenePage - 1) * STU_BENE_LIMIT;
+
+    const tbody = document.getElementById('stu-bene-tbody');
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr>';
+
+    const params = new URLSearchParams({ region, limit: STU_BENE_LIMIT, offset });
+    if (search) params.set('search', search);
+    if (status) params.set('status', status);
+
+    try {
+      const res = await fetch('/api/stu-head/beneficiaries.php?' + params);
+      const j = await res.json();
+
+      const countEl = document.getElementById('stu-bene-count');
+      if (j.success && Array.isArray(j.data) && j.data.length > 0) {
+        if (countEl) countEl.textContent = j.total.toLocaleString() + ' beneficiaries';
+        tbody.innerHTML = j.data.map(b => `
+          <tr>
+            <td style="font-weight:600;">${b.name}</td>
+            <td style="font-family:monospace;font-size:0.72rem;color:#1152d4;">${b.aruga_id}</td>
+            <td>${b.age}</td>
+            <td>${b.sex}</td>
+            <td>${b.barangay}</td>
+            <td style="font-family:monospace;font-size:0.72rem;">${b.interviewer}</td>
+            <td>${stuReadinessBadge(b.readiness_score)}</td>
+            <td style="font-size:0.75rem;">${b.date}</td>
+            <td>${stuStatusRowBadge(b.status)}</td>
+          </tr>`).join('');
+
+        const totalPages = Math.ceil(j.total / STU_BENE_LIMIT);
+        stuRenderBenePagination(totalPages);
+      } else {
+        if (countEl) countEl.textContent = '0 beneficiaries';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#9ca3af;padding:2rem;">No beneficiaries found for this region.</td></tr>';
+        document.getElementById('stu-bene-pagination').innerHTML = '';
+      }
+    } catch(e) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#ef4444;padding:2rem;">Failed to load beneficiaries.</td></tr>';
+    }
+  }
+
+  function stuReadinessBadge(score) {
+    if (!score || score === '—') return '<span style="color:#9ca3af;">—</span>';
+    const s = String(score).toLowerCase();
+    if (s === 'severe')   return '<span class="badge badge-red">'   + score + '</span>';
+    if (s === 'moderate') return '<span class="badge badge-orange">' + score + '</span>';
+    if (s === 'low')      return '<span class="badge badge-yellow">' + score + '</span>';
+    if (s === 'stable')   return '<span class="badge badge-green">'  + score + '</span>';
+    return score;
+  }
+
+  function stuStatusRowBadge(status) {
+    if (status === 'completed') return '<span class="badge badge-green">Completed</span>';
+    return '<span class="badge badge-yellow">Pending</span>';
+  }
+
+  function stuRenderBenePagination(totalPages) {
+    const container = document.getElementById('stu-bene-pagination');
+    if (totalPages <= 1) { container.innerHTML = ''; return; }
+    let html = '';
+    const prev = stuBenePage - 1, next = stuBenePage + 1;
+    if (prev >= 1) html += `<button class="btn btn-secondary btn-sm" onclick="stuLoadBeneficiaries(${prev})">← Prev</button>`;
+    const start = Math.max(1, stuBenePage - 2), end = Math.min(totalPages, stuBenePage + 2);
+    for (let i = start; i <= end; i++) {
+      html += `<button class="btn ${i === stuBenePage ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="stuLoadBeneficiaries(${i})">${i}</button>`;
+    }
+    if (next <= totalPages) html += `<button class="btn btn-secondary btn-sm" onclick="stuLoadBeneficiaries(${next})">Next →</button>`;
+    container.innerHTML = html;
+  }
+
+  function stuClearBeneFilters() {
+    const s = document.getElementById('stu-bene-search');
+    const st = document.getElementById('stu-bene-status');
+    if (s) s.value = '';
+    if (st) st.value = '';
+    stuLoadBeneficiaries(1);
+  }
+
+  // ── View switching ────────────────────────────────────────────
+  const STU_VIEWS = { main:'stu-view-main', documents:'stu-view-documents', analytics:'stu-view-analytics', beneficiaries:'stu-view-beneficiaries' };
+  function stuShowView(view) {
+    Object.values(STU_VIEWS).forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
+    const target = document.getElementById(STU_VIEWS[view]);
+    if (target) target.style.display = '';
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const navId = view === 'documents' ? 'nav-documents' : view === 'analytics' ? 'nav-analytics' : view === 'beneficiaries' ? 'nav-beneficiaries' : view === 'main' ? null : null;
+    if (view === 'main') { const ov = document.querySelector('a[href="/dashboard-stu-head.html"]'); if (ov) ov.classList.add('active'); }
+    if (navId) { const nav = document.getElementById(navId); if(nav) nav.classList.add('active'); }
+    if (view === 'analytics') stuLoadAnalyticsView();
+    if (view === 'beneficiaries') stuLoadBeneficiaries(1);
+  }
+
+  // ── Analytics ─────────────────────────────────────────────────
+  const STU_AN_EMPTY   = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No data available</div>';
+  const STU_AN_LOADING = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">Loading...</div>';
+  const STU_CURRENT_YEAR  = new Date().getFullYear();
+  const STU_CURRENT_MONTH = new Date().getMonth() + 1;
+  let stuAnTrendView = 'monthly';
+  let stuAnFilters   = { range:'all', region:'' };
+  let STU_AN_DATA    = null;
+  let STU_AN_TS      = 0;
+  let STU_AN_EXT     = null;
+  let STU_AN_EXT_KEY = '';
+  const STU_AN_TTL   = 5 * 60 * 1000;
+  let stuAnAutoRefresh;
+
+  async function stuLoadAnalyticsView() {
+    const region = sessionStorage.getItem('interviewer_region') || '';
+    stuAnFilters.region = region;
+    document.getElementById('stu-an-f-region').value = region;
+    const lbl = document.getElementById('stu-an-region-label');
+    if (lbl) lbl.textContent = region ? region : '';
+    await Promise.all([stuFetchAnalytics(), stuFetchExtended()]);
+    stuRenderAnAll();
+    stuRenderAnReadiness();
+    stuRenderAnEducation();
+    stuRenderAnEducationExtra();
+    stuRenderAnEconomic();
+    stuRenderAnEconomicExtra();
+    stuRenderAnHealth();
+    stuRenderAnBeneficiaryExtras();
+    stuRenderAnHousing();
+    stuUpdateAnTimestamp();
+    clearInterval(stuAnAutoRefresh);
+    stuAnAutoRefresh = setInterval(async () => {
+      STU_AN_TS = 0; STU_AN_EXT = null; STU_AN_EXT_KEY = '';
+      await Promise.all([stuFetchAnalytics(), stuFetchExtended()]);
+      stuRenderAnAll(); stuRenderAnReadiness(); stuRenderAnEducation(); stuRenderAnEducationExtra();
+      stuRenderAnEconomic(); stuRenderAnEconomicExtra(); stuRenderAnHealth(); stuRenderAnBeneficiaryExtras();
+      stuRenderAnHousing(); stuUpdateAnTimestamp();
+    }, 300000);
+  }
+
+  async function stuFetchAnalytics(force=false) {
+    if (!force && STU_AN_DATA && (Date.now()-STU_AN_TS)<STU_AN_TTL) return;
+    const params = new URLSearchParams({ range: stuAnFilters.range });
+    if (stuAnFilters.region) params.set('region', stuAnFilters.region);
+    try {
+      const json = await (await fetch('/api/get-analytics.php?' + params)).json();
+      if (json.success) { STU_AN_DATA=json; STU_AN_TS=Date.now(); }
+    } catch(e) {}
+  }
+
+  async function stuFetchExtended() {
+    const key = stuAnFilters.range + '|' + stuAnFilters.region;
+    if (STU_AN_EXT && STU_AN_EXT_KEY===key) return;
+    const params = new URLSearchParams({ range: stuAnFilters.range });
+    if (stuAnFilters.region) params.set('region', stuAnFilters.region);
+    try {
+      const json = await (await fetch('/api/get-analytics-extended.php?' + params)).json();
+      if (json.success) { STU_AN_EXT=json; STU_AN_EXT_KEY=key; }
+    } catch(e) {}
+  }
+
+  async function stuApplyAnalyticsFilters() {
+    stuAnFilters.range = document.getElementById('stu-an-f-range').value;
+    STU_AN_TS=0; STU_AN_EXT=null; STU_AN_EXT_KEY='';
+    await Promise.all([stuFetchAnalytics(), stuFetchExtended()]);
+    stuRenderAnAll(); stuRenderAnReadiness(); stuRenderAnEducation(); stuRenderAnEducationExtra();
+    stuRenderAnEconomic(); stuRenderAnEconomicExtra(); stuRenderAnHealth(); stuRenderAnBeneficiaryExtras(); stuRenderAnHousing();
+  }
+
+  async function stuClearAnalyticsFilters() {
+    document.getElementById('stu-an-f-range').value = 'all';
+    stuAnFilters.range = 'all';
+    await stuApplyAnalyticsFilters();
+  }
+
+  function stuUpdateAnTimestamp() {
+    document.getElementById('stu-an-last-refresh').textContent = 'Last refreshed: ' + new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'}) + ' · Auto-refreshes every 5 min';
+  }
+
+  function stuRenderAnAll() {
+    if (!STU_AN_DATA) return;
+    stuRenderAnOverview();
+    stuRenderAnTrend();
+    stuRenderAnRegionBars();
+    stuRenderAnBeneficiary();
+    stuRenderAnDisability();
+    stuRenderAnInterviewers();
+    stuRenderAnQuality();
+  }
+
+  function stuRenderAnOverview() {
+    const s = STU_AN_DATA?.summary;
+    if (!s) return;
+    document.getElementById('stu-an-total').textContent       = (s.total||0).toLocaleString();
+    document.getElementById('stu-an-total-sub').textContent   = 'In ' + (stuAnFilters.region || 'region');
+    document.getElementById('stu-an-rate').textContent        = (s.completion_rate||0) + '%';
+    document.getElementById('stu-an-interviewers').textContent= (s.active_interviewers||0).toLocaleString();
+    document.getElementById('stu-an-int-sub').textContent     = 'Submitted at least once';
+    document.getElementById('stu-an-avg-day').textContent     = s.avg_per_day||0;
+    const rate    = s.completion_rate || 0;
+    const statusEl = document.getElementById('stu-an-status-icon');
+    const labelEl  = document.getElementById('stu-an-status-label');
+    const subEl    = document.getElementById('stu-an-status-sub');
+    const badge    = document.getElementById('stu-an-rate-badge');
+    if (rate >= 80) {
+      statusEl.style.background='#f0fdf4'; statusEl.style.color='#16a34a';
+      statusEl.querySelector('span').textContent='trending_up';
+      labelEl.textContent='Ahead'; labelEl.style.color='#16a34a';
+      subEl.textContent='Exceeding region target pace';
+      badge.innerHTML='<span class="badge badge-green">Ahead</span>';
+    } else if (rate >= 60) {
+      statusEl.style.background='#eff6ff'; statusEl.style.color='#1152d4';
+      statusEl.querySelector('span').textContent='check_circle';
+      labelEl.textContent='On Track'; labelEl.style.color='#1152d4';
+      subEl.textContent='Progressing within expected range';
+      badge.innerHTML='<span class="badge badge-blue">On Track</span>';
+    } else {
+      statusEl.style.background='#fff1f1'; statusEl.style.color='#ef4444';
+      statusEl.querySelector('span').textContent='warning';
+      labelEl.textContent='Behind'; labelEl.style.color='#ef4444';
+      subEl.textContent='Region pace below target — action needed';
+      badge.innerHTML='<span class="badge badge-red">Behind</span>';
+    }
+  }
+
+  function stuSetAnTrendView(v) {
+    stuAnTrendView = v;
+    ['monthly','quarterly'].forEach(x => {
+      const btn = document.getElementById('stu-an-toggle-' + x);
+      if (btn) btn.classList.toggle('active', x===v);
+    });
+    stuRenderAnTrend();
+  }
+
+  async function stuRenderAnTrend() {
+    const container = document.getElementById('stu-an-trend-bars');
+    container.innerHTML = STU_AN_LOADING;
+    const monthly = STU_AN_DATA?.trends?.monthly || [];
+    container.innerHTML = '';
+    if (!monthly.length) { container.innerHTML = STU_AN_EMPTY; return; }
+    const monthMap = {};
+    monthly.forEach((d,i) => { monthMap[i+1]=d.value; });
+    let bars;
+    if (stuAnTrendView === 'monthly') {
+      const maxVal = Math.max(...monthly.map(d=>d.value),1);
+      bars = monthly.map((d,i) => {
+        const month=i+1, isCurrent=month===STU_CURRENT_MONTH, isFuture=month>STU_CURRENT_MONTH;
+        return { label:d.label, value:d.value, maxVal, tooltip:d.label+' '+STU_CURRENT_YEAR+': '+d.value+' assessments',
+          color: isCurrent?'#1152d4':isFuture?'#e2e8f0':'#93c5fd', hoverColor:isCurrent?'#0d3fa3':isFuture?'#cbd5e1':'#60a5fa', highlight:isCurrent };
+      });
+    } else {
+      const qs = [{label:'Q1',months:[1,2,3]},{label:'Q2',months:[4,5,6]},{label:'Q3',months:[7,8,9]},{label:'Q4',months:[10,11,12]}];
+      const currentQ = Math.ceil(STU_CURRENT_MONTH/3);
+      const raw = qs.map((q,i) => { const value=q.months.reduce((s,m)=>s+(monthMap[m]||0),0); const isC=(i+1)===currentQ,isF=(i+1)>currentQ; return {label:q.label,value,maxVal:0,tooltip:q.label+': '+value+' assessments',color:isC?'#1152d4':isF?'#e2e8f0':'#93c5fd',hoverColor:isC?'#0d3fa3':isF?'#cbd5e1':'#60a5fa',highlight:isC}; });
+      const maxVal = Math.max(...raw.map(b=>b.value),1);
+      bars = raw.map(b=>({...b,maxVal}));
+    }
+    stuRenderBars(container, bars);
+  }
+
+  function stuRenderBars(container, bars) {
+    container.innerHTML = '';
+    const containerH = container.clientHeight||160, usableH=containerH-32;
+    let tip = document.getElementById('chart-tooltip');
+    if (!tip) { tip=document.createElement('div'); tip.id='chart-tooltip'; tip.style.cssText='position:fixed;background:#1f2937;color:white;font-size:0.7rem;font-weight:600;padding:0.3rem 0.625rem;border-radius:0.375rem;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9000;white-space:nowrap;'; document.body.appendChild(tip); }
+    bars.forEach(b => {
+      const pct=b.value/b.maxVal, h=Math.max(pct*usableH, b.value>0?6:3);
+      const col=document.createElement('div'); col.className='bar-col';
+      const vd=document.createElement('div'); vd.style.cssText=`font-size:0.6rem;font-weight:700;color:${b.highlight?'#1152d4':'#9ca3af'};margin-bottom:3px;text-align:center;min-height:0.75rem;`; vd.textContent=b.value>0&&bars.length<=12?b.value:'';
+      const bar=document.createElement('div'); bar.className='bar-fill'; bar.style.cssText=`height:${h}px;background:${b.color};border-radius:4px 4px 0 0;transition:background 0.15s,transform 0.15s;cursor:pointer;`;
+      bar.addEventListener('mouseenter',function(){this.style.background=b.hoverColor;this.style.transform='scaleY(1.03)';this.style.transformOrigin='bottom';tip.textContent=b.tooltip;tip.style.opacity='1';});
+      bar.addEventListener('mousemove',e=>{tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-28)+'px';});
+      bar.addEventListener('mouseleave',function(){this.style.background=b.color;this.style.transform='';tip.style.opacity='0';});
+      const lbl=document.createElement('span'); lbl.className='bar-label'; lbl.style.cssText=`font-weight:${b.highlight?'700':'500'};color:${b.highlight?'#1152d4':'#6b7280'};`; lbl.textContent=b.label;
+      col.appendChild(vd); col.appendChild(bar); col.appendChild(lbl); container.appendChild(col);
+    });
+  }
+
+  function stuRenderAnRegionBars() {
+    const container = document.getElementById('stu-an-region-bars');
+    const data = STU_AN_DATA?.regions || [];
+    if (!data.length) { container.innerHTML=STU_AN_EMPTY; return; }
+    const maxV = Math.max(...data.map(r=>r.count),1);
+    container.innerHTML = data.map(r=>`
+      <div title="${r.region}: ${r.count.toLocaleString()} assessments" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
+        <div style="font-size:0.75rem;font-weight:600;width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div>
+        <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((r.count/maxV)*100)}%;background:var(--blue);border-radius:999px;transition:width 0.6s;"></div></div>
+        <div style="font-size:0.75rem;font-weight:800;color:var(--dark);width:48px;text-align:right;">${r.count.toLocaleString()}</div>
+      </div>`).join('');
+  }
+
+  function stuRenderAnBeneficiary() {
+    const ageC = document.getElementById('stu-an-age-bars');
+    const ages = STU_AN_DATA?.age_groups || [];
+    if (!ages.length) { ageC.innerHTML=STU_AN_EMPTY; } else {
+      const maxA=Math.max(...ages.map(a=>a.val),1);
+      ageC.innerHTML=ages.map(a=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''"><div style="font-size:0.75rem;font-weight:600;width:60px;">${a.label}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((a.val/maxA)*100)}%;background:#7c3aed;border-radius:999px;"></div></div><div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${a.val.toLocaleString()}</div></div>`).join('');
+    }
+    const genderC=document.getElementById('stu-an-gender-donut');
+    const gender=STU_AN_DATA?.gender||[];
+    const gTotal=gender.reduce((s,g)=>s+g.val,0);
+    if (!gTotal) { genderC.innerHTML=STU_AN_EMPTY; } else {
+      const circ=314; let offset=0;
+      const arcs=gender.map(g=>{const pct=gTotal>0?g.val/gTotal:0;const dash=pct*circ;const arc=`<circle cx="60" cy="60" r="50" fill="none" stroke="${g.color}" stroke-width="20" stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${78.5-offset}" transform="rotate(-90 60 60)"/>`;offset+=dash;return arc;}).join('');
+      genderC.innerHTML=`<svg viewBox="0 0 120 120" width="140" height="140"><circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="20"/>${arcs}</svg><div style="display:flex;gap:1.25rem;">${gender.map(g=>`<div style="text-align:center;"><div style="width:10px;height:10px;border-radius:50%;background:${g.color};margin:0 auto 4px;"></div><div style="font-size:0.75rem;font-weight:700;">${g.label}</div><div style="font-size:0.8125rem;font-weight:800;color:var(--dark);">${gTotal>0?Math.round((g.val/gTotal)*100):0}%</div></div>`).join('')}</div>`;
+    }
+    const locC=document.getElementById('stu-an-top-locations');
+    const locs=STU_AN_DATA?.top_locations||[];
+    if (!locs.length) { locC.innerHTML=STU_AN_EMPTY; return; }
+    const maxL=Math.max(...locs.map(l=>l.count),1);
+    locC.innerHTML=locs.map((l,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''"><span style="font-size:0.8rem;font-weight:800;color:var(--gray-400);width:1.25rem;">${i+1}</span><div style="font-size:0.8125rem;font-weight:600;flex:1;">${l.name}</div><div style="width:120px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((l.count/maxL)*100)}%;background:#10b981;border-radius:999px;"></div></div><div style="font-size:0.75rem;font-weight:800;width:36px;text-align:right;">${l.count}</div></div>`).join('');
+  }
+
+  function stuRenderAnDisability() {
+    const colors=['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6','#06b6d4','#84cc16'];
+    const disC=document.getElementById('stu-an-dis-bars');
+    const dis=STU_AN_DATA?.disabilities||[];
+    if (!dis.length) { disC.innerHTML=STU_AN_EMPTY; } else {
+      const maxD=Math.max(...dis.map(d=>d.val),1);
+      disC.innerHTML=dis.map((d,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''"><div style="font-size:0.75rem;font-weight:600;width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((d.val/maxD)*100)}%;background:${colors[i%colors.length]};border-radius:999px;"></div></div><div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${d.val.toLocaleString()}</div></div>`).join('');
+    }
+    const multiC=document.getElementById('stu-an-multi-dis');
+    const multi=STU_AN_DATA?.multi_dis||[];
+    if (!multi.length) { multiC.innerHTML=STU_AN_EMPTY; } else {
+      multiC.innerHTML=multi.map(m=>`<div style="padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''"><div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;"><span style="font-size:0.8125rem;font-weight:600;">${m.label}</span><span style="font-size:0.8125rem;font-weight:800;color:var(--blue);">${m.pct}%</span></div><div style="height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${m.pct}%;background:var(--blue);border-radius:999px;"></div></div></div>`).join('');
+    }
+    const ageDisC=document.getElementById('stu-an-dis-age');
+    const disAge=STU_AN_DATA?.dis_age||[], disTypes=STU_AN_DATA?.dis_types||[];
+    const dgColors=['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981'];
+    if (!disAge.length||!disTypes.length) { ageDisC.innerHTML=STU_AN_EMPTY; return; }
+    ageDisC.innerHTML=`<div style="display:flex;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap;">${disTypes.map((t,i)=>`<div style="display:flex;align-items:center;gap:0.25rem;font-size:0.7rem;"><div style="width:10px;height:10px;border-radius:2px;background:${dgColors[i%dgColors.length]};"></div>${t}</div>`).join('')}</div>${disAge.map(ag=>{const tot=disTypes.reduce((s,t)=>s+(ag[t]||0),0);return `<div style="display:flex;align-items:center;gap:0.75rem;"><div style="font-size:0.75rem;font-weight:600;width:50px;">${ag.group}</div><div style="flex:1;height:14px;border-radius:3px;overflow:hidden;display:flex;">${disTypes.map((t,i)=>{const w=tot>0?Math.round(((ag[t]||0)/tot)*100):0;return w>0?`<div style="width:${w}%;background:${dgColors[i%dgColors.length]};height:100%;" title="${t}: ${ag[t]||0}"></div>`:''}).join('')}</div><div style="font-size:0.7rem;color:var(--gray-400);width:36px;">${tot}</div></div>`;}).join('')}`;
+  }
+
+  function stuRenderAnInterviewers() {
+    const WL={overloaded:'<span class="badge badge-red" style="font-size:0.65rem;">Overloaded</span>',balanced:'<span class="badge badge-green" style="font-size:0.65rem;">Balanced</span>',underutilized:'<span class="badge badge-orange" style="font-size:0.65rem;">Underutilized</span>'};
+    const medals=['🥇','🥈','🥉','4.','5.'];
+    const sorted=STU_AN_DATA?.interviewers||[];
+    const tbody=document.getElementById('stu-an-int-tbody');
+    tbody.innerHTML=sorted.length?sorted.map((iv,i)=>`<tr class="table-row-hover"><td style="font-weight:800;color:var(--gray-400);">${i+1}</td><td style="font-weight:700;">${iv.name}</td><td><span style="font-family:monospace;font-size:0.75rem;color:var(--blue);">${iv.code}</span></td><td style="font-size:0.75rem;">${iv.region}</td><td style="font-weight:800;color:#16a34a;">${iv.completed}</td><td>${iv.avgDay}</td><td>${WL[iv.workload]||''}</td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:1.5rem;font-size:0.75rem;">No data available</td></tr>';
+    document.getElementById('stu-an-top5-int').innerHTML=sorted.slice(0,5).map((iv,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);"><span style="font-size:1rem;min-width:1.5rem;">${medals[i]}</span><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.8125rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${iv.name}</div><div style="font-size:0.7rem;color:var(--gray-400);">${(iv.region||'').split('–')[0].trim()}</div></div><span style="font-weight:800;color:#16a34a;">${iv.completed}</span></div>`).join('')||STU_AN_EMPTY;
+    const wlCounts={overloaded:0,balanced:0,underutilized:0};
+    sorted.forEach(iv=>{if(wlCounts[iv.workload]!==undefined)wlCounts[iv.workload]++;});
+    const wlTotal=sorted.length||1;
+    document.getElementById('stu-an-workload-vis').innerHTML=[{key:'overloaded',label:'Overloaded',color:'#ef4444'},{key:'balanced',label:'Balanced',color:'#16a34a'},{key:'underutilized',label:'Underutilized',color:'#f59e0b'}].map(w=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''"><div style="font-size:0.75rem;font-weight:600;width:100px;">${w.label}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((wlCounts[w.key]/wlTotal)*100)}%;background:${w.color};border-radius:999px;"></div></div><div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${wlCounts[w.key]} / ${wlTotal}</div></div>`).join('');
+  }
+
+  function stuRenderAnQuality() {
+    const q=STU_AN_DATA?.quality;
+    if (!q) return;
+    const score=q.completeness||0;
+    document.getElementById('stu-an-gauge-pct').textContent=score+'%';
+    document.getElementById('stu-an-gauge-label').textContent=score>=90?'Excellent data quality':score>=75?'Good — minor gaps':'Needs improvement';
+    const circle=document.getElementById('stu-an-gauge-circle');
+    if (circle) setTimeout(()=>{circle.style.strokeDashoffset=314-(score/100)*314;circle.style.stroke=score>=90?'#16a34a':score>=75?'#1152d4':'#ef4444';},200);
+    const missing=q.missing_fields||[], maxM=Math.max(...missing.map(f=>f.pct),1);
+    document.getElementById('stu-an-missing-fields').innerHTML=missing.length?missing.map(f=>`<div style="display:flex;align-items:center;gap:0.75rem;"><div style="font-size:0.75rem;flex:1;">${f.field}</div><div style="width:80px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((f.pct/maxM)*100)}%;background:#f59e0b;border-radius:999px;"></div></div><div style="font-size:0.7rem;font-weight:800;width:32px;text-align:right;color:#d97706;">${f.pct}%</div></div>`).join(''):STU_AN_EMPTY;
+    document.getElementById('stu-an-flagged-count').textContent=q.flagged_count||0;
+  }
+
+  async function stuRenderAnReadiness() {
+    await stuFetchExtended();
+    // readiness chart skipped in STU head view (no element)
+  }
+
+  async function stuRenderAnEducation() {
+    await stuFetchExtended();
+    const enr=STU_AN_EXT?.enrollment;
+    if (!enr) { document.getElementById('stu-an-enrollment-donut').innerHTML=STU_AN_EMPTY; return; }
+    const total=(enr.enrolled||0)+(enr.not_enrolled||0), enrPct=total>0?Math.round((enr.enrolled/total)*100):0;
+    const circ=2*Math.PI*50, dash=enrPct/100*circ;
+    document.getElementById('stu-an-enrollment-donut').innerHTML=`<svg viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);"><circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="20"/><circle cx="60" cy="60" r="50" fill="none" stroke="#22c55e" stroke-width="20" stroke-dasharray="${dash.toFixed(2)} ${(circ-dash).toFixed(2)}" stroke-dashoffset="0"/><circle cx="60" cy="60" r="50" fill="none" stroke="#ef4444" stroke-width="20" stroke-dasharray="${(circ-dash).toFixed(2)} ${dash.toFixed(2)}" stroke-dashoffset="${(-dash).toFixed(2)}"/></svg><div style="text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:var(--dark);">${enrPct}%</div><div style="font-size:0.75rem;color:var(--gray-500);">Enrolled</div></div><div style="display:flex;gap:1rem;font-size:0.75rem;"><div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:#22c55e;"></div>Enrolled: <b>${(enr.enrolled||0).toLocaleString()}</b></div><div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></div>Not: <b>${(enr.not_enrolled||0).toLocaleString()}</b></div></div>`;
+    const reasons=enr.top_reasons||[], maxR=Math.max(...reasons.map(r=>r.count),1);
+    document.getElementById('stu-an-enrollment-reasons').innerHTML=reasons.length?reasons.map(r=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''"><div style="font-size:0.75rem;flex:1;font-weight:500;">${r.reason}</div><div style="width:100px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((r.count/maxR)*100)}%;background:#f97316;border-radius:999px;"></div></div><div style="font-size:0.72rem;font-weight:800;width:28px;text-align:right;">${r.count}</div></div>`).join(''):STU_AN_EMPTY;
+  }
+
+  async function stuRenderAnEconomic() {
+    await stuFetchExtended();
+    const income=STU_AN_EXT?.income||[], incColors=['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444'], maxI=Math.max(...income.map(i=>i.count),1);
+    document.getElementById('stu-an-income-chart').innerHTML=income.length?income.map((item,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''"><div style="font-size:0.75rem;font-weight:600;width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.label}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((item.count/maxI)*100)}%;background:${incColors[i%incColors.length]};border-radius:999px;"></div></div><div style="font-size:0.72rem;font-weight:800;width:36px;text-align:right;">${item.count}</div><div style="font-size:0.7rem;color:var(--gray-400);width:36px;">${item.pct}%</div></div>`).join(''):STU_AN_EMPTY;
+    const expData=STU_AN_EXT?.expenses, expColors=['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981'];
+    if (!expData) { document.getElementById('stu-an-expenses-chart').innerHTML=STU_AN_EMPTY; return; }
+    document.getElementById('stu-an-expenses-total').textContent='Average total monthly health expenses: ₱'+(expData.total_avg||0).toLocaleString();
+    const maxE=Math.max(...expData.breakdown.map(e=>e.avg),1);
+    document.getElementById('stu-an-expenses-chart').innerHTML=expData.breakdown.length?expData.breakdown.map((e,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''"><div style="font-size:0.75rem;font-weight:600;width:130px;">${e.label}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((e.avg/maxE)*100)}%;background:${expColors[i%expColors.length]};border-radius:999px;"></div></div><div style="font-size:0.72rem;font-weight:800;width:64px;text-align:right;">₱${e.avg.toLocaleString()}</div></div>`).join(''):STU_AN_EMPTY;
+  }
+
+  async function stuRenderAnHealth() {
+    await stuFetchExtended();
+    const vacc=STU_AN_EXT?.vaccination, barriers=STU_AN_EXT?.barriers||[];
+    if (vacc) {
+      document.getElementById('stu-an-vacc-rate').textContent=(vacc.national_rate||0)+'%';
+      const byRegion=vacc.by_region||[], maxV=Math.max(...byRegion.map(r=>r.rate),1);
+      document.getElementById('stu-an-vacc-bars').innerHTML=byRegion.length?byRegion.map(r=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''"><div style="font-size:0.72rem;font-weight:600;width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div><div style="flex:1;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${r.rate}%;background:${r.rate>=80?'#22c55e':r.rate>=50?'#1152d4':'#ef4444'};border-radius:999px;"></div></div><div style="font-size:0.72rem;font-weight:800;width:36px;text-align:right;">${r.rate}%</div></div>`).join(''):STU_AN_EMPTY;
+    }
+    const maxB=Math.max(...barriers.map(b=>b.count),1);
+    document.getElementById('stu-an-barriers-chart').innerHTML=barriers.length?barriers.map(b=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''"><div style="font-size:0.75rem;font-weight:500;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.label}</div><div style="width:120px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((b.count/maxB)*100)}%;background:#f97316;border-radius:999px;"></div></div><div style="font-size:0.72rem;font-weight:800;width:28px;text-align:right;">${b.count}</div></div>`).join(''):STU_AN_EMPTY;
+    if (vacc) { const vYes=vacc.vaccinated||0,vNo=(vacc.total||0)-(vacc.vaccinated||0); stuAnRenderDonut('stu-an-immunization-donut',[{label:'Complete',val:vYes,color:'#22c55e'},{label:'Incomplete',val:vNo,color:'#ef4444'}],vacc.national_rate+'%','Immunized'); }
+    const hi=STU_AN_EXT?.health_issues;
+    if (hi) stuAnRenderDonut('stu-an-health-issues-donut',[{label:'Has Issues',val:hi.yes||0,color:'#ef4444'},{label:'None',val:hi.no||0,color:'#22c55e'}],hi.total>0?Math.round((hi.yes/hi.total)*100)+'%':'—','With Issues');
+    const ha=STU_AN_EXT?.health_availed;
+    if (ha) stuAnRenderDonut('stu-an-health-availed-donut',[{label:'Availed',val:ha.yes||0,color:'#1152d4'},{label:'Did Not Avail',val:ha.no||0,color:'#9ca3af'}],ha.total>0?Math.round((ha.yes/ha.total)*100)+'%':'—','Availed');
+  }
+
+  function stuAnRenderDonut(elId, slices, centerVal, centerLabel) {
+    const el=document.getElementById(elId); if (!el) return;
+    const total=slices.reduce((s,x)=>s+x.val,0);
+    if (!total) { el.innerHTML=STU_AN_EMPTY; return; }
+    const circ=2*Math.PI*50; let offset=0;
+    const segs=slices.map(s=>{const dash=(s.val/total)*circ;const seg=`<circle cx="60" cy="60" r="50" fill="none" stroke="${s.color}" stroke-width="20" stroke-dasharray="${dash.toFixed(2)} ${(circ-dash).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}"/>`;offset+=dash;return seg;}).join('');
+    el.innerHTML=`<svg viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);">${segs}</svg><div style="text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:var(--dark);">${centerVal}</div><div style="font-size:0.75rem;color:var(--gray-500);">${centerLabel}</div></div><div style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;justify-content:center;font-size:0.75rem;">${slices.map(s=>`<div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:${s.color};"></div>${s.label}: <b>${s.val.toLocaleString()}</b></div>`).join('')}</div>`;
+  }
+
+  function stuAnRenderHorizBars(elId, items, colorPalette) {
+    const el=document.getElementById(elId); if (!el) return;
+    if (!items||!items.length) { el.innerHTML=STU_AN_EMPTY; return; }
+    const maxV=Math.max(...items.map(i=>i.val||i.count||0),1);
+    const colors=colorPalette||['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444','#06b6d4'];
+    el.innerHTML=items.map((item,i)=>{const v=item.val||item.count||0;const total=items.reduce((s,x)=>s+(x.val||x.count||0),0);const pct=total>0?Math.round(v/total*100):0;return `<div title="${item.label}: ${v.toLocaleString()} (${pct}%)" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''"><div style="font-size:0.75rem;font-weight:600;width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.label}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((v/maxV)*100)}%;background:${colors[i%colors.length]};border-radius:999px;"></div></div><div style="font-size:0.72rem;font-weight:800;width:32px;text-align:right;">${v}</div><div style="font-size:0.7rem;color:var(--gray-400);width:34px;">${pct}%</div></div>`;}).join('');
+  }
+
+  async function stuRenderAnBeneficiaryExtras() {
+    await stuFetchExtended();
+    const ext=STU_AN_EXT;
+    const fs=ext?.family_size;
+    if (fs) stuAnRenderDonut('stu-an-family-size-donut',[{label:'1–4 Members',val:fs.small||0,color:'#1152d4'},{label:'5–7 Members',val:fs.medium||0,color:'#7c3aed'},{label:'8+ Members',val:fs.large||0,color:'#ec4899'}],fs.avg?fs.avg+' avg':'—','Avg size');
+    const ps=ext?.fourps, psEl=document.getElementById('stu-an-4ps-chart');
+    if (ps && psEl) {
+      const psPct=ps.total>0?Math.round((ps.yes/ps.total)*100):0, notPct=100-psPct;
+      psEl.style.flexDirection='column'; psEl.style.alignItems='';
+      psEl.innerHTML=`<div style="width:100%;padding:0.5rem 0;"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.875rem;padding:0.5rem 0.75rem;background:#f0fdf4;border-radius:0.5rem;border:1px solid #bbf7d0;"><div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:white;font-size:1.2rem;">check_circle</span></div><div style="flex:1;"><div style="font-size:0.8125rem;font-weight:700;color:#15803d;">4Ps Members</div><div style="font-size:0.72rem;color:#16a34a;">${(ps.yes||0).toLocaleString()} households</div></div><div style="font-size:1.75rem;font-weight:800;color:#15803d;">${psPct}%</div></div><div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:#f9fafb;border-radius:0.5rem;border:1px solid var(--border);"><div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#9ca3af;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:white;font-size:1.2rem;">remove_circle</span></div><div style="flex:1;"><div style="font-size:0.8125rem;font-weight:700;color:var(--gray-700);">Non-4Ps</div><div style="font-size:0.72rem;color:var(--gray-400);">${(ps.no||0).toLocaleString()} households</div></div><div style="font-size:1.75rem;font-weight:800;color:var(--gray-500);">${notPct}%</div></div><div style="margin-top:1rem;"><div style="height:12px;border-radius:999px;overflow:hidden;background:#e5e7eb;display:flex;"><div style="width:${psPct}%;background:#22c55e;border-radius:999px 0 0 999px;transition:width 0.6s;"></div></div><div style="display:flex;justify-content:space-between;margin-top:0.3rem;font-size:0.7rem;color:var(--gray-400);"><span>0%</span><span style="color:var(--gray-500);font-weight:600;">Total: ${(ps.total||0).toLocaleString()}</span><span>100%</span></div></div></div>`;
+    }
+    const rel=ext?.religion;
+    if (rel&&rel.length) { const colors=['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#9ca3af']; stuAnRenderDonut('stu-an-religion-donut',rel.map((r,i)=>({label:r.label,val:r.count,color:colors[i%colors.length]})),rel[0]?.label||'—','Most common'); }
+  }
+
+  async function stuRenderAnHousing() {
+    await stuFetchExtended();
+    const h=STU_AN_EXT?.housing; if (!h) return;
+    stuAnRenderHorizBars('stu-an-housing-materials',h.materials,['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444']);
+    stuAnRenderHorizBars('stu-an-tenure-status',h.tenure,['#22c55e','#1152d4','#f59e0b','#ec4899','#9ca3af']);
+    stuAnRenderHorizBars('stu-an-water-supply',h.water_source,['#06b6d4','#1152d4','#7c3aed','#10b981','#f59e0b']);
+    stuAnRenderDonut('stu-an-house-mod',[{label:'With Modification',val:h.mod_yes||0,color:'#22c55e'},{label:'Without',val:h.mod_no||0,color:'#e5e7eb'}],h.mod_total>0?Math.round((h.mod_yes/h.mod_total)*100)+'%':'—','Modified');
+  }
+
+  async function stuRenderAnEducationExtra() {
+    await stuFetchExtended();
+    stuAnRenderHorizBars('stu-an-educ-attainment',STU_AN_EXT?.educ_attainment,['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444','#06b6d4','#9ca3af']);
+  }
+
+  async function stuRenderAnEconomicExtra() {
+    await stuFetchExtended();
+    const mw=STU_AN_EXT?.min_wage; if (!mw) return;
+    stuAnRenderHorizBars('stu-an-min-wage',[{label:'Below Minimum Wage',val:mw.below||0},{label:'At Minimum Wage',val:mw.at||0},{label:'Above Minimum Wage',val:mw.above||0}],['#ef4444','#f59e0b','#22c55e']);
+  }
+
+  function stuExportAllAnalytics() {
+    const d=STU_AN_DATA;
+    const sections=[{title:'Overview',headers:['Metric','Value'],rows:[['Total',d?.summary?.total||0],['Rate',(d?.summary?.completion_rate||0)+'%'],['Interviewers',d?.summary?.active_interviewers||0],['Avg/Day',d?.summary?.avg_per_day||0]]},{title:'By Province/City',headers:['Location','Count'],rows:(d?.regions||[]).map(r=>[r.region,r.count])},{title:'Disabilities',headers:['Type','Count'],rows:(d?.disabilities||[]).map(x=>[x.label,x.val])}];
+    const csv=sections.map(s=>'# '+s.title+'\n'+[s.headers,...s.rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n')).join('\n\n');
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=`analytics-region-${new Date().toISOString().slice(0,10)}.csv`; a.click();
   }
 
   function stuDownloadDoc(docId, filename, btn) {
