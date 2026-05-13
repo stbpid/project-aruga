@@ -26,6 +26,18 @@ if (!empty($body['office']))     $fields['office']     = trim($body['office']);
 if (isset($body['status']))          $fields['status']         = trim($body['status']);
 if (isset($body['dashboard_role']))  $fields['dashboard_role'] = trim($body['dashboard_role']);
 
+// Code change
+if (!empty($body['new_code'])) {
+    $newCode = trim($body['new_code']);
+    if ($newCode !== $code) {
+        $codeCheck = supabaseRequest('GET', 'interviewers?select=id&interviewer_code=eq.' . urlencode($newCode) . '&limit=1');
+        if ($codeCheck['success'] && !empty($codeCheck['data'])) {
+            echo json_encode(['success' => false, 'message' => 'This code is already used by another interviewer.']); exit;
+        }
+        $fields['interviewer_code'] = $newCode;
+    }
+}
+
 // Email
 if (isset($body['email']) && $body['email'] !== '') {
     $email = trim($body['email']);
