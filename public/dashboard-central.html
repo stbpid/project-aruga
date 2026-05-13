@@ -200,60 +200,78 @@
 
     <!-- Beneficiaries View -->
     <div class="dash-content" id="co-view-beneficiaries" style="display:none;">
-      <div style="margin-bottom:1.5rem;">
-        <div class="page-title" style="margin:0;">Beneficiaries</div>
-        <div class="page-subtitle" style="margin:0;">All submitted assessments across all regions</div>
-      </div>
-      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
-        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-          <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;">
-            <span class="material-symbols-outlined">search</span>
-            <input type="text" id="co-ben-search" placeholder="Search name, ID, interviewer..." aria-label="Search">
+
+      <!-- List View -->
+      <div id="co-ben-list-view">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+          <div>
+            <div class="page-title" style="margin:0;">Beneficiaries</div>
+            <div class="page-subtitle" style="margin:0;">All submitted assessments across all regions</div>
           </div>
-          <select id="co-ben-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;">
-            <option value="">All Regions</option>
-          </select>
-          <select id="co-ben-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;">
-            <option value="">All Readiness</option>
-            <option value="severe">Severe</option>
-            <option value="moderate">Moderate</option>
-            <option value="low">Low</option>
-            <option value="stable">Stable</option>
-          </select>
-          <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;font-weight:600;color:var(--dark);cursor:pointer;white-space:nowrap;flex-shrink:0;">
-            <div id="co-ben-4ps-toggle" onclick="coToggle4ps()" style="width:34px;height:18px;border-radius:999px;background:#e5e7eb;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;">
-              <div id="co-ben-4ps-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;">
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:nowrap;overflow-x:auto;">
+            <div class="search-bar" style="flex:1;min-width:160px;max-width:220px;">
+              <span class="material-symbols-outlined">search</span>
+              <input type="text" id="co-ben-search" placeholder="Search name, ID, interviewer..." aria-label="Search">
             </div>
-            4Ps Only
-          </label>
-          <button class="btn btn-secondary btn-sm" id="co-ben-reset">Reset</button>
-          <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="co-ben-count">—</span>
+            <select id="co-ben-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;">
+              <option value="">All Regions</option>
+            </select>
+            <select id="co-ben-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;">
+              <option value="">All Readiness</option>
+              <option value="severe">Severe</option>
+              <option value="moderate">Moderate</option>
+              <option value="low">Low</option>
+              <option value="stable">Stable</option>
+            </select>
+            <select id="co-ben-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;max-width:160px;">
+              <option value="">All Disabilities</option>
+            </select>
+            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;font-weight:600;color:var(--dark);cursor:pointer;white-space:nowrap;flex-shrink:0;">
+              <div id="co-ben-4ps-toggle" onclick="coToggle4ps()" style="width:34px;height:18px;border-radius:999px;background:#e5e7eb;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;">
+                <div id="co-ben-4ps-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+              </div>
+              4Ps Only
+            </label>
+            <button class="btn btn-secondary btn-sm" id="co-ben-reset" style="flex-shrink:0;">Reset</button>
+            <span style="font-size:0.72rem;color:var(--gray-500);margin-left:auto;white-space:nowrap;flex-shrink:0;" id="co-ben-count">—</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>Beneficiary</th><th>Age</th><th>Disability</th><th>Region</th><th>Interviewer</th><th>Date</th><th>Readiness</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="co-ben-tbody">
+                <tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+            <span style="font-size:0.75rem;color:#6b7280;" id="co-ben-page-info">—</span>
+            <div class="pagination" id="co-ben-pagination"></div>
+          </div>
         </div>
       </div>
-      <div class="card">
-        <div class="table-wrap">
-          <table class="dash-table">
-            <thead>
-              <tr>
-                <th>Beneficiary</th>
-                <th>Age</th>
-                <th>Disability</th>
-                <th>Region</th>
-                <th>Interviewer</th>
-                <th>Date</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="co-ben-tbody">
-              <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
-            </tbody>
-          </table>
+
+      <!-- Detail / Edit View -->
+      <div id="co-ben-detail-view" style="display:none;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="coCloseBenModal()" style="display:flex;align-items:center;gap:0.3rem;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>Back</button>
+          <div style="flex:1;min-width:0;">
+            <div class="page-title" style="margin:0;" id="co-ben-modal-title">Beneficiary Details</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;">
+            <button class="btn btn-primary btn-sm" id="co-ben-submit-btn" onclick="coSubmitBenUpdate()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save Changes</button>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
-          <span style="font-size:0.75rem;color:#6b7280;" id="co-ben-page-info">—</span>
-          <div class="pagination" id="co-ben-pagination"></div>
-        </div>
+        <div id="co-ben-modal-body"></div>
       </div>
+
     </div><!-- /co-view-beneficiaries -->
 
     <!-- Assessments View -->
@@ -694,8 +712,17 @@
       <td>${r.region}</td>
       <td>${r.interviewer}</td>
       <td>${r.date}</td>
-      <td><button class="btn btn-ghost btn-sm table-action-btn"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+      <td>${coReadinessBadge(r.readiness_score)}</td>
+      <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="coOpenBenModal('${r.aruga_id}')" title="View Details"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
     </tr>`;
+  }
+
+  function coReadinessBadge(score) {
+    if (!score) return '<span style="color:var(--gray-400);font-size:0.8rem;">—</span>';
+    const MAP = { severe:'background:#fef2f2;color:#dc2626;', moderate:'background:#fff7ed;color:#ea580c;', low:'background:#fefce8;color:#ca8a04;', stable:'background:#f0fdf4;color:#16a34a;' };
+    const s = score.toLowerCase();
+    const style = MAP[s] || 'background:#eff6ff;color:#1d4ed8;';
+    return `<span style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;${style}">${score.charAt(0).toUpperCase()+score.slice(1)}</span>`;
   }
 
   function coBuildPagination(currentPage, totalPages, onPageClick) {
@@ -724,17 +751,28 @@
 
   async function coBenLoad() {
     if (coBenLoaded) return;
-    document.getElementById('co-ben-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    document.getElementById('co-ben-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
       const json = await (await fetch('/api/get-all-beneficiaries.php?limit=10000&offset=0')).json();
       coBenData = json.success ? json.data : [];
       coBenLoaded = true;
+
       const regions = [...new Set(coBenData.map(r=>r.region).filter(r=>r&&r!=='—'))].sort();
-      const sel = document.getElementById('co-ben-region');
-      regions.forEach(r => { const o = document.createElement('option'); o.value=r; o.textContent=r; sel.appendChild(o); });
+      const rSel = document.getElementById('co-ben-region');
+      regions.forEach(r => { const o = document.createElement('option'); o.value=r; o.textContent=r; rSel.appendChild(o); });
+
+      const disSet = new Map();
+      coBenData.forEach(r => {
+        (r.disabilities || []).forEach(d => { if (d) disSet.set(d, (disSet.get(d) || 0) + 1); });
+      });
+      const dSel = document.getElementById('co-ben-disability');
+      [...disSet.entries()].sort((a,b) => b[1]-a[1]).forEach(([d, cnt]) => {
+        const o = document.createElement('option'); o.value = d; o.textContent = `${d} (${cnt})`; dSel.appendChild(o);
+      });
+
       coBenFiltered = coBenData; coBenPage = 0; coBenRender();
     } catch(e) {
-      document.getElementById('co-ben-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+      document.getElementById('co-ben-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
     }
   }
 
@@ -750,13 +788,15 @@
   }
 
   function coBenFilter() {
-    const q         = document.getElementById('co-ben-search').value.toLowerCase();
-    const region    = document.getElementById('co-ben-region').value;
-    const readiness = document.getElementById('co-ben-readiness').value.toLowerCase();
+    const q          = document.getElementById('co-ben-search').value.toLowerCase();
+    const region     = document.getElementById('co-ben-region').value;
+    const readiness  = document.getElementById('co-ben-readiness').value.toLowerCase();
+    const disability = document.getElementById('co-ben-disability').value.toLowerCase();
     coBenFiltered = coBenData.filter(r => {
       if (q && !(r.name+r.aruga_id+r.interviewer+r.region+r.disability+(r.readiness_score||'')).toLowerCase().includes(q)) return false;
       if (region && r.region !== region) return false;
       if (readiness && (r.readiness_score||'').toLowerCase() !== readiness) return false;
+      if (disability && !(r.disabilities||[]).some(d => d.toLowerCase().includes(disability))) return false;
       if (co4psOnly && !r.is_4ps_member) return false;
       return true;
     });
@@ -772,7 +812,7 @@
     document.getElementById('co-ben-count').textContent = total.toLocaleString() + ' beneficiar' + (total !== 1 ? 'ies' : 'y');
     document.getElementById('co-ben-tbody').innerHTML = page.length
       ? page.map(r => coBenRow(r)).join('')
-      : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
+      : '<tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
     document.getElementById('co-ben-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} beneficiaries` : 'No results';
     coBuildPagination(coBenPage, totalPages, p => { coBenPage = p; coBenRender(); });
   }
@@ -794,14 +834,361 @@
     document.getElementById('co-ben-search').addEventListener('input', coBenFilter);
     document.getElementById('co-ben-region').addEventListener('change', coBenFilter);
     document.getElementById('co-ben-readiness').addEventListener('change', coBenFilter);
+    document.getElementById('co-ben-disability').addEventListener('change', coBenFilter);
     document.getElementById('co-ben-reset').addEventListener('click', () => {
       document.getElementById('co-ben-search').value = '';
       document.getElementById('co-ben-region').value = '';
       document.getElementById('co-ben-readiness').value = '';
+      document.getElementById('co-ben-disability').value = '';
       if (co4psOnly) coToggle4ps();
       coBenFilter();
     });
   });
+
+  // ── Beneficiary Detail / Edit View ────────────────────────────
+  let coBenModalData = {};
+
+  function coCloseBenModal() {
+    document.getElementById('co-ben-list-view').style.display = '';
+    document.getElementById('co-ben-detail-view').style.display = 'none';
+    coBenModalData = {};
+  }
+
+  async function coOpenBenModal(arugaId) {
+    document.getElementById('co-ben-list-view').style.display = 'none';
+    document.getElementById('co-ben-detail-view').style.display = '';
+    const body = document.getElementById('co-ben-modal-body');
+    document.getElementById('co-ben-modal-title').textContent = 'Beneficiary Details';
+    body.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--gray-400);">Loading...</div>';
+    try {
+      const res  = await fetch('/api/get-beneficiary-detail.php?aruga_id=' + encodeURIComponent(arugaId));
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message || 'Failed');
+      coBenModalData = json;
+      coRenderBenModal(json);
+    } catch(e) {
+      body.innerHTML = `<div style="text-align:center;padding:3rem;color:#dc2626;font-size:0.875rem;">Failed to load: ${e.message}</div>`;
+    }
+  }
+
+  function coBenField(label, val) {
+    const v = (val !== null && val !== undefined && val !== '') ? val : '—';
+    return `<div>
+      <div style="font-size:0.65rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.3rem;">${label}</div>
+      <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">${v}</div>
+    </div>`;
+  }
+
+  function coBenInput(id, label, val, type='text', required=false) {
+    const v = (val !== null && val !== undefined) ? val : '';
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}${required?'<span style="color:#dc2626;"> *</span>':''}</label>
+      <input type="${type}" id="co-ben-f-${id}" class="settings-input" value="${String(v).replace(/"/g,'&quot;')}">
+    </div>`;
+  }
+
+  function coBenSelect(id, label, val, options) {
+    const opts = options.map(o => {
+      const selected = (o.value === val || o.label === val) ? 'selected' : '';
+      return `<option value="${o.value}" ${selected}>${o.label}</option>`;
+    }).join('');
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
+      <div style="position:relative;display:flex;align-items:center;">
+        <select id="co-ben-f-${id}" class="settings-input" style="appearance:none;-webkit-appearance:none;padding-right:2rem;">${opts}</select>
+        <span class="material-symbols-outlined" style="position:absolute;right:0.5rem;font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
+      </div>
+    </div>`;
+  }
+
+  function coBenTextarea(id, label, val) {
+    const v = (val !== null && val !== undefined) ? val : '';
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
+      <textarea id="co-ben-f-${id}" class="settings-input" rows="3" style="resize:vertical;">${v}</textarea>
+    </div>`;
+  }
+
+  function coBenSection(icon, title, content) {
+    return `<div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
+      <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+        <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">${icon}</span>
+        </div>
+        <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">${title}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">${content}</div>
+    </div>`;
+  }
+
+  function coRenderBenModal(d) {
+    const a   = d.assessment || {};
+    const pq  = d.pre_qualification || {};
+    const r   = d.respondent || {};
+    const c   = d.child || {};
+    const ceh = d.child_education_health || {};
+    const se  = d.socio_economic || {};
+    const hi  = d.health_info || {};
+    const ei  = d.education_info || {};
+    const ec  = d.economic_capacity || {};
+    const sa  = d.service_availment || {};
+    const an  = d.assessment_notes || {};
+    const fm  = d.family_members || [];
+
+    const READINESS = { severe:'Severe', moderate:'Moderate', low:'Low', stable:'Stable' };
+    const readiness = a.readiness_score || '';
+    const BANNER_BG = { severe:'linear-gradient(135deg,#dc2626,#991b1b)', moderate:'linear-gradient(135deg,#ea580c,#9a3412)', low:'linear-gradient(135deg,#ca8a04,#854d0e)', stable:'linear-gradient(135deg,#16a34a,#14532d)' };
+    const bannerBg = BANNER_BG[readiness] || 'linear-gradient(135deg,#1152d4,#3730a3)';
+
+    document.getElementById('co-ben-modal-title').textContent = 'Beneficiary Details';
+    const childName = [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ') || 'Unknown';
+
+    const yesNo = () => [{value:'true',label:'Yes'},{value:'false',label:'No'}];
+    const yesNoBool = (v) => v === true || v === 'true' ? 'true' : 'false';
+    const toOpts = (arr) => [{value:'',label:'—'},...arr.map(v=>({value:v,label:v}))];
+
+    const OPT_MATERIALS   = toOpts(['Strong materials (Concrete, brick, stone)','Light materials (Wood, bamboo, nipa)','Mixed strong and light materials','Salvaged/Makeshift materials','Others']);
+    const OPT_TENURE      = toOpts(['Own house and lot','Own house, rented lot','Rent house and lot','Rent-free with consent of owner','Informal settler','Others']);
+    const OPT_ELECTRICITY = toOpts(['Electricity from distribution company','Community electricity system','Solar panel','Generator set','Kerosene lamp/Candles','No electricity','Others']);
+    const OPT_WATER       = toOpts(['Own use, faucet, community water system','Own use, faucet, NAWASA/Water district','Own use, tubed/piped deep well','Shared, faucet, community water system','Shared, faucet, NAWASA/Water district','Shared, tubed/piped deep well','Public tap/standpipe','Tubed/piped shallow well','Dug/open well','Spring, lake, river, rain','Peddler, bottled water','Others']);
+    const OPT_TOILET      = toOpts(['Water-sealed, sewer/septic tank, used exclusively by household','Water-sealed, sewer/septic tank, shared with other households','Water-sealed, other depository','Closed pit','Open pit','Drop/overhang','None','Others']);
+    const OPT_GARBAGE     = toOpts(['Picked up by garbage truck','Burning','Burying','Composting','Dumping in pit','Throw in river/sea/creek','Recycling','Others']);
+    const OPT_RELIGION    = toOpts(['No Religion','Roman Catholic','Islam','Iglesia ni Cristo','Protestant','Born Again Christian','Buddhism','Hinduism','Others']);
+    const OPT_IP          = toOpts(['Not a member','Aeta','Igorot','Lumad','Mangyan','Tagbanua','Badjao','T\'boli','Manobo','Others']);
+    const OPT_EDUC        = toOpts(['No formal education','Elementary Undergraduate','Elementary Graduate','High School Undergraduate','High School Graduate','Senior High School Graduate','College Undergraduate','College Graduate','Vocational/Technical','Post Graduate','Others']);
+    const OPT_GRADE       = toOpts(['Kinder','Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12','College 1st Year','College 2nd Year','College 3rd Year','College 4th Year']);
+    const OPT_RELATIONSHIP= toOpts(['Parent','Guardian','Grandparent','Sibling','Aunt/Uncle','Relative','Social Worker','Foster Parent']);
+    const OPT_INCOME_SRC  = toOpts(['Employed (Private Sector)','Employed (Government)','Self-employed','Farmer','Fisherman','Laborer','Vendor','Driver','Housewife/Househusband','OFW (Overseas Filipino Worker)','Retired','Others']);
+    const OPT_INCOME_CLASS= toOpts(['Below Poverty Line','Low Income','Lower Middle','Middle','Upper Middle','High Income']);
+    const OPT_READINESS   = [{value:'',label:'—'},{value:'severe',label:'Severe'},{value:'moderate',label:'Moderate'},{value:'low',label:'Low'},{value:'stable',label:'Stable'}];
+    const OPT_SEX         = toOpts(['Male','Female']);
+
+    const html = `
+      <div style="background:${bannerBg};border-radius:0.875rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;color:white;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+        <div>
+          <div style="font-size:1rem;font-weight:800;">${childName}</div>
+          <div style="font-size:0.75rem;opacity:0.8;margin-top:0.2rem;">${a.aruga_id || ''} · Submitted ${a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}) : '—'}</div>
+        </div>
+        ${readiness ? `<span style="font-size:0.72rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:999px;background:rgba(255,255,255,0.25);color:white;">${READINESS[readiness]||readiness}</span>` : ''}
+      </div>
+
+      ${coBenSection('assignment_ind', '1. Pre-Qualification',
+        coBenSelect('pq-4ps', '4Ps Member', yesNoBool(pq.is_4ps_member), yesNo()) +
+        coBenInput('pq-household', 'Household ID', pq.household_id)
+      )}
+
+      ${coBenSection('account_circle', '2. Respondent',
+        coBenInput('resp-name', 'Full Name', r.full_name) +
+        coBenSelect('resp-rel', 'Relationship to Child', r.relationship_to_child, OPT_RELATIONSHIP) +
+        coBenInput('resp-email', 'Email', r.email, 'email') +
+        coBenInput('resp-contact', 'Contact Number', r.contact_number)
+      )}
+
+      ${coBenSection('face', '3. Child Profile',
+        coBenInput('child-fname', 'First Name', c.first_name, 'text', true) +
+        coBenInput('child-mname', 'Middle Name', c.middle_name) +
+        coBenInput('child-lname', 'Last Name', c.last_name, 'text', true) +
+        coBenInput('child-ext', 'Extension', c.name_extension) +
+        coBenInput('child-dob', 'Date of Birth', c.date_of_birth, 'date') +
+        coBenSelect('child-sex', 'Sex', c.sex, OPT_SEX) +
+        coBenInput('child-region', 'Region', c.region) +
+        coBenInput('child-province', 'Province', c.province) +
+        coBenInput('child-city', 'City / Municipality', c.city_municipality) +
+        coBenInput('child-barangay', 'Barangay', c.barangay) +
+        coBenInput('child-street', 'Street Address', c.street_address) +
+        coBenInput('child-contact', 'Contact Number', c.contact_number) +
+        coBenSelect('child-religion', 'Religion', c.religion, OPT_RELIGION) +
+        coBenSelect('child-ip', 'IP Membership', c.ip_membership, OPT_IP)
+      )}
+
+      ${coBenSection('school', '4. Education & Disability',
+        coBenSelect('ceh-edu', 'Highest Education', ceh.highest_education, OPT_EDUC) +
+        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Disabilities</label>
+        <input type="text" id="co-ben-f-ceh-disabilities" class="settings-input" value="${(ceh.disabilities||[]).join(', ')}" placeholder="Comma-separated"></div>` +
+        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Critical Illnesses</label>
+        <input type="text" id="co-ben-f-ceh-illnesses" class="settings-input" value="${(ceh.critical_illnesses||[]).join(', ')}" placeholder="Comma-separated"></div>`
+      )}
+
+      <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">people</span></div>
+          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">5. Family Members</div>
+        </div>
+        ${fm.length ? fm.map((m,i) => `
+          <div style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:0.625rem;padding:0.875rem;margin-bottom:0.625rem;">
+            <div style="font-size:0.72rem;font-weight:700;color:var(--blue);margin-bottom:0.625rem;">Member ${m.member_number||i+1}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;">
+              ${coBenField('Name', m.full_name)}
+              ${coBenField('Relationship', m.relationship_to_head)}
+              ${coBenField('Age', m.age)}
+              ${coBenField('Sex', m.sex)}
+              ${coBenField('Civil Status', m.civil_status)}
+              ${coBenField('Occupation', m.occupation)}
+            </div>
+          </div>`).join('') : '<div style="color:var(--gray-400);font-size:0.8rem;padding:0.5rem 0;">No family members recorded.</div>'}
+      </div>
+
+      ${coBenSection('home', '6. Housing & Socio-Economic',
+        coBenSelect('se-materials', 'Housing Materials', se.housing_materials, OPT_MATERIALS) +
+        coBenSelect('se-tenure', 'Tenure Status', se.tenure_status, OPT_TENURE) +
+        coBenSelect('se-mod', 'Has Accessibility Modifications', yesNoBool(se.has_accessibility_modifications), yesNo()) +
+        coBenInput('se-mod-details', 'Modification Details', se.modification_details) +
+        coBenSelect('se-water', 'Water Source', se.water_source, OPT_WATER) +
+        coBenSelect('se-electricity', 'Electricity Source', se.electricity_source, OPT_ELECTRICITY) +
+        coBenSelect('se-toilet', 'Toilet Type', se.toilet_type, OPT_TOILET) +
+        coBenSelect('se-garbage', 'Garbage Disposal', se.garbage_disposal, OPT_GARBAGE)
+      )}
+
+      ${coBenSection('health_and_safety', '7. Health Information',
+        coBenSelect('hi-vacc', 'Has All Vaccinations', yesNoBool(hi.has_all_vaccinations), yesNo()) +
+        coBenSelect('hi-conditions', 'Has Ongoing Health Conditions', yesNoBool(hi.has_ongoing_health_conditions), yesNo()) +
+        `<div style="grid-column:1/-1;">${coBenTextarea('hi-conditions-details', 'Health Conditions Details', hi.health_conditions_details)}</div>` +
+        coBenSelect('hi-availed', 'Availed Services (last 6 months)', yesNoBool(hi.availed_services_6months), yesNo()) +
+        coBenInput('hi-expense-food', 'Expense: Food (₱)', hi.expense_food, 'number') +
+        coBenInput('hi-expense-medication', 'Expense: Medication (₱)', hi.expense_medication, 'number') +
+        coBenInput('hi-expense-therapy', 'Expense: Therapy (₱)', hi.expense_therapy, 'number') +
+        coBenInput('hi-expense-device', 'Expense: Assistive Device (₱)', hi.expense_assistive_device, 'number') +
+        coBenSelect('hi-barriers', 'Has Barriers to Healthcare', yesNoBool(hi.has_barriers_to_healthcare), yesNo()) +
+        `<div style="grid-column:1/-1;">${coBenTextarea('hi-barriers-details', 'Barrier Details', hi.healthcare_barriers_details)}</div>`
+      )}
+
+      ${coBenSection('menu_book', '8. Education Information',
+        coBenSelect('ei-enrolled', 'Currently Enrolled', yesNoBool(ei.is_currently_enrolled), yesNo()) +
+        coBenSelect('ei-grade', 'Grade / Year Level', ei.grade_year_level, OPT_GRADE) +
+        coBenInput('ei-reason', 'Reason Not Enrolled', ei.not_enrolled_reason) +
+        coBenSelect('ei-sped', 'Has SPED Programs', yesNoBool(ei.has_sped_programs), yesNo()) +
+        coBenSelect('ei-support', 'Receives Learning Support', yesNoBool(ei.receives_learning_support), yesNo()) +
+        coBenInput('ei-support-details', 'Support Details', ei.learning_support_details)
+      )}
+
+      ${coBenSection('savings', '9. Economic Capacity',
+        coBenSelect('ec-income-source', 'Primary Income Source', ec.primary_income_source, OPT_INCOME_SRC) +
+        coBenInput('ec-income', 'Monthly Income (₱)', ec.monthly_income, 'number') +
+        coBenSelect('ec-class', 'Income Classification', ec.income_classification, OPT_INCOME_CLASS) +
+        coBenSelect('ec-employed', 'Parents Employed', yesNoBool(ec.are_parents_employed), yesNo()) +
+        `<div style="grid-column:1/-1;">${coBenTextarea('ec-employment-details', 'Employment Details', ec.employment_details)}</div>`
+      )}
+
+      ${coBenSection('volunteer_activism', '10. Service Availment',
+        coBenSelect('sa-financial', 'Receives Financial Assistance', yesNoBool(sa.receives_financial_assistance), yesNo()) +
+        coBenInput('sa-financial-details', 'Financial Assistance Details', sa.financial_assistance_details) +
+        coBenSelect('sa-aware', 'Aware of Social Services', yesNoBool(sa.is_aware_of_social_services), yesNo()) +
+        coBenSelect('sa-availed', 'Has Availed Services', yesNoBool(sa.has_availed_services), yesNo()) +
+        `<div style="grid-column:1/-1;">${coBenTextarea('sa-challenges', 'Service Challenges', sa.service_challenges)}</div>`
+      )}
+
+      <div style="margin-bottom:0.5rem;">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">rate_review</span></div>
+          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">11. Assessment Notes</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">
+          ${coBenSelect('an-readiness', 'Readiness Score', an.readiness_score || readiness, OPT_READINESS)}
+          <div></div>
+          <div style="grid-column:1/-1;">${coBenTextarea('an-strengths', 'Strengths', an.strengths)}</div>
+          <div style="grid-column:1/-1;">${coBenTextarea('an-details', 'Assessment Details', an.assessment_details)}</div>
+          <div style="grid-column:1/-1;">${coBenTextarea('an-actions', 'Recommended Actions', an.recommended_actions)}</div>
+        </div>
+      </div>`;
+
+    document.getElementById('co-ben-modal-body').innerHTML = html;
+  }
+
+  function cogv(id) {
+    const el = document.getElementById('co-ben-f-' + id);
+    return el ? el.value : '';
+  }
+  function cogvb(id) { return cogv(id) === 'true'; }
+
+  async function coSubmitBenUpdate() {
+    if (!coBenModalData.assessment) return;
+    const btn = document.getElementById('co-ben-submit-btn');
+    btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">hourglass_empty</span>Saving...';
+
+    const splitArr = (id) => cogv(id).split(',').map(s=>s.trim()).filter(Boolean);
+
+    const payload = {
+      aruga_id: coBenModalData.assessment.aruga_id,
+      pre_qualification: { is_4ps_member: cogvb('pq-4ps'), household_id: cogv('pq-household') },
+      respondent: { full_name: cogv('resp-name'), relationship_to_child: cogv('resp-rel'), email: cogv('resp-email'), contact_number: cogv('resp-contact') },
+      child: {
+        first_name: cogv('child-fname'), middle_name: cogv('child-mname'), last_name: cogv('child-lname'),
+        name_extension: cogv('child-ext'), date_of_birth: cogv('child-dob'), sex: cogv('child-sex'),
+        region: cogv('child-region'), province: cogv('child-province'), city_municipality: cogv('child-city'),
+        barangay: cogv('child-barangay'), street_address: cogv('child-street'), contact_number: cogv('child-contact'),
+        religion: cogv('child-religion'), ip_membership: cogv('child-ip'),
+      },
+      child_education_health: {
+        highest_education: cogv('ceh-edu'),
+        disabilities: splitArr('ceh-disabilities'),
+        critical_illnesses: splitArr('ceh-illnesses'),
+      },
+      socio_economic: {
+        housing_materials: cogv('se-materials'), tenure_status: cogv('se-tenure'),
+        has_accessibility_modifications: cogvb('se-mod'), modification_details: cogv('se-mod-details'),
+        water_source: cogv('se-water'), electricity_source: cogv('se-electricity'),
+        toilet_type: cogv('se-toilet'), garbage_disposal: cogv('se-garbage'),
+      },
+      health_info: {
+        has_all_vaccinations: cogvb('hi-vacc'), has_ongoing_health_conditions: cogvb('hi-conditions'),
+        health_conditions_details: cogv('hi-conditions-details'), availed_services_6months: cogvb('hi-availed'),
+        expense_food: cogv('hi-expense-food'), expense_medication: cogv('hi-expense-medication'),
+        expense_therapy: cogv('hi-expense-therapy'), expense_assistive_device: cogv('hi-expense-device'),
+        has_barriers_to_healthcare: cogvb('hi-barriers'), healthcare_barriers_details: cogv('hi-barriers-details'),
+      },
+      education_info: {
+        is_currently_enrolled: cogvb('ei-enrolled'), grade_year_level: cogv('ei-grade'),
+        not_enrolled_reason: cogv('ei-reason'), has_sped_programs: cogvb('ei-sped'),
+        receives_learning_support: cogvb('ei-support'), learning_support_details: cogv('ei-support-details'),
+      },
+      economic_capacity: {
+        primary_income_source: cogv('ec-income-source'), monthly_income: cogv('ec-income'),
+        income_classification: cogv('ec-class'), are_parents_employed: cogvb('ec-employed'),
+        employment_details: cogv('ec-employment-details'),
+      },
+      service_availment: {
+        receives_financial_assistance: cogvb('sa-financial'), financial_assistance_details: cogv('sa-financial-details'),
+        is_aware_of_social_services: cogvb('sa-aware'), has_availed_services: cogvb('sa-availed'),
+        service_challenges: cogv('sa-challenges'),
+      },
+      assessment_notes: {
+        readiness_score: cogv('an-readiness'), strengths: cogv('an-strengths'),
+        assessment_details: cogv('an-details'), recommended_actions: cogv('an-actions'),
+      },
+    };
+
+    try {
+      const res  = await fetch('/api/update-beneficiary.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message || 'Update failed');
+
+      const arugaId    = coBenModalData.assessment.aruga_id;
+      const newName    = [cogv('child-fname'), cogv('child-mname'), cogv('child-lname')].filter(Boolean).join(' ');
+      const newDisabs  = splitArr('ceh-disabilities');
+      const newReadiness = cogv('an-readiness');
+      const newRegion  = cogv('child-region');
+
+      [coBenData, coBenFiltered].forEach(arr => {
+        const row = arr.find(r => r.aruga_id === arugaId);
+        if (!row) return;
+        row.name           = newName || row.name;
+        row.region         = newRegion || row.region;
+        row.readiness_score= newReadiness || row.readiness_score;
+        row.disability     = newDisabs[0] || row.disability;
+        row.disabilities   = newDisabs.length ? newDisabs : row.disabilities;
+        row.is_4ps_member  = cogvb('pq-4ps');
+      });
+
+      coCloseBenModal();
+      coBenRender();
+      if (typeof showGlobalToast === 'function') showGlobalToast('Beneficiary updated successfully.', 'success');
+    } catch(e) {
+      if (typeof showGlobalToast === 'function') showGlobalToast('Error: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save Changes';
+    }
+  }
 
   const CO_TARGETS = {
     'Region I (Ilocos Region)': 150,

@@ -231,68 +231,79 @@
 
     <!-- Beneficiaries View -->
     <div class="dash-content" id="view-beneficiaries" style="display:none;">
-      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
-        <div>
-          <div class="page-title" style="margin:0;">Beneficiaries</div>
-          <div class="page-subtitle" style="margin:0;">All submitted assessments across all regions</div>
-        </div>
-      </div>
 
-      <!-- Filters -->
-      <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;">
-        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:nowrap;overflow-x:auto;">
-          <div class="search-bar" style="flex:1;min-width:160px;max-width:220px;">
-            <span class="material-symbols-outlined">search</span>
-            <input type="text" id="all-ben-search" placeholder="Search name, ID..." aria-label="Search">
+      <!-- List View -->
+      <div id="adm-ben-list-view">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+          <div>
+            <div class="page-title" style="margin:0;">Beneficiaries</div>
+            <div class="page-subtitle" style="margin:0;">All submitted assessments across all regions</div>
           </div>
-          <select id="all-ben-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;">
-            <option value="">All Regions</option>
-          </select>
-          <select id="all-ben-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;">
-            <option value="">All Readiness</option>
-            <option value="severe">Severe</option>
-            <option value="moderate">Moderate</option>
-            <option value="low">Low</option>
-            <option value="stable">Stable</option>
-          </select>
-          <select id="all-ben-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;max-width:160px;">
-            <option value="">All Disabilities</option>
-          </select>
-          <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;font-weight:600;color:var(--dark);cursor:pointer;white-space:nowrap;flex-shrink:0;">
-            <div id="ben-4ps-toggle" onclick="toggle4ps()" style="width:34px;height:18px;border-radius:999px;background:#e5e7eb;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;">
-              <div id="ben-4ps-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+        </div>
+        <!-- Filters -->
+        <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;">
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:nowrap;overflow-x:auto;">
+            <div class="search-bar" style="flex:1;min-width:160px;max-width:220px;">
+              <span class="material-symbols-outlined">search</span>
+              <input type="text" id="all-ben-search" placeholder="Search name, ID..." aria-label="Search">
             </div>
-            4Ps Only
-          </label>
-          <button class="btn btn-secondary btn-sm" id="all-ben-reset" style="flex-shrink:0;">Reset</button>
-          <span style="font-size:0.72rem;color:var(--gray-500);margin-left:auto;white-space:nowrap;flex-shrink:0;" id="all-ben-count"></span>
+            <select id="all-ben-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;">
+              <option value="">All Regions</option>
+            </select>
+            <select id="all-ben-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;">
+              <option value="">All Readiness</option>
+              <option value="severe">Severe</option>
+              <option value="moderate">Moderate</option>
+              <option value="low">Low</option>
+              <option value="stable">Stable</option>
+            </select>
+            <select id="all-ben-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;max-width:160px;">
+              <option value="">All Disabilities</option>
+            </select>
+            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;font-weight:600;color:var(--dark);cursor:pointer;white-space:nowrap;flex-shrink:0;">
+              <div id="ben-4ps-toggle" onclick="toggle4ps()" style="width:34px;height:18px;border-radius:999px;background:#e5e7eb;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;">
+                <div id="ben-4ps-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+              </div>
+              4Ps Only
+            </label>
+            <button class="btn btn-secondary btn-sm" id="all-ben-reset" style="flex-shrink:0;">Reset</button>
+            <span style="font-size:0.72rem;color:var(--gray-500);margin-left:auto;white-space:nowrap;flex-shrink:0;" id="all-ben-count"></span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>Beneficiary</th><th>Age</th><th>Disability</th><th>Region</th><th>Readiness</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="all-ben-tbody">
+                <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+            <span style="font-size:0.75rem;color:#6b7280;" id="all-ben-page-info">—</span>
+            <div class="pagination" id="all-ben-pagination"></div>
+          </div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="table-wrap">
-          <table class="dash-table">
-            <thead>
-              <tr>
-                <th>Beneficiary</th>
-                <th>Age</th>
-                <th>Disability</th>
-                <th>Region</th>
-                <th>Readiness</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="all-ben-tbody">
-              <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
-            </tbody>
-          </table>
+      <!-- Detail / Edit View -->
+      <div id="adm-ben-detail-view" style="display:none;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="closeBenModal()" style="display:flex;align-items:center;gap:0.3rem;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>Back</button>
+          <div style="flex:1;min-width:0;">
+            <div class="page-title" style="margin:0;" id="ben-modal-title">Beneficiary Details</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;">
+            <button class="btn btn-primary btn-sm" id="ben-submit-btn" onclick="submitBenUpdate()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save Changes</button>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
-          <span style="font-size:0.75rem;color:#6b7280;" id="all-ben-page-info">—</span>
-
-          <div class="pagination" id="all-ben-pagination"></div>
-        </div>
+        <div id="ben-modal-body"></div>
       </div>
+
     </div><!-- /view-beneficiaries -->
 
     <!-- Assessments View -->
@@ -601,37 +612,7 @@
     </div>
 
     <!-- Beneficiary Detail Modal -->
-    <div id="ben-detail-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:flex-start;justify-content:center;background:rgba(0,0,0,0.5);backdrop-filter:blur(3px);overflow-y:auto;padding:2rem 1rem;">
-      <div style="background:white;border-radius:1.25rem;width:100%;max-width:760px;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden;margin:auto;">
 
-        <!-- Fixed Header -->
-        <div style="padding:1.5rem 1.75rem 1rem;border-bottom:1px solid var(--gray-100);flex-shrink:0;background:linear-gradient(135deg,#1152d4,#3730a3);color:white;">
-          <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div style="display:flex;align-items:center;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;background:rgba(255,255,255,0.2);border-radius:0.625rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="font-size:1.25rem;">fact_check</span>
-              </div>
-              <div>
-                <div style="font-size:1rem;font-weight:800;" id="ben-modal-title">Assessment Record</div>
-                <div style="font-size:0.72rem;opacity:0.8;margin-top:0.1rem;" id="ben-modal-subtitle">Loading...</div>
-              </div>
-            </div>
-            <button onclick="closeBenModal()" style="background:rgba(255,255,255,0.15);border:none;cursor:pointer;color:white;display:flex;align-items:center;padding:0.4rem;border-radius:0.5rem;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'"><span class="material-symbols-outlined">close</span></button>
-          </div>
-        </div>
-
-        <!-- Body -->
-        <div id="ben-modal-body" style="padding:1.5rem 1.75rem;overflow-y:auto;max-height:calc(92vh - 10rem);">
-          <div style="text-align:center;padding:3rem;color:var(--gray-400);">Loading...</div>
-        </div>
-
-        <!-- Fixed Footer -->
-        <div style="padding:1rem 1.75rem;border-top:1px solid var(--gray-100);flex-shrink:0;display:flex;gap:0.75rem;justify-content:flex-end;background:#fafafa;">
-          <button onclick="closeBenModal()" style="padding:0.6rem 1.25rem;font-family:inherit;font-size:0.875rem;font-weight:600;cursor:pointer;border:1.5px solid var(--gray-200);background:white;color:var(--gray-600);border-radius:0.625rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
-          <button onclick="submitBenUpdate()" id="ben-submit-btn" style="padding:0.6rem 1.5rem;font-family:inherit;font-size:0.875rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0.625rem;transition:background 0.15s;display:flex;align-items:center;gap:0.4rem;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'"><span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save Changes</button>
-        </div>
-      </div>
-    </div>
 
     <!-- Global Toast -->
     <div id="global-toast">
@@ -2132,7 +2113,7 @@
       <td>${r.age}</td>
       <td>${disabilityCell(r.disability)}</td>
       <td>${r.region}</td>
-      <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openBenModal('${r.aruga_id}')" title="View"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+      <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openBenModal('${r.aruga_id}')" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
     </tr>`).join('');
   }
 
@@ -2242,7 +2223,7 @@
       <td>${disabilityCell(r.disability)}</td>
       <td>${r.region}</td>
       <td>${readinessBadge(r.readiness_score)}</td>
-      <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openBenModal('${r.aruga_id}')" title="View"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+      <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openBenModal('${r.aruga_id}')" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
     </tr>`;
   }
 
@@ -3888,20 +3869,17 @@
   let benModalData = {};
 
   function closeBenModal() {
-    document.getElementById('ben-detail-modal').style.display = 'none';
+    document.getElementById('adm-ben-list-view').style.display = '';
+    document.getElementById('adm-ben-detail-view').style.display = 'none';
     benModalData = {};
   }
-  document.getElementById('ben-detail-modal').addEventListener('click', function(e) {
-    if (e.target === this) closeBenModal();
-  });
 
   async function openBenModal(arugaId) {
-    const modal = document.getElementById('ben-detail-modal');
-    const body  = document.getElementById('ben-modal-body');
-    document.getElementById('ben-modal-title').textContent = arugaId;
-    document.getElementById('ben-modal-subtitle').textContent = 'Loading details...';
+    document.getElementById('adm-ben-list-view').style.display = 'none';
+    document.getElementById('adm-ben-detail-view').style.display = '';
+    const body = document.getElementById('ben-modal-body');
+    document.getElementById('ben-modal-title').textContent = 'Beneficiary Details';
     body.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--gray-400);">Loading...</div>';
-    modal.style.display = 'flex';
     try {
       const res  = await fetch('/api/get-beneficiary-detail.php?aruga_id=' + encodeURIComponent(arugaId));
       const json = await res.json();
@@ -3936,7 +3914,10 @@
     }).join('');
     return `<div>
       <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
-      <select id="ben-f-${id}" class="settings-input">${opts}</select>
+      <div style="position:relative;display:flex;align-items:center;">
+        <select id="ben-f-${id}" class="settings-input" style="appearance:none;-webkit-appearance:none;padding-right:2rem;">${opts}</select>
+        <span class="material-symbols-outlined" style="position:absolute;right:0.5rem;font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
+      </div>
     </div>`;
   }
 
@@ -3978,24 +3959,40 @@
     const readiness = a.readiness_score || '';
     const RBADGE = { severe:'background:#fef2f2;color:#dc2626;', moderate:'background:#fff7ed;color:#ea580c;', low:'background:#fefce8;color:#ca8a04;', stable:'background:#f0fdf4;color:#16a34a;' };
 
-    document.getElementById('ben-modal-title').textContent = a.aruga_id || 'Assessment Record';
+    document.getElementById('ben-modal-title').textContent = 'Beneficiary Details';
     const childName = [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ') || 'Unknown';
-    document.getElementById('ben-modal-subtitle').textContent = childName + ' · ' + (a.aruga_id || '');
 
-    const yesNo = (v) => [
-      {value:'true', label:'Yes'},
-      {value:'false', label:'No'},
-    ];
+    const yesNo = () => [{value:'true',label:'Yes'},{value:'false',label:'No'}];
     const yesNoBool = (v) => v === true || v === 'true' ? 'true' : 'false';
+    const toOpts = (arr) => [{value:'',label:'—'},...arr.map(v=>({value:v,label:v}))];
+
+    const OPT_MATERIALS   = toOpts(['Strong materials (Concrete, brick, stone)','Light materials (Wood, bamboo, nipa)','Mixed strong and light materials','Salvaged/Makeshift materials','Others']);
+    const OPT_TENURE      = toOpts(['Own house and lot','Own house, rented lot','Rent house and lot','Rent-free with consent of owner','Informal settler','Others']);
+    const OPT_ELECTRICITY = toOpts(['Electricity from distribution company','Community electricity system','Solar panel','Generator set','Kerosene lamp/Candles','No electricity','Others']);
+    const OPT_WATER       = toOpts(['Own use, faucet, community water system','Own use, faucet, NAWASA/Water district','Own use, tubed/piped deep well','Shared, faucet, community water system','Shared, faucet, NAWASA/Water district','Shared, tubed/piped deep well','Public tap/standpipe','Tubed/piped shallow well','Dug/open well','Spring, lake, river, rain','Peddler, bottled water','Others']);
+    const OPT_TOILET      = toOpts(['Water-sealed, sewer/septic tank, used exclusively by household','Water-sealed, sewer/septic tank, shared with other households','Water-sealed, other depository','Closed pit','Open pit','Drop/overhang','None','Others']);
+    const OPT_GARBAGE     = toOpts(['Picked up by garbage truck','Burning','Burying','Composting','Dumping in pit','Throw in river/sea/creek','Recycling','Others']);
+    const OPT_RELIGION    = toOpts(['No Religion','Roman Catholic','Islam','Iglesia ni Cristo','Protestant','Born Again Christian','Buddhism','Hinduism','Others']);
+    const OPT_IP          = toOpts(['Not a member','Aeta','Igorot','Lumad','Mangyan','Tagbanua','Badjao','T\'boli','Manobo','Others']);
+    const OPT_EDUC        = toOpts(['No formal education','Elementary Undergraduate','Elementary Graduate','High School Undergraduate','High School Graduate','Senior High School Graduate','College Undergraduate','College Graduate','Vocational/Technical','Post Graduate','Others']);
+    const OPT_GRADE       = toOpts(['Kinder','Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12','College 1st Year','College 2nd Year','College 3rd Year','College 4th Year']);
+    const OPT_RELATIONSHIP= toOpts(['Parent','Guardian','Grandparent','Sibling','Aunt/Uncle','Relative','Social Worker','Foster Parent']);
+    const OPT_INCOME_SRC  = toOpts(['Employed (Private Sector)','Employed (Government)','Self-employed','Farmer','Fisherman','Laborer','Vendor','Driver','Housewife/Househusband','OFW (Overseas Filipino Worker)','Retired','Others']);
+    const OPT_INCOME_CLASS= toOpts(['Below Poverty Line','Low Income','Lower Middle','Middle','Upper Middle','High Income']);
+    const OPT_READINESS   = [{value:'',label:'—'},{value:'severe',label:'Severe'},{value:'moderate',label:'Moderate'},{value:'low',label:'Low'},{value:'stable',label:'Stable'}];
+    const OPT_SEX         = toOpts(['Male','Female']);
+
+    const BANNER_BG = { severe:'linear-gradient(135deg,#dc2626,#991b1b)', moderate:'linear-gradient(135deg,#ea580c,#9a3412)', low:'linear-gradient(135deg,#ca8a04,#854d0e)', stable:'linear-gradient(135deg,#16a34a,#14532d)' };
+    const bannerBg = BANNER_BG[readiness] || 'linear-gradient(135deg,#1152d4,#3730a3)';
 
     const html = `
       <!-- Banner -->
-      <div style="background:linear-gradient(135deg,#1152d4,#3730a3);border-radius:0.875rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;color:white;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+      <div style="background:${bannerBg};border-radius:0.875rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;color:white;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
         <div>
           <div style="font-size:1rem;font-weight:800;">${childName}</div>
           <div style="font-size:0.75rem;opacity:0.8;margin-top:0.2rem;">${a.aruga_id || ''} · Submitted ${a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}) : '—'}</div>
         </div>
-        ${readiness ? `<span style="font-size:0.72rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:999px;${RBADGE[readiness]||'background:#e5e7eb;color:#374151;'}">${READINESS[readiness]||readiness}</span>` : ''}
+        ${readiness ? `<span style="font-size:0.72rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:999px;background:rgba(255,255,255,0.25);color:white;">${READINESS[readiness]||readiness}</span>` : ''}
       </div>
 
       ${benSection('assignment_ind', '1. Pre-Qualification',
@@ -4005,7 +4002,7 @@
 
       ${benSection('account_circle', '2. Respondent',
         benInput('resp-name', 'Full Name', r.full_name) +
-        benInput('resp-rel', 'Relationship to Child', r.relationship_to_child) +
+        benSelect('resp-rel', 'Relationship to Child', r.relationship_to_child, OPT_RELATIONSHIP) +
         benInput('resp-email', 'Email', r.email, 'email') +
         benInput('resp-contact', 'Contact Number', r.contact_number)
       )}
@@ -4016,19 +4013,19 @@
         benInput('child-lname', 'Last Name', c.last_name, 'text', true) +
         benInput('child-ext', 'Extension', c.name_extension) +
         benInput('child-dob', 'Date of Birth', c.date_of_birth, 'date') +
-        benSelect('child-sex', 'Sex', c.sex, [{value:'Male',label:'Male'},{value:'Female',label:'Female'}]) +
+        benSelect('child-sex', 'Sex', c.sex, OPT_SEX) +
         benInput('child-region', 'Region', c.region) +
         benInput('child-province', 'Province', c.province) +
         benInput('child-city', 'City / Municipality', c.city_municipality) +
         benInput('child-barangay', 'Barangay', c.barangay) +
         benInput('child-street', 'Street Address', c.street_address) +
         benInput('child-contact', 'Contact Number', c.contact_number) +
-        benInput('child-religion', 'Religion', c.religion) +
-        benInput('child-ip', 'IP Membership', c.ip_membership)
+        benSelect('child-religion', 'Religion', c.religion, OPT_RELIGION) +
+        benSelect('child-ip', 'IP Membership', c.ip_membership, OPT_IP)
       )}
 
       ${benSection('school', '4. Education & Disability',
-        benInput('ceh-edu', 'Highest Education', ceh.highest_education) +
+        benSelect('ceh-edu', 'Highest Education', ceh.highest_education, OPT_EDUC) +
         `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Disabilities</label>
         <input type="text" id="ben-f-ceh-disabilities" class="settings-input" value="${(ceh.disabilities||[]).join(', ')}" placeholder="Comma-separated"></div>` +
         `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Critical Illnesses</label>
@@ -4055,14 +4052,14 @@
       </div>
 
       ${benSection('home', '6. Housing & Socio-Economic',
-        benInput('se-materials', 'Housing Materials', se.housing_materials) +
-        benInput('se-tenure', 'Tenure Status', se.tenure_status) +
+        benSelect('se-materials', 'Housing Materials', se.housing_materials, OPT_MATERIALS) +
+        benSelect('se-tenure', 'Tenure Status', se.tenure_status, OPT_TENURE) +
         benSelect('se-mod', 'Has Accessibility Modifications', yesNoBool(se.has_accessibility_modifications), yesNo()) +
         benInput('se-mod-details', 'Modification Details', se.modification_details) +
-        benInput('se-water', 'Water Source', se.water_source) +
-        benInput('se-electricity', 'Electricity Source', se.electricity_source) +
-        benInput('se-toilet', 'Toilet Type', se.toilet_type) +
-        benInput('se-garbage', 'Garbage Disposal', se.garbage_disposal)
+        benSelect('se-water', 'Water Source', se.water_source, OPT_WATER) +
+        benSelect('se-electricity', 'Electricity Source', se.electricity_source, OPT_ELECTRICITY) +
+        benSelect('se-toilet', 'Toilet Type', se.toilet_type, OPT_TOILET) +
+        benSelect('se-garbage', 'Garbage Disposal', se.garbage_disposal, OPT_GARBAGE)
       )}
 
       ${benSection('health_and_safety', '7. Health Information',
@@ -4080,7 +4077,7 @@
 
       ${benSection('menu_book', '8. Education Information',
         benSelect('ei-enrolled', 'Currently Enrolled', yesNoBool(ei.is_currently_enrolled), yesNo()) +
-        benInput('ei-grade', 'Grade / Year Level', ei.grade_year_level) +
+        benSelect('ei-grade', 'Grade / Year Level', ei.grade_year_level, OPT_GRADE) +
         benInput('ei-reason', 'Reason Not Enrolled', ei.not_enrolled_reason) +
         benSelect('ei-sped', 'Has SPED Programs', yesNoBool(ei.has_sped_programs), yesNo()) +
         benSelect('ei-support', 'Receives Learning Support', yesNoBool(ei.receives_learning_support), yesNo()) +
@@ -4088,9 +4085,9 @@
       )}
 
       ${benSection('savings', '9. Economic Capacity',
-        benInput('ec-income-source', 'Primary Income Source', ec.primary_income_source) +
+        benSelect('ec-income-source', 'Primary Income Source', ec.primary_income_source, OPT_INCOME_SRC) +
         benInput('ec-income', 'Monthly Income (₱)', ec.monthly_income, 'number') +
-        benInput('ec-class', 'Income Classification', ec.income_classification) +
+        benSelect('ec-class', 'Income Classification', ec.income_classification, OPT_INCOME_CLASS) +
         benSelect('ec-employed', 'Parents Employed', yesNoBool(ec.are_parents_employed), yesNo()) +
         `<div style="grid-column:1/-1;">${benTextarea('ec-employment-details', 'Employment Details', ec.employment_details)}</div>`
       )}
@@ -4109,8 +4106,7 @@
           <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">11. Assessment Notes</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">
-          ${benSelect('an-readiness', 'Readiness Score', an.readiness_score || readiness,
-            [{value:'severe',label:'Severe'},{value:'moderate',label:'Moderate'},{value:'low',label:'Low'},{value:'stable',label:'Stable'}])}
+          ${benSelect('an-readiness', 'Readiness Score', an.readiness_score || readiness, OPT_READINESS)}
           <div></div>
           <div style="grid-column:1/-1;">${benTextarea('an-strengths', 'Strengths', an.strengths)}</div>
           <div style="grid-column:1/-1;">${benTextarea('an-details', 'Assessment Details', an.assessment_details)}</div>
@@ -4212,9 +4208,9 @@
       closeBenModal();
       renderAllBen();
       renderRecentBen(recentBenData);
-      showIntToast('Beneficiary updated successfully.');
+      showGlobalToast('Beneficiary updated successfully.', 'success');
     } catch(e) {
-      showIntToast('Error: ' + e.message, true);
+      showGlobalToast('Error: ' + e.message, 'error');
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save Changes';
