@@ -15,6 +15,9 @@ supabase/.env
 # Node modules
 node_modules/
 
+# Vercel local cache
+.vercel/
+
 # Build outputs
 dist/
 build/

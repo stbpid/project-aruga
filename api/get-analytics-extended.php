@@ -43,18 +43,45 @@ $rawHealth = ($healthRes['success'] && is_array($healthRes['data'])) ? $healthRe
 $rawSvcs   = ($svcRes['success']    && is_array($svcRes['data']))    ? $svcRes['data']    : [];
 $rawSocio  = ($socioRes['success']  && is_array($socioRes['data']))  ? $socioRes['data']  : [];
 
-// Region filter
-$regionMap = [];
-foreach ($rawChild as $c) $regionMap[$c['assessment_id']] = $c['region'] ?? '—';
+function extNormalizeRegion($r) {
+    $r = trim($r ?? '');
+    $map = [
+        'NCR'=>'NCR (National Capital Region)','NCR – Metro Manila'=>'NCR (National Capital Region)',
+        'NCR - Metro Manila'=>'NCR (National Capital Region)','National Capital Region'=>'NCR (National Capital Region)',
+        'Region I – Ilocos Region'=>'Region I (Ilocos Region)','Region I - Ilocos Region'=>'Region I (Ilocos Region)',
+        'Region II – Cagayan Valley'=>'Region II (Cagayan Valley)','Region II - Cagayan Valley'=>'Region II (Cagayan Valley)',
+        'Region III – Central Luzon'=>'Region III (Central Luzon)','Region III - Central Luzon'=>'Region III (Central Luzon)',
+        'Region IV-A – CALABARZON'=>'Region IV-A (CALABARZON)','Region IV-A - CALABARZON'=>'Region IV-A (CALABARZON)','CALABARZON'=>'Region IV-A (CALABARZON)',
+        'Region IV-B – MIMAROPA'=>'Region IV-B (MIMAROPA)','Region IV-B - MIMAROPA'=>'Region IV-B (MIMAROPA)','MIMAROPA'=>'Region IV-B (MIMAROPA)',
+        'Region V – Bicol Region'=>'Region V (Bicol Region)','Region V - Bicol Region'=>'Region V (Bicol Region)','Bicol Region'=>'Region V (Bicol Region)',
+        'Region VI – Western Visayas'=>'Region VI (Western Visayas)','Region VI - Western Visayas'=>'Region VI (Western Visayas)',
+        'Region VII – Central Visayas'=>'Region VII (Central Visayas)','Region VII - Central Visayas'=>'Region VII (Central Visayas)',
+        'Region VIII – Eastern Visayas'=>'Region VIII (Eastern Visayas)','Region VIII - Eastern Visayas'=>'Region VIII (Eastern Visayas)',
+        'Region IX – Zamboanga Peninsula'=>'Region IX (Zamboanga Peninsula)','Region IX - Zamboanga Peninsula'=>'Region IX (Zamboanga Peninsula)',
+        'Region X – Northern Mindanao'=>'Region X (Northern Mindanao)','Region X - Northern Mindanao'=>'Region X (Northern Mindanao)',
+        'Region XI – Davao Region'=>'Region XI (Davao Region)','Region XI - Davao Region'=>'Region XI (Davao Region)',
+        'Region XII – SOCCSKSARGEN'=>'Region XII (SOCCSKSARGEN)','Region XII - SOCCSKSARGEN'=>'Region XII (SOCCSKSARGEN)',
+        'Region XIII – Caraga'=>'Region XIII (Caraga)','Region XIII - Caraga'=>'Region XIII (Caraga)','Caraga'=>'Region XIII (Caraga)',
+        'CAR – Cordillera'=>'CAR (Cordillera Administrative Region)','CAR - Cordillera'=>'CAR (Cordillera Administrative Region)',
+        'CAR'=>'CAR (Cordillera Administrative Region)','Cordillera'=>'CAR (Cordillera Administrative Region)',
+        'BARMM'=>'BARMM (Bangsamoro)','Bangsamoro'=>'BARMM (Bangsamoro)',
+    ];
+    return $map[$r] ?? ($r ?: '—');
+}
 
+// Region filter — normalize both sides to handle inconsistent stored values
+$regionMap = [];
+foreach ($rawChild as $c) $regionMap[$c['assessment_id']] = extNormalizeRegion($c['region'] ?? '—');
+
+$normalizedFilter = $regionFilter ? extNormalizeRegion($regionFilter) : '';
 $filteredAssIds = [];
-if ($regionFilter) {
+if ($normalizedFilter) {
     foreach ($rawChild as $c) {
-        if (stripos($c['region'] ?? '', $regionFilter) !== false)
+        if (extNormalizeRegion($c['region'] ?? '') === $normalizedFilter)
             $filteredAssIds[$c['assessment_id']] = true;
     }
 }
-$hasRegion = !empty($regionFilter);
+$hasRegion = !empty($normalizedFilter);
 
 $assessments = $hasRegion
     ? array_values(array_filter($rawAss, fn($a) => isset($filteredAssIds[$a['id']])))

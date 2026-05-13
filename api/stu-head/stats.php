@@ -16,52 +16,78 @@ if (!$region) {
 
 function stuStatsNormalizeRegion($r) {
     $r = trim($r ?? '');
+    if (!$r) return '';
     $map = [
-        'NCR'                              => 'NCR (National Capital Region)',
-        'NCR – Metro Manila'               => 'NCR (National Capital Region)',
-        'NCR - Metro Manila'               => 'NCR (National Capital Region)',
-        'National Capital Region'          => 'NCR (National Capital Region)',
-        'Region I – Ilocos Region'         => 'Region I (Ilocos Region)',
-        'Region I - Ilocos Region'         => 'Region I (Ilocos Region)',
-        'Region II – Cagayan Valley'       => 'Region II (Cagayan Valley)',
-        'Region II - Cagayan Valley'       => 'Region II (Cagayan Valley)',
-        'Region III – Central Luzon'       => 'Region III (Central Luzon)',
-        'Region III - Central Luzon'       => 'Region III (Central Luzon)',
-        'Region IV-A – CALABARZON'         => 'Region IV-A (CALABARZON)',
-        'Region IV-A - CALABARZON'         => 'Region IV-A (CALABARZON)',
-        'CALABARZON'                       => 'Region IV-A (CALABARZON)',
-        'Region IV-B – MIMAROPA'           => 'Region IV-B (MIMAROPA)',
-        'Region IV-B - MIMAROPA'           => 'Region IV-B (MIMAROPA)',
-        'MIMAROPA'                         => 'Region IV-B (MIMAROPA)',
-        'Region V – Bicol Region'          => 'Region V (Bicol Region)',
-        'Region V - Bicol Region'          => 'Region V (Bicol Region)',
-        'Bicol Region'                     => 'Region V (Bicol Region)',
-        'Region V (Bicol)'                 => 'Region V (Bicol Region)',
-        'Region VI – Western Visayas'      => 'Region VI (Western Visayas)',
-        'Region VI - Western Visayas'      => 'Region VI (Western Visayas)',
-        'Region VII – Central Visayas'     => 'Region VII (Central Visayas)',
-        'Region VII - Central Visayas'     => 'Region VII (Central Visayas)',
-        'Region VIII – Eastern Visayas'    => 'Region VIII (Eastern Visayas)',
-        'Region VIII - Eastern Visayas'    => 'Region VIII (Eastern Visayas)',
-        'Region IX – Zamboanga Peninsula'  => 'Region IX (Zamboanga Peninsula)',
-        'Region IX - Zamboanga Peninsula'  => 'Region IX (Zamboanga Peninsula)',
-        'Region X – Northern Mindanao'     => 'Region X (Northern Mindanao)',
-        'Region X - Northern Mindanao'     => 'Region X (Northern Mindanao)',
-        'Region XI – Davao Region'         => 'Region XI (Davao Region)',
-        'Region XI - Davao Region'         => 'Region XI (Davao Region)',
-        'Region XII – SOCCSKSARGEN'        => 'Region XII (SOCCSKSARGEN)',
-        'Region XII - SOCCSKSARGEN'        => 'Region XII (SOCCSKSARGEN)',
-        'Region XIII – Caraga'             => 'Region XIII (Caraga)',
-        'Region XIII - Caraga'             => 'Region XIII (Caraga)',
-        'Caraga'                           => 'Region XIII (Caraga)',
-        'CAR – Cordillera'                 => 'CAR (Cordillera Administrative Region)',
-        'CAR - Cordillera'                 => 'CAR (Cordillera Administrative Region)',
-        'CAR'                              => 'CAR (Cordillera Administrative Region)',
-        'Cordillera'                       => 'CAR (Cordillera Administrative Region)',
-        'BARMM'                            => 'BARMM (Bangsamoro)',
-        'Bangsamoro'                       => 'BARMM (Bangsamoro)',
+        // canonical forms
+        'NCR (National Capital Region)'          => 'NCR (National Capital Region)',
+        'Region I (Ilocos Region)'               => 'Region I (Ilocos Region)',
+        'Region II (Cagayan Valley)'             => 'Region II (Cagayan Valley)',
+        'Region III (Central Luzon)'             => 'Region III (Central Luzon)',
+        'Region IV-A (CALABARZON)'               => 'Region IV-A (CALABARZON)',
+        'Region IV-B (MIMAROPA)'                 => 'Region IV-B (MIMAROPA)',
+        'Region V (Bicol Region)'                => 'Region V (Bicol Region)',
+        'Region VI (Western Visayas)'            => 'Region VI (Western Visayas)',
+        'Region VII (Central Visayas)'           => 'Region VII (Central Visayas)',
+        'Region VIII (Eastern Visayas)'          => 'Region VIII (Eastern Visayas)',
+        'Region IX (Zamboanga Peninsula)'        => 'Region IX (Zamboanga Peninsula)',
+        'Region X (Northern Mindanao)'           => 'Region X (Northern Mindanao)',
+        'Region XI (Davao Region)'               => 'Region XI (Davao Region)',
+        'Region XII (SOCCSKSARGEN)'              => 'Region XII (SOCCSKSARGEN)',
+        'Region XIII (Caraga)'                   => 'Region XIII (Caraga)',
+        'CAR (Cordillera Administrative Region)' => 'CAR (Cordillera Administrative Region)',
+        'BARMM (Bangsamoro)'                     => 'BARMM (Bangsamoro)',
+        // aliases
+        'NCR'                             => 'NCR (National Capital Region)',
+        'NCR – Metro Manila'              => 'NCR (National Capital Region)',
+        'NCR - Metro Manila'              => 'NCR (National Capital Region)',
+        'National Capital Region'         => 'NCR (National Capital Region)',
+        'Region I – Ilocos Region'        => 'Region I (Ilocos Region)',
+        'Region I - Ilocos Region'        => 'Region I (Ilocos Region)',
+        'Region II – Cagayan Valley'      => 'Region II (Cagayan Valley)',
+        'Region II - Cagayan Valley'      => 'Region II (Cagayan Valley)',
+        'Region III – Central Luzon'      => 'Region III (Central Luzon)',
+        'Region III - Central Luzon'      => 'Region III (Central Luzon)',
+        'Region IV-A – CALABARZON'        => 'Region IV-A (CALABARZON)',
+        'Region IV-A - CALABARZON'        => 'Region IV-A (CALABARZON)',
+        'CALABARZON'                      => 'Region IV-A (CALABARZON)',
+        'Region IV-B – MIMAROPA'          => 'Region IV-B (MIMAROPA)',
+        'Region IV-B - MIMAROPA'          => 'Region IV-B (MIMAROPA)',
+        'MIMAROPA'                        => 'Region IV-B (MIMAROPA)',
+        'Region V – Bicol Region'         => 'Region V (Bicol Region)',
+        'Region V - Bicol Region'         => 'Region V (Bicol Region)',
+        'Region V (Bicol)'                => 'Region V (Bicol Region)',
+        'Bicol Region'                    => 'Region V (Bicol Region)',
+        'Region VI – Western Visayas'     => 'Region VI (Western Visayas)',
+        'Region VI - Western Visayas'     => 'Region VI (Western Visayas)',
+        'Region VII – Central Visayas'    => 'Region VII (Central Visayas)',
+        'Region VII - Central Visayas'    => 'Region VII (Central Visayas)',
+        'Region VIII – Eastern Visayas'   => 'Region VIII (Eastern Visayas)',
+        'Region VIII - Eastern Visayas'   => 'Region VIII (Eastern Visayas)',
+        'Region IX – Zamboanga Peninsula' => 'Region IX (Zamboanga Peninsula)',
+        'Region IX - Zamboanga Peninsula' => 'Region IX (Zamboanga Peninsula)',
+        'Region X – Northern Mindanao'    => 'Region X (Northern Mindanao)',
+        'Region X - Northern Mindanao'    => 'Region X (Northern Mindanao)',
+        'Region XI – Davao Region'        => 'Region XI (Davao Region)',
+        'Region XI - Davao Region'        => 'Region XI (Davao Region)',
+        'Region XII – SOCCSKSARGEN'       => 'Region XII (SOCCSKSARGEN)',
+        'Region XII - SOCCSKSARGEN'       => 'Region XII (SOCCSKSARGEN)',
+        'Region XIII – Caraga'            => 'Region XIII (Caraga)',
+        'Region XIII - Caraga'            => 'Region XIII (Caraga)',
+        'Caraga'                          => 'Region XIII (Caraga)',
+        'CAR – Cordillera'                => 'CAR (Cordillera Administrative Region)',
+        'CAR - Cordillera'                => 'CAR (Cordillera Administrative Region)',
+        'CAR'                             => 'CAR (Cordillera Administrative Region)',
+        'Cordillera'                      => 'CAR (Cordillera Administrative Region)',
+        'BARMM'                           => 'BARMM (Bangsamoro)',
+        'Bangsamoro'                      => 'BARMM (Bangsamoro)',
     ];
-    return $map[$r] ?? ($r ?: '');
+    if (isset($map[$r])) return $map[$r];
+    // case-insensitive fallback
+    $rLower = mb_strtolower($r);
+    foreach ($map as $key => $val) {
+        if (mb_strtolower($key) === $rLower) return $val;
+    }
+    return $r;
 }
 
 $normalizedTarget = stuStatsNormalizeRegion($region);
@@ -88,13 +114,17 @@ if ($res['success'] && is_array($res['data'])) {
 
 $pendingCount = $totalBeneficiaries - $completedCount;
 
-// Interviewer count still from interviewers table by region (for display)
+// Interviewer count — fetch all and filter by normalized region to handle inconsistent stored values
 $intRes = supabaseRequest('GET',
-    'interviewers?select=interviewer_code&region=eq.' . urlencode($region) . '&limit=10000'
+    'interviewers?select=interviewer_code,region&limit=10000'
 );
 $interviewerCount = 0;
 if ($intRes['success'] && is_array($intRes['data'])) {
-    $interviewerCount = count(array_filter($intRes['data'], fn($r) => !empty($r['interviewer_code'])));
+    foreach ($intRes['data'] as $r) {
+        if (!empty($r['interviewer_code']) && stuStatsNormalizeRegion($r['region'] ?? '') === $normalizedTarget) {
+            $interviewerCount++;
+        }
+    }
 }
 
 echo json_encode([

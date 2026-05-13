@@ -173,10 +173,6 @@
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem 1rem 1.25rem;gap:0.75rem;">
             <div style="position:relative;width:160px;height:160px;">
               <svg id="status-donut-svg" viewBox="0 0 160 160" width="160" height="160" style="transform:rotate(-90deg);"></svg>
-              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
-                <div id="status-donut-total" style="font-size:1.5rem;font-weight:800;color:var(--dark);line-height:1;">—</div>
-                <div style="font-size:0.65rem;color:var(--gray-400);font-weight:600;margin-top:2px;">TOTAL</div>
-              </div>
             </div>
             <div id="status-donut-legend" style="display:flex;flex-direction:column;gap:0.4rem;width:100%;max-width:180px;"></div>
           </div>
@@ -600,6 +596,39 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);flex-shrink:0;">
           <button onclick="closeIntModal('add')" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
           <button onclick="confirmAddInterviewer()" id="add-int-submit-btn" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Add Interviewer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beneficiary Detail Modal -->
+    <div id="ben-detail-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:flex-start;justify-content:center;background:rgba(0,0,0,0.5);backdrop-filter:blur(3px);overflow-y:auto;padding:2rem 1rem;">
+      <div style="background:white;border-radius:1.25rem;width:100%;max-width:760px;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden;margin:auto;">
+
+        <!-- Fixed Header -->
+        <div style="padding:1.5rem 1.75rem 1rem;border-bottom:1px solid var(--gray-100);flex-shrink:0;background:linear-gradient(135deg,#1152d4,#3730a3);color:white;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div style="width:2.5rem;height:2.5rem;background:rgba(255,255,255,0.2);border-radius:0.625rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="font-size:1.25rem;">fact_check</span>
+              </div>
+              <div>
+                <div style="font-size:1rem;font-weight:800;" id="ben-modal-title">Assessment Record</div>
+                <div style="font-size:0.72rem;opacity:0.8;margin-top:0.1rem;" id="ben-modal-subtitle">Loading...</div>
+              </div>
+            </div>
+            <button onclick="closeBenModal()" style="background:rgba(255,255,255,0.15);border:none;cursor:pointer;color:white;display:flex;align-items:center;padding:0.4rem;border-radius:0.5rem;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'"><span class="material-symbols-outlined">close</span></button>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div id="ben-modal-body" style="padding:1.5rem 1.75rem;overflow-y:auto;max-height:calc(92vh - 10rem);">
+          <div style="text-align:center;padding:3rem;color:var(--gray-400);">Loading...</div>
+        </div>
+
+        <!-- Fixed Footer -->
+        <div style="padding:1rem 1.75rem;border-top:1px solid var(--gray-100);flex-shrink:0;display:flex;gap:0.75rem;justify-content:flex-end;background:#fafafa;">
+          <button onclick="closeBenModal()" style="padding:0.6rem 1.25rem;font-family:inherit;font-size:0.875rem;font-weight:600;cursor:pointer;border:1.5px solid var(--gray-200);background:white;color:var(--gray-600);border-radius:0.625rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
+          <button onclick="submitBenUpdate()" id="ben-submit-btn" style="padding:0.6rem 1.5rem;font-family:inherit;font-size:0.875rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0.625rem;transition:background 0.15s;display:flex;align-items:center;gap:0.4rem;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'"><span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save Changes</button>
         </div>
       </div>
     </div>
@@ -1044,20 +1073,25 @@
 
     <!-- Report Settings Modal -->
     <div id="an-report-settings-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
-      <div style="background:white;border-radius:1.25rem;width:100%;max-width:420px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);">
-        <div style="padding:1.5rem 1.75rem 0;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <div style="background:white;border-radius:1.25rem;width:100%;max-width:420px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden;">
+        <!-- Fixed Header -->
+        <div style="padding:1.5rem 1.75rem 1rem;border-bottom:1px solid var(--gray-100);flex-shrink:0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
               <div style="font-size:1rem;font-weight:800;color:var(--dark);">Report Settings</div>
               <div style="font-size:0.75rem;color:var(--gray-400);">Toggle which sections appear in Analytics</div>
             </div>
-            <button onclick="closeAnReportSettings()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;"><span class="material-symbols-outlined">close</span></button>
+            <button onclick="closeAnReportSettings()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;padding:0.25rem;border-radius:0.375rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='none'"><span class="material-symbols-outlined">close</span></button>
           </div>
-          <div style="display:flex;flex-direction:column;gap:0.75rem;padding-bottom:1rem;" id="an-settings-list"></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);margin-top:0.25rem;">
-          <button onclick="closeAnReportSettings()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
-          <button onclick="saveAnReportSettings()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Save View</button>
+        <!-- Scrollable Body -->
+        <div style="flex:1;overflow-y:auto;padding:1.25rem 1.75rem;scrollbar-width:thin;scrollbar-color:var(--gray-200) transparent;">
+          <div style="display:flex;flex-direction:column;gap:0.75rem;" id="an-settings-list"></div>
+        </div>
+        <!-- Fixed Footer -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);flex-shrink:0;">
+          <button onclick="closeAnReportSettings()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
+          <button onclick="saveAnReportSettings()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Save View</button>
         </div>
       </div>
     </div>
@@ -1942,55 +1976,66 @@
   async function loadAssessmentStatusDonut() {
     const STATUS_COLORS = { severe: '#ef4444', moderate: '#f97316', low: '#eab308', stable: '#22c55e' };
     const STATUS_LABELS = { severe: 'Severe', moderate: 'Moderate', low: 'Low', stable: 'Stable' };
+    const svg = document.getElementById('status-donut-svg');
+    const legendEl = document.getElementById('status-donut-legend');
+    const subtitleEl = document.getElementById('status-donut-subtitle');
+    const r = 68, cx = 80, cy = 80, stroke = 24;
+    const circ = 2 * Math.PI * r;
+    const statuses = ['severe', 'moderate', 'low', 'stable'];
+
+    function buildCenterText(val, label) {
+      return `<g transform="rotate(90,${cx},${cy})" style="pointer-events:none;">
+        <text id="status-donut-total" x="${cx}" y="${cy-8}" text-anchor="middle" dominant-baseline="middle"
+          style="font-family:Poppins,sans-serif;font-size:16px;font-weight:800;fill:#111827;">${val}</text>
+        <text x="${cx}" y="${cy+10}" text-anchor="middle" dominant-baseline="middle"
+          style="font-family:Poppins,sans-serif;font-size:8px;font-weight:600;fill:#9ca3af;letter-spacing:0.05em;">${label}</text>
+      </g>`;
+    }
+
     try {
       const res = await fetch('/api/get-assessment-status.php');
       const json = await res.json();
       if (!json.success) throw new Error('api error');
       const d = json.data;
       const total = d.total || 0;
-      document.getElementById('status-donut-total').textContent = total.toLocaleString();
-      document.getElementById('status-donut-subtitle').textContent = total + ' total assessment' + (total !== 1 ? 's' : '');
-
-      const svg = document.getElementById('status-donut-svg');
-      const r = 68, cx = 80, cy = 80, stroke = 24;
-      const circ = 2 * Math.PI * r;
-      const statuses = ['severe', 'moderate', 'low', 'stable'];
       const vals = statuses.map(s => d[s] || 0);
       const sum = vals.reduce((a, b) => a + b, 0);
 
-      const totalEl = document.getElementById('status-donut-total');
-      const subtitleEl = document.getElementById('status-donut-subtitle');
+      subtitleEl.textContent = total + ' total assessment' + (total !== 1 ? 's' : '');
 
       if (sum === 0) {
-        svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e5e7eb" stroke-width="${stroke}"/>`;
+        svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e5e7eb" stroke-width="${stroke}"/>` + buildCenterText(total.toLocaleString(), 'TOTAL');
       } else {
         let offset = 0;
-        svg.innerHTML = statuses.map((s, i) => {
+        const segs = statuses.map((s, i) => {
           const pct = vals[i] / sum;
           const dash = pct * circ;
           const gap = circ - dash;
-          const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${STATUS_COLORS[s]}" stroke-width="${stroke}" stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-offset}"
+          const seg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${STATUS_COLORS[s]}" stroke-width="${stroke}"
+            stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-offset}"
             style="transition:stroke-width 0.2s,opacity 0.2s;cursor:pointer;pointer-events:stroke;"
-            data-label="${STATUS_LABELS[s]}" data-val="${vals[i]}" data-pct="${Math.round(pct*100)}"
-            onmouseenter="(function(el){
-              document.querySelectorAll('#status-donut-svg circle[data-label]').forEach(c=>c.style.opacity='0.35');
-              el.style.opacity='1'; el.style.strokeWidth='${stroke+6}px';
-              document.getElementById('status-donut-total').textContent='${vals[i].toLocaleString()}';
-              document.getElementById('status-donut-subtitle').textContent='${STATUS_LABELS[s]} — ${Math.round(pct*100)}%';
+            data-label="${STATUS_LABELS[s]}"
+            onmouseenter="(function(c){
+              document.querySelectorAll('#status-donut-svg circle[data-label]').forEach(x=>x.style.opacity='0.35');
+              c.style.opacity='1';c.style.strokeWidth='${stroke+6}px';
+              var t=document.getElementById('status-donut-total');
+              if(t)t.textContent='${vals[i].toLocaleString()} (${Math.round(pct*100)}%)';
+              document.getElementById('status-donut-subtitle').textContent='${STATUS_LABELS[s]}';
             })(this)"
             onmouseleave="(function(){
-              document.querySelectorAll('#status-donut-svg circle[data-label]').forEach(c=>{c.style.opacity='1';c.style.strokeWidth='${stroke}px';});
-              document.getElementById('status-donut-total').textContent='${total.toLocaleString()}';
+              document.querySelectorAll('#status-donut-svg circle[data-label]').forEach(x=>{x.style.opacity='1';x.style.strokeWidth='${stroke}px';});
+              var t=document.getElementById('status-donut-total');
+              if(t)t.textContent='${total.toLocaleString()}';
               document.getElementById('status-donut-subtitle').textContent='${total} total assessment${total !== 1 ? 's' : ''}';
             })()"
           />`;
           offset += dash;
-          return el;
+          return seg;
         }).join('');
+        svg.innerHTML = segs + buildCenterText(total.toLocaleString(), 'TOTAL');
       }
 
-      const legend = document.getElementById('status-donut-legend');
-      legend.innerHTML = statuses.map((s, i) => {
+      legendEl.innerHTML = statuses.map((s, i) => {
         const v = d[s] || 0;
         const pct = sum > 0 ? Math.round((v / sum) * 100) : 0;
         return `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.2rem 0.35rem;">
@@ -2001,9 +2046,8 @@
         </div>`;
       }).join('');
     } catch (e) {
-      document.getElementById('status-donut-svg').innerHTML = `<circle cx="80" cy="80" r="68" fill="none" stroke="#e5e7eb" stroke-width="24"/>`;
-      document.getElementById('status-donut-total').textContent = '—';
-      document.getElementById('status-donut-legend').innerHTML = '<div style="font-size:0.75rem;color:var(--gray-400);text-align:center;">Unable to load</div>';
+      svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e5e7eb" stroke-width="${stroke}"/>` + buildCenterText('—', 'TOTAL');
+      legendEl.innerHTML = '<div style="font-size:0.75rem;color:var(--gray-400);text-align:center;">Unable to load</div>';
     }
   }
 
@@ -2088,7 +2132,7 @@
       <td>${r.age}</td>
       <td>${disabilityCell(r.disability)}</td>
       <td>${r.region}</td>
-      <td><button class="btn btn-ghost btn-sm table-action-btn"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+      <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openBenModal('${r.aruga_id}')" title="View"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
     </tr>`).join('');
   }
 
@@ -2172,8 +2216,8 @@
       const dc = DIS_COLORS[parts[0]] || 'badge-blue';
       return `<span class="badge ${dc}" style="white-space:nowrap;">${parts[0]}</span>`;
     }
-    const tooltip = parts.join(', ');
-    return `<span style="font-size:0.7rem;font-weight:700;background:#e0e7ff;color:#3730a3;padding:0.15rem 0.5rem;border-radius:999px;cursor:default;white-space:nowrap;position:relative;" title="${tooltip}">${parts.length} disabilities</span>`;
+    const tooltip = parts.join('\n');
+    return `<span title="${tooltip}" style="font-size:0.7rem;font-weight:700;background:#e0e7ff;color:#3730a3;padding:0.15rem 0.55rem;border-radius:999px;cursor:default;white-space:nowrap;">${parts.length} disabilities</span>`;
   }
 
   const READINESS_BADGE = {
@@ -2198,7 +2242,7 @@
       <td>${disabilityCell(r.disability)}</td>
       <td>${r.region}</td>
       <td>${readinessBadge(r.readiness_score)}</td>
-      <td><button class="btn btn-ghost btn-sm table-action-btn"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+      <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openBenModal('${r.aruga_id}')" title="View"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
     </tr>`;
   }
 
@@ -3186,7 +3230,7 @@
         const dash = pct * circ;
         const pctLbl = Math.round(pct*100);
         const arc  = `<circle cx="60" cy="60" r="50" fill="none" stroke="${g.color}" stroke-width="20" stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${78.5-offset}" transform="rotate(-90 60 60)"
-          style="transition:stroke-width 0.15s,opacity 0.15s;cursor:pointer;" data-i="${i}"
+          style="transition:stroke-width 0.15s,opacity 0.15s;cursor:pointer;pointer-events:stroke;" data-i="${i}"
           onmouseenter="(function(c){document.querySelectorAll('#gd-svg circle[data-i]').forEach(x=>x.style.opacity='0.35');c.style.opacity='1';c.style.strokeWidth='26px';var cv=document.getElementById('gd-cv'),cl=document.getElementById('gd-cl');if(cv)cv.textContent='${g.val.toLocaleString()} (${pctLbl}%)';if(cl)cl.textContent='${g.label}';})(this)"
           onmouseleave="(function(){document.querySelectorAll('#gd-svg circle[data-i]').forEach(x=>{x.style.opacity='1';x.style.strokeWidth='20px';});var cv=document.getElementById('gd-cv'),cl=document.getElementById('gd-cl');if(cv)cv.textContent='${defaultCV}';if(cl)cl.textContent='${defaultCL}';})()"
           />`;
@@ -3194,16 +3238,14 @@
         return arc;
       }).join('');
       genderC.innerHTML = `
-        <div style="position:relative;width:150px;height:150px;">
-          <svg id="gd-svg" viewBox="0 0 120 120" width="150" height="150">
-            <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="20"/>
-            ${arcs}
-          </svg>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center;padding:0 12px;">
-            <div id="gd-cv" style="font-size:1.1rem;font-weight:800;color:var(--dark);line-height:1.2;">${defaultCV}</div>
-            <div id="gd-cl" style="font-size:0.68rem;color:var(--gray-500);margin-top:2px;">${defaultCL}</div>
-          </div>
-        </div>
+        <svg id="gd-svg" viewBox="0 0 120 120" width="150" height="150">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="20" style="pointer-events:none;"/>
+          ${arcs}
+          <text id="gd-cv" x="60" y="56" text-anchor="middle" dominant-baseline="middle"
+            style="font-family:Poppins,sans-serif;font-size:10px;font-weight:800;fill:#111827;pointer-events:none;">${defaultCV}</text>
+          <text id="gd-cl" x="60" y="68" text-anchor="middle" dominant-baseline="middle"
+            style="font-family:Poppins,sans-serif;font-size:6px;fill:#6b7280;pointer-events:none;">${defaultCL}</text>
+        </svg>
         <div style="display:flex;gap:1.25rem;">
           ${gender.map(g=>`<div style="text-align:center;"><div style="width:10px;height:10px;border-radius:50%;background:${g.color};margin:0 auto 4px;"></div><div style="font-size:0.75rem;font-weight:700;">${g.label}</div><div style="font-size:0.8125rem;font-weight:800;color:var(--dark);">${gTotal>0?Math.round((g.val/gTotal)*100):0}%</div></div>`).join('')}
         </div>`;
@@ -3571,7 +3613,7 @@
       const seg = `<circle cx="60" cy="60" r="50" fill="none" stroke="${s.color}" stroke-width="20"
         stroke-dasharray="${dash.toFixed(2)} ${(circ-dash).toFixed(2)}"
         stroke-dashoffset="${(-offset).toFixed(2)}"
-        style="transition:stroke-width 0.15s,opacity 0.15s;cursor:pointer;"
+        style="transition:stroke-width 0.15s,opacity 0.15s;cursor:pointer;pointer-events:stroke;"
         onmouseenter="(function(c){
           document.querySelectorAll('#${uid}-svg circle[data-i]').forEach(x=>x.style.opacity='0.35');
           c.style.opacity='1';c.style.strokeWidth='26px';
@@ -3590,13 +3632,15 @@
       return seg;
     }).join('');
     el.innerHTML = `
-      <div style="position:relative;width:150px;height:150px;">
-        <svg id="${uid}-svg" viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);">${segs}</svg>
-        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center;padding:0 12px;">
-          <div id="${uid}-cv" style="font-size:1.25rem;font-weight:800;color:var(--dark);line-height:1.2;">${centerVal}</div>
-          <div id="${uid}-cl" style="font-size:0.68rem;color:var(--gray-500);margin-top:2px;">${centerLabel}</div>
-        </div>
-      </div>
+      <svg id="${uid}-svg" viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);">
+        ${segs}
+        <g transform="rotate(90,60,60)" style="pointer-events:none;">
+          <text id="${uid}-cv" x="60" y="56" text-anchor="middle" dominant-baseline="middle"
+            style="font-family:Poppins,sans-serif;font-size:10px;font-weight:800;fill:#111827;">${centerVal}</text>
+          <text id="${uid}-cl" x="60" y="68" text-anchor="middle" dominant-baseline="middle"
+            style="font-family:Poppins,sans-serif;font-size:6px;fill:#6b7280;">${centerLabel}</text>
+        </g>
+      </svg>
       <div style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;justify-content:center;font-size:0.75rem;">
         ${slices.map(s=>`<div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:${s.color};flex-shrink:0;"></div>${s.label}: <b>${s.val.toLocaleString()}</b></div>`).join('')}
       </div>`;
@@ -3838,6 +3882,343 @@
     a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
     a.download = `analytics-full-${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
+  }
+
+  // ── Beneficiary Detail Modal ───────────────────────────────────
+  let benModalData = {};
+
+  function closeBenModal() {
+    document.getElementById('ben-detail-modal').style.display = 'none';
+    benModalData = {};
+  }
+  document.getElementById('ben-detail-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeBenModal();
+  });
+
+  async function openBenModal(arugaId) {
+    const modal = document.getElementById('ben-detail-modal');
+    const body  = document.getElementById('ben-modal-body');
+    document.getElementById('ben-modal-title').textContent = arugaId;
+    document.getElementById('ben-modal-subtitle').textContent = 'Loading details...';
+    body.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--gray-400);">Loading...</div>';
+    modal.style.display = 'flex';
+    try {
+      const res  = await fetch('/api/get-beneficiary-detail.php?aruga_id=' + encodeURIComponent(arugaId));
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message || 'Failed');
+      benModalData = json;
+      renderBenModal(json);
+    } catch(e) {
+      body.innerHTML = `<div style="text-align:center;padding:3rem;color:#dc2626;font-size:0.875rem;">Failed to load: ${e.message}</div>`;
+    }
+  }
+
+  function benField(label, val) {
+    const v = (val !== null && val !== undefined && val !== '') ? val : '—';
+    return `<div>
+      <div style="font-size:0.65rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.3rem;">${label}</div>
+      <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">${v}</div>
+    </div>`;
+  }
+
+  function benInput(id, label, val, type='text', required=false) {
+    const v = (val !== null && val !== undefined) ? val : '';
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}${required?'<span style="color:#dc2626;"> *</span>':''}</label>
+      <input type="${type}" id="ben-f-${id}" class="settings-input" value="${String(v).replace(/"/g,'&quot;')}">
+    </div>`;
+  }
+
+  function benSelect(id, label, val, options) {
+    const opts = options.map(o => {
+      const selected = (o.value === val || o.label === val) ? 'selected' : '';
+      return `<option value="${o.value}" ${selected}>${o.label}</option>`;
+    }).join('');
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
+      <select id="ben-f-${id}" class="settings-input">${opts}</select>
+    </div>`;
+  }
+
+  function benTextarea(id, label, val) {
+    const v = (val !== null && val !== undefined) ? val : '';
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
+      <textarea id="ben-f-${id}" class="settings-input" rows="3" style="resize:vertical;">${v}</textarea>
+    </div>`;
+  }
+
+  function benSection(icon, title, content) {
+    return `<div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
+      <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+        <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">${icon}</span>
+        </div>
+        <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">${title}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">${content}</div>
+    </div>`;
+  }
+
+  function renderBenModal(d) {
+    const a   = d.assessment || {};
+    const pq  = d.pre_qualification || {};
+    const r   = d.respondent || {};
+    const c   = d.child || {};
+    const ceh = d.child_education_health || {};
+    const se  = d.socio_economic || {};
+    const hi  = d.health_info || {};
+    const ei  = d.education_info || {};
+    const ec  = d.economic_capacity || {};
+    const sa  = d.service_availment || {};
+    const an  = d.assessment_notes || {};
+    const fm  = d.family_members || [];
+
+    const READINESS = { severe:'Severe', moderate:'Moderate', low:'Low', stable:'Stable' };
+    const readiness = a.readiness_score || '';
+    const RBADGE = { severe:'background:#fef2f2;color:#dc2626;', moderate:'background:#fff7ed;color:#ea580c;', low:'background:#fefce8;color:#ca8a04;', stable:'background:#f0fdf4;color:#16a34a;' };
+
+    document.getElementById('ben-modal-title').textContent = a.aruga_id || 'Assessment Record';
+    const childName = [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ') || 'Unknown';
+    document.getElementById('ben-modal-subtitle').textContent = childName + ' · ' + (a.aruga_id || '');
+
+    const yesNo = (v) => [
+      {value:'true', label:'Yes'},
+      {value:'false', label:'No'},
+    ];
+    const yesNoBool = (v) => v === true || v === 'true' ? 'true' : 'false';
+
+    const html = `
+      <!-- Banner -->
+      <div style="background:linear-gradient(135deg,#1152d4,#3730a3);border-radius:0.875rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;color:white;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+        <div>
+          <div style="font-size:1rem;font-weight:800;">${childName}</div>
+          <div style="font-size:0.75rem;opacity:0.8;margin-top:0.2rem;">${a.aruga_id || ''} · Submitted ${a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}) : '—'}</div>
+        </div>
+        ${readiness ? `<span style="font-size:0.72rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:999px;${RBADGE[readiness]||'background:#e5e7eb;color:#374151;'}">${READINESS[readiness]||readiness}</span>` : ''}
+      </div>
+
+      ${benSection('assignment_ind', '1. Pre-Qualification',
+        benSelect('pq-4ps', '4Ps Member', yesNoBool(pq.is_4ps_member), yesNo()) +
+        benInput('pq-household', 'Household ID', pq.household_id)
+      )}
+
+      ${benSection('account_circle', '2. Respondent',
+        benInput('resp-name', 'Full Name', r.full_name) +
+        benInput('resp-rel', 'Relationship to Child', r.relationship_to_child) +
+        benInput('resp-email', 'Email', r.email, 'email') +
+        benInput('resp-contact', 'Contact Number', r.contact_number)
+      )}
+
+      ${benSection('face', '3. Child Profile',
+        benInput('child-fname', 'First Name', c.first_name, 'text', true) +
+        benInput('child-mname', 'Middle Name', c.middle_name) +
+        benInput('child-lname', 'Last Name', c.last_name, 'text', true) +
+        benInput('child-ext', 'Extension', c.name_extension) +
+        benInput('child-dob', 'Date of Birth', c.date_of_birth, 'date') +
+        benSelect('child-sex', 'Sex', c.sex, [{value:'Male',label:'Male'},{value:'Female',label:'Female'}]) +
+        benInput('child-region', 'Region', c.region) +
+        benInput('child-province', 'Province', c.province) +
+        benInput('child-city', 'City / Municipality', c.city_municipality) +
+        benInput('child-barangay', 'Barangay', c.barangay) +
+        benInput('child-street', 'Street Address', c.street_address) +
+        benInput('child-contact', 'Contact Number', c.contact_number) +
+        benInput('child-religion', 'Religion', c.religion) +
+        benInput('child-ip', 'IP Membership', c.ip_membership)
+      )}
+
+      ${benSection('school', '4. Education & Disability',
+        benInput('ceh-edu', 'Highest Education', ceh.highest_education) +
+        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Disabilities</label>
+        <input type="text" id="ben-f-ceh-disabilities" class="settings-input" value="${(ceh.disabilities||[]).join(', ')}" placeholder="Comma-separated"></div>` +
+        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Critical Illnesses</label>
+        <input type="text" id="ben-f-ceh-illnesses" class="settings-input" value="${(ceh.critical_illnesses||[]).join(', ')}" placeholder="Comma-separated"></div>`
+      )}
+
+      <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">people</span></div>
+          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">5. Family Members</div>
+        </div>
+        ${fm.length ? fm.map((m,i) => `
+          <div style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:0.625rem;padding:0.875rem;margin-bottom:0.625rem;">
+            <div style="font-size:0.72rem;font-weight:700;color:var(--blue);margin-bottom:0.625rem;">Member ${m.member_number||i+1}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;">
+              ${benField('Name', m.full_name)}
+              ${benField('Relationship', m.relationship_to_head)}
+              ${benField('Age', m.age)}
+              ${benField('Sex', m.sex)}
+              ${benField('Civil Status', m.civil_status)}
+              ${benField('Occupation', m.occupation)}
+            </div>
+          </div>`).join('') : '<div style="color:var(--gray-400);font-size:0.8rem;padding:0.5rem 0;">No family members recorded.</div>'}
+      </div>
+
+      ${benSection('home', '6. Housing & Socio-Economic',
+        benInput('se-materials', 'Housing Materials', se.housing_materials) +
+        benInput('se-tenure', 'Tenure Status', se.tenure_status) +
+        benSelect('se-mod', 'Has Accessibility Modifications', yesNoBool(se.has_accessibility_modifications), yesNo()) +
+        benInput('se-mod-details', 'Modification Details', se.modification_details) +
+        benInput('se-water', 'Water Source', se.water_source) +
+        benInput('se-electricity', 'Electricity Source', se.electricity_source) +
+        benInput('se-toilet', 'Toilet Type', se.toilet_type) +
+        benInput('se-garbage', 'Garbage Disposal', se.garbage_disposal)
+      )}
+
+      ${benSection('health_and_safety', '7. Health Information',
+        benSelect('hi-vacc', 'Has All Vaccinations', yesNoBool(hi.has_all_vaccinations), yesNo()) +
+        benSelect('hi-conditions', 'Has Ongoing Health Conditions', yesNoBool(hi.has_ongoing_health_conditions), yesNo()) +
+        `<div style="grid-column:1/-1;">${benTextarea('hi-conditions-details', 'Health Conditions Details', hi.health_conditions_details)}</div>` +
+        benSelect('hi-availed', 'Availed Services (last 6 months)', yesNoBool(hi.availed_services_6months), yesNo()) +
+        benInput('hi-expense-food', 'Expense: Food (₱)', hi.expense_food, 'number') +
+        benInput('hi-expense-medication', 'Expense: Medication (₱)', hi.expense_medication, 'number') +
+        benInput('hi-expense-therapy', 'Expense: Therapy (₱)', hi.expense_therapy, 'number') +
+        benInput('hi-expense-device', 'Expense: Assistive Device (₱)', hi.expense_assistive_device, 'number') +
+        benSelect('hi-barriers', 'Has Barriers to Healthcare', yesNoBool(hi.has_barriers_to_healthcare), yesNo()) +
+        `<div style="grid-column:1/-1;">${benTextarea('hi-barriers-details', 'Barrier Details', hi.healthcare_barriers_details)}</div>`
+      )}
+
+      ${benSection('menu_book', '8. Education Information',
+        benSelect('ei-enrolled', 'Currently Enrolled', yesNoBool(ei.is_currently_enrolled), yesNo()) +
+        benInput('ei-grade', 'Grade / Year Level', ei.grade_year_level) +
+        benInput('ei-reason', 'Reason Not Enrolled', ei.not_enrolled_reason) +
+        benSelect('ei-sped', 'Has SPED Programs', yesNoBool(ei.has_sped_programs), yesNo()) +
+        benSelect('ei-support', 'Receives Learning Support', yesNoBool(ei.receives_learning_support), yesNo()) +
+        benInput('ei-support-details', 'Support Details', ei.learning_support_details)
+      )}
+
+      ${benSection('savings', '9. Economic Capacity',
+        benInput('ec-income-source', 'Primary Income Source', ec.primary_income_source) +
+        benInput('ec-income', 'Monthly Income (₱)', ec.monthly_income, 'number') +
+        benInput('ec-class', 'Income Classification', ec.income_classification) +
+        benSelect('ec-employed', 'Parents Employed', yesNoBool(ec.are_parents_employed), yesNo()) +
+        `<div style="grid-column:1/-1;">${benTextarea('ec-employment-details', 'Employment Details', ec.employment_details)}</div>`
+      )}
+
+      ${benSection('volunteer_activism', '10. Service Availment',
+        benSelect('sa-financial', 'Receives Financial Assistance', yesNoBool(sa.receives_financial_assistance), yesNo()) +
+        benInput('sa-financial-details', 'Financial Assistance Details', sa.financial_assistance_details) +
+        benSelect('sa-aware', 'Aware of Social Services', yesNoBool(sa.is_aware_of_social_services), yesNo()) +
+        benSelect('sa-availed', 'Has Availed Services', yesNoBool(sa.has_availed_services), yesNo()) +
+        `<div style="grid-column:1/-1;">${benTextarea('sa-challenges', 'Service Challenges', sa.service_challenges)}</div>`
+      )}
+
+      <div style="margin-bottom:0.5rem;">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">rate_review</span></div>
+          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">11. Assessment Notes</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">
+          ${benSelect('an-readiness', 'Readiness Score', an.readiness_score || readiness,
+            [{value:'severe',label:'Severe'},{value:'moderate',label:'Moderate'},{value:'low',label:'Low'},{value:'stable',label:'Stable'}])}
+          <div></div>
+          <div style="grid-column:1/-1;">${benTextarea('an-strengths', 'Strengths', an.strengths)}</div>
+          <div style="grid-column:1/-1;">${benTextarea('an-details', 'Assessment Details', an.assessment_details)}</div>
+          <div style="grid-column:1/-1;">${benTextarea('an-actions', 'Recommended Actions', an.recommended_actions)}</div>
+        </div>
+      </div>`;
+
+    document.getElementById('ben-modal-body').innerHTML = html;
+  }
+
+  function gv(id) {
+    const el = document.getElementById('ben-f-' + id);
+    return el ? el.value : '';
+  }
+  function gvb(id) { return gv(id) === 'true'; }
+
+  async function submitBenUpdate() {
+    if (!benModalData.assessment) return;
+    const btn = document.getElementById('ben-submit-btn');
+    btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">hourglass_empty</span>Saving...';
+
+    const splitArr = (id) => gv(id).split(',').map(s=>s.trim()).filter(Boolean);
+
+    const payload = {
+      aruga_id: benModalData.assessment.aruga_id,
+      pre_qualification: { is_4ps_member: gvb('pq-4ps'), household_id: gv('pq-household') },
+      respondent: { full_name: gv('resp-name'), relationship_to_child: gv('resp-rel'), email: gv('resp-email'), contact_number: gv('resp-contact') },
+      child: {
+        first_name: gv('child-fname'), middle_name: gv('child-mname'), last_name: gv('child-lname'),
+        name_extension: gv('child-ext'), date_of_birth: gv('child-dob'), sex: gv('child-sex'),
+        region: gv('child-region'), province: gv('child-province'), city_municipality: gv('child-city'),
+        barangay: gv('child-barangay'), street_address: gv('child-street'), contact_number: gv('child-contact'),
+        religion: gv('child-religion'), ip_membership: gv('child-ip'),
+      },
+      child_education_health: {
+        highest_education: gv('ceh-edu'),
+        disabilities: splitArr('ceh-disabilities'),
+        critical_illnesses: splitArr('ceh-illnesses'),
+      },
+      socio_economic: {
+        housing_materials: gv('se-materials'), tenure_status: gv('se-tenure'),
+        has_accessibility_modifications: gvb('se-mod'), modification_details: gv('se-mod-details'),
+        water_source: gv('se-water'), electricity_source: gv('se-electricity'),
+        toilet_type: gv('se-toilet'), garbage_disposal: gv('se-garbage'),
+      },
+      health_info: {
+        has_all_vaccinations: gvb('hi-vacc'), has_ongoing_health_conditions: gvb('hi-conditions'),
+        health_conditions_details: gv('hi-conditions-details'), availed_services_6months: gvb('hi-availed'),
+        expense_food: gv('hi-expense-food'), expense_medication: gv('hi-expense-medication'),
+        expense_therapy: gv('hi-expense-therapy'), expense_assistive_device: gv('hi-expense-device'),
+        has_barriers_to_healthcare: gvb('hi-barriers'), healthcare_barriers_details: gv('hi-barriers-details'),
+      },
+      education_info: {
+        is_currently_enrolled: gvb('ei-enrolled'), grade_year_level: gv('ei-grade'),
+        not_enrolled_reason: gv('ei-reason'), has_sped_programs: gvb('ei-sped'),
+        receives_learning_support: gvb('ei-support'), learning_support_details: gv('ei-support-details'),
+      },
+      economic_capacity: {
+        primary_income_source: gv('ec-income-source'), monthly_income: gv('ec-income'),
+        income_classification: gv('ec-class'), are_parents_employed: gvb('ec-employed'),
+        employment_details: gv('ec-employment-details'),
+      },
+      service_availment: {
+        receives_financial_assistance: gvb('sa-financial'), financial_assistance_details: gv('sa-financial-details'),
+        is_aware_of_social_services: gvb('sa-aware'), has_availed_services: gvb('sa-availed'),
+        service_challenges: gv('sa-challenges'),
+      },
+      assessment_notes: {
+        readiness_score: gv('an-readiness'), strengths: gv('an-strengths'),
+        assessment_details: gv('an-details'), recommended_actions: gv('an-actions'),
+      },
+    };
+
+    try {
+      const res  = await fetch('/api/update-beneficiary.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message || 'Update failed');
+
+      // Update in-memory row so table reflects changes immediately
+      const arugaId   = benModalData.assessment.aruga_id;
+      const firstName = gv('child-fname');
+      const lastName  = gv('child-lname');
+      const newName   = [firstName, gv('child-mname'), lastName].filter(Boolean).join(' ');
+      const newDisabs = splitArr('ceh-disabilities');
+      const newReadiness = gv('an-readiness');
+      const newRegion = gv('child-region');
+
+      [allBenData, allBenFiltered, recentBenData].forEach(arr => {
+        const row = arr.find(r => r.aruga_id === arugaId);
+        if (!row) return;
+        row.name           = newName || row.name;
+        row.region         = newRegion || row.region;
+        row.readiness_score= newReadiness || row.readiness_score;
+        row.disability     = newDisabs[0] || row.disability;
+        row.disabilities   = newDisabs.length ? newDisabs : row.disabilities;
+        row.is_4ps_member  = gvb('pq-4ps');
+      });
+
+      closeBenModal();
+      renderAllBen();
+      renderRecentBen(recentBenData);
+      showIntToast('Beneficiary updated successfully.');
+    } catch(e) {
+      showIntToast('Error: ' + e.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save Changes';
+    }
   }
 
   // ── Disability Distribution (Overview) ────────────────────────

@@ -14,10 +14,88 @@ if (!$region) {
     echo json_encode(['success' => false, 'message' => 'region required']); exit;
 }
 
-$regionEncoded = urlencode($region);
+function normalizeRegion($r) {
+    $r = trim($r ?? '');
+    if (!$r) return '—';
+    $map = [
+        // canonical forms map to themselves
+        'NCR (National Capital Region)'          => 'NCR (National Capital Region)',
+        'Region I (Ilocos Region)'               => 'Region I (Ilocos Region)',
+        'Region II (Cagayan Valley)'             => 'Region II (Cagayan Valley)',
+        'Region III (Central Luzon)'             => 'Region III (Central Luzon)',
+        'Region IV-A (CALABARZON)'               => 'Region IV-A (CALABARZON)',
+        'Region IV-B (MIMAROPA)'                 => 'Region IV-B (MIMAROPA)',
+        'Region V (Bicol Region)'                => 'Region V (Bicol Region)',
+        'Region VI (Western Visayas)'            => 'Region VI (Western Visayas)',
+        'Region VII (Central Visayas)'           => 'Region VII (Central Visayas)',
+        'Region VIII (Eastern Visayas)'          => 'Region VIII (Eastern Visayas)',
+        'Region IX (Zamboanga Peninsula)'        => 'Region IX (Zamboanga Peninsula)',
+        'Region X (Northern Mindanao)'           => 'Region X (Northern Mindanao)',
+        'Region XI (Davao Region)'               => 'Region XI (Davao Region)',
+        'Region XII (SOCCSKSARGEN)'              => 'Region XII (SOCCSKSARGEN)',
+        'Region XIII (Caraga)'                   => 'Region XIII (Caraga)',
+        'CAR (Cordillera Administrative Region)' => 'CAR (Cordillera Administrative Region)',
+        'BARMM (Bangsamoro)'                     => 'BARMM (Bangsamoro)',
+        // aliases
+        'NCR'                             => 'NCR (National Capital Region)',
+        'NCR – Metro Manila'              => 'NCR (National Capital Region)',
+        'NCR - Metro Manila'              => 'NCR (National Capital Region)',
+        'National Capital Region'         => 'NCR (National Capital Region)',
+        'Region I – Ilocos Region'        => 'Region I (Ilocos Region)',
+        'Region I - Ilocos Region'        => 'Region I (Ilocos Region)',
+        'Region II – Cagayan Valley'      => 'Region II (Cagayan Valley)',
+        'Region II - Cagayan Valley'      => 'Region II (Cagayan Valley)',
+        'Region III – Central Luzon'      => 'Region III (Central Luzon)',
+        'Region III - Central Luzon'      => 'Region III (Central Luzon)',
+        'Region IV-A – CALABARZON'        => 'Region IV-A (CALABARZON)',
+        'Region IV-A - CALABARZON'        => 'Region IV-A (CALABARZON)',
+        'CALABARZON'                      => 'Region IV-A (CALABARZON)',
+        'Region IV-B – MIMAROPA'          => 'Region IV-B (MIMAROPA)',
+        'Region IV-B - MIMAROPA'          => 'Region IV-B (MIMAROPA)',
+        'MIMAROPA'                        => 'Region IV-B (MIMAROPA)',
+        'Region V – Bicol Region'         => 'Region V (Bicol Region)',
+        'Region V - Bicol Region'         => 'Region V (Bicol Region)',
+        'Region V (Bicol)'                => 'Region V (Bicol Region)',
+        'Bicol Region'                    => 'Region V (Bicol Region)',
+        'Region VI – Western Visayas'     => 'Region VI (Western Visayas)',
+        'Region VI - Western Visayas'     => 'Region VI (Western Visayas)',
+        'Region VII – Central Visayas'    => 'Region VII (Central Visayas)',
+        'Region VII - Central Visayas'    => 'Region VII (Central Visayas)',
+        'Region VIII – Eastern Visayas'   => 'Region VIII (Eastern Visayas)',
+        'Region VIII - Eastern Visayas'   => 'Region VIII (Eastern Visayas)',
+        'Region IX – Zamboanga Peninsula' => 'Region IX (Zamboanga Peninsula)',
+        'Region IX - Zamboanga Peninsula' => 'Region IX (Zamboanga Peninsula)',
+        'Region X – Northern Mindanao'    => 'Region X (Northern Mindanao)',
+        'Region X - Northern Mindanao'    => 'Region X (Northern Mindanao)',
+        'Region XI – Davao Region'        => 'Region XI (Davao Region)',
+        'Region XI - Davao Region'        => 'Region XI (Davao Region)',
+        'Region XII – SOCCSKSARGEN'       => 'Region XII (SOCCSKSARGEN)',
+        'Region XII - SOCCSKSARGEN'       => 'Region XII (SOCCSKSARGEN)',
+        'Region XIII – Caraga'            => 'Region XIII (Caraga)',
+        'Region XIII - Caraga'            => 'Region XIII (Caraga)',
+        'Caraga'                          => 'Region XIII (Caraga)',
+        'CAR – Cordillera'                => 'CAR (Cordillera Administrative Region)',
+        'CAR - Cordillera'                => 'CAR (Cordillera Administrative Region)',
+        'CAR'                             => 'CAR (Cordillera Administrative Region)',
+        'Cordillera'                      => 'CAR (Cordillera Administrative Region)',
+        'BARMM'                           => 'BARMM (Bangsamoro)',
+        'Bangsamoro'                      => 'BARMM (Bangsamoro)',
+    ];
+    if (isset($map[$r])) return $map[$r];
+    // case-insensitive fallback
+    $rLower = mb_strtolower($r);
+    foreach ($map as $key => $val) {
+        if (mb_strtolower($key) === $rLower) return $val;
+    }
+    return $r;
+}
+
+// Normalize the incoming region so it matches what's stored in various formats.
+// Fetch all interviewers and filter in PHP to handle inconsistent DB values.
+$normalizedRegion = normalizeRegion($region);
 
 $res = supabaseRequest('GET',
-    'interviewers?select=id,full_name,interviewer_code,email,region,province,position,office,status&region=eq.' . $regionEncoded . '&order=full_name.asc&limit=10000'
+    'interviewers?select=id,full_name,interviewer_code,email,region,province,position,office,status&order=full_name.asc&limit=10000'
 );
 
 if (!$res['success']) {
@@ -66,6 +144,11 @@ if (!empty($codes)) {
     }
 }
 
+// Filter by normalized region
+$filtered = array_filter($res['data'], function($r) use ($normalizedRegion) {
+    return normalizeRegion($r['region'] ?? '') === $normalizedRegion;
+});
+
 $rows = array_map(function($r) use ($totalMap, $completedMap, $lastActiveMap) {
     $code  = $r['interviewer_code'] ?? '—';
     return [
@@ -73,7 +156,7 @@ $rows = array_map(function($r) use ($totalMap, $completedMap, $lastActiveMap) {
         'name'             => $r['full_name'] ?? '—',
         'code'             => $code,
         'email'            => $r['email'] ?? '—',
-        'region'           => $r['region'] ?? '—',
+        'region'           => normalizeRegion($r['region'] ?? ''),
         'province'         => $r['province'] ?? '—',
         'position'         => $r['position'] ?? '—',
         'office'           => $r['office'] ?? '—',
@@ -82,6 +165,6 @@ $rows = array_map(function($r) use ($totalMap, $completedMap, $lastActiveMap) {
         'completed_total'  => $completedMap[$code] ?? 0,
         'last_active'      => $lastActiveMap[$code] ?? null,
     ];
-}, $res['data']);
+}, $filtered);
 
 echo json_encode(['success' => true, 'data' => $rows]);
