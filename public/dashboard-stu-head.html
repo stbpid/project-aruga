@@ -189,14 +189,13 @@
             </select>
             <button class="btn btn-primary btn-sm" onclick="stuLoadBeneficiaries(1)">Search</button>
             <button class="btn btn-secondary btn-sm" onclick="stuClearBeneFilters()">Reset</button>
-            <span id="stu-bene-count" style="font-size:0.75rem;color:var(--gray-400);margin-left:auto;"></span>
           </div>
         </div>
         <div class="card" style="margin:0;">
           <div class="table-wrap">
             <table class="dash-table">
-              <thead><tr><th>Name</th><th>Aruga ID</th><th>Age</th><th>Sex</th><th>Barangay</th><th>Interviewer</th><th>Readiness</th><th>Date Assessed</th><th>Status</th><th></th></tr></thead>
-              <tbody id="stu-bene-tbody"><tr><td colspan="10" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr></tbody>
+              <thead><tr><th>Beneficiary</th><th>Age</th><th>Disability</th><th>Region</th><th>Interviewer</th><th>Date</th><th>Readiness</th><th>Action</th></tr></thead>
+              <tbody id="stu-bene-tbody"><tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr></tbody>
             </table>
           </div>
           <div id="stu-bene-pagination" style="display:flex;justify-content:center;gap:0.5rem;padding:1rem;flex-wrap:wrap;"></div>
@@ -586,7 +585,7 @@
     const offset = (stuBenePage - 1) * STU_BENE_LIMIT;
 
     const tbody = document.getElementById('stu-bene-tbody');
-    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr>';
 
     const params = new URLSearchParams({ region, limit: STU_BENE_LIMIT, offset });
     if (search) params.set('search', search);
@@ -596,32 +595,41 @@
       const res = await fetch('/api/stu-head/beneficiaries.php?' + params);
       const j = await res.json();
 
-      const countEl = document.getElementById('stu-bene-count');
       if (j.success && Array.isArray(j.data) && j.data.length > 0) {
-        if (countEl) countEl.textContent = j.total.toLocaleString() + ' beneficiaries';
-        tbody.innerHTML = j.data.map(b => `
-          <tr>
-            <td style="font-weight:600;">${b.name}</td>
-            <td style="font-family:monospace;font-size:0.72rem;color:#1152d4;">${b.aruga_id}</td>
+        const STU_DIS_COLORS = { 'Physical':'badge-purple','Visual':'badge-blue','Hearing':'badge-orange','Intellectual':'badge-red','Multiple':'badge-purple','Psychosocial':'badge-blue','Speech':'badge-green' };
+        tbody.innerHTML = j.data.map(b => {
+          const raw = b.disability || '—';
+          const parts = Array.isArray(b.disabilities) && b.disabilities.length ? b.disabilities : raw.split(',').map(s=>s.trim()).filter(Boolean);
+          const first = parts[0] || '—';
+          const dc = STU_DIS_COLORS[first] || 'badge-blue';
+          const rest = parts.length - 1;
+          const tooltip = parts.join(', ');
+          const disCell = first === '—'
+            ? `<span style="color:var(--gray-400);font-size:0.8rem;">—</span>`
+            : `<div style="display:flex;align-items:center;gap:0.375rem;" title="${tooltip}">
+                 <span class="badge ${dc}">${first}</span>
+                 ${rest > 0 ? `<span style="font-size:0.7rem;font-weight:700;background:var(--gray-200);color:var(--gray-700);padding:0.1rem 0.4rem;border-radius:999px;">+${rest}</span>` : ''}
+               </div>`;
+          return `<tr class="table-row-hover">
+            <td><div style="font-weight:600;color:#111811;">${b.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${b.aruga_id}</div></td>
             <td>${b.age}</td>
-            <td>${b.sex}</td>
-            <td>${b.barangay}</td>
-            <td style="font-family:monospace;font-size:0.72rem;">${b.interviewer}</td>
+            <td>${disCell}</td>
+            <td>${b.region || '—'}</td>
+            <td>${b.interviewer}</td>
+            <td>${b.date}</td>
             <td>${stuReadinessBadge(b.readiness_score)}</td>
-            <td style="font-size:0.75rem;">${b.date}</td>
-            <td>${stuStatusRowBadge(b.status)}</td>
             <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="stuOpenBeneDetail('${b.aruga_id}')" title="View / Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
-          </tr>`).join('');
+          </tr>`;
+        }).join('');
 
         const totalPages = Math.ceil(j.total / STU_BENE_LIMIT);
         stuRenderBenePagination(totalPages);
       } else {
-        if (countEl) countEl.textContent = '0 beneficiaries';
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#9ca3af;padding:2rem;">No beneficiaries found for this region.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">No beneficiaries found for this region.</td></tr>';
         document.getElementById('stu-bene-pagination').innerHTML = '';
       }
     } catch(e) {
-      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#ef4444;padding:2rem;">Failed to load beneficiaries.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#ef4444;padding:2rem;">Failed to load beneficiaries.</td></tr>';
     }
   }
 
@@ -673,242 +681,249 @@
   async function stuOpenBeneDetail(arugaId) {
     document.getElementById('stu-bene-list-view').style.display = 'none';
     document.getElementById('stu-bene-detail-view').style.display = '';
-    document.getElementById('stu-bene-detail-title').textContent = 'Loading...';
+    document.getElementById('stu-bene-detail-title').textContent = 'Beneficiary Details';
     document.getElementById('stu-bene-detail-sub').textContent = '';
-    document.getElementById('stu-bene-detail-body').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray-400);">Loading beneficiary data...</div>';
+    document.getElementById('stu-bene-detail-body').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray-400);">Loading...</div>';
     document.getElementById('stu-bene-save-err').textContent = '';
     try {
       const res = await fetch('/api/get-beneficiary-detail.php?aruga_id=' + encodeURIComponent(arugaId));
       const j = await res.json();
-      if (!j.success) throw new Error('Not found');
+      if (!j.success) throw new Error(j.message || 'Not found');
       stuBeneDetailData = j;
-      const c = j.child || {};
-      const fullName = [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ') || arugaId;
-      document.getElementById('stu-bene-detail-title').textContent = 'Beneficiary Details';
-      document.getElementById('stu-bene-detail-sub').textContent = fullName + ' · ' + arugaId;
-      document.getElementById('stu-bene-detail-body').innerHTML = stuBuildDetailForm(j);
+      stuRenderBeneDetail(j);
     } catch(e) {
-      document.getElementById('stu-bene-detail-body').innerHTML = '<div style="padding:2rem;text-align:center;color:#ef4444;">Failed to load beneficiary data.</div>';
+      document.getElementById('stu-bene-detail-body').innerHTML = `<div style="padding:2rem;text-align:center;color:#ef4444;">Failed to load: ${e.message}</div>`;
     }
   }
 
-  function stuField(label, inputHtml) {
-    return `<div><label class="settings-label">${label}</label>${inputHtml}</div>`;
-  }
-  function stuInput(id, val, type='text') {
-    return `<input type="${type}" id="${id}" class="settings-input" value="${(val||'').toString().replace(/"/g,'&quot;')}">`;
-  }
-  function stuSelect(id, val, options) {
-    return `<select id="${id}" class="settings-input">${options.map(o => `<option value="${o}" ${o===val?'selected':''}>${o||'—'}</option>`).join('')}</select>`;
-  }
-  function stuBool(id, val, labelY='Yes', labelN='No') {
-    return `<select id="${id}" class="settings-input"><option value="true" ${val?'selected':''}>Yes</option><option value="false" ${!val?'selected':''}>No</option></select>`;
-  }
-  function stuTextarea(id, val) {
-    return `<textarea id="${id}" class="settings-input" rows="3" style="resize:vertical;">${(val||'').replace(/</g,'&lt;')}</textarea>`;
-  }
-  function stuSection(title, content) {
-    return `<div class="card" style="margin-bottom:1rem;">
-      <div style="font-size:0.65rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:1rem;">${title}</div>
-      <div style="display:flex;flex-direction:column;gap:0.75rem;">${content}</div>
+  function stuBenField(label, val) {
+    const v = (val !== null && val !== undefined && val !== '') ? val : '—';
+    return `<div>
+      <div style="font-size:0.65rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.3rem;">${label}</div>
+      <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">${v}</div>
     </div>`;
   }
-  function stuGrid(...fields) {
-    return `<div style="display:grid;grid-template-columns:${Array(fields.length).fill('1fr').join(' ')};gap:0.75rem;">${fields.join('')}</div>`;
+
+  function stuBenInput(id, label, val, type='text', required=false) {
+    const v = (val !== null && val !== undefined) ? val : '';
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}${required?'<span style="color:#dc2626;"> *</span>':''}</label>
+      <input type="${type}" id="stu-bf-${id}" class="settings-input" value="${String(v).replace(/"/g,'&quot;')}">
+    </div>`;
   }
 
-  function stuBuildDetailForm(j) {
-    const a   = j.assessment || {};
-    const pq  = j.pre_qualification || {};
-    const r   = j.respondent || {};
-    const c   = j.child || {};
-    const ceh = j.child_education_health || {};
-    const se  = j.socio_economic || {};
-    const hi  = j.health_info || {};
-    const ei  = j.education_info || {};
-    const ec  = j.economic_capacity || {};
-    const sa  = j.service_availment || {};
-    const an  = j.assessment_notes || {};
+  function stuBenSelect(id, label, val, options) {
+    const opts = options.map(o => {
+      const selected = (o.value === val || o.label === val) ? 'selected' : '';
+      return `<option value="${o.value}" ${selected}>${o.label}</option>`;
+    }).join('');
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
+      <div style="position:relative;display:flex;align-items:center;">
+        <select id="stu-bf-${id}" class="settings-input" style="appearance:none;-webkit-appearance:none;padding-right:2rem;">${opts}</select>
+        <span class="material-symbols-outlined" style="position:absolute;right:0.5rem;font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
+      </div>
+    </div>`;
+  }
 
-    const REGIONS = ['','NCR (National Capital Region)','Region I (Ilocos Region)','Region II (Cagayan Valley)','Region III (Central Luzon)','Region IV-A (CALABARZON)','Region IV-B (MIMAROPA)','Region V (Bicol Region)','Region VI (Western Visayas)','Region VII (Central Visayas)','Region VIII (Eastern Visayas)','Region IX (Zamboanga Peninsula)','Region X (Northern Mindanao)','Region XI (Davao Region)','Region XII (SOCCSKSARGEN)','Region XIII (Caraga)','CAR (Cordillera Administrative Region)','BARMM (Bangsamoro)'];
-    const SEX = ['','Male','Female'];
-    const RELIGION = ['','Roman Catholic','Islam','Iglesia ni Cristo','Born Again Christian','Seventh-day Adventist','Other'];
-    const RELATIONSHIP = ['','Parent','Guardian','Grandparent','Sibling','Aunt/Uncle','Other'];
-    const READINESS = ['','Stable','Low','Moderate','Severe'];
-    const HOUSING_MAT = ['','Concrete','Semi-Concrete','Light Materials','Mixed'];
-    const TENURE = ['','Owned','Rented','Shared','Informal Settler'];
-    const WATER = ['','Piped Water','Deep Well','Shallow Well','Bottled Water','Other'];
-    const ELECTRICITY = ['','Meralco/Electric Coop','Generator','Solar','None'];
-    const TOILET = ['','Water-sealed','Pit Latrine','Open Defecation','None'];
-    const GARBAGE = ['','Collected','Burned','Composted','Open Dump','Other'];
-    const INCOME_CLASS = ['','Below Poverty Line','Low Income','Lower Middle','Middle','Upper Middle','High Income'];
-    const INCOME_SOURCE = ['','Employment','Self-Employment','Farming','Fishing','Pension/Assistance','Other'];
-    const EDUC_LEVEL = ['','No Formal Education','Kindergarten','Elementary','Junior High School','Senior High School','Vocational','College','Graduate'];
-    const GRADE_LEVEL = ['','Kindergarten','Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12','College 1st Year','College 2nd Year','College 3rd Year','College 4th Year'];
-    const NO_ENROLL_REASON = ['','Financial','Disability-related','No accessible school','Family decision','No interest','Other'];
-    const DISABILITIES = ['Physical','Visual','Hearing','Intellectual','Psychosocial','Speech','Multiple'];
+  function stuBenTextarea(id, label, val) {
+    const v = (val !== null && val !== undefined) ? val : '';
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
+      <textarea id="stu-bf-${id}" class="settings-input" rows="3" style="resize:vertical;">${v}</textarea>
+    </div>`;
+  }
 
-    const disArr = Array.isArray(ceh.disabilities) ? ceh.disabilities : (ceh.disabilities ? ceh.disabilities.split(',').map(s=>s.trim()) : []);
+  function stuBenSection(icon, title, content) {
+    return `<div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
+      <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+        <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">${icon}</span>
+        </div>
+        <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">${title}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">${content}</div>
+    </div>`;
+  }
 
+  function stuRenderBeneDetail(d) {
+    const a   = d.assessment || {};
+    const pq  = d.pre_qualification || {};
+    const r   = d.respondent || {};
+    const c   = d.child || {};
+    const ceh = d.child_education_health || {};
+    const se  = d.socio_economic || {};
+    const hi  = d.health_info || {};
+    const ei  = d.education_info || {};
+    const ec  = d.economic_capacity || {};
+    const sa  = d.service_availment || {};
+    const an  = d.assessment_notes || {};
+    const fm  = d.family_members || [];
+
+    const READINESS = { severe:'Severe', moderate:'Moderate', low:'Low', stable:'Stable' };
     const readiness = (an.readiness_score || a.readiness_score || '').toLowerCase();
     const BANNER_BG = { severe:'linear-gradient(135deg,#dc2626,#991b1b)', moderate:'linear-gradient(135deg,#ea580c,#9a3412)', low:'linear-gradient(135deg,#ca8a04,#854d0e)', stable:'linear-gradient(135deg,#16a34a,#14532d)' };
-    const READINESS_LABEL = { severe:'Severe', moderate:'Moderate', low:'Low', stable:'Stable' };
     const bannerBg = BANNER_BG[readiness] || 'linear-gradient(135deg,#1152d4,#3730a3)';
-    const childName = [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ') || '—';
-    const banner = `<div style="background:${bannerBg};border-radius:0.875rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;color:white;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
-      <div>
-        <div style="font-size:1rem;font-weight:800;">${childName}</div>
-        <div style="font-size:0.75rem;opacity:0.8;margin-top:0.2rem;">${a.aruga_id||''} · Submitted ${a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}) : '—'}</div>
+    const childName = [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ') || 'Unknown';
+
+    document.getElementById('stu-bene-detail-sub').textContent = '';
+
+    const yesNo = () => [{value:'true',label:'Yes'},{value:'false',label:'No'}];
+    const yesNoBool = (v) => v === true || v === 'true' ? 'true' : 'false';
+    const toOpts = (arr) => [{value:'',label:'—'},...arr.map(v=>({value:v,label:v}))];
+
+    const OPT_MATERIALS   = toOpts(['Strong materials (Concrete, brick, stone)','Light materials (Wood, bamboo, nipa)','Mixed strong and light materials','Salvaged/Makeshift materials','Others']);
+    const OPT_TENURE      = toOpts(['Own house and lot','Own house, rented lot','Rent house and lot','Rent-free with consent of owner','Informal settler','Others']);
+    const OPT_ELECTRICITY = toOpts(['Electricity from distribution company','Community electricity system','Solar panel','Generator set','Kerosene lamp/Candles','No electricity','Others']);
+    const OPT_WATER       = toOpts(['Own use, faucet, community water system','Own use, faucet, NAWASA/Water district','Own use, tubed/piped deep well','Shared, faucet, community water system','Shared, faucet, NAWASA/Water district','Shared, tubed/piped deep well','Public tap/standpipe','Tubed/piped shallow well','Dug/open well','Spring, lake, river, rain','Peddler, bottled water','Others']);
+    const OPT_TOILET      = toOpts(['Water-sealed, sewer/septic tank, used exclusively by household','Water-sealed, sewer/septic tank, shared with other households','Water-sealed, other depository','Closed pit','Open pit','Drop/overhang','None','Others']);
+    const OPT_GARBAGE     = toOpts(['Picked up by garbage truck','Burning','Burying','Composting','Dumping in pit','Throw in river/sea/creek','Recycling','Others']);
+    const OPT_RELIGION    = toOpts(['No Religion','Roman Catholic','Islam','Iglesia ni Cristo','Protestant','Born Again Christian','Buddhism','Hinduism','Others']);
+    const OPT_IP          = toOpts(['Not a member','Aeta','Igorot','Lumad','Mangyan','Tagbanua','Badjao','T\'boli','Manobo','Others']);
+    const OPT_EDUC        = toOpts(['No formal education','Elementary Undergraduate','Elementary Graduate','High School Undergraduate','High School Graduate','Senior High School Graduate','College Undergraduate','College Graduate','Vocational/Technical','Post Graduate','Others']);
+    const OPT_GRADE       = toOpts(['Kinder','Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12','College 1st Year','College 2nd Year','College 3rd Year','College 4th Year']);
+    const OPT_RELATIONSHIP= toOpts(['Parent','Guardian','Grandparent','Sibling','Aunt/Uncle','Relative','Social Worker','Foster Parent']);
+    const OPT_INCOME_SRC  = toOpts(['Employed (Private Sector)','Employed (Government)','Self-employed','Farmer','Fisherman','Laborer','Vendor','Driver','Housewife/Househusband','OFW (Overseas Filipino Worker)','Retired','Others']);
+    const OPT_INCOME_CLASS= toOpts(['Below Poverty Line','Low Income','Lower Middle','Middle','Upper Middle','High Income']);
+    const OPT_READINESS   = [{value:'',label:'—'},{value:'severe',label:'Severe'},{value:'moderate',label:'Moderate'},{value:'low',label:'Low'},{value:'stable',label:'Stable'}];
+    const OPT_SEX         = toOpts(['Male','Female']);
+
+    const html = `
+      <div style="background:${bannerBg};border-radius:0.875rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;color:white;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+        <div>
+          <div style="font-size:1rem;font-weight:800;">${childName}</div>
+          <div style="font-size:0.75rem;opacity:0.8;margin-top:0.2rem;">${a.aruga_id||''} · Submitted ${a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}) : '—'}</div>
+        </div>
+        ${readiness ? `<span style="font-size:0.72rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:999px;background:rgba(255,255,255,0.25);color:white;">${READINESS[readiness]||readiness}</span>` : ''}
       </div>
-      ${readiness ? `<span style="font-size:0.72rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:999px;background:rgba(255,255,255,0.25);color:white;">${READINESS_LABEL[readiness]||readiness}</span>` : ''}
-    </div>`;
 
-    return [
-      banner,
-      stuSection('Pre-Qualification', stuGrid(
-        stuField('4Ps Member', stuBool('f-pq-4ps', pq.is_4ps_member)),
-        stuField('Household ID', stuInput('f-pq-hhid', pq.household_id))
-      )),
+      ${stuBenSection('assignment_ind', '1. Pre-Qualification',
+        stuBenSelect('pq-4ps', '4Ps Member', yesNoBool(pq.is_4ps_member), yesNo()) +
+        stuBenInput('pq-household', 'Household ID', pq.household_id)
+      )}
 
-      stuSection('Respondent / Guardian', [
-        stuGrid(
-          stuField('Full Name', stuInput('f-r-name', r.full_name)),
-          stuField('Relationship to Child', stuSelect('f-r-rel', r.relationship_to_child, RELATIONSHIP))
-        ),
-        stuGrid(
-          stuField('Contact Number', stuInput('f-r-contact', r.contact_number, 'tel')),
-          stuField('Email', stuInput('f-r-email', r.email, 'email'))
-        )
-      ].join('')),
+      ${stuBenSection('account_circle', '2. Respondent',
+        stuBenInput('resp-name', 'Full Name', r.full_name) +
+        stuBenSelect('resp-rel', 'Relationship to Child', r.relationship_to_child, OPT_RELATIONSHIP) +
+        stuBenInput('resp-email', 'Email', r.email, 'email') +
+        stuBenInput('resp-contact', 'Contact Number', r.contact_number)
+      )}
 
-      stuSection('Child Information', [
-        stuGrid(
-          stuField('First Name', stuInput('f-c-fname', c.first_name)),
-          stuField('Middle Name', stuInput('f-c-mname', c.middle_name)),
-          stuField('Last Name', stuInput('f-c-lname', c.last_name)),
-          stuField('Extension', stuInput('f-c-ext', c.name_extension))
-        ),
-        stuGrid(
-          stuField('Date of Birth', stuInput('f-c-dob', c.date_of_birth, 'date')),
-          stuField('Sex', stuSelect('f-c-sex', c.sex, SEX)),
-          stuField('Religion', stuSelect('f-c-religion', c.religion, RELIGION))
-        ),
-        stuGrid(
-          stuField('Region', stuSelect('f-c-region', c.region, REGIONS)),
-          stuField('Province', stuInput('f-c-province', c.province)),
-          stuField('City/Municipality', stuInput('f-c-city', c.city_municipality))
-        ),
-        stuGrid(
-          stuField('Barangay', stuInput('f-c-barangay', c.barangay)),
-          stuField('Street Address', stuInput('f-c-street', c.street_address)),
-          stuField('Contact Number', stuInput('f-c-contact', c.contact_number, 'tel'))
-        ),
-        stuField('IP Membership', stuInput('f-c-ip', c.ip_membership))
-      ].join('')),
+      ${stuBenSection('face', '3. Child Profile',
+        stuBenInput('child-fname', 'First Name', c.first_name, 'text', true) +
+        stuBenInput('child-mname', 'Middle Name', c.middle_name) +
+        stuBenInput('child-lname', 'Last Name', c.last_name, 'text', true) +
+        stuBenInput('child-ext', 'Extension', c.name_extension) +
+        stuBenInput('child-dob', 'Date of Birth', c.date_of_birth, 'date') +
+        stuBenSelect('child-sex', 'Sex', c.sex, OPT_SEX) +
+        stuBenInput('child-region', 'Region', c.region) +
+        stuBenInput('child-province', 'Province', c.province) +
+        stuBenInput('child-city', 'City / Municipality', c.city_municipality) +
+        stuBenInput('child-barangay', 'Barangay', c.barangay) +
+        stuBenInput('child-street', 'Street Address', c.street_address) +
+        stuBenInput('child-contact', 'Contact Number', c.contact_number) +
+        stuBenSelect('child-religion', 'Religion', c.religion, OPT_RELIGION) +
+        stuBenSelect('child-ip', 'IP Membership', c.ip_membership, OPT_IP)
+      )}
 
-      stuSection('Child Education & Disabilities', [
-        stuField('Highest Education', stuSelect('f-ceh-educ', ceh.highest_education, EDUC_LEVEL)),
-        `<div><label class="settings-label">Disabilities</label>
-          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.25rem;">
-            ${DISABILITIES.map(d => `<label style="display:flex;align-items:center;gap:0.3rem;font-size:0.8125rem;cursor:pointer;"><input type="checkbox" value="${d}" ${disArr.includes(d)?'checked':''} class="f-ceh-dis"> ${d}</label>`).join('')}
-          </div>
-        </div>`
-      ].join('')),
+      ${stuBenSection('school', '4. Education & Disability',
+        stuBenSelect('ceh-edu', 'Highest Education', ceh.highest_education, OPT_EDUC) +
+        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Disabilities</label>
+        <input type="text" id="stu-bf-ceh-disabilities" class="settings-input" value="${(ceh.disabilities||[]).join(', ')}" placeholder="Comma-separated"></div>` +
+        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Critical Illnesses</label>
+        <input type="text" id="stu-bf-ceh-illnesses" class="settings-input" value="${(ceh.critical_illnesses||[]).join(', ')}" placeholder="Comma-separated"></div>`
+      )}
 
-      stuSection('Socio-Economic', [
-        stuGrid(
-          stuField('Housing Materials', stuSelect('f-se-housing', se.housing_materials, HOUSING_MAT)),
-          stuField('Tenure Status', stuSelect('f-se-tenure', se.tenure_status, TENURE))
-        ),
-        stuGrid(
-          stuField('Water Source', stuSelect('f-se-water', se.water_source, WATER)),
-          stuField('Electricity Source', stuSelect('f-se-elec', se.electricity_source, ELECTRICITY))
-        ),
-        stuGrid(
-          stuField('Toilet Type', stuSelect('f-se-toilet', se.toilet_type, TOILET)),
-          stuField('Toilet Accessible', stuBool('f-se-toilet-access', se.is_toilet_accessible)),
-          stuField('Garbage Disposal', stuSelect('f-se-garbage', se.garbage_disposal, GARBAGE))
-        ),
-        stuGrid(
-          stuField('Accessibility Modifications', stuBool('f-se-access-mod', se.has_accessibility_modifications)),
-          stuField('Modification Details', stuInput('f-se-mod-details', se.modification_details))
-        )
-      ].join('')),
+      <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">people</span></div>
+          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">5. Family Members</div>
+        </div>
+        ${fm.length ? fm.map((m,i) => `
+          <div style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:0.625rem;padding:0.875rem;margin-bottom:0.625rem;">
+            <div style="font-size:0.72rem;font-weight:700;color:var(--blue);margin-bottom:0.625rem;">Member ${m.member_number||i+1}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;">
+              ${stuBenField('Name', m.full_name)}
+              ${stuBenField('Relationship', m.relationship_to_head)}
+              ${stuBenField('Age', m.age)}
+              ${stuBenField('Sex', m.sex)}
+              ${stuBenField('Civil Status', m.civil_status)}
+              ${stuBenField('Occupation', m.occupation)}
+            </div>
+          </div>`).join('') : '<div style="color:var(--gray-400);font-size:0.8rem;padding:0.5rem 0;">No family members recorded.</div>'}
+      </div>
 
-      stuSection('Health', [
-        stuGrid(
-          stuField('All Vaccinations', stuBool('f-hi-vacc', hi.has_all_vaccinations)),
-          stuField('Ongoing Health Conditions', stuBool('f-hi-cond', hi.has_ongoing_health_conditions)),
-          stuField('Availed Services (6mo)', stuBool('f-hi-svc', hi.availed_services_6months))
-        ),
-        stuField('Health Conditions Details', stuInput('f-hi-cond-det', hi.health_conditions_details)),
-        stuField('Services Availed Details', stuInput('f-hi-svc-det', hi.availed_services_details)),
-        stuGrid(
-          stuField('Barriers to Healthcare', stuBool('f-hi-barrier', hi.has_barriers_to_healthcare)),
-          stuField('Barrier Details', stuInput('f-hi-barrier-det', hi.healthcare_barriers_details))
-        ),
-        `<div style="font-size:0.75rem;font-weight:600;color:var(--gray-500);margin-top:0.25rem;">Monthly Expenses (₱)</div>`,
-        stuGrid(
-          stuField('Food', stuInput('f-hi-exp-food', hi.expense_food, 'number')),
-          stuField('Medication', stuInput('f-hi-exp-med', hi.expense_medication, 'number')),
-          stuField('Therapy', stuInput('f-hi-exp-therapy', hi.expense_therapy, 'number'))
-        ),
-        stuGrid(
-          stuField('Hygiene', stuInput('f-hi-exp-hygiene', hi.expense_hygiene, 'number')),
-          stuField('Assistive Device', stuInput('f-hi-exp-device', hi.expense_assistive_device, 'number')),
-          stuField('Other', stuInput('f-hi-exp-other', hi.expense_other, 'number'))
-        )
-      ].join('')),
+      ${stuBenSection('home', '6. Housing & Socio-Economic',
+        stuBenSelect('se-materials', 'Housing Materials', se.housing_materials, OPT_MATERIALS) +
+        stuBenSelect('se-tenure', 'Tenure Status', se.tenure_status, OPT_TENURE) +
+        stuBenSelect('se-mod', 'Has Accessibility Modifications', yesNoBool(se.has_accessibility_modifications), yesNo()) +
+        stuBenInput('se-mod-details', 'Modification Details', se.modification_details) +
+        stuBenSelect('se-water', 'Water Source', se.water_source, OPT_WATER) +
+        stuBenSelect('se-electricity', 'Electricity Source', se.electricity_source, OPT_ELECTRICITY) +
+        stuBenSelect('se-toilet', 'Toilet Type', se.toilet_type, OPT_TOILET) +
+        stuBenSelect('se-garbage', 'Garbage Disposal', se.garbage_disposal, OPT_GARBAGE)
+      )}
 
-      stuSection('Education', [
-        stuGrid(
-          stuField('Currently Enrolled', stuBool('f-ei-enrolled', ei.is_currently_enrolled)),
-          stuField('Grade/Year Level', stuSelect('f-ei-grade', ei.grade_year_level, GRADE_LEVEL)),
-          stuField('Not Enrolled Reason', stuSelect('f-ei-reason', ei.not_enrolled_reason, NO_ENROLL_REASON))
-        ),
-        stuGrid(
-          stuField('Accessibility Features', stuBool('f-ei-access', ei.has_accessibility_features)),
-          stuField('SpEd Programs', stuBool('f-ei-sped', ei.has_sped_programs)),
-          stuField('Receives Learning Support', stuBool('f-ei-support', ei.receives_learning_support))
-        )
-      ].join('')),
+      ${stuBenSection('health_and_safety', '7. Health Information',
+        stuBenSelect('hi-vacc', 'Has All Vaccinations', yesNoBool(hi.has_all_vaccinations), yesNo()) +
+        stuBenSelect('hi-conditions', 'Has Ongoing Health Conditions', yesNoBool(hi.has_ongoing_health_conditions), yesNo()) +
+        `<div style="grid-column:1/-1;">${stuBenTextarea('hi-conditions-details', 'Health Conditions Details', hi.health_conditions_details)}</div>` +
+        stuBenSelect('hi-availed', 'Availed Services (last 6 months)', yesNoBool(hi.availed_services_6months), yesNo()) +
+        stuBenInput('hi-expense-food', 'Expense: Food (₱)', hi.expense_food, 'number') +
+        stuBenInput('hi-expense-medication', 'Expense: Medication (₱)', hi.expense_medication, 'number') +
+        stuBenInput('hi-expense-therapy', 'Expense: Therapy (₱)', hi.expense_therapy, 'number') +
+        stuBenInput('hi-expense-device', 'Expense: Assistive Device (₱)', hi.expense_assistive_device, 'number') +
+        stuBenSelect('hi-barriers', 'Has Barriers to Healthcare', yesNoBool(hi.has_barriers_to_healthcare), yesNo()) +
+        `<div style="grid-column:1/-1;">${stuBenTextarea('hi-barriers-details', 'Barrier Details', hi.healthcare_barriers_details)}</div>`
+      )}
 
-      stuSection('Economic Capacity', [
-        stuGrid(
-          stuField('Primary Income Source', stuSelect('f-ec-source', ec.primary_income_source, INCOME_SOURCE)),
-          stuField('Monthly Income (₱)', stuInput('f-ec-income', ec.monthly_income, 'number')),
-          stuField('Income Classification', stuSelect('f-ec-class', ec.income_classification, INCOME_CLASS))
-        ),
-        stuGrid(
-          stuField('Parents Employed', stuBool('f-ec-employed', ec.are_parents_employed)),
-          stuField('Employment Details', stuInput('f-ec-emp-det', ec.employment_details))
-        )
-      ].join('')),
+      ${stuBenSection('menu_book', '8. Education Information',
+        stuBenSelect('ei-enrolled', 'Currently Enrolled', yesNoBool(ei.is_currently_enrolled), yesNo()) +
+        stuBenSelect('ei-grade', 'Grade / Year Level', ei.grade_year_level, OPT_GRADE) +
+        stuBenInput('ei-reason', 'Reason Not Enrolled', ei.not_enrolled_reason) +
+        stuBenSelect('ei-sped', 'Has SPED Programs', yesNoBool(ei.has_sped_programs), yesNo()) +
+        stuBenSelect('ei-support', 'Receives Learning Support', yesNoBool(ei.receives_learning_support), yesNo()) +
+        stuBenInput('ei-support-details', 'Support Details', ei.learning_support_details)
+      )}
 
-      stuSection('Service Availment', [
-        stuGrid(
-          stuField('Receives Financial Assistance', stuBool('f-sa-fin', sa.receives_financial_assistance)),
-          stuField('Financial Assistance Details', stuInput('f-sa-fin-det', sa.financial_assistance_details))
-        ),
-        stuGrid(
-          stuField('Aware of Social Services', stuBool('f-sa-aware', sa.is_aware_of_social_services)),
-          stuField('Has Availed Services', stuBool('f-sa-availed', sa.has_availed_services)),
-          stuField('Service Challenges', stuInput('f-sa-challenges', sa.service_challenges))
-        )
-      ].join('')),
+      ${stuBenSection('savings', '9. Economic Capacity',
+        stuBenSelect('ec-income-source', 'Primary Income Source', ec.primary_income_source, OPT_INCOME_SRC) +
+        stuBenInput('ec-income', 'Monthly Income (₱)', ec.monthly_income, 'number') +
+        stuBenSelect('ec-class', 'Income Classification', ec.income_classification, OPT_INCOME_CLASS) +
+        stuBenSelect('ec-employed', 'Parents Employed', yesNoBool(ec.are_parents_employed), yesNo()) +
+        `<div style="grid-column:1/-1;">${stuBenTextarea('ec-employment-details', 'Employment Details', ec.employment_details)}</div>`
+      )}
 
-      stuSection('Assessment Notes', [
-        stuField('Readiness Score', stuSelect('f-an-readiness', an.readiness_score || a.readiness_score, READINESS)),
-        stuField('Strengths', stuTextarea('f-an-strengths', an.strengths)),
-        stuField('Assessment Details', stuTextarea('f-an-details', an.assessment_details)),
-        stuField('Recommended Actions', stuTextarea('f-an-actions', an.recommended_actions))
-      ].join(''))
-    ].join('');
+      ${stuBenSection('volunteer_activism', '10. Service Availment',
+        stuBenSelect('sa-financial', 'Receives Financial Assistance', yesNoBool(sa.receives_financial_assistance), yesNo()) +
+        stuBenInput('sa-financial-details', 'Financial Assistance Details', sa.financial_assistance_details) +
+        stuBenSelect('sa-aware', 'Aware of Social Services', yesNoBool(sa.is_aware_of_social_services), yesNo()) +
+        stuBenSelect('sa-availed', 'Has Availed Services', yesNoBool(sa.has_availed_services), yesNo()) +
+        `<div style="grid-column:1/-1;">${stuBenTextarea('sa-challenges', 'Service Challenges', sa.service_challenges)}</div>`
+      )}
+
+      <div style="margin-bottom:0.5rem;">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">rate_review</span></div>
+          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">11. Assessment Notes</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">
+          ${stuBenSelect('an-readiness', 'Readiness Score', an.readiness_score || readiness, OPT_READINESS)}
+          <div></div>
+          <div style="grid-column:1/-1;">${stuBenTextarea('an-strengths', 'Strengths', an.strengths)}</div>
+          <div style="grid-column:1/-1;">${stuBenTextarea('an-details', 'Assessment Details', an.assessment_details)}</div>
+          <div style="grid-column:1/-1;">${stuBenTextarea('an-actions', 'Recommended Actions', an.recommended_actions)}</div>
+        </div>
+      </div>`;
+
+    document.getElementById('stu-bene-detail-body').innerHTML = html;
   }
 
-  function stuVal(id) { const el = document.getElementById(id); return el ? el.value : ''; }
-  function stuBoolVal(id) { return stuVal(id) === 'true'; }
-  function stuCheckboxVals(cls) { return [...document.querySelectorAll('.' + cls + ':checked')].map(e => e.value); }
+  function stubgv(id) {
+    const el = document.getElementById('stu-bf-' + id);
+    return el ? el.value : '';
+  }
+  function stubgvb(id) { return stubgv(id) === 'true'; }
 
   async function stuSaveBeneficiary() {
     if (!stuBeneDetailData) return;
@@ -916,36 +931,73 @@
     if (!arugaId) return;
     const btn = document.getElementById('stu-bene-save-btn');
     const errEl = document.getElementById('stu-bene-save-err');
-    btn.disabled = true; btn.textContent = 'Saving...'; errEl.textContent = '';
+    btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">hourglass_empty</span>Saving...'; errEl.textContent = '';
+
+    const splitArr = (id) => stubgv(id).split(',').map(s=>s.trim()).filter(Boolean);
 
     const payload = {
       aruga_id: arugaId,
-      pre_qualification: { is_4ps_member: stuBoolVal('f-pq-4ps'), household_id: stuVal('f-pq-hhid') },
-      respondent: { full_name: stuVal('f-r-name'), relationship_to_child: stuVal('f-r-rel'), contact_number: stuVal('f-r-contact'), email: stuVal('f-r-email') },
-      child: { first_name: stuVal('f-c-fname'), middle_name: stuVal('f-c-mname'), last_name: stuVal('f-c-lname'), name_extension: stuVal('f-c-ext'), date_of_birth: stuVal('f-c-dob'), sex: stuVal('f-c-sex'), religion: stuVal('f-c-religion'), region: stuVal('f-c-region'), province: stuVal('f-c-province'), city_municipality: stuVal('f-c-city'), barangay: stuVal('f-c-barangay'), street_address: stuVal('f-c-street'), contact_number: stuVal('f-c-contact'), ip_membership: stuVal('f-c-ip') },
-      child_education_health: { highest_education: stuVal('f-ceh-educ'), disabilities: stuCheckboxVals('f-ceh-dis') },
-      socio_economic: { housing_materials: stuVal('f-se-housing'), tenure_status: stuVal('f-se-tenure'), water_source: stuVal('f-se-water'), electricity_source: stuVal('f-se-elec'), toilet_type: stuVal('f-se-toilet'), is_toilet_accessible: stuBoolVal('f-se-toilet-access'), garbage_disposal: stuVal('f-se-garbage'), has_accessibility_modifications: stuBoolVal('f-se-access-mod'), modification_details: stuVal('f-se-mod-details') },
-      health_info: { has_all_vaccinations: stuBoolVal('f-hi-vacc'), has_ongoing_health_conditions: stuBoolVal('f-hi-cond'), health_conditions_details: stuVal('f-hi-cond-det'), availed_services_6months: stuBoolVal('f-hi-svc'), availed_services_details: stuVal('f-hi-svc-det'), has_barriers_to_healthcare: stuBoolVal('f-hi-barrier'), healthcare_barriers_details: stuVal('f-hi-barrier-det'), expense_food: parseFloat(stuVal('f-hi-exp-food'))||0, expense_medication: parseFloat(stuVal('f-hi-exp-med'))||0, expense_therapy: parseFloat(stuVal('f-hi-exp-therapy'))||0, expense_hygiene: parseFloat(stuVal('f-hi-exp-hygiene'))||0, expense_assistive_device: parseFloat(stuVal('f-hi-exp-device'))||0, expense_other: parseFloat(stuVal('f-hi-exp-other'))||0 },
-      education_info: { is_currently_enrolled: stuBoolVal('f-ei-enrolled'), grade_year_level: stuVal('f-ei-grade'), not_enrolled_reason: stuVal('f-ei-reason'), has_accessibility_features: stuBoolVal('f-ei-access'), has_sped_programs: stuBoolVal('f-ei-sped'), receives_learning_support: stuBoolVal('f-ei-support') },
-      economic_capacity: { primary_income_source: stuVal('f-ec-source'), monthly_income: parseFloat(stuVal('f-ec-income'))||null, income_classification: stuVal('f-ec-class'), are_parents_employed: stuBoolVal('f-ec-employed'), employment_details: stuVal('f-ec-emp-det') },
-      service_availment: { receives_financial_assistance: stuBoolVal('f-sa-fin'), financial_assistance_details: stuVal('f-sa-fin-det'), is_aware_of_social_services: stuBoolVal('f-sa-aware'), has_availed_services: stuBoolVal('f-sa-availed'), service_challenges: stuVal('f-sa-challenges') },
-      assessment_notes: { readiness_score: stuVal('f-an-readiness'), strengths: stuVal('f-an-strengths'), assessment_details: stuVal('f-an-details'), recommended_actions: stuVal('f-an-actions') }
+      pre_qualification: { is_4ps_member: stubgvb('pq-4ps'), household_id: stubgv('pq-household') },
+      respondent: { full_name: stubgv('resp-name'), relationship_to_child: stubgv('resp-rel'), email: stubgv('resp-email'), contact_number: stubgv('resp-contact') },
+      child: {
+        first_name: stubgv('child-fname'), middle_name: stubgv('child-mname'), last_name: stubgv('child-lname'),
+        name_extension: stubgv('child-ext'), date_of_birth: stubgv('child-dob'), sex: stubgv('child-sex'),
+        region: stubgv('child-region'), province: stubgv('child-province'), city_municipality: stubgv('child-city'),
+        barangay: stubgv('child-barangay'), street_address: stubgv('child-street'), contact_number: stubgv('child-contact'),
+        religion: stubgv('child-religion'), ip_membership: stubgv('child-ip'),
+      },
+      child_education_health: {
+        highest_education: stubgv('ceh-edu'),
+        disabilities: splitArr('ceh-disabilities'),
+        critical_illnesses: splitArr('ceh-illnesses'),
+      },
+      socio_economic: {
+        housing_materials: stubgv('se-materials'), tenure_status: stubgv('se-tenure'),
+        has_accessibility_modifications: stubgvb('se-mod'), modification_details: stubgv('se-mod-details'),
+        water_source: stubgv('se-water'), electricity_source: stubgv('se-electricity'),
+        toilet_type: stubgv('se-toilet'), garbage_disposal: stubgv('se-garbage'),
+      },
+      health_info: {
+        has_all_vaccinations: stubgvb('hi-vacc'), has_ongoing_health_conditions: stubgvb('hi-conditions'),
+        health_conditions_details: stubgv('hi-conditions-details'), availed_services_6months: stubgvb('hi-availed'),
+        expense_food: stubgv('hi-expense-food'), expense_medication: stubgv('hi-expense-medication'),
+        expense_therapy: stubgv('hi-expense-therapy'), expense_assistive_device: stubgv('hi-expense-device'),
+        has_barriers_to_healthcare: stubgvb('hi-barriers'), healthcare_barriers_details: stubgv('hi-barriers-details'),
+      },
+      education_info: {
+        is_currently_enrolled: stubgvb('ei-enrolled'), grade_year_level: stubgv('ei-grade'),
+        not_enrolled_reason: stubgv('ei-reason'), has_sped_programs: stubgvb('ei-sped'),
+        receives_learning_support: stubgvb('ei-support'), learning_support_details: stubgv('ei-support-details'),
+      },
+      economic_capacity: {
+        primary_income_source: stubgv('ec-income-source'), monthly_income: stubgv('ec-income'),
+        income_classification: stubgv('ec-class'), are_parents_employed: stubgvb('ec-employed'),
+        employment_details: stubgv('ec-employment-details'),
+      },
+      service_availment: {
+        receives_financial_assistance: stubgvb('sa-financial'), financial_assistance_details: stubgv('sa-financial-details'),
+        is_aware_of_social_services: stubgvb('sa-aware'), has_availed_services: stubgvb('sa-availed'),
+        service_challenges: stubgv('sa-challenges'),
+      },
+      assessment_notes: {
+        readiness_score: stubgv('an-readiness'), strengths: stubgv('an-strengths'),
+        assessment_details: stubgv('an-details'), recommended_actions: stubgv('an-actions'),
+      },
     };
 
     try {
       const res = await fetch('/api/update-beneficiary.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
       const j = await res.json();
-      if (j.success) {
-        showGlobalToast('Beneficiary updated successfully.', 'success');
-        stuIntLoaded = false;
-      } else {
-        errEl.textContent = j.message || 'Save failed.';
-      }
+      if (!j.success) throw new Error(j.message || 'Update failed');
+      showGlobalToast('Beneficiary updated successfully.', 'success');
+      stuBeneBack();
+      stuLoadBeneficiaries(1);
     } catch(e) {
-      errEl.textContent = 'Network error. Please try again.';
+      errEl.textContent = 'Error: ' + e.message;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">save</span>Save Changes';
     }
-    btn.disabled = false;
-    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">save</span>Save Changes';
   }
 
   // ── View switching ────────────────────────────────────────────

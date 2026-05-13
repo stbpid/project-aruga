@@ -301,17 +301,18 @@
           <table class="dash-table">
             <thead>
               <tr>
-                <th>ARUGA ID</th>
-                <th>Name</th>
+                <th>Beneficiary</th>
                 <th>Age</th>
-                <th>Sex</th>
-                <th>Barangay</th>
-                <th>Readiness Score</th>
-                <th>Date Assessed</th>
+                <th>Disability</th>
+                <th>Region</th>
+                <th>Interviewer</th>
+                <th>Date</th>
+                <th>Readiness</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody id="ben-tbody">
-              <tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              <tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;font-size:0.75rem;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -1030,7 +1031,7 @@
     const tbody  = document.getElementById('ben-tbody');
     const info   = document.getElementById('ben-page-info');
     const countEl= document.getElementById('ben-count');
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
 
     const params = new URLSearchParams({
       interviewerCode: foCode,
@@ -1049,7 +1050,7 @@
       countEl.textContent = pg.total + ' beneficiar' + (pg.total === 1 ? 'y' : 'ies');
 
       if (!rows.length) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:3rem;">
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:3rem;">
           <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
             <span class="material-symbols-outlined" style="font-size:2.5rem;color:#d1d5db;">group_off</span>
             <div style="font-size:0.875rem;font-weight:600;color:#6b7280;">${benSearchVal ? 'No results for "' + esc(benSearchVal) + '"' : 'No beneficiaries yet. Start your first assessment!'}</div>
@@ -1061,17 +1062,30 @@
         return;
       }
 
-      tbody.innerHTML = rows.map(r => `
-        <tr style="cursor:pointer;" onclick="openBenModalFromList(${JSON.stringify(r).replace(/"/g,'&quot;')})">
-          <td style="font-family:monospace;font-size:0.75rem;color:#6b7280;">${esc(r.arugaId)}</td>
-          <td style="font-weight:600;color:#111811;">${esc(r.name)}</td>
-          <td>${esc(r.age)}</td>
-          <td>${esc(r.sex)}</td>
-          <td>${esc(r.barangay)}</td>
+      const FO_DIS_COLORS = { 'Physical':'badge-purple','Visual':'badge-blue','Hearing':'badge-orange','Intellectual':'badge-red','Multiple':'badge-purple','Psychosocial':'badge-blue','Speech':'badge-green' };
+      tbody.innerHTML = rows.map(r => {
+        const parts = Array.isArray(r.disabilities) && r.disabilities.length ? r.disabilities : (r.disability && r.disability !== '—' ? [r.disability] : []);
+        const first = parts[0] || '—';
+        const dc = FO_DIS_COLORS[first] || 'badge-blue';
+        const rest = parts.length - 1;
+        const tooltip = parts.join(', ');
+        const disCell = first === '—'
+          ? `<span style="color:var(--gray-400);font-size:0.8rem;">—</span>`
+          : `<div style="display:flex;align-items:center;gap:0.375rem;" title="${tooltip}">
+               <span class="badge ${dc}">${first}</span>
+               ${rest > 0 ? `<span style="font-size:0.7rem;font-weight:700;background:var(--gray-200);color:var(--gray-700);padding:0.1rem 0.4rem;border-radius:999px;">+${rest}</span>` : ''}
+             </div>`;
+        return `<tr class="table-row-hover">
+          <td><div style="font-weight:600;color:#111811;">${esc(r.name)}</div><div style="font-size:0.65rem;color:#9ca3af;">${esc(r.arugaId)}</div></td>
+          <td>${esc(String(r.age))}</td>
+          <td>${disCell}</td>
+          <td>${esc(r.region || '—')}</td>
+          <td>${esc(r.interviewer || foCode)}</td>
+          <td>${esc(r.dateAssessed)}</td>
           <td>${readinessBadge(r.readinessScore)}</td>
-          <td style="color:#6b7280;font-size:0.8125rem;">${esc(r.dateAssessed)}</td>
-        </tr>
-      `).join('');
+          <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openBenModalFromList(${JSON.stringify(r).replace(/"/g,'&quot;')})" title="View / Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
+        </tr>`;
+      }).join('');
 
       const from = (pg.page - 1) * pg.limit + 1;
       const to   = Math.min(pg.page * pg.limit, pg.total);
@@ -1080,7 +1094,7 @@
       buildPagination('ben-pagination', pg.page, pg.totalPages, 'goBenPage');
 
     } catch (e) {
-      tbody.innerHTML = '<tr><td colspan="7" class="fo-error-msg">Failed to load beneficiaries. Please try again.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="fo-error-msg">Failed to load beneficiaries. Please try again.</td></tr>';
     }
   }
 

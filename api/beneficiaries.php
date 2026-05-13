@@ -25,7 +25,7 @@ $code = urlencode($interviewerCode);
 
 // Fetch all matching assessments for this interviewer (with child data)
 $res = supabaseRequest('GET',
-    "assessments?select=id,aruga_id,status,created_at,readiness_score,children(first_name,last_name,date_of_birth,sex,barangay)&interviewer_code=eq.$code&order=created_at.desc&limit=10000"
+    "assessments?select=id,aruga_id,status,created_at,readiness_score,children(first_name,last_name,date_of_birth,sex,barangay,region),child_education_health(disabilities)&interviewer_code=eq.$code&order=created_at.desc&limit=10000"
 );
 
 if (!$res['success']) {
@@ -50,14 +50,20 @@ foreach ($res['data'] as $a) {
     }
 
     $arugaId  = $a['aruga_id']        ?? '—';
-    $sex      = $child['sex']         ?? '—';
-    $barangay = $child['barangay']    ?? '—';
+    $region   = $child['region']      ?? '—';
     $readiness= $a['readiness_score'] ?? '—';
     $date     = $a['created_at'] ? date('M j, Y', strtotime($a['created_at'])) : '—';
 
+    $cehRaw = $a['child_education_health'] ?? [];
+    $ceh = is_array($cehRaw) ? (isset($cehRaw[0]) ? $cehRaw[0] : $cehRaw) : [];
+    $disabilities = $ceh['disabilities'] ?? [];
+    if (is_string($disabilities)) $disabilities = json_decode($disabilities, true) ?? [];
+    if (!is_array($disabilities)) $disabilities = [];
+    $disability = !empty($disabilities) ? $disabilities[0] : '—';
+
     // Search filter
     if ($search !== '') {
-        $hay = strtolower($fullName . ' ' . $arugaId . ' ' . $barangay);
+        $hay = strtolower($fullName . ' ' . $arugaId . ' ' . $region . ' ' . implode(' ', $disabilities));
         if (strpos($hay, strtolower($search)) === false) continue;
     }
 
@@ -66,8 +72,10 @@ foreach ($res['data'] as $a) {
         'arugaId'       => $arugaId,
         'name'          => $fullName,
         'age'           => $age,
-        'sex'           => $sex,
-        'barangay'      => $barangay,
+        'disability'    => $disability,
+        'disabilities'  => $disabilities,
+        'region'        => $region,
+        'interviewer'   => $interviewerCode,
         'readinessScore'=> $readiness,
         'dateAssessed'  => $date,
         'status'        => $a['status'] ?? 'pending',

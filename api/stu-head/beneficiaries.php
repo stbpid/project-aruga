@@ -73,7 +73,7 @@ $normalizedTarget = stuNormalizeRegion($region);
 
 // Fetch all assessments with child region — filter by children.region match
 $res = supabaseRequest('GET',
-    'assessments?select=id,aruga_id,interviewer_code,status,created_at,readiness_score,children(first_name,last_name,date_of_birth,sex,barangay,region)&order=created_at.desc&limit=100000'
+    'assessments?select=id,aruga_id,interviewer_code,status,created_at,readiness_score,children(first_name,last_name,date_of_birth,sex,barangay,region),child_education_health(disabilities)&order=created_at.desc&limit=100000'
 );
 
 if (!$res['success']) {
@@ -101,15 +101,22 @@ foreach ($res['data'] as $a) {
 
     $arugaId  = $a['aruga_id']          ?? '—';
     $code     = $a['interviewer_code']  ?? '—';
-    $sex      = $child['sex']           ?? '—';
-    $barangay = $child['barangay']      ?? '—';
     $readiness= $a['readiness_score']   ?? '—';
     $date     = $a['created_at'] ? date('M j, Y', strtotime($a['created_at'])) : '—';
     $rowStatus= $a['status']            ?? 'pending';
 
+    $cehRaw = $a['child_education_health'] ?? [];
+    $ceh = is_array($cehRaw) ? (isset($cehRaw[0]) ? $cehRaw[0] : $cehRaw) : [];
+    $disabilities = $ceh['disabilities'] ?? [];
+    if (is_string($disabilities)) $disabilities = json_decode($disabilities, true) ?? [];
+    if (!is_array($disabilities)) $disabilities = [];
+    $disability = !empty($disabilities) ? $disabilities[0] : '—';
+
+    $childRegion = stuNormalizeRegion($child['region'] ?? '');
+
     if ($status !== '' && $rowStatus !== $status) continue;
     if ($search !== '') {
-        $hay = strtolower($fullName . ' ' . $arugaId . ' ' . $barangay . ' ' . $code);
+        $hay = strtolower($fullName . ' ' . $arugaId . ' ' . $childRegion . ' ' . $code . ' ' . implode(' ', $disabilities));
         if (strpos($hay, strtolower($search)) === false) continue;
     }
 
@@ -118,8 +125,9 @@ foreach ($res['data'] as $a) {
         'aruga_id'       => $arugaId,
         'name'           => $fullName,
         'age'            => $age,
-        'sex'            => $sex,
-        'barangay'       => $barangay,
+        'disability'     => $disability,
+        'disabilities'   => $disabilities,
+        'region'         => $childRegion,
         'interviewer'    => $code,
         'readiness_score'=> $readiness,
         'date'           => $date,

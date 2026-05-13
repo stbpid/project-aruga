@@ -713,7 +713,7 @@
       <td>${r.interviewer}</td>
       <td>${r.date}</td>
       <td>${coReadinessBadge(r.readiness_score)}</td>
-      <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="coOpenBenModal('${r.aruga_id}')" title="View Details"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+      <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="coOpenBenModal('${r.aruga_id}')" title="View Details"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
     </tr>`;
   }
 
@@ -809,7 +809,7 @@
     const start = coBenPage * CO_PER_PAGE;
     const end = Math.min(start + CO_PER_PAGE, total);
     const page = coBenFiltered.slice(start, end);
-    document.getElementById('co-ben-count').textContent = total.toLocaleString() + ' beneficiar' + (total !== 1 ? 'ies' : 'y');
+    document.getElementById('co-ben-count').textContent = '';
     document.getElementById('co-ben-tbody').innerHTML = page.length
       ? page.map(r => coBenRow(r)).join('')
       : '<tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
