@@ -9,8 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(['success' => false]); exit;
 }
 
-$range      = $_GET['range']      ?? '30';
-$regionFilter = trim($_GET['region'] ?? '');
+$range          = $_GET['range']      ?? '30';
+$regionFilter   = trim($_GET['region']   ?? '');
+$provinceFilter = trim($_GET['province'] ?? '');
 
 // Date filter
 $dateFilter = '';
@@ -68,7 +69,7 @@ function analyticsNormalizeRegion($r) {
     return $map[$r] ?? ($r ?: '—');
 }
 
-// Apply region filter — normalize both sides to handle inconsistent stored values
+// Apply region filter
 if ($regionFilter) {
     $normalizedFilter = analyticsNormalizeRegion($regionFilter);
     $filteredIds = [];
@@ -77,8 +78,18 @@ if ($regionFilter) {
             $filteredIds[$c['assessment_id']] = true;
         }
     }
-    $assessments = array_filter($assessments, fn($a) => isset($filteredIds[$a['id']]));
-    $assessments = array_values($assessments);
+    $assessments = array_values(array_filter($assessments, fn($a) => isset($filteredIds[$a['id']])));
+}
+
+// Apply province filter
+if ($provinceFilter) {
+    $filteredIds = [];
+    foreach ($children as $c) {
+        if (strcasecmp(trim($c['province'] ?? ''), $provinceFilter) === 0) {
+            $filteredIds[$c['assessment_id']] = true;
+        }
+    }
+    $assessments = array_values(array_filter($assessments, fn($a) => isset($filteredIds[$a['id']])));
 }
 
 $total     = count($assessments);
@@ -176,9 +187,9 @@ foreach ($assessments as $a) {
 }
 $gender = [
     ['label' => 'Male',   'val' => $genderCounts['Male'],   'color' => '#1152d4'],
-    ['label' => 'Female', 'val' => $genderCounts['Female'], 'color' => '#ec4899'],
+    ['label' => 'Female', 'val' => $genderCounts['Female'], 'color' => '#93c5fd'],
 ];
-if ($genderCounts['Other'] > 0) $gender[] = ['label' => 'Other', 'val' => $genderCounts['Other'], 'color' => '#10b981'];
+if ($genderCounts['Other'] > 0) $gender[] = ['label' => 'Other', 'val' => $genderCounts['Other'], 'color' => '#bfdbfe'];
 
 // ── Top Locations ─────────────────────────────────────────────
 $locationCounts = [];
@@ -192,6 +203,35 @@ arsort($locationCounts);
 $topLocations = array_map(fn($n, $c) => ['name' => $n, 'count' => $c],
     array_slice(array_keys($locationCounts), 0, 5),
     array_slice(array_values($locationCounts), 0, 5));
+
+// ── Province breakdown ────────────────────────────────────────
+$provinceCounts = [];
+foreach ($assessments as $a) {
+    $c = $childMap[$a['id']] ?? [];
+    $prov = trim($c['province'] ?? '');
+    if (!$prov) continue;
+    $provinceCounts[$prov] = ($provinceCounts[$prov] ?? 0) + 1;
+}
+arsort($provinceCounts);
+$topProvinces = array_map(fn($n, $c) => ['name' => $n, 'count' => $c],
+    array_slice(array_keys($provinceCounts), 0, 15),
+    array_slice(array_values($provinceCounts), 0, 15));
+
+// ── City/Municipality breakdown ───────────────────────────────
+$cityCounts = [];
+$cityProvinceMap = [];
+foreach ($assessments as $a) {
+    $c = $childMap[$a['id']] ?? [];
+    $city = trim($c['city_municipality'] ?? '');
+    $prov = trim($c['province'] ?? '');
+    if (!$city) continue;
+    $cityCounts[$city] = ($cityCounts[$city] ?? 0) + 1;
+    if ($prov && !isset($cityProvinceMap[$city])) $cityProvinceMap[$city] = $prov;
+}
+arsort($cityCounts);
+$topCities = array_map(fn($n, $c) => ['name' => $n, 'count' => $c, 'province' => $cityProvinceMap[$n] ?? ''],
+    array_slice(array_keys($cityCounts), 0, 15),
+    array_slice(array_values($cityCounts), 0, 15));
 
 // ── Disabilities ──────────────────────────────────────────────
 $disCounts = [];
@@ -309,7 +349,9 @@ echo json_encode([
     'regions'       => $regions,
     'age_groups'    => $ageGroupsArr,
     'gender'        => $gender,
-    'top_locations' => $topLocations,
+    'top_locations'  => $topLocations,
+    'top_provinces'  => $topProvinces,
+    'top_cities'     => $topCities,
     'disabilities'  => $disArr,
     'multi_dis'     => $multiArr,
     'dis_age'       => $disAgeArr,

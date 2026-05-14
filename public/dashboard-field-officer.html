@@ -73,6 +73,12 @@
 </head>
 <body>
 
+<!-- Global Toast -->
+<div id="global-toast">
+  <span class="material-symbols-outlined" id="global-toast-icon" style="font-size:1.125rem;flex-shrink:0;"></span>
+  <span id="global-toast-msg"></span>
+</div>
+
 <div class="dash-layout" id="dash-layout">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
@@ -274,6 +280,7 @@
     <!-- ── BENEFICIARIES VIEW ────────────────────────────────── -->
     <div class="dash-content" id="view-beneficiaries" style="display:none;">
 
+      <div id="fo-bene-list-view">
       <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
           <div class="page-title" style="margin:0;">My Beneficiaries</div>
@@ -320,6 +327,23 @@
           <span style="font-size:0.75rem;color:#6b7280;" id="ben-page-info">—</span>
           <div class="pagination" id="ben-pagination"></div>
         </div>
+      </div>
+      </div><!-- /fo-bene-list-view -->
+
+      <!-- Beneficiary Detail / Edit -->
+      <div id="fo-bene-detail-view" style="display:none;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
+          <button class="btn btn-secondary btn-sm" onclick="foBeneBack()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>Back</button>
+          <div>
+            <div class="page-title" style="margin:0;" id="fo-bene-detail-title">Beneficiary Details</div>
+            <div class="page-subtitle" style="margin:0;" id="fo-bene-detail-sub"></div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:0.5rem;">
+            <span id="fo-bene-save-err" style="font-size:0.75rem;color:#dc2626;align-self:center;"></span>
+            <button class="btn btn-primary btn-sm" id="fo-bene-save-btn" onclick="foSaveBeneficiary()"><span class="material-symbols-outlined" style="font-size:0.875rem;">save</span>Save Changes</button>
+          </div>
+        </div>
+        <div id="fo-bene-detail-body"></div>
       </div>
 
     </div><!-- /view-beneficiaries -->
@@ -1083,7 +1107,7 @@
           <td>${esc(r.interviewer || foCode)}</td>
           <td>${esc(r.dateAssessed)}</td>
           <td>${readinessBadge(r.readinessScore)}</td>
-          <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openBenModalFromList(${JSON.stringify(r).replace(/"/g,'&quot;')})" title="View / Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
+          <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="foOpenBeneDetail('${r.arugaId}')" title="View / Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
         </tr>`;
       }).join('');
 
@@ -1102,6 +1126,348 @@
     benPage = page;
     loadBeneficiaries();
     document.getElementById('view-beneficiaries').scrollTop = 0;
+  }
+
+  function showGlobalToast(msg, type) {
+    type = type || 'info';
+    const icons = { success:'check_circle', error:'error', info:'info' };
+    const toast = document.getElementById('global-toast');
+    document.getElementById('global-toast-icon').textContent = icons[type] || 'info';
+    document.getElementById('global-toast-msg').textContent  = msg;
+    toast.className = type;
+    toast.style.display = 'flex';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => { toast.style.display = 'none'; }, 3000);
+  }
+
+  // ── Beneficiary Detail / Edit ────────────────────────────────
+  let foBeneDetailData = null;
+
+  function foBeneBack() {
+    document.getElementById('fo-bene-list-view').style.display = '';
+    document.getElementById('fo-bene-detail-view').style.display = 'none';
+  }
+
+  async function foOpenBeneDetail(arugaId) {
+    document.getElementById('fo-bene-list-view').style.display = 'none';
+    document.getElementById('fo-bene-detail-view').style.display = '';
+    document.getElementById('fo-bene-detail-title').textContent = 'Beneficiary Details';
+    document.getElementById('fo-bene-detail-sub').textContent = '';
+    document.getElementById('fo-bene-detail-body').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray-400);">Loading...</div>';
+    document.getElementById('fo-bene-save-err').textContent = '';
+    try {
+      const res = await fetch('/api/get-beneficiary-detail.php?aruga_id=' + encodeURIComponent(arugaId));
+      const j = await res.json();
+      if (!j.success) throw new Error(j.message || 'Not found');
+      foBeneDetailData = j;
+      foRenderBeneDetail(j);
+    } catch(e) {
+      document.getElementById('fo-bene-detail-body').innerHTML = `<div style="padding:2rem;text-align:center;color:#ef4444;">Failed to load: ${e.message}</div>`;
+    }
+  }
+
+  function foBenField(label, val) {
+    const v = (val !== null && val !== undefined && val !== '') ? val : '—';
+    return `<div>
+      <div style="font-size:0.65rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.3rem;">${label}</div>
+      <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">${v}</div>
+    </div>`;
+  }
+
+  function foBenInput(id, label, val, type='text', required=false) {
+    const v = (val !== null && val !== undefined) ? val : '';
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}${required?'<span style="color:#dc2626;"> *</span>':''}</label>
+      <input type="${type}" id="fo-bf-${id}" class="settings-input" value="${String(v).replace(/"/g,'&quot;')}">
+    </div>`;
+  }
+
+  function foBenSelect(id, label, val, options) {
+    const opts = options.map(o => {
+      const selected = (o.value === val || o.label === val) ? 'selected' : '';
+      return `<option value="${o.value}" ${selected}>${o.label}</option>`;
+    }).join('');
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
+      <div style="position:relative;display:flex;align-items:center;">
+        <select id="fo-bf-${id}" class="settings-input" style="appearance:none;-webkit-appearance:none;padding-right:2rem;">${opts}</select>
+        <span class="material-symbols-outlined" style="position:absolute;right:0.5rem;font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
+      </div>
+    </div>`;
+  }
+
+  function foBenTextarea(id, label, val) {
+    const v = (val !== null && val !== undefined) ? val : '';
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
+      <textarea id="fo-bf-${id}" class="settings-input" rows="3" style="resize:vertical;">${v}</textarea>
+    </div>`;
+  }
+
+  function foBenSection(icon, title, content) {
+    return `<div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
+      <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+        <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">${icon}</span>
+        </div>
+        <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">${title}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">${content}</div>
+    </div>`;
+  }
+
+  function foRenderBeneDetail(d) {
+    const a   = d.assessment || {};
+    const pq  = d.pre_qualification || {};
+    const r   = d.respondent || {};
+    const c   = d.child || {};
+    const ceh = d.child_education_health || {};
+    const se  = d.socio_economic || {};
+    const hi  = d.health_info || {};
+    const ei  = d.education_info || {};
+    const ec  = d.economic_capacity || {};
+    const sa  = d.service_availment || {};
+    const an  = d.assessment_notes || {};
+    const fm  = d.family_members || [];
+
+    const READINESS = { severe:'Severe', moderate:'Moderate', low:'Low', stable:'Stable' };
+    const readiness = (an.readiness_score || a.readiness_score || '').toLowerCase();
+    const BANNER_BG = { severe:'linear-gradient(135deg,#dc2626,#991b1b)', moderate:'linear-gradient(135deg,#ea580c,#9a3412)', low:'linear-gradient(135deg,#ca8a04,#854d0e)', stable:'linear-gradient(135deg,#16a34a,#14532d)' };
+    const bannerBg = BANNER_BG[readiness] || 'linear-gradient(135deg,#1152d4,#3730a3)';
+    const childName = [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ') || 'Unknown';
+
+    document.getElementById('fo-bene-detail-sub').textContent = '';
+
+    const yesNo = () => [{value:'true',label:'Yes'},{value:'false',label:'No'}];
+    const yesNoBool = (v) => v === true || v === 'true' ? 'true' : 'false';
+    const toOpts = (arr) => [{value:'',label:'—'},...arr.map(v=>({value:v,label:v}))];
+
+    const OPT_MATERIALS   = toOpts(['Strong materials (Concrete, brick, stone)','Light materials (Wood, bamboo, nipa)','Mixed strong and light materials','Salvaged/Makeshift materials','Others']);
+    const OPT_TENURE      = toOpts(['Own house and lot','Own house, rented lot','Rent house and lot','Rent-free with consent of owner','Informal settler','Others']);
+    const OPT_ELECTRICITY = toOpts(['Electricity from distribution company','Community electricity system','Solar panel','Generator set','Kerosene lamp/Candles','No electricity','Others']);
+    const OPT_WATER       = toOpts(['Own use, faucet, community water system','Own use, faucet, NAWASA/Water district','Own use, tubed/piped deep well','Shared, faucet, community water system','Shared, faucet, NAWASA/Water district','Shared, tubed/piped deep well','Public tap/standpipe','Tubed/piped shallow well','Dug/open well','Spring, lake, river, rain','Peddler, bottled water','Others']);
+    const OPT_TOILET      = toOpts(['Water-sealed, sewer/septic tank, used exclusively by household','Water-sealed, sewer/septic tank, shared with other households','Water-sealed, other depository','Closed pit','Open pit','Drop/overhang','None','Others']);
+    const OPT_GARBAGE     = toOpts(['Picked up by garbage truck','Burning','Burying','Composting','Dumping in pit','Throw in river/sea/creek','Recycling','Others']);
+    const OPT_RELIGION    = toOpts(['No Religion','Roman Catholic','Islam','Iglesia ni Cristo','Protestant','Born Again Christian','Buddhism','Hinduism','Others']);
+    const OPT_IP          = toOpts(['Not a member','Aeta','Igorot','Lumad','Mangyan','Tagbanua','Badjao','T\'boli','Manobo','Others']);
+    const OPT_EDUC        = toOpts(['No formal education','Elementary Undergraduate','Elementary Graduate','High School Undergraduate','High School Graduate','Senior High School Graduate','College Undergraduate','College Graduate','Vocational/Technical','Post Graduate','Others']);
+    const OPT_GRADE       = toOpts(['Kinder','Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12','College 1st Year','College 2nd Year','College 3rd Year','College 4th Year']);
+    const OPT_RELATIONSHIP= toOpts(['Parent','Guardian','Grandparent','Sibling','Aunt/Uncle','Relative','Social Worker','Foster Parent']);
+    const OPT_INCOME_SRC  = toOpts(['Employed (Private Sector)','Employed (Government)','Self-employed','Farmer','Fisherman','Laborer','Vendor','Driver','Housewife/Househusband','OFW (Overseas Filipino Worker)','Retired','Others']);
+    const OPT_INCOME_CLASS= toOpts(['Below Poverty Line','Low Income','Lower Middle','Middle','Upper Middle','High Income']);
+    const OPT_READINESS   = [{value:'',label:'—'},{value:'severe',label:'Severe'},{value:'moderate',label:'Moderate'},{value:'low',label:'Low'},{value:'stable',label:'Stable'}];
+    const OPT_SEX         = toOpts(['Male','Female']);
+
+    const html = `
+      <div style="background:${bannerBg};border-radius:0.875rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;color:white;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+        <div>
+          <div style="font-size:1rem;font-weight:800;">${childName}</div>
+          <div style="font-size:0.75rem;opacity:0.8;margin-top:0.2rem;">${a.aruga_id||''} · Submitted ${a.created_at ? new Date(a.created_at).toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}) : '—'}</div>
+        </div>
+        ${readiness ? `<span style="font-size:0.72rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:999px;background:rgba(255,255,255,0.25);color:white;">${READINESS[readiness]||readiness}</span>` : ''}
+      </div>
+
+      ${foBenSection('assignment_ind', '1. Pre-Qualification',
+        foBenSelect('pq-4ps', '4Ps Member', yesNoBool(pq.is_4ps_member), yesNo()) +
+        foBenInput('pq-household', 'Household ID', pq.household_id)
+      )}
+
+      ${foBenSection('account_circle', '2. Respondent',
+        foBenInput('resp-name', 'Full Name', r.full_name) +
+        foBenSelect('resp-rel', 'Relationship to Child', r.relationship_to_child, OPT_RELATIONSHIP) +
+        foBenInput('resp-email', 'Email', r.email, 'email') +
+        foBenInput('resp-contact', 'Contact Number', r.contact_number)
+      )}
+
+      ${foBenSection('face', '3. Child Profile',
+        foBenInput('child-fname', 'First Name', c.first_name, 'text', true) +
+        foBenInput('child-mname', 'Middle Name', c.middle_name) +
+        foBenInput('child-lname', 'Last Name', c.last_name, 'text', true) +
+        foBenInput('child-ext', 'Extension', c.name_extension) +
+        foBenInput('child-dob', 'Date of Birth', c.date_of_birth, 'date') +
+        foBenSelect('child-sex', 'Sex', c.sex, OPT_SEX) +
+        foBenInput('child-region', 'Region', c.region) +
+        foBenInput('child-province', 'Province', c.province) +
+        foBenInput('child-city', 'City / Municipality', c.city_municipality) +
+        foBenInput('child-barangay', 'Barangay', c.barangay) +
+        foBenInput('child-street', 'Street Address', c.street_address) +
+        foBenInput('child-contact', 'Contact Number', c.contact_number) +
+        foBenSelect('child-religion', 'Religion', c.religion, OPT_RELIGION) +
+        foBenSelect('child-ip', 'IP Membership', c.ip_membership, OPT_IP)
+      )}
+
+      ${foBenSection('school', '4. Education & Disability',
+        foBenSelect('ceh-edu', 'Highest Education', ceh.highest_education, OPT_EDUC) +
+        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Disabilities</label>
+        <input type="text" id="fo-bf-ceh-disabilities" class="settings-input" value="${(ceh.disabilities||[]).join(', ')}" placeholder="Comma-separated"></div>` +
+        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Critical Illnesses</label>
+        <input type="text" id="fo-bf-ceh-illnesses" class="settings-input" value="${(ceh.critical_illnesses||[]).join(', ')}" placeholder="Comma-separated"></div>`
+      )}
+
+      <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">people</span></div>
+          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">5. Family Members</div>
+        </div>
+        ${fm.length ? fm.map((m,i) => `
+          <div style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:0.625rem;padding:0.875rem;margin-bottom:0.625rem;">
+            <div style="font-size:0.72rem;font-weight:700;color:var(--blue);margin-bottom:0.625rem;">Member ${m.member_number||i+1}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;">
+              ${foBenField('Name', m.full_name)}
+              ${foBenField('Relationship', m.relationship_to_head)}
+              ${foBenField('Age', m.age)}
+              ${foBenField('Sex', m.sex)}
+              ${foBenField('Civil Status', m.civil_status)}
+              ${foBenField('Occupation', m.occupation)}
+            </div>
+          </div>`).join('') : '<div style="color:var(--gray-400);font-size:0.8rem;padding:0.5rem 0;">No family members recorded.</div>'}
+      </div>
+
+      ${foBenSection('home', '6. Housing & Socio-Economic',
+        foBenSelect('se-materials', 'Housing Materials', se.housing_materials, OPT_MATERIALS) +
+        foBenSelect('se-tenure', 'Tenure Status', se.tenure_status, OPT_TENURE) +
+        foBenSelect('se-mod', 'Has Accessibility Modifications', yesNoBool(se.has_accessibility_modifications), yesNo()) +
+        foBenInput('se-mod-details', 'Modification Details', se.modification_details) +
+        foBenSelect('se-water', 'Water Source', se.water_source, OPT_WATER) +
+        foBenSelect('se-electricity', 'Electricity Source', se.electricity_source, OPT_ELECTRICITY) +
+        foBenSelect('se-toilet', 'Toilet Type', se.toilet_type, OPT_TOILET) +
+        foBenSelect('se-garbage', 'Garbage Disposal', se.garbage_disposal, OPT_GARBAGE)
+      )}
+
+      ${foBenSection('health_and_safety', '7. Health Information',
+        foBenSelect('hi-vacc', 'Has All Vaccinations', yesNoBool(hi.has_all_vaccinations), yesNo()) +
+        foBenSelect('hi-conditions', 'Has Ongoing Health Conditions', yesNoBool(hi.has_ongoing_health_conditions), yesNo()) +
+        `<div style="grid-column:1/-1;">${foBenTextarea('hi-conditions-details', 'Health Conditions Details', hi.health_conditions_details)}</div>` +
+        foBenSelect('hi-availed', 'Availed Services (last 6 months)', yesNoBool(hi.availed_services_6months), yesNo()) +
+        foBenInput('hi-expense-food', 'Expense: Food (₱)', hi.expense_food, 'number') +
+        foBenInput('hi-expense-medication', 'Expense: Medication (₱)', hi.expense_medication, 'number') +
+        foBenInput('hi-expense-therapy', 'Expense: Therapy (₱)', hi.expense_therapy, 'number') +
+        foBenInput('hi-expense-device', 'Expense: Assistive Device (₱)', hi.expense_assistive_device, 'number') +
+        foBenSelect('hi-barriers', 'Has Barriers to Healthcare', yesNoBool(hi.has_barriers_to_healthcare), yesNo()) +
+        `<div style="grid-column:1/-1;">${foBenTextarea('hi-barriers-details', 'Barrier Details', hi.healthcare_barriers_details)}</div>`
+      )}
+
+      ${foBenSection('menu_book', '8. Education Information',
+        foBenSelect('ei-enrolled', 'Currently Enrolled', yesNoBool(ei.is_currently_enrolled), yesNo()) +
+        foBenSelect('ei-grade', 'Grade / Year Level', ei.grade_year_level, OPT_GRADE) +
+        foBenInput('ei-reason', 'Reason Not Enrolled', ei.not_enrolled_reason) +
+        foBenSelect('ei-sped', 'Has SPED Programs', yesNoBool(ei.has_sped_programs), yesNo()) +
+        foBenSelect('ei-support', 'Receives Learning Support', yesNoBool(ei.receives_learning_support), yesNo()) +
+        foBenInput('ei-support-details', 'Support Details', ei.learning_support_details)
+      )}
+
+      ${foBenSection('savings', '9. Economic Capacity',
+        foBenSelect('ec-income-source', 'Primary Income Source', ec.primary_income_source, OPT_INCOME_SRC) +
+        foBenInput('ec-income', 'Monthly Income (₱)', ec.monthly_income, 'number') +
+        foBenSelect('ec-class', 'Income Classification', ec.income_classification, OPT_INCOME_CLASS) +
+        foBenSelect('ec-employed', 'Parents Employed', yesNoBool(ec.are_parents_employed), yesNo()) +
+        `<div style="grid-column:1/-1;">${foBenTextarea('ec-employment-details', 'Employment Details', ec.employment_details)}</div>`
+      )}
+
+      ${foBenSection('volunteer_activism', '10. Service Availment',
+        foBenSelect('sa-financial', 'Receives Financial Assistance', yesNoBool(sa.receives_financial_assistance), yesNo()) +
+        foBenInput('sa-financial-details', 'Financial Assistance Details', sa.financial_assistance_details) +
+        foBenSelect('sa-aware', 'Aware of Social Services', yesNoBool(sa.is_aware_of_social_services), yesNo()) +
+        foBenSelect('sa-availed', 'Has Availed Services', yesNoBool(sa.has_availed_services), yesNo()) +
+        `<div style="grid-column:1/-1;">${foBenTextarea('sa-challenges', 'Service Challenges', sa.service_challenges)}</div>`
+      )}
+
+      <div style="margin-bottom:0.5rem;">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">rate_review</span></div>
+          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">11. Assessment Notes</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">
+          ${foBenSelect('an-readiness', 'Readiness Score', an.readiness_score || readiness, OPT_READINESS)}
+          <div></div>
+          <div style="grid-column:1/-1;">${foBenTextarea('an-strengths', 'Strengths', an.strengths)}</div>
+          <div style="grid-column:1/-1;">${foBenTextarea('an-details', 'Assessment Details', an.assessment_details)}</div>
+          <div style="grid-column:1/-1;">${foBenTextarea('an-actions', 'Recommended Actions', an.recommended_actions)}</div>
+        </div>
+      </div>`;
+
+    document.getElementById('fo-bene-detail-body').innerHTML = html;
+  }
+
+  function fobgv(id) {
+    const el = document.getElementById('fo-bf-' + id);
+    return el ? el.value : '';
+  }
+  function fobgvb(id) { return fobgv(id) === 'true'; }
+
+  async function foSaveBeneficiary() {
+    if (!foBeneDetailData) return;
+    const arugaId = foBeneDetailData.assessment?.aruga_id;
+    if (!arugaId) return;
+    const btn = document.getElementById('fo-bene-save-btn');
+    const errEl = document.getElementById('fo-bene-save-err');
+    btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">hourglass_empty</span>Saving...'; errEl.textContent = '';
+
+    const splitArr = (id) => fobgv(id).split(',').map(s=>s.trim()).filter(Boolean);
+
+    const payload = {
+      aruga_id: arugaId,
+      pre_qualification: { is_4ps_member: fobgvb('pq-4ps'), household_id: fobgv('pq-household') },
+      respondent: { full_name: fobgv('resp-name'), relationship_to_child: fobgv('resp-rel'), email: fobgv('resp-email'), contact_number: fobgv('resp-contact') },
+      child: {
+        first_name: fobgv('child-fname'), middle_name: fobgv('child-mname'), last_name: fobgv('child-lname'),
+        name_extension: fobgv('child-ext'), date_of_birth: fobgv('child-dob'), sex: fobgv('child-sex'),
+        region: fobgv('child-region'), province: fobgv('child-province'), city_municipality: fobgv('child-city'),
+        barangay: fobgv('child-barangay'), street_address: fobgv('child-street'), contact_number: fobgv('child-contact'),
+        religion: fobgv('child-religion'), ip_membership: fobgv('child-ip'),
+      },
+      child_education_health: {
+        highest_education: fobgv('ceh-edu'),
+        disabilities: splitArr('ceh-disabilities'),
+        critical_illnesses: splitArr('ceh-illnesses'),
+      },
+      socio_economic: {
+        housing_materials: fobgv('se-materials'), tenure_status: fobgv('se-tenure'),
+        has_accessibility_modifications: fobgvb('se-mod'), modification_details: fobgv('se-mod-details'),
+        water_source: fobgv('se-water'), electricity_source: fobgv('se-electricity'),
+        toilet_type: fobgv('se-toilet'), garbage_disposal: fobgv('se-garbage'),
+      },
+      health_info: {
+        has_all_vaccinations: fobgvb('hi-vacc'), has_ongoing_health_conditions: fobgvb('hi-conditions'),
+        health_conditions_details: fobgv('hi-conditions-details'), availed_services_6months: fobgvb('hi-availed'),
+        expense_food: fobgv('hi-expense-food'), expense_medication: fobgv('hi-expense-medication'),
+        expense_therapy: fobgv('hi-expense-therapy'), expense_assistive_device: fobgv('hi-expense-device'),
+        has_barriers_to_healthcare: fobgvb('hi-barriers'), healthcare_barriers_details: fobgv('hi-barriers-details'),
+      },
+      education_info: {
+        is_currently_enrolled: fobgvb('ei-enrolled'), grade_year_level: fobgv('ei-grade'),
+        not_enrolled_reason: fobgv('ei-reason'), has_sped_programs: fobgvb('ei-sped'),
+        receives_learning_support: fobgvb('ei-support'), learning_support_details: fobgv('ei-support-details'),
+      },
+      economic_capacity: {
+        primary_income_source: fobgv('ec-income-source'), monthly_income: fobgv('ec-income'),
+        income_classification: fobgv('ec-class'), are_parents_employed: fobgvb('ec-employed'),
+        employment_details: fobgv('ec-employment-details'),
+      },
+      service_availment: {
+        receives_financial_assistance: fobgvb('sa-financial'), financial_assistance_details: fobgv('sa-financial-details'),
+        is_aware_of_social_services: fobgvb('sa-aware'), has_availed_services: fobgvb('sa-availed'),
+        service_challenges: fobgv('sa-challenges'),
+      },
+      assessment_notes: {
+        readiness_score: fobgv('an-readiness'), strengths: fobgv('an-strengths'),
+        assessment_details: fobgv('an-details'), recommended_actions: fobgv('an-actions'),
+      },
+    };
+
+    try {
+      const res = await fetch('/api/update-beneficiary.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const j = await res.json();
+      if (!j.success) throw new Error(j.message || 'Update failed');
+      showGlobalToast('Beneficiary updated successfully.', 'success');
+      foBeneBack();
+      loadBeneficiaries();
+    } catch(e) {
+      errEl.textContent = 'Error: ' + e.message;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">save</span>Save Changes';
+    }
   }
 
   // ── Detail Modal ─────────────────────────────────────────────

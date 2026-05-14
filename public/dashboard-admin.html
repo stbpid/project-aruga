@@ -8,6 +8,68 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
   <link rel="stylesheet" href="/css/dashboard.css">
+  <style>
+    /* ── Report View ── */
+    .rpt-section {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 0.625rem;
+      margin-bottom: 0.625rem;
+      overflow: hidden;
+    }
+    .rpt-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.875rem 1.125rem;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.13s;
+    }
+    .rpt-section-header:hover { background: var(--gray-50); }
+    .rpt-section-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+    .rpt-section-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: var(--gray-100);
+      color: var(--gray-500);
+    }
+    .rpt-section-badge.alert { background: #fee2e2; color: #dc2626; }
+    .rpt-section-badge.warn  { background: #fef3c7; color: #d97706; }
+    .rpt-section-badge.good  { background: #d1fae5; color: #059669; }
+    .rpt-chevron { font-size: 1.125rem; color: var(--gray-400); transition: transform 0.2s; }
+    .rpt-chevron.open { transform: rotate(180deg); }
+    .rpt-section-body { padding: 0 1.125rem 1rem; }
+    /* Section group dividers */
+    .rpt-group-label {
+      font-size: 0.68rem; font-weight: 700; color: var(--gray-400);
+      letter-spacing: 0.07em; text-transform: uppercase;
+      margin: 1.25rem 0 0.5rem; padding-left: 0.25rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .rpt-group-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .rpt-alert-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.625rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.8125rem;
+    }
+    .rpt-alert-item:last-child { margin-bottom: 0; }
+    .rpt-alert-red    { background: #fef2f2; border: 1px solid #fecaca; }
+    .rpt-alert-yellow { background: #fffbeb; border: 1px solid #fde68a; }
+    .rpt-alert-blue   { background: #eff6ff; border: 1px solid #bfdbfe; }
+  </style>
 </head>
 <body>
 
@@ -48,6 +110,10 @@
       </a>
       <a href="#" class="nav-item" id="nav-analytics" title="Analytics" onclick="showView('analytics');return false;">
         <span class="material-symbols-outlined">bar_chart</span><span class="nav-label">Analytics</span>
+      </a>
+
+      <a href="#" class="nav-item" id="nav-report" title="Report" onclick="showView('report');return false;">
+        <span class="material-symbols-outlined">summarize</span><span class="nav-label">Report</span>
       </a>
 
       <div class="nav-section-label">Management</div>
@@ -1051,6 +1117,530 @@
       </div>
 
     </div><!-- /view-analytics -->
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- Report View                                               -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="dash-content" id="view-report" style="display:none;">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+        <div>
+          <div class="page-title" style="margin:0;">Report</div>
+          <div class="page-subtitle" id="rpt-last-refresh" style="margin:0;">—</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.625rem;flex-wrap:wrap;">
+          <div style="position:relative;">
+            <span class="material-symbols-outlined" style="position:absolute;left:0.6rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--gray-400);pointer-events:none;">location_on</span>
+            <select id="rpt-province-filter" onchange="rptApplyProvinceFilter()" style="padding:0.45rem 2rem 0.45rem 2rem;font-size:0.8125rem;font-family:inherit;border:1px solid var(--border);border-radius:0.5rem;background:#fff;color:var(--dark);cursor:pointer;appearance:none;-webkit-appearance:none;min-width:200px;">
+              <option value="">All Provinces</option>
+            </select>
+            <span class="material-symbols-outlined" style="position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
+          </div>
+          <div id="rpt-province-chip" style="display:none;align-items:center;gap:0.375rem;padding:0.3rem 0.75rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:999px;font-size:0.75rem;font-weight:700;color:#1152d4;">
+            <span id="rpt-province-chip-label"></span>
+            <span onclick="rptClearProvince()" style="cursor:pointer;display:flex;align-items:center;" title="Clear filter"><span class="material-symbols-outlined" style="font-size:0.9rem;">close</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Hero Metrics ── -->
+      <div class="stats-grid" style="margin-bottom:1rem;" id="rpt-hero">
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">assignment</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="rpt-total">—</div>
+            <div class="stat-label">Total Assessments</div>
+            <div class="stat-change" id="rpt-total-sub" style="font-size:0.72rem;color:var(--gray-400);">Loading…</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">task_alt</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="rpt-rate">—</div>
+            <div class="stat-label">Completion Rate</div>
+            <div id="rpt-rate-badge" style="margin-top:0.25rem;"></div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">speed</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="rpt-avgday">—</div>
+            <div class="stat-label">Avg / Day</div>
+            <div style="font-size:0.72rem;color:var(--gray-400);">Assessments per day</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="rpt-interviewers">—</div>
+            <div class="stat-label">Active Interviewers</div>
+            <div style="font-size:0.72rem;color:var(--gray-400);">Submitted at least once</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- National Pace -->
+      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <div id="rpt-pace-icon" style="width:3rem;height:3rem;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#e5e7eb;">
+            <span class="material-symbols-outlined" style="font-size:1.5rem;">hourglass_empty</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.7rem;font-weight:700;color:var(--gray-400);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.2rem;">National Pace</div>
+            <div id="rpt-pace-label" style="font-size:1.1rem;font-weight:800;">Loading…</div>
+            <div id="rpt-pace-sub" style="font-size:0.78rem;color:var(--gray-500);margin-top:0.15rem;"></div>
+          </div>
+          <div style="width:220px;flex-shrink:0;">
+            <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--gray-400);margin-bottom:0.3rem;">
+              <span>Progress</span><span id="rpt-pace-pct">—</span>
+            </div>
+            <div style="height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;">
+              <div id="rpt-pace-bar" style="height:100%;width:0%;background:#1152d4;border-radius:999px;transition:width 0.8s ease;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+<!-- ── Collapsible Sections ── -->
+      <div class="rpt-group-label">Key Insights</div>
+
+      <!-- By Region -->
+      <div class="rpt-section" id="rpts-region">
+        <div class="rpt-section-header" onclick="rptToggle('region')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">map</span>
+            <span class="rpt-section-title">By Region</span>
+            <span class="rpt-section-badge" id="rpt-badge-region"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron open" id="rpt-chev-region">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-region">
+          <div id="rpt-region-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+        </div>
+      </div>
+
+      <!-- Geographic Coverage -->
+      <div class="rpt-section" id="rpts-geo">
+        <div class="rpt-section-header" onclick="rptToggle('geo')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">location_on</span>
+            <span class="rpt-section-title">Geographic Coverage</span>
+            <span class="rpt-section-badge" id="rpt-badge-geo"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron open" id="rpt-chev-geo">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-geo">
+          <!-- Tab bar -->
+          <div style="display:flex;gap:0;border-bottom:2px solid var(--gray-100);margin-bottom:1rem;">
+            <button id="rpt-geo-tab-province" onclick="rptGeoTab('province')" style="padding:0.5rem 1.25rem;font-size:0.8125rem;font-weight:700;border:none;background:none;cursor:pointer;color:#1152d4;border-bottom:2px solid #1152d4;margin-bottom:-2px;transition:color 0.15s;">Province</button>
+            <button id="rpt-geo-tab-city" onclick="rptGeoTab('city')" style="padding:0.5rem 1.25rem;font-size:0.8125rem;font-weight:600;border:none;background:none;cursor:pointer;color:var(--gray-400);border-bottom:2px solid transparent;margin-bottom:-2px;transition:color 0.15s;">City / Municipality</button>
+          </div>
+          <!-- Province pane -->
+          <div id="rpt-geo-pane-province">
+            <div id="rpt-province-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+          </div>
+          <!-- City pane -->
+          <div id="rpt-geo-pane-city" style="display:none;">
+            <div id="rpt-city-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Beneficiaries -->
+      <div class="rpt-section" id="rpts-beneficiaries">
+        <div class="rpt-section-header" onclick="rptToggle('beneficiaries')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">group</span>
+            <span class="rpt-section-title">Beneficiaries</span>
+            <span class="rpt-section-badge" id="rpt-badge-beneficiaries"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron open" id="rpt-chev-beneficiaries">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-beneficiaries">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Sex Disaggregation</div></div>
+              <div id="rpt-gender-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Age Groups</div></div>
+              <div id="rpt-age-bars" style="padding:0.75rem 1rem 0;min-height:180px;"></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">4Ps Beneficiaries</div><div class="card-subtitle">Pantawid Pamilya membership</div></div>
+              <div id="rpt-4ps-chart" style="display:flex;flex-direction:column;gap:1rem;padding:0.5rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Top 5 Locations</div></div>
+              <div id="rpt-top-locations" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disabilities -->
+      <div class="rpt-section" id="rpts-disabilities">
+        <div class="rpt-section-header" onclick="rptToggle('disabilities')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">accessible</span>
+            <span class="rpt-section-title">Disabilities</span>
+            <span class="rpt-section-badge" id="rpt-badge-disabilities"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron open" id="rpt-chev-disabilities">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-disabilities">
+          <div id="rpt-dis-bars" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div>
+        </div>
+      </div>
+
+      <div class="rpt-group-label">Supporting Data</div>
+
+      <!-- Housing -->
+      <div class="rpt-section" id="rpts-housing">
+        <div class="rpt-section-header" onclick="rptToggle('housing')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">home</span>
+            <span class="rpt-section-title">Housing</span>
+            <span class="rpt-section-badge" id="rpt-badge-housing"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-housing">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-housing" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Construction Materials</div></div>
+              <div id="rpt-housing-materials" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Tenure Status</div></div>
+              <div id="rpt-tenure-status" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Water Source</div></div>
+              <div id="rpt-water-source" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Electricity Source</div></div>
+              <div id="rpt-electricity-source" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Toilet Type</div></div>
+              <div id="rpt-toilet-type" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Garbage Disposal</div></div>
+              <div id="rpt-garbage-disposal" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Health -->
+      <div class="rpt-section" id="rpts-health">
+        <div class="rpt-section-header" onclick="rptToggle('health')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">health_and_safety</span>
+            <span class="rpt-section-title">Health</span>
+            <span class="rpt-section-badge" id="rpt-badge-health"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-health">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-health" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Immunization</div></div>
+              <div id="rpt-immunization-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Ongoing Health Issues</div></div>
+              <div id="rpt-health-issues-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Health Services Availed</div></div>
+              <div id="rpt-health-availed-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Top Barriers to Health Services</div></div>
+              <div id="rpt-barriers-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Health Expenses</div><div class="card-subtitle" id="rpt-expenses-total"></div></div>
+              <div id="rpt-expenses-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Economic -->
+      <div class="rpt-section" id="rpts-economic">
+        <div class="rpt-section-header" onclick="rptToggle('economic')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">payments</span>
+            <span class="rpt-section-title">Economic</span>
+            <span class="rpt-section-badge" id="rpt-badge-economic"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-economic">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-economic" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Primary Income Source</div></div>
+              <div id="rpt-primary-income-src" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Minimum Wage Level</div></div>
+              <div id="rpt-min-wage" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Education -->
+      <div class="rpt-section" id="rpts-education">
+        <div class="rpt-section-header" onclick="rptToggle('education')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">school</span>
+            <span class="rpt-section-title">Education</span>
+            <span class="rpt-section-badge" id="rpt-badge-education"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-education">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-education" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Enrollment Status</div></div>
+              <div id="rpt-enrollment-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Top Reasons for Non-Enrollment</div></div>
+              <div id="rpt-enrollment-reasons" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+            </div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Educational Attainment</div></div>
+            <div id="rpt-educ-attainment" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Religion & IP -->
+      <div class="rpt-section" id="rpts-religion">
+        <div class="rpt-section-header" onclick="rptToggle('religion')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">diversity_3</span>
+            <span class="rpt-section-title">Religion &amp; Indigenous People</span>
+            <span class="rpt-section-badge" id="rpt-badge-religion"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-religion">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-religion" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Religious Affiliation</div></div>
+              <div id="rpt-religion-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">IP Membership</div></div>
+              <div id="rpt-ip-bars" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Social Services -->
+      <div class="rpt-section" id="rpts-social">
+        <div class="rpt-section-header" onclick="rptToggle('social')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">volunteer_activism</span>
+            <span class="rpt-section-title">Financial &amp; Social Services</span>
+            <span class="rpt-section-badge" id="rpt-badge-social"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-social">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-social" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Receives Financial Assistance</div></div>
+              <div id="rpt-financial-assist-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Aware of Social Services</div></div>
+              <div id="rpt-social-awareness-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Readiness Score -->
+      <div class="rpt-section" id="rpts-readiness">
+        <div class="rpt-section-header" onclick="rptToggle('readiness')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">insights</span>
+            <span class="rpt-section-title">Readiness Score</span>
+            <span class="rpt-section-badge" id="rpt-badge-readiness"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-readiness">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-readiness" style="display:none;">
+          <div id="rpt-readiness-bars" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div>
+        </div>
+      </div>
+
+      <div class="rpt-group-label">Operational</div>
+
+      <!-- Report Analysis -->
+      <div class="rpt-section" id="rpts-analysis">
+        <div class="rpt-section-header" onclick="rptToggle('analysis')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">auto_awesome</span>
+            <span class="rpt-section-title">Report Analysis</span>
+            <span class="rpt-section-badge" id="rpt-badge-analysis"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-analysis">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-analysis" style="display:none;">
+          <div class="card" style="margin:0;">
+            <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div class="card-title">Report Analysis</div>
+                <div class="card-subtitle">Summary based on current report data</div>
+              </div>
+              <button class="btn btn-primary btn-sm" id="rpt-analysis-btn" onclick="rptGenerateAnalysis()" style="flex-shrink:0;">
+                <span class="material-symbols-outlined">auto_awesome</span>Generate
+              </button>
+            </div>
+            <div id="rpt-analysis-output" style="padding:0.75rem 0 0.25rem;">
+              <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div style="padding:1.25rem;background:#f8faff;border:1px solid #dbeafe;border-radius:0.625rem;text-align:center;color:var(--gray-400);font-size:0.8125rem;">
+                  Click <b>Generate</b> to create an automated analysis of the current report data.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interviewer Performance -->
+      <div class="rpt-section" id="rpts-performance">
+        <div class="rpt-section-header" onclick="rptToggle('performance')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">leaderboard</span>
+            <span class="rpt-section-title">Interviewer Performance</span>
+            <span class="rpt-section-badge" id="rpt-badge-performance"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-performance">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-performance" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;">emoji_events</span><div class="card-title" style="margin:0;">Top 5 Performers</div></div></div>
+              <div id="rpt-top5-int" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Workload Distribution</div></div>
+              <div id="rpt-workload-vis" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+            </div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Productivity Table</div><div class="card-subtitle">All interviewers — ranked by completions</div></div>
+            <div class="table-wrap">
+              <table class="dash-table">
+                <thead><tr><th>Rank</th><th>Name</th><th>Code</th><th>Region</th><th>Completed</th><th>Avg/Day</th><th>Workload</th></tr></thead>
+                <tbody id="rpt-int-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Quality -->
+      <div class="rpt-section" id="rpts-quality">
+        <div class="rpt-section-header" onclick="rptToggle('quality')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">verified_user</span>
+            <span class="rpt-section-title">Data Quality</span>
+            <span class="rpt-section-badge" id="rpt-badge-quality"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-quality">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-quality" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Missing Data</div><div class="card-subtitle">Top 5 skipped fields</div></div>
+              <div id="rpt-missing-fields" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Flagged Records</div></div>
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;gap:0.5rem;text-align:center;">
+                <div id="rpt-flagged-count" style="font-size:2.5rem;font-weight:800;color:#ef4444;">—</div>
+                <div style="font-size:0.8125rem;color:var(--gray-500);">records require review</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Reports -->
+      <div class="rpt-section" id="rpts-export">
+        <div class="rpt-section-header" onclick="rptToggle('export')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--gray-500);">download</span>
+            <span class="rpt-section-title">Export Reports</span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-export">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-export" style="display:none;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:var(--blue);font-size:1rem;">article</span></div><div class="card-title" style="margin:0;">Executive Summary</div></div></div>
+              <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Key metrics, completion rate, top regions — national overview.</div>
+              <div style="display:flex;gap:0.5rem;">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('executive','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+                <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('executive','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button>
+              </div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1rem;">map</span></div><div class="card-title" style="margin:0;">Regional Breakdown</div></div></div>
+              <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Per-region targets, completions, rates, and interviewer counts.</div>
+              <div style="display:flex;gap:0.5rem;">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('regional','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+                <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('regional','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button>
+              </div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#ea580c;font-size:1rem;">accessible</span></div><div class="card-title" style="margin:0;">Disability Report</div></div></div>
+              <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Disability type distribution, age groups, and prevalence.</div>
+              <div style="display:flex;gap:0.5rem;">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('disability','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+                <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('disability','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button>
+              </div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#7c3aed;font-size:1rem;">leaderboard</span></div><div class="card-title" style="margin:0;">Interviewer Performance</div></div></div>
+              <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Productivity rankings, avg per day, workload per interviewer.</div>
+              <div style="display:flex;gap:0.5rem;">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('interviewer','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+                <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('interviewer','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Email Report Delivery</div><div class="card-subtitle">Send any report to an email address</div></div>
+            <div style="display:flex;gap:0.75rem;align-items:flex-end;flex-wrap:wrap;">
+              <div style="flex:1;min-width:200px;"><label class="settings-label">Report Type</label><select id="rpt-email-type" class="settings-input"><option value="executive">Executive Summary</option><option value="regional">Regional Breakdown</option><option value="disability">Disability Report</option><option value="interviewer">Interviewer Performance</option></select></div>
+              <div style="flex:2;min-width:240px;"><label class="settings-label">Email Address</label><input type="email" id="rpt-email-addr" class="settings-input" placeholder="e.g. director@dswd.gov.ph"></div>
+              <button class="btn btn-primary btn-sm" onclick="rptEmailReport()" style="margin-bottom:1px;"><span class="material-symbols-outlined">send</span>Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /view-report -->
 
     <!-- Report Settings Modal -->
     <div id="an-report-settings-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
@@ -2624,7 +3214,7 @@
   function _showIntToastLegacy(msg) { showGlobalToast(msg, 'success'); }
 
   // ── View switcher ──────────────────────────────────────────────
-  const VIEWS = ['overview','beneficiaries','assessments','interviewers','analytics','documents','settings','audit'];
+  const VIEWS = ['overview','beneficiaries','assessments','interviewers','analytics','report','documents','settings','audit'];
   function showView(view) {
     if (secDirty && !confirm('You have unsaved security settings. Leave anyway?')) return;
     VIEWS.forEach(v => {
@@ -2639,6 +3229,7 @@
     if (view === 'audit') loadAuditLogs();
     if (view === 'settings') showSettingsTab('dropdowns');
     if (view === 'analytics') { loadAnalyticsView(); loadRegionsView(); }
+    if (view === 'report')    { loadReportView(); }
   }
 
   function adminShowDocTab(tab) {
@@ -2898,7 +3489,7 @@
 
   let anTrendView = 'monthly';
   let anAutoRefresh;
-  let anFilters = { range: 'all', region: '', disability: '' };
+  let anFilters = { range: 'all', region: '', province: '', disability: '' };
   let AN_DATA = null;
   let AN_CACHE_TS = 0;
   const AN_CACHE_TTL = 5 * 60 * 1000;
@@ -2934,7 +3525,8 @@
   async function fetchAnalyticsData(force = false) {
     if (!force && AN_DATA && (Date.now() - AN_CACHE_TS) < AN_CACHE_TTL) return;
     const params = new URLSearchParams({ range: anFilters.range });
-    if (anFilters.region) params.set('region', anFilters.region);
+    if (anFilters.region)   params.set('region',   anFilters.region);
+    if (anFilters.province) params.set('province', anFilters.province);
     try {
       const json = await (await fetch('/api/get-analytics.php?' + params)).json();
       if (json.success) { AN_DATA = json; AN_CACHE_TS = Date.now(); }
@@ -3362,10 +3954,11 @@
   let AN_EXT_CACHE_KEY = '';
 
   async function fetchExtendedAnalytics() {
-    const cacheKey = anFilters.range + '|' + anFilters.region;
+    const cacheKey = anFilters.range + '|' + anFilters.region + '|' + anFilters.province;
     if (AN_EXT && AN_EXT_CACHE_KEY === cacheKey) return;
     const params = new URLSearchParams({ range: anFilters.range });
-    if (anFilters.region) params.set('region', anFilters.region);
+    if (anFilters.region)   params.set('region',   anFilters.region);
+    if (anFilters.province) params.set('province', anFilters.province);
     try {
       const json = await (await fetch('/api/get-analytics-extended.php?' + params)).json();
       if (json.success) { AN_EXT = json; AN_EXT_CACHE_KEY = cacheKey; }
@@ -3633,7 +4226,7 @@
     if (!el) return;
     if (!items || !items.length) { el.innerHTML = AN_EMPTY; return; }
     const maxV = Math.max(...items.map(i=>i.val||i.count||0), 1);
-    const colors = colorPalette || ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444','#06b6d4'];
+    const colors = colorPalette || ['#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#1d4ed8','#bfdbfe'];
     el.innerHTML = items.map((item,i)=>{
       const v = item.val||item.count||0;
       const total = items.reduce((s,x)=>s+(x.val||x.count||0),0);
@@ -3778,9 +4371,9 @@
           <div style="display:flex;align-items:center;gap:0.75rem;">
             <div style="font-size:0.75rem;flex:1;">${f.field}</div>
             <div style="width:80px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
-              <div style="height:100%;width:${Math.round((f.pct/maxM)*100)}%;background:#f59e0b;border-radius:999px;"></div>
+              <div style="height:100%;width:${Math.round((f.pct/maxM)*100)}%;background:#3b82f6;border-radius:999px;"></div>
             </div>
-            <div style="font-size:0.7rem;font-weight:800;width:32px;text-align:right;color:#d97706;">${f.pct}%</div>
+            <div style="font-size:0.7rem;font-weight:800;width:32px;text-align:right;color:#1152d4;">${f.pct}%</div>
           </div>`).join('')
       : AN_EMPTY;
 
@@ -5161,6 +5754,739 @@
     URL.revokeObjectURL(url);
     showToast('export-toast', `${data.length} records exported as CSV.`, 'success');
   }
+
+  // ── Report View ────────────────────────────────────────────────
+
+  const RPT_OPEN = {region:true,geo:true,beneficiaries:true,disabilities:true,housing:false,health:false,economic:false,education:false,religion:false,social:false,readiness:false,analysis:false,performance:false,quality:false};
+
+  function rptToggle(key) {
+    const body  = document.getElementById('rpt-body-' + key);
+    const chev  = document.getElementById('rpt-chev-' + key);
+    if (!body) return;
+    const opening = body.style.display === 'none';
+    body.style.display = opening ? '' : 'none';
+    if (chev) chev.classList.toggle('open', opening);
+    RPT_OPEN[key] = opening;
+    if (opening) rptRenderSection(key);
+  }
+
+  async function loadReportView() {
+    await Promise.all([fetchAnalyticsData(), fetchExtendedAnalytics()]);
+    rptPopulateProvinces();
+    rptRenderHero();
+    rptRenderPace();
+    rptRenderBadges();
+    ['region','geo','beneficiaries','disabilities'].forEach(k => {
+      RPT_OPEN[k] = true;
+      rptRenderSection(k);
+    });
+    ['housing','health','economic','education','religion','social','readiness','analysis','performance','quality'].forEach(k => {
+      RPT_OPEN[k] = false;
+    });
+    document.getElementById('rpt-last-refresh').textContent =
+      'Last refreshed: ' + new Date().toLocaleTimeString('en-PH', {hour:'2-digit', minute:'2-digit'}) + ' · Auto-refreshes every 5 min';
+  }
+
+  function rptRenderHero() {
+    const s = AN_DATA?.summary;
+    const q = AN_DATA?.quality;
+    if (!s) return;
+    document.getElementById('rpt-total').textContent        = (s.total || 0).toLocaleString();
+    document.getElementById('rpt-total-sub').textContent    = anFilters.province ? 'Province: ' + anFilters.province : 'Across all regions';
+    document.getElementById('rpt-rate').textContent         = (s.completion_rate || 0) + '%';
+    document.getElementById('rpt-avgday').textContent       = s.avg_per_day || 0;
+    document.getElementById('rpt-interviewers').textContent = (s.active_interviewers || 0).toLocaleString();
+    const rate = s.completion_rate || 0;
+    const badge = document.getElementById('rpt-rate-badge');
+    if (rate >= 80)      badge.innerHTML = '<span class="badge badge-green">Ahead</span>';
+    else if (rate >= 60) badge.innerHTML = '<span class="badge badge-blue">On Track</span>';
+    else                 badge.innerHTML = '<span class="badge badge-red">Behind</span>';
+  }
+
+  function rptRenderPace() {
+    const s = AN_DATA?.summary;
+    if (!s) return;
+    const rate  = s.completion_rate || 0;
+    const icon  = document.getElementById('rpt-pace-icon');
+    const label = document.getElementById('rpt-pace-label');
+    const sub   = document.getElementById('rpt-pace-sub');
+    const bar   = document.getElementById('rpt-pace-bar');
+    const pct   = document.getElementById('rpt-pace-pct');
+    pct.textContent = rate + '%';
+    setTimeout(() => { bar.style.width = Math.min(rate, 100) + '%'; }, 100);
+    if (rate >= 80) {
+      icon.style.background = '#f0fdf4'; icon.style.color = '#16a34a';
+      icon.querySelector('span').textContent = 'trending_up';
+      label.textContent = 'Ahead of Target'; label.style.color = '#16a34a';
+      sub.textContent   = 'Exceeding national target pace';
+      bar.style.background = '#16a34a';
+    } else if (rate >= 60) {
+      icon.style.background = '#eff6ff'; icon.style.color = '#1152d4';
+      icon.querySelector('span').textContent = 'check_circle';
+      label.textContent = 'On Track'; label.style.color = '#1152d4';
+      sub.textContent   = 'Progressing within expected range';
+      bar.style.background = '#1152d4';
+    } else {
+      icon.style.background = '#fff1f1'; icon.style.color = '#ef4444';
+      icon.querySelector('span').textContent = 'warning';
+      label.textContent = 'Behind Target'; label.style.color = '#ef4444';
+      sub.textContent   = 'National pace below target — action needed';
+      bar.style.background = '#ef4444';
+    }
+  }
+
+  function rptRenderAlerts() {
+    const s       = AN_DATA?.summary;
+    const q       = AN_DATA?.quality;
+    const regions = AN_DATA?.regions || [];
+    const ints    = AN_DATA?.interviewers || [];
+    const alerts  = [];
+
+    const rate = s?.completion_rate || 0;
+    if (rate < 60) {
+      alerts.push({ cls: 'rpt-alert-red', icon: 'warning', text: `Completion rate is <b>${rate}%</b> — below the 60% threshold. Immediate action required.` });
+    }
+
+    const laggingRegions = regions.filter(r => {
+      const maxV = Math.max(...regions.map(x => x.count), 1);
+      return r.count < maxV * 0.3;
+    });
+    if (laggingRegions.length) {
+      alerts.push({ cls: 'rpt-alert-yellow', icon: 'info', text: `<b>${laggingRegions.length} region${laggingRegions.length > 1 ? 's' : ''}</b> significantly behind national average: ${laggingRegions.slice(0,3).map(r=>r.region).join(', ')}${laggingRegions.length > 3 ? ' and more' : ''}.` });
+    }
+
+    const flagged = q?.flagged_count || 0;
+    if (flagged > 0) {
+      alerts.push({ cls: 'rpt-alert-red', icon: 'flag', text: `<b>${flagged.toLocaleString()} flagged record${flagged !== 1 ? 's' : ''}</b> require review before final reporting.` });
+    }
+
+    const completeness = q?.completeness || 100;
+    if (completeness < 80) {
+      alerts.push({ cls: 'rpt-alert-yellow', icon: 'edit_note', text: `Data completeness is <b>${completeness}%</b> — below the 80% quality threshold. Check missing fields.` });
+    }
+
+    const overloaded = ints.filter(iv => iv.workload === 'overloaded').length;
+    if (overloaded > 0) {
+      alerts.push({ cls: 'rpt-alert-blue', icon: 'person_alert', text: `<b>${overloaded} interviewer${overloaded > 1 ? 's' : ''}</b> flagged as overloaded. Consider redistributing workload.` });
+    }
+
+    const wrap = document.getElementById('rpt-alerts-wrap');
+    const list = document.getElementById('rpt-alerts');
+    if (!alerts.length) { wrap.style.display = 'none'; return; }
+    wrap.style.display = '';
+    list.innerHTML = alerts.map(a => `
+      <div class="rpt-alert-item ${a.cls}">
+        <span class="material-symbols-outlined" style="font-size:1.1rem;flex-shrink:0;margin-top:1px;">${a.icon}</span>
+        <span>${a.text}</span>
+      </div>`).join('');
+  }
+
+  function rptRenderBadges() {
+    const s       = AN_DATA?.summary;
+    const q       = AN_DATA?.quality;
+    const regions = AN_DATA?.regions || [];
+    const ints    = AN_DATA?.interviewers || [];
+    const dis     = AN_DATA?.disabilities || [];
+    const ext     = AN_EXT;
+
+    const setB = (key, text, cls) => {
+      const el = document.getElementById('rpt-badge-' + key);
+      if (!el) return;
+      el.textContent = text;
+      el.className = 'rpt-section-badge' + (cls ? ' ' + cls : '');
+    };
+
+    // By Region
+    const maxV = Math.max(...regions.map(r => r.count), 1);
+    const lagging = regions.filter(r => r.count < maxV * 0.3).length;
+    setB('region', lagging > 0 ? `${lagging} lagging` : `${regions.length} regions`, lagging > 0 ? 'warn' : '');
+
+    // Geographic Coverage
+    const provCount = (AN_DATA?.top_provinces || []).length;
+    const cityCount = (AN_DATA?.top_cities || []).length;
+    setB('geo', provCount ? `${provCount} provinces · ${cityCount} cities` : '—', '');
+
+    // Beneficiaries
+    const total = s?.total || 0;
+    setB('beneficiaries', total ? total.toLocaleString() + ' profiled' : '—', '');
+
+    // Disabilities
+    const disTotal = dis.reduce((sum, d) => sum + (d.val || 0), 0);
+    setB('disabilities', disTotal ? disTotal.toLocaleString() + ' cases' : '—', '');
+
+    // Housing
+    const modPct = ext?.housing ? (ext.housing.mod_total > 0 ? Math.round((ext.housing.mod_yes / ext.housing.mod_total) * 100) : 0) : null;
+    setB('housing', modPct !== null ? modPct + '% homes modified' : '—', '');
+
+    // Health
+    const vaccRate = ext?.vaccination?.national_rate;
+    setB('health', vaccRate != null ? vaccRate + '% vaccinated' : '—', vaccRate != null && vaccRate < 60 ? 'warn' : '');
+
+    // Economic
+    const below = ext?.min_wage?.below || 0;
+    const mwTotal = (ext?.min_wage?.below || 0) + (ext?.min_wage?.at || 0) + (ext?.min_wage?.above || 0);
+    const belowPct = mwTotal > 0 ? Math.round((below / mwTotal) * 100) : null;
+    setB('economic', belowPct !== null ? belowPct + '% below min wage' : '—', belowPct !== null && belowPct > 50 ? 'alert' : belowPct > 30 ? 'warn' : '');
+
+    // Education
+    const enrPct = ext?.enrollment ? (ext.enrollment.enrolled + ext.enrollment.not_enrolled > 0 ? Math.round((ext.enrollment.enrolled / (ext.enrollment.enrolled + ext.enrollment.not_enrolled)) * 100) : null) : null;
+    setB('education', enrPct !== null ? enrPct + '% enrolled' : '—', enrPct !== null && enrPct < 70 ? 'warn' : '');
+
+    // Religion & IP
+    const topRel = ext?.religion?.[0]?.label || null;
+    const ipTotal = (ext?.ip_membership || []).reduce((s,r)=>s+(r.val||0),0);
+    setB('religion', topRel ? topRel + (ipTotal ? ' · ' + ipTotal.toLocaleString() + ' IP' : '') : '—', '');
+
+    // Financial & Social Services
+    const faPct = ext?.financial_assist?.total > 0 ? Math.round((ext.financial_assist.yes / ext.financial_assist.total) * 100) : null;
+    const saPct = ext?.social_awareness?.total > 0 ? Math.round((ext.social_awareness.yes / ext.social_awareness.total) * 100) : null;
+    setB('social', faPct !== null ? faPct + '% assisted' : '—', faPct !== null && faPct < 30 ? 'warn' : '');
+
+    // Readiness Score
+    const rd = ext?.readiness_dist || [];
+    const rdTotal = rd.reduce((s,r)=>s+r.val,0);
+    const severePct = rdTotal > 0 ? Math.round(((rd.find(r=>r.label==='Severe')?.val||0)/rdTotal)*100) : null;
+    setB('readiness', severePct !== null ? severePct + '% severe' : '—', severePct !== null && severePct > 30 ? 'alert' : severePct > 15 ? 'warn' : '');
+
+    // Performance
+    const overloaded = ints.filter(iv => iv.workload === 'overloaded').length;
+    setB('performance', overloaded > 0 ? overloaded + ' overloaded' : ints.length + ' interviewers', overloaded > 0 ? 'warn' : '');
+
+    // Quality
+    const completeness = q?.completeness || 0;
+    setB('quality', completeness + '% complete', completeness < 80 ? 'alert' : completeness < 90 ? 'warn' : 'good');
+  }
+
+  function rptRenderSection(key) {
+    if (!AN_DATA) return;
+    const colors = ['#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#1d4ed8','#bfdbfe','#dbeafe'];
+    const EMPTY  = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No data available</div>';
+
+    if (key === 'region') {
+      const data = AN_DATA?.regions || [];
+      const maxV = Math.max(...data.map(r => r.count), 1);
+      const rColors = ['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe','#1152d4','#2563eb','#3b82f6','#60a5fa','#1d4ed8','#1152d4','#2563eb','#3b82f6'];
+      document.getElementById('rpt-region-bars').innerHTML = data.length
+        ? data.map((r,i) => `
+          <div title="${r.region}: ${r.count.toLocaleString()} assessments" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
+            <div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div>
+            <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${Math.round((r.count/maxV)*100)}%;background:${rColors[i%rColors.length]};border-radius:999px;transition:width 0.6s;"></div>
+            </div>
+            <div style="font-size:0.75rem;font-weight:800;color:var(--dark);width:48px;text-align:right;">${r.count.toLocaleString()}</div>
+          </div>`).join('')
+        : EMPTY;
+    }
+
+    if (key === 'geo') {
+      const provs  = AN_DATA?.top_provinces || [];
+      const cities = AN_DATA?.top_cities    || [];
+      const gColors = ['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#1d4ed8','#2563eb','#3b82f6'];
+      const maxP = Math.max(...provs.map(p => p.count), 1);
+      document.getElementById('rpt-province-bars').innerHTML = provs.length
+        ? provs.map((p,i) => `
+            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
+              <div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${p.name}">${p.name}</div>
+              <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+                <div style="height:100%;width:${Math.round((p.count/maxP)*100)}%;background:${gColors[i%gColors.length]};border-radius:999px;transition:width 0.6s;"></div>
+              </div>
+              <div style="font-size:0.75rem;font-weight:800;color:var(--dark);width:40px;text-align:right;">${p.count.toLocaleString()}</div>
+            </div>`).join('')
+        : EMPTY;
+      const maxC = Math.max(...cities.map(c => c.count), 1);
+      document.getElementById('rpt-city-bars').innerHTML = cities.length
+        ? cities.map((c,i) => `
+            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
+              <div style="width:200px;min-width:0;">
+                <div style="font-size:0.75rem;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${c.name}">${c.name}</div>
+                ${c.province ? `<div style="font-size:0.65rem;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.province}</div>` : ''}
+              </div>
+              <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+                <div style="height:100%;width:${Math.round((c.count/maxC)*100)}%;background:${gColors[i%gColors.length]};border-radius:999px;transition:width 0.6s;"></div>
+              </div>
+              <div style="font-size:0.75rem;font-weight:800;color:var(--dark);width:40px;text-align:right;">${c.count.toLocaleString()}</div>
+            </div>`).join('')
+        : EMPTY;
+    }
+
+    if (key === 'beneficiaries') {
+      // Age bars — thick vertical (Monthly Assessments style)
+      const ages = AN_DATA?.age_groups || [];
+      const maxA = Math.max(...ages.map(a => a.val), 1);
+      const ageColors = ['#1152d4','#2563eb','#3b82f6','#60a5fa'];
+      const CHART_H = 130;
+      document.getElementById('rpt-age-bars').innerHTML = ages.length
+        ? `<div style="display:flex;align-items:flex-end;gap:0.875rem;width:100%;height:${CHART_H}px;border-bottom:2px solid #e5e7eb;padding-bottom:0;">
+            ${ages.map((a,i) => {
+              const barH = Math.max(Math.round((a.val/maxA)*CHART_H), a.val>0?6:2);
+              return `<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:100%;position:relative;">
+                <div style="font-size:0.78rem;font-weight:800;color:${ageColors[i%ageColors.length]};margin-bottom:6px;">${a.val > 0 ? a.val.toLocaleString() : ''}</div>
+                <div style="width:100%;height:${barH}px;background:${ageColors[i%ageColors.length]};border-radius:5px 5px 0 0;transition:height 0.6s ease;"></div>
+              </div>`;
+            }).join('')}
+          </div>
+          <div style="display:flex;gap:0.875rem;padding-top:0.5rem;">
+            ${ages.map((a,i)=>`<div style="flex:1;text-align:center;font-size:0.72rem;font-weight:${i===ages.findIndex(x=>x.val===maxA)?'700':'500'};color:${i===ages.findIndex(x=>x.val===maxA)?ageColors[i%ageColors.length]:'var(--gray-400)'};">${a.label}</div>`).join('')}
+          </div>`
+        : EMPTY;
+      // Gender donut
+      const gender = AN_DATA?.gender || [];
+      const gTotal = gender.reduce((s,g) => s + g.val, 0);
+      if (gTotal) {
+        const circ = 314; let offset = 0;
+        const arcs = gender.map((g) => {
+          const dash = (g.val/gTotal)*circ;
+          const arc = `<circle cx="60" cy="60" r="50" fill="none" stroke="${g.color}" stroke-width="20" stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${78.5-offset}" transform="rotate(-90 60 60)" style="cursor:default;"/>`;
+          offset += dash; return arc;
+        }).join('');
+        document.getElementById('rpt-gender-donut').innerHTML = `
+          <svg viewBox="0 0 120 120" width="150" height="150">${arcs}</svg>
+          <div style="display:flex;gap:1.25rem;">${gender.map(g=>`<div style="text-align:center;"><div style="width:10px;height:10px;border-radius:50%;background:${g.color};margin:0 auto 4px;"></div><div style="font-size:0.75rem;font-weight:700;">${g.label}</div><div style="font-size:0.8125rem;font-weight:800;">${Math.round((g.val/gTotal)*100)}%</div></div>`).join('')}</div>`;
+      }
+      // 4Ps — Analytics style
+      const ps = AN_EXT?.fourps;
+      const psEl = document.getElementById('rpt-4ps-chart');
+      if (ps && psEl) {
+        const psPct = ps.total > 0 ? Math.round((ps.yes / ps.total) * 100) : 0;
+        const notPct = 100 - psPct;
+        psEl.innerHTML = `
+          <div style="width:100%;padding:0.5rem 0;">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.875rem;padding:0.5rem 0.75rem;background:#f0fdf4;border-radius:0.5rem;border:1px solid #bbf7d0;">
+              <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:white;font-size:1.2rem;">check_circle</span>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:0.8125rem;font-weight:700;color:#15803d;">4Ps Members</div>
+                <div style="font-size:0.72rem;color:#16a34a;">${(ps.yes||0).toLocaleString()} households</div>
+              </div>
+              <div style="font-size:1.75rem;font-weight:800;color:#15803d;">${psPct}%</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:#f9fafb;border-radius:0.5rem;border:1px solid var(--border);">
+              <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#9ca3af;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:white;font-size:1.2rem;">remove_circle</span>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:0.8125rem;font-weight:700;color:var(--gray-700);">Non-4Ps</div>
+                <div style="font-size:0.72rem;color:var(--gray-400);">${(ps.no||0).toLocaleString()} households</div>
+              </div>
+              <div style="font-size:1.75rem;font-weight:800;color:var(--gray-500);">${notPct}%</div>
+            </div>
+            <div style="margin-top:1rem;">
+              <div style="height:12px;border-radius:999px;overflow:hidden;background:#e5e7eb;display:flex;">
+                <div style="width:${psPct}%;background:#22c55e;border-radius:999px 0 0 999px;transition:width 0.6s ease;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:0.3rem;font-size:0.7rem;color:var(--gray-400);">
+                <span>0%</span><span style="color:var(--gray-500);font-weight:600;">Total: ${(ps.total||0).toLocaleString()}</span><span>100%</span>
+              </div>
+            </div>
+          </div>`;
+      }
+      // Top locations
+      const locs = AN_DATA?.top_locations || [];
+      const maxL = Math.max(...locs.map(l => l.count), 1);
+      document.getElementById('rpt-top-locations').innerHTML = locs.length
+        ? locs.map((l,i) => `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;">
+            <span style="font-size:0.8rem;font-weight:800;color:var(--gray-400);width:1.25rem;">${i+1}</span>
+            <div style="flex:1;min-width:0;font-size:0.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${l.name}</div>
+            <div style="width:80px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;flex-shrink:0;">
+              <div style="height:100%;width:${Math.round((l.count/maxL)*100)}%;background:#2563eb;border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.75rem;font-weight:800;width:32px;text-align:right;">${l.count}</div>
+          </div>`).join('')
+        : EMPTY;
+    }
+
+    if (key === 'disabilities') {
+      const dis = AN_DATA?.disabilities || [];
+      const maxD = Math.max(...dis.map(d => d.val), 1);
+      const disColors = ['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe','#1152d4','#2563eb'];
+      document.getElementById('rpt-dis-bars').innerHTML = dis.length
+        ? dis.map((d,i) => `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
+            <div style="font-size:0.75rem;font-weight:600;width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div>
+            <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${Math.round((d.val/maxD)*100)}%;background:${disColors[i%disColors.length]};border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${d.val.toLocaleString()}</div>
+          </div>`).join('')
+        : EMPTY;
+    }
+
+    if (key === 'housing') {
+      const h = AN_EXT?.housing;
+      if (h) {
+        anRenderHorizBars('rpt-housing-materials',  h.materials,          ['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd']);
+        anRenderHorizBars('rpt-tenure-status',       h.tenure,             ['#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe']);
+        anRenderHorizBars('rpt-water-source',        h.water_source,       ['#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe']);
+        anRenderHorizBars('rpt-electricity-source',  h.electricity_source, ['#1d4ed8','#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd']);
+        anRenderHorizBars('rpt-toilet-type',         h.toilet_type,        ['#2563eb','#1152d4','#3b82f6','#60a5fa','#93c5fd','#bfdbfe']);
+        anRenderHorizBars('rpt-garbage-disposal',    h.garbage_disposal,   ['#1152d4','#2563eb','#1d4ed8','#3b82f6','#60a5fa','#93c5fd']);
+      }
+    }
+
+    if (key === 'health') {
+      const vacc     = AN_EXT?.vaccination;
+      const barriers = AN_EXT?.barriers || [];
+      if (vacc) {
+        anRenderDonut('rpt-immunization-donut', [
+          {label:'Complete', val:vacc.vaccinated||0, color:'#1152d4'},
+          {label:'Incomplete', val:(vacc.total||0)-(vacc.vaccinated||0), color:'#bfdbfe'}
+        ], vacc.national_rate + '%', 'Immunized');
+      }
+      const hi = AN_EXT?.health_issues;
+      if (hi) {
+        anRenderDonut('rpt-health-issues-donut', [
+          {label:'Has Issues', val:hi.yes||0, color:'#2563eb'},
+          {label:'None', val:hi.no||0, color:'#dbeafe'}
+        ], hi.total>0?Math.round((hi.yes/hi.total)*100)+'%':'—', 'With Issues');
+      }
+      const ha = AN_EXT?.health_availed;
+      if (ha) {
+        anRenderDonut('rpt-health-availed-donut', [
+          {label:'Availed', val:ha.yes||0, color:'#3b82f6'},
+          {label:'Did Not Avail', val:ha.no||0, color:'#93c5fd'}
+        ], ha.total>0?Math.round((ha.yes/ha.total)*100)+'%':'—', 'Availed');
+      }
+      document.getElementById('rpt-barriers-chart').innerHTML = barriers.length
+        ? barriers.map((b,i) => `<div style="display:flex;align-items:flex-start;gap:0.5rem;padding:0.25rem 0.375rem;">
+            <span style="font-size:0.7rem;font-weight:700;color:#1152d4;min-width:1.1rem;">${i+1}.</span>
+            <span style="font-size:0.78rem;color:var(--dark);line-height:1.4;">${b.label}</span>
+          </div>`).join('')
+        : EMPTY;
+      const expData = AN_EXT?.expenses;
+      if (expData) {
+        document.getElementById('rpt-expenses-total').innerHTML = 'Avg total: <b>₱' + (expData.total_avg||0).toLocaleString() + '</b>/mo';
+        const maxExp = Math.max(...(expData.breakdown||[]).map(e=>e.avg),1);
+        document.getElementById('rpt-expenses-chart').innerHTML = (expData.breakdown||[]).length
+          ? expData.breakdown.map((e,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;">
+              <div style="font-size:0.75rem;font-weight:600;width:130px;">${e.label}</div>
+              <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+                <div style="height:100%;width:${Math.round((e.avg/maxExp)*100)}%;background:#3b82f6;border-radius:999px;"></div>
+              </div>
+              <div style="font-size:0.72rem;font-weight:800;width:60px;text-align:right;">₱${(e.avg||0).toLocaleString()}</div>
+            </div>`).join('')
+          : EMPTY;
+      }
+    }
+
+    if (key === 'economic') {
+      const src = AN_EXT?.primary_income_src || [];
+      anRenderHorizBars('rpt-primary-income-src', src, ['#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#1d4ed8']);
+      const mw = AN_EXT?.min_wage;
+      if (mw) {
+        anRenderHorizBars('rpt-min-wage', [
+          {label:'Below Minimum Wage', val:mw.below||0},
+          {label:'At Minimum Wage',    val:mw.at||0},
+          {label:'Above Minimum Wage', val:mw.above||0}
+        ], ['#1152d4','#3b82f6','#93c5fd']);
+      }
+    }
+
+    if (key === 'education') {
+      const enr = AN_EXT?.enrollment;
+      if (enr) {
+        const total = (enr.enrolled||0) + (enr.not_enrolled||0);
+        const pct   = total > 0 ? Math.round((enr.enrolled/total)*100) : 0;
+        const circ  = 2*Math.PI*50; const dash = pct/100*circ;
+        document.getElementById('rpt-enrollment-donut').innerHTML = `
+          <svg viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="20"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#1152d4" stroke-width="20" stroke-dasharray="${dash.toFixed(2)} ${(circ-dash).toFixed(2)}" stroke-dashoffset="0"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#bfdbfe" stroke-width="20" stroke-dasharray="${(circ-dash).toFixed(2)} ${dash.toFixed(2)}" stroke-dashoffset="${(-dash).toFixed(2)}"/>
+          </svg>
+          <div style="text-align:center;">
+            <div style="font-size:1.5rem;font-weight:800;">${pct}%</div>
+            <div style="font-size:0.75rem;color:var(--gray-500);">Enrolled</div>
+          </div>
+          <div style="display:flex;gap:1rem;font-size:0.75rem;">
+            <div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:#1152d4;"></div>Enrolled: <b>${(enr.enrolled||0).toLocaleString()}</b></div>
+            <div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:#bfdbfe;"></div>Not: <b>${(enr.not_enrolled||0).toLocaleString()}</b></div>
+          </div>`;
+        const reasons = enr.top_reasons || [];
+        document.getElementById('rpt-enrollment-reasons').innerHTML = reasons.length
+          ? reasons.map((r,i) => `<div style="display:flex;align-items:flex-start;gap:0.625rem;padding:0.5rem 0;border-bottom:1px solid var(--gray-100);">
+              <span style="display:inline-flex;align-items:center;justify-content:center;min-width:1.4rem;height:1.4rem;border-radius:50%;background:#eff6ff;color:#1152d4;font-size:0.65rem;font-weight:800;">${i+1}</span>
+              <div style="flex:1;">
+                <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);line-height:1.4;">${r.reason}</div>
+                <div style="font-size:0.7rem;color:var(--gray-400);margin-top:0.1rem;">${r.count} student${r.count!==1?'s':''}</div>
+              </div>
+            </div>`).join('')
+          : EMPTY;
+      }
+      const att = AN_EXT?.educ_attainment;
+      anRenderHorizBars('rpt-educ-attainment', att, ['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe']);
+    }
+
+    if (key === 'religion') {
+      const rel = AN_EXT?.religion || [];
+      const relColors = ['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd'];
+      if (rel.length) {
+        anRenderDonut('rpt-religion-donut', rel.map((r,i)=>({label:r.label, val:r.count, color:relColors[i%relColors.length]})),
+          rel[0]?.label||'—', 'Most common');
+      } else {
+        document.getElementById('rpt-religion-donut').innerHTML = EMPTY;
+      }
+      const ip = AN_EXT?.ip_membership || [];
+      anRenderHorizBars('rpt-ip-bars', ip, ['#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe']);
+    }
+
+    if (key === 'social') {
+      const fa = AN_EXT?.financial_assist;
+      if (fa) {
+        anRenderDonut('rpt-financial-assist-donut', [
+          {label:'Receiving', val:fa.yes||0, color:'#1152d4'},
+          {label:'Not Receiving', val:fa.no||0, color:'#bfdbfe'}
+        ], fa.total>0?Math.round((fa.yes/fa.total)*100)+'%':'—', 'Receiving');
+      }
+      const sa = AN_EXT?.social_awareness;
+      if (sa) {
+        anRenderDonut('rpt-social-awareness-donut', [
+          {label:'Aware', val:sa.yes||0, color:'#2563eb'},
+          {label:'Not Aware', val:sa.no||0, color:'#93c5fd'}
+        ], sa.total>0?Math.round((sa.yes/sa.total)*100)+'%':'—', 'Aware');
+      }
+    }
+
+    if (key === 'readiness') {
+      const rd = AN_EXT?.readiness_dist || [];
+      const maxRd = Math.max(...rd.map(r=>r.val), 1);
+      const totalRd = rd.reduce((s,r)=>s+r.val,0);
+      document.getElementById('rpt-readiness-bars').innerHTML = rd.length
+        ? rd.map(r => `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background=''">
+            <div style="display:flex;align-items:center;gap:0.5rem;width:110px;">
+              <div style="width:10px;height:10px;border-radius:50%;background:${r.color};flex-shrink:0;"></div>
+              <div style="font-size:0.75rem;font-weight:600;">${r.label}</div>
+            </div>
+            <div style="flex:1;height:12px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${Math.round((r.val/maxRd)*100)}%;background:${r.color};border-radius:999px;transition:width 0.6s;"></div>
+            </div>
+            <div style="font-size:0.75rem;font-weight:800;width:40px;text-align:right;">${r.val.toLocaleString()}</div>
+            <div style="font-size:0.7rem;color:var(--gray-400);width:36px;">${totalRd>0?Math.round((r.val/totalRd)*100):0}%</div>
+          </div>`).join('')
+        : EMPTY;
+    }
+
+    if (key === 'performance') {
+      const WL = { overloaded:'<span class="badge badge-red" style="font-size:0.65rem;">Overloaded</span>', balanced:'<span class="badge badge-green" style="font-size:0.65rem;">Balanced</span>', underutilized:'<span class="badge badge-orange" style="font-size:0.65rem;">Underutilized</span>' };
+      const medals = ['🥇','🥈','🥉','4.','5.'];
+      const sorted = AN_DATA?.interviewers || [];
+      document.getElementById('rpt-int-tbody').innerHTML = sorted.length
+        ? sorted.map((iv,i) => `<tr class="table-row-hover">
+            <td style="font-weight:800;color:var(--gray-400);">${i+1}</td>
+            <td style="font-weight:700;">${iv.name}</td>
+            <td><span style="font-family:monospace;font-size:0.75rem;color:var(--blue);">${iv.code}</span></td>
+            <td style="font-size:0.75rem;">${iv.region}</td>
+            <td style="font-weight:800;color:#1152d4;">${iv.completed}</td>
+            <td>${iv.avgDay}</td>
+            <td>${WL[iv.workload]||''}</td>
+          </tr>`).join('')
+        : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:1.5rem;font-size:0.75rem;">No data</td></tr>';
+      document.getElementById('rpt-top5-int').innerHTML = sorted.slice(0,5).map((iv,i) => `
+        <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);">
+          <span style="font-size:1rem;min-width:1.5rem;">${medals[i]}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:0.8125rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${iv.name}</div>
+            <div style="font-size:0.7rem;color:var(--gray-400);">${(iv.region||'').split('–')[0].trim()}</div>
+          </div>
+          <span style="font-weight:800;color:#1152d4;">${iv.completed}</span>
+        </div>`).join('') || EMPTY;
+      const wlCounts = {overloaded:0, balanced:0, underutilized:0};
+      sorted.forEach(iv => { if (wlCounts[iv.workload]!==undefined) wlCounts[iv.workload]++; });
+      const wlTotal = sorted.length || 1;
+      document.getElementById('rpt-workload-vis').innerHTML = [
+        {key:'overloaded', label:'Overloaded', color:'#1152d4'},
+        {key:'balanced', label:'Balanced', color:'#3b82f6'},
+        {key:'underutilized', label:'Underutilized', color:'#93c5fd'},
+      ].map(w => `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;">
+          <div style="font-size:0.75rem;font-weight:600;width:100px;">${w.label}</div>
+          <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+            <div style="height:100%;width:${Math.round((wlCounts[w.key]/wlTotal)*100)}%;background:${w.color};border-radius:999px;"></div>
+          </div>
+          <div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${wlCounts[w.key]} / ${wlTotal}</div>
+        </div>`).join('');
+    }
+
+    if (key === 'quality') {
+      const q = AN_DATA?.quality;
+      if (!q) return;
+      const missing = q.missing_fields || [];
+      const maxM = Math.max(...missing.map(f => f.pct), 1);
+      document.getElementById('rpt-missing-fields').innerHTML = missing.length
+        ? missing.map(f => `<div style="display:flex;align-items:center;gap:0.75rem;">
+            <div style="font-size:0.75rem;flex:1;">${f.field}</div>
+            <div style="width:80px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${Math.round((f.pct/maxM)*100)}%;background:#3b82f6;border-radius:999px;"></div>
+            </div>
+            <div style="font-size:0.7rem;font-weight:800;width:32px;text-align:right;color:#1152d4;">${f.pct}%</div>
+          </div>`).join('')
+        : EMPTY;
+      document.getElementById('rpt-flagged-count').textContent = q.flagged_count || 0;
+    }
+
+    if (key === 'analysis') {
+      // placeholder — populated by rptGenerateAnalysis()
+    }
+  }
+
+  function rptPopulateProvinces() {
+    const sel = document.getElementById('rpt-province-filter');
+    if (!sel) return;
+    const provs = (AN_DATA?.top_provinces || []).map(p => p.name);
+    // Also gather from all children data if available
+    const current = anFilters.province;
+    sel.innerHTML = '<option value="">All Provinces</option>' +
+      provs.map(p => `<option value="${p}"${p === current ? ' selected' : ''}>${p}</option>`).join('');
+  }
+
+  async function rptApplyProvinceFilter() {
+    const sel = document.getElementById('rpt-province-filter');
+    const val = sel?.value || '';
+    anFilters.province = val;
+    AN_DATA = null; AN_CACHE_TS = 0; AN_EXT = null; AN_EXT_CACHE_KEY = '';
+
+    // Show/hide chip
+    const chip = document.getElementById('rpt-province-chip');
+    const chipLabel = document.getElementById('rpt-province-chip-label');
+    if (val) {
+      chipLabel.textContent = val;
+      chip.style.display = 'flex';
+    } else {
+      chip.style.display = 'none';
+    }
+
+    // Update subtitle
+    document.getElementById('rpt-last-refresh').textContent = 'Filtering…';
+
+    await Promise.all([fetchAnalyticsData(), fetchExtendedAnalytics()]);
+    rptRenderHero();
+    rptRenderPace();
+    rptRenderBadges();
+
+    // Re-render all currently open sections
+    Object.keys(RPT_OPEN).forEach(k => {
+      if (RPT_OPEN[k]) rptRenderSection(k);
+    });
+
+    document.getElementById('rpt-last-refresh').textContent =
+      (val ? `Province: ${val} · ` : '') +
+      'Last refreshed: ' + new Date().toLocaleTimeString('en-PH', {hour:'2-digit', minute:'2-digit'});
+  }
+
+  function rptClearProvince() {
+    const sel = document.getElementById('rpt-province-filter');
+    if (sel) sel.value = '';
+    rptApplyProvinceFilter();
+  }
+
+  function rptGeoTab(tab) {
+    const tabs  = ['province','city'];
+    const active = 'color:#1152d4;border-bottom:2px solid #1152d4;font-weight:700;';
+    const inactive = 'color:var(--gray-400);border-bottom:2px solid transparent;font-weight:600;';
+    tabs.forEach(t => {
+      const btn  = document.getElementById('rpt-geo-tab-' + t);
+      const pane = document.getElementById('rpt-geo-pane-' + t);
+      if (!btn || !pane) return;
+      const isActive = t === tab;
+      btn.style.cssText  = btn.style.cssText.replace(/color:[^;]+;|border-bottom:[^;]+;|font-weight:[^;]+;/g,'') + (isActive ? active : inactive);
+      pane.style.display = isActive ? '' : 'none';
+    });
+  }
+
+  async function rptGenerateAnalysis() {
+    const btn = document.getElementById('rpt-analysis-btn');
+    const out = document.getElementById('rpt-analysis-output');
+    const s   = AN_DATA?.summary || {};
+    const ext = AN_EXT || {};
+    const rd  = ext.readiness_dist || [];
+    const dis = AN_DATA?.disabilities || [];
+    const reg = AN_DATA?.regions || [];
+    const fa  = ext.financial_assist || {};
+    const sa  = ext.social_awareness || {};
+    const enr = ext.enrollment || {};
+    const vacc= ext.vaccination || {};
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation:spin 1s linear infinite;">progress_activity</span>Analyzing…';
+    out.innerHTML = '<div style="padding:1rem;text-align:center;color:var(--gray-400);font-size:0.8125rem;">Generating analysis…</div>';
+
+    await new Promise(r => setTimeout(r, 600));
+
+    const total      = s.total || 0;
+    const rate       = s.completion_rate || 0;
+    const avgDay     = s.avg_per_day || 0;
+    const topRegion  = reg[0]?.region || 'N/A';
+    const topRegionN = reg[0]?.count || 0;
+    const topDis     = dis[0]?.label || 'N/A';
+    const severeRd   = rd.find(r=>r.label==='Severe')?.val || 0;
+    const stableRd   = rd.find(r=>r.label==='Stable')?.val || 0;
+    const rdTotal    = rd.reduce((s,r)=>s+r.val,0);
+    const severePct  = rdTotal>0 ? Math.round((severeRd/rdTotal)*100) : 0;
+    const stablePct  = rdTotal>0 ? Math.round((stableRd/rdTotal)*100) : 0;
+    const faPct      = fa.total>0 ? Math.round((fa.yes/fa.total)*100) : 0;
+    const saPct      = sa.total>0 ? Math.round((sa.yes/sa.total)*100) : 0;
+    const enrPct     = (enr.enrolled||0)+(enr.not_enrolled||0)>0 ? Math.round(((enr.enrolled||0)/((enr.enrolled||0)+(enr.not_enrolled||0)))*100) : 0;
+    const vaccRate   = vacc.national_rate || 0;
+
+    const statusColor = rate >= 80 ? '#059669' : rate >= 60 ? '#1152d4' : '#dc2626';
+    const statusLabel = rate >= 80 ? 'Ahead of Target' : rate >= 60 ? 'On Track' : 'Behind Target';
+
+    const sections = [
+      {
+        icon: 'assignment_turned_in', color: '#1152d4', bg: '#eff6ff',
+        title: 'Program Completion Status',
+        body: `As of this report, <b>${total.toLocaleString()}</b> assessments have been recorded nationally with a completion rate of <b style="color:${statusColor}">${rate}%</b> — <b>${statusLabel}</b>. The program is averaging <b>${avgDay}</b> assessments per day. ${rate < 60 ? 'Immediate attention is needed to accelerate data collection across lagging regions.' : rate >= 80 ? 'The program is performing well and should maintain current momentum.' : 'The program is progressing steadily but should monitor pace closely to meet targets.'}`
+      },
+      {
+        icon: 'map', color: '#2563eb', bg: '#eff6ff',
+        title: 'Regional Coverage',
+        body: `<b>${topRegion}</b> leads regional coverage with <b>${topRegionN.toLocaleString()}</b> assessments. ${reg.length > 1 ? `The bottom region, <b>${reg[reg.length-1]?.region}</b>, has recorded only <b>${(reg[reg.length-1]?.count||0).toLocaleString()}</b> — a gap that may require targeted field support.` : ''} Regional equity in data collection should be a priority for the next phase.`
+      },
+      {
+        icon: 'insights', color: '#3b82f6', bg: '#eff6ff',
+        title: 'Child Readiness Profile',
+        body: rdTotal > 0
+          ? `Of <b>${rdTotal.toLocaleString()}</b> children assessed, <b style="color:#ef4444">${severePct}%</b> are classified as <b>Severe</b> and <b style="color:#22c55e">${stablePct}%</b> as <b>Stable</b>. ${severePct > 30 ? 'The high proportion of severe cases signals an urgent need for intervention planning and resource allocation.' : severePct > 15 ? 'A notable proportion of children require prioritized support and early intervention.' : 'Most children show manageable readiness levels, though continued monitoring is recommended.'}`
+          : 'Readiness score data is not yet available for analysis.'
+      },
+      {
+        icon: 'accessible', color: '#60a5fa', bg: '#eff6ff',
+        title: 'Disability Prevalence',
+        body: dis.length > 0
+          ? `The most prevalent disability type is <b>${topDis}</b>. Multi-disability cases are present and should factor into service planning. Programs targeting children with disabilities should ensure adequate specialist support and assistive resources.`
+          : 'No disability data recorded in the current period.'
+      },
+      {
+        icon: 'volunteer_activism', color: '#1d4ed8', bg: '#eff6ff',
+        title: 'Social Services Access',
+        body: `<b>${faPct}%</b> of assessed households currently receive financial assistance, while <b>${saPct}%</b> are aware of available social services. ${saPct < 60 ? 'Low awareness levels suggest a need for stronger information dissemination at the community level.' : 'Awareness levels are adequate but continued outreach is recommended to ensure no household is left behind.'} School enrollment stands at <b>${enrPct}%</b> and immunization coverage at <b>${vaccRate}%</b>.`
+      },
+    ];
+
+    out.innerHTML = `<div style="display:flex;flex-direction:column;gap:0.875rem;padding-top:0.25rem;">
+      ${sections.map(sec=>`
+        <div style="display:flex;gap:0.875rem;padding:1rem 1.125rem;background:${sec.bg};border:1px solid #dbeafe;border-radius:0.625rem;">
+          <div style="width:2.25rem;height:2.25rem;border-radius:50%;background:${sec.color};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:0.1rem;">
+            <span class="material-symbols-outlined" style="color:white;font-size:1.1rem;">${sec.icon}</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.8125rem;font-weight:800;color:var(--dark);margin-bottom:0.3rem;">${sec.title}</div>
+            <div style="font-size:0.8rem;color:var(--gray-600);line-height:1.6;">${sec.body}</div>
+          </div>
+        </div>`).join('')}
+      <div style="font-size:0.68rem;color:var(--gray-400);text-align:right;padding-top:0.25rem;">Generated ${new Date().toLocaleString('en-PH',{dateStyle:'medium',timeStyle:'short'})} · Based on current filter</div>
+    </div>`;
+
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined">refresh</span>Regenerate';
+  }
+
+  function rptEmailReport() {
+    const email = document.getElementById('rpt-email-addr').value.trim();
+    const type  = document.getElementById('rpt-email-type').value;
+    if (!email || !email.includes('@')) { showGlobalToast('Enter a valid email address.', 'error'); return; }
+    document.getElementById('rpt-email-addr').value = '';
+    showGlobalToast(`${type.charAt(0).toUpperCase()+type.slice(1)} report queued for delivery to ${email}.`, 'success');
+  }
+
 </script>
 </body>
 </html>
