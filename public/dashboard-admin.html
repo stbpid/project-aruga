@@ -4885,9 +4885,9 @@
   async function loadTopIssues() {
     function issueSeverity(pct) {
       if (pct === 0) return { bg:'#f9fafb', border:'#d1d5db', icon:'#9ca3af', badge:'#6b7280', label:'No Data' };
-      if (pct >= 80) return { bg:'#eff6ff', border:'#93c5fd', icon:'#1152d4', badge:'#1152d4', label:'Critical' };
-      if (pct >= 60) return { bg:'#eff6ff', border:'#bfdbfe', icon:'#2563eb', badge:'#2563eb', label:'High' };
-      return { bg:'#f0f7ff', border:'#dbeafe', icon:'#3b82f6', badge:'#3b82f6', label:'Moderate' };
+      if (pct >= 80) return { bg:'#fff1f2', border:'#fca5a5', icon:'#dc2626', badge:'#ef4444', label:'Critical' };
+      if (pct >= 60) return { bg:'#fff7ed', border:'#fdba74', icon:'#ea580c', badge:'#f97316', label:'High' };
+      return { bg:'#fefce8', border:'#fde047', icon:'#ca8a04', badge:'#eab308', label:'Moderate' };
     }
     try {
       const res  = await fetch('/api/get-top-issues.php');

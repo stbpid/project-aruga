@@ -1464,7 +1464,7 @@
     const total = dis.reduce((s,d)=>s+d.count, 0);
 
     container.innerHTML = dis.map((d,i) => `
-      <div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background='transparent'">
+      <div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.15s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${d.label.replace(/'/g,"&#39;")}</strong>: ${d.count.toLocaleString()} (${Math.round((d.count/total)*100)}%)')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()">
         <div style="font-size:0.75rem;font-weight:600;width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div>
         <div style="flex:1;height:10px;background:var(--gray-100);border-radius:999px;overflow:hidden;">
           <div style="height:100%;width:${Math.round((d.count/maxD)*100)}%;background:${DIS_COLORS_CO[i%DIS_COLORS_CO.length]};border-radius:999px;transition:width 0.5s;"></div>
