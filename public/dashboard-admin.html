@@ -108,10 +108,6 @@
       <a href="#" class="nav-item" id="nav-assessments" title="Assessments" onclick="showView('assessments');return false;">
         <span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span>
       </a>
-      <a href="#" class="nav-item" id="nav-analytics" title="Analytics" onclick="showView('analytics');return false;">
-        <span class="material-symbols-outlined">bar_chart</span><span class="nav-label">Analytics</span>
-      </a>
-
       <a href="#" class="nav-item" id="nav-report" title="Report" onclick="showView('report');return false;">
         <span class="material-symbols-outlined">summarize</span><span class="nav-label">Report</span>
       </a>
@@ -177,7 +173,7 @@
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div>
+          <div class="stat-icon blue"><span class="material-symbols-outlined">badge</span></div>
           <div class="stat-body">
             <div class="stat-value" id="stat-active-interviewers">—</div>
             <div class="stat-label">Active Interviewers</div>
@@ -193,7 +189,7 @@
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon green"><span class="material-symbols-outlined">trending_up</span></div>
+          <div class="stat-icon blue"><span class="material-symbols-outlined">trending_up</span></div>
           <div class="stat-body">
             <div class="stat-value" id="stat-completion-rate">—</div>
             <div class="stat-label">Completion Rate</div>
@@ -238,7 +234,8 @@
           </div>
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem 1rem 1.25rem;gap:0.75rem;">
             <div style="position:relative;width:160px;height:160px;">
-              <svg id="status-donut-svg" viewBox="0 0 160 160" width="160" height="160" style="transform:rotate(-90deg);"></svg>
+              <svg id="status-donut-svg" viewBox="0 0 160 160" width="160" height="160" style="transform:rotate(-90deg);overflow:visible;"></svg>
+              <div id="status-donut-tip" style="display:none;position:fixed;background:#1e293b;color:#fff;border-radius:0.5rem;padding:0.4rem 0.75rem;font-size:10px;pointer-events:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);white-space:nowrap;"></div>
             </div>
             <div id="status-donut-legend" style="display:flex;flex-direction:column;gap:0.4rem;width:100%;max-width:180px;"></div>
           </div>
@@ -340,8 +337,13 @@
           <div class="table-wrap">
             <table class="dash-table">
               <thead>
-                <tr>
-                  <th>Beneficiary</th><th>Age</th><th>Disability</th><th>Region</th><th>Readiness</th><th>Action</th>
+                <tr id="all-ben-thead-row">
+                  <th onclick="sortAllBen('name')" style="cursor:pointer;user-select:none;white-space:nowrap;">Beneficiary <span id="ben-sort-icon-name" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                  <th onclick="sortAllBen('age')" style="cursor:pointer;user-select:none;white-space:nowrap;">Age <span id="ben-sort-icon-age" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                  <th>Disability</th>
+                  <th onclick="sortAllBen('region')" style="cursor:pointer;user-select:none;white-space:nowrap;">Region <span id="ben-sort-icon-region" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                  <th onclick="sortAllBen('readiness')" style="cursor:pointer;user-select:none;white-space:nowrap;">Readiness <span id="ben-sort-icon-readiness" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody id="all-ben-tbody">
@@ -413,11 +415,11 @@
           <table class="dash-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Code</th>
-                <th>Email</th>
-                <th style="cursor:pointer;user-select:none;" onclick="sortInterviewers('month')" title="Sort by monthly submissions">Submissions <span id="int-sort-icon" style="font-size:0.7rem;color:var(--gray-400);">↕</span></th>
-                <th style="cursor:pointer;user-select:none;" onclick="sortInterviewers('last_active')" title="Sort by last active">Last Active <span id="int-sort-icon-date" style="font-size:0.7rem;color:var(--gray-400);">↕</span></th>
+                <th onclick="sortInterviewers('name')" style="cursor:pointer;user-select:none;white-space:nowrap;">Name <span id="int-sort-icon-name" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="sortInterviewers('code')" style="cursor:pointer;user-select:none;white-space:nowrap;">Code <span id="int-sort-icon-code" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="sortInterviewers('email')" style="cursor:pointer;user-select:none;white-space:nowrap;">Email <span id="int-sort-icon-email" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="sortInterviewers('month')" style="cursor:pointer;user-select:none;white-space:nowrap;">Submissions <span id="int-sort-icon-month" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="sortInterviewers('last_active')" style="cursor:pointer;user-select:none;white-space:nowrap;">Last Active <span id="int-sort-icon-last_active" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -689,8 +691,8 @@
     <!-- Legacy interviewer toast (kept for ID ref, hidden by CSS) -->
     <div id="int-success-toast" style="display:none;"></div>
 
-    <!-- Analytics View -->
-    <div class="dash-content" id="view-analytics" style="display:none;">
+    <!-- Analytics View (hidden/removed from nav) -->
+    <div class="dash-content" id="view-analytics" style="display:none!important;visibility:hidden;pointer-events:none;position:absolute;left:-9999px;">
 
       <!-- Header -->
       <div style="margin-bottom:1rem;">
@@ -1131,16 +1133,21 @@
         </div>
         <div style="display:flex;align-items:center;gap:0.625rem;flex-wrap:wrap;">
           <div style="position:relative;">
-            <span class="material-symbols-outlined" style="position:absolute;left:0.6rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--gray-400);pointer-events:none;">location_on</span>
-            <select id="rpt-province-filter" onchange="rptApplyProvinceFilter()" style="padding:0.45rem 2rem 0.45rem 2rem;font-size:0.8125rem;font-family:inherit;border:1px solid var(--border);border-radius:0.5rem;background:#fff;color:var(--dark);cursor:pointer;appearance:none;-webkit-appearance:none;min-width:200px;">
-              <option value="">All Provinces</option>
+            <span class="material-symbols-outlined" style="position:absolute;left:0.6rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--gray-400);pointer-events:none;">map</span>
+            <select id="rpt-region-filter" onchange="rptApplyRegionFilter()" style="padding:0.45rem 2rem 0.45rem 2rem;font-size:0.8125rem;font-family:inherit;border:1px solid var(--border);border-radius:0.5rem;background:#fff;color:var(--dark);cursor:pointer;appearance:none;-webkit-appearance:none;min-width:200px;">
+              <option value="">All Regions</option>
             </select>
             <span class="material-symbols-outlined" style="position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
           </div>
-          <div id="rpt-province-chip" style="display:none;align-items:center;gap:0.375rem;padding:0.3rem 0.75rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:999px;font-size:0.75rem;font-weight:700;color:#1152d4;">
-            <span id="rpt-province-chip-label"></span>
-            <span onclick="rptClearProvince()" style="cursor:pointer;display:flex;align-items:center;" title="Clear filter"><span class="material-symbols-outlined" style="font-size:0.9rem;">close</span></span>
+          <div id="rpt-region-chip" style="display:none;align-items:center;gap:0.375rem;padding:0.3rem 0.75rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:999px;font-size:0.75rem;font-weight:700;color:#1152d4;">
+            <span id="rpt-region-chip-label"></span>
+            <span onclick="rptClearRegion()" style="cursor:pointer;display:flex;align-items:center;" title="Clear filter"><span class="material-symbols-outlined" style="font-size:0.9rem;">close</span></span>
           </div>
+        </div>
+        <!-- Filter toast -->
+        <div id="rpt-filter-toast" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;background:#1152d4;color:#fff;border-radius:0.75rem;padding:0.75rem 1.25rem;font-size:0.8125rem;font-weight:600;box-shadow:0 8px 24px rgba(17,82,212,0.25);align-items:center;gap:0.5rem;opacity:0;transition:opacity 0.25s;">
+          <span class="material-symbols-outlined" style="font-size:1.1rem;">check_circle</span>
+          <span id="rpt-filter-toast-msg"></span>
         </div>
       </div>
 
@@ -2374,11 +2381,11 @@
           <table class="dash-table">
             <thead>
               <tr>
-                <th>Timestamp</th>
-                <th>User</th>
-                <th>Action</th>
+                <th onclick="sortAudit('timestamp_raw')" style="cursor:pointer;user-select:none;white-space:nowrap;">Timestamp <span id="audit-sort-icon-timestamp_raw" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="sortAudit('user')" style="cursor:pointer;user-select:none;white-space:nowrap;">User <span id="audit-sort-icon-user" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="sortAudit('action')" style="cursor:pointer;user-select:none;white-space:nowrap;">Action <span id="audit-sort-icon-action" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th>Details</th>
-                <th>IP Address</th>
+                <th onclick="sortAudit('ip_address')" style="cursor:pointer;user-select:none;white-space:nowrap;">IP Address <span id="audit-sort-icon-ip_address" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
               </tr>
             </thead>
             <tbody id="audit-tbody">
@@ -2400,6 +2407,27 @@
 <script src="/js/dashboard-common.js"></script>
 <script>
   dashRequireAuth();
+
+  // ── Global floating tooltip ───────────────────────────────────
+  (function() {
+    const tip = document.createElement('div');
+    tip.id = 'g-tip';
+    tip.style.cssText = 'display:none;position:fixed;background:#1e293b;color:#fff;border-radius:0.5rem;padding:0.4rem 0.75rem;font-size:10px;font-weight:600;pointer-events:none;z-index:99999;box-shadow:0 4px 12px rgba(0,0,0,0.2);white-space:nowrap;';
+    document.body.appendChild(tip);
+  })();
+  function gTip(e, html) {
+    const t = document.getElementById('g-tip');
+    if (!t) return;
+    t.innerHTML = html;
+    t.style.display = 'block';
+    t.style.left = (e.clientX + 12) + 'px';
+    t.style.top  = (e.clientY - 10) + 'px';
+  }
+  function gTipMove(e) {
+    const t = document.getElementById('g-tip');
+    if (t) { t.style.left = (e.clientX + 12) + 'px'; t.style.top = (e.clientY - 10) + 'px'; }
+  }
+  function gTipHide() { const t = document.getElementById('g-tip'); if (t) t.style.display = 'none'; }
 
   const NOW = new Date();
   const CURRENT_YEAR = NOW.getFullYear();
@@ -2491,15 +2519,6 @@
     const containerH = container.clientHeight || 160;
     const usableH = containerH - 32; // space for label and value text
 
-    // Create tooltip element
-    let tooltip = document.getElementById('chart-tooltip');
-    if (!tooltip) {
-      tooltip = document.createElement('div');
-      tooltip.id = 'chart-tooltip';
-      tooltip.style.cssText = 'position:fixed;background:#1f2937;color:white;font-size:0.7rem;font-weight:600;padding:0.3rem 0.625rem;border-radius:0.375rem;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9000;white-space:nowrap;';
-      document.body.appendChild(tooltip);
-    }
-
     bars.forEach(b => {
       const pct = b.value / b.maxVal;
       const heightPx = Math.max(pct * usableH, b.value > 0 ? 6 : 3);
@@ -2519,17 +2538,13 @@
         this.style.background = b.hoverColor;
         this.style.transform = 'scaleY(1.03)';
         this.style.transformOrigin = 'bottom';
-        tooltip.textContent = b.tooltip;
-        tooltip.style.opacity = '1';
+        gTip(e, b.tooltip);
       });
-      bar.addEventListener('mousemove', function(e) {
-        tooltip.style.left = (e.clientX + 12) + 'px';
-        tooltip.style.top  = (e.clientY - 28) + 'px';
-      });
+      bar.addEventListener('mousemove', gTipMove);
       bar.addEventListener('mouseleave', function() {
         this.style.background = b.color;
         this.style.transform = '';
-        tooltip.style.opacity = '0';
+        gTipHide();
       });
 
       const labelSpan = document.createElement('span');
@@ -2545,7 +2560,7 @@
   }
 
   async function loadAssessmentStatusDonut() {
-    const STATUS_COLORS = { severe: '#ef4444', moderate: '#f97316', low: '#eab308', stable: '#22c55e' };
+    const STATUS_COLORS = { severe: '#1152d4', moderate: '#2563eb', low: '#60a5fa', stable: '#bfdbfe' };
     const STATUS_LABELS = { severe: 'Severe', moderate: 'Moderate', low: 'Low', stable: 'Stable' };
     const svg = document.getElementById('status-donut-svg');
     const legendEl = document.getElementById('status-donut-legend');
@@ -2582,22 +2597,21 @@
           const pct = vals[i] / sum;
           const dash = pct * circ;
           const gap = circ - dash;
+          const pctLabel = Math.round(pct * 100);
           const seg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${STATUS_COLORS[s]}" stroke-width="${stroke}"
             stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-offset}"
-            style="transition:stroke-width 0.2s,opacity 0.2s;cursor:pointer;pointer-events:stroke;"
             data-label="${STATUS_LABELS[s]}"
-            onmouseenter="(function(c){
-              document.querySelectorAll('#status-donut-svg circle[data-label]').forEach(x=>x.style.opacity='0.35');
-              c.style.opacity='1';c.style.strokeWidth='${stroke+6}px';
-              var t=document.getElementById('status-donut-total');
-              if(t)t.textContent='${vals[i].toLocaleString()} (${Math.round(pct*100)}%)';
-              document.getElementById('status-donut-subtitle').textContent='${STATUS_LABELS[s]}';
-            })(this)"
-            onmouseleave="(function(){
-              document.querySelectorAll('#status-donut-svg circle[data-label]').forEach(x=>{x.style.opacity='1';x.style.strokeWidth='${stroke}px';});
-              var t=document.getElementById('status-donut-total');
-              if(t)t.textContent='${total.toLocaleString()}';
-              document.getElementById('status-donut-subtitle').textContent='${total} total assessment${total !== 1 ? 's' : ''}';
+            style="cursor:pointer;transition:stroke-width 0.2s ease,opacity 0.2s ease;"
+            onmouseover="(function(c,e){
+              document.querySelectorAll('#status-donut-svg circle[data-label]').forEach(function(x){x.style.opacity='0.3';});
+              c.style.opacity='1';c.style.strokeWidth='${stroke+7}px';
+              var tip=document.getElementById('status-donut-tip');
+              if(tip){tip.innerHTML='<strong>${STATUS_LABELS[s]}</strong>: ${vals[i].toLocaleString()} &nbsp;(${pctLabel}%)';tip.style.display='block';tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-10)+'px';}
+            })(this,event)"
+            onmousemove="(function(e){var tip=document.getElementById('status-donut-tip');if(tip){tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-10)+'px';}})(event)"
+            onmouseout="(function(){
+              document.querySelectorAll('#status-donut-svg circle[data-label]').forEach(function(x){x.style.opacity='1';x.style.strokeWidth='${stroke}px';});
+              var tip=document.getElementById('status-donut-tip');if(tip)tip.style.display='none';
             })()"
           />`;
           offset += dash;
@@ -2658,9 +2672,9 @@
       const maxCount = data[0].count;
       document.getElementById('region-badge').textContent = data.length + ' Region' + (data.length !== 1 ? 's' : '');
       document.getElementById('region-subtitle').textContent = 'All regions with submitted assessments';
-      const colorClass = (i) => i === 0 ? '' : i === 1 ? 'green' : i >= 2 ? 'orange' : '';
+      const colorClass = (i) => '';
       container.innerHTML = data.map((r, i) => `
-        <div class="region-row">
+        <div class="region-row" onmouseover="gTip(event,'<strong>${r.region.replace(/'/g,"&#39;")}</strong>: ${r.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="gTipHide()">
           <div class="region-info">
             <span class="region-name">${r.region}</span>
             <span class="region-count">${r.count.toLocaleString()}</span>
@@ -2701,7 +2715,7 @@
     tbody.innerHTML = data.map(r => `<tr class="table-row-hover">
       <td><div style="font-weight:600;color:#111811;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
       <td>${r.age}</td>
-      <td>${disabilityCell(r.disability)}</td>
+      <td>${disabilityCell(r.disability, r.disabilities)}</td>
       <td>${r.region}</td>
       <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openBenModal('${r.aruga_id}')" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
     </tr>`).join('');
@@ -2718,7 +2732,7 @@
   });
 
   // ── Recent Activity (Audit Logs overview) ──────────────────────
-  const AUDIT_DOT_COLOR = { create:'#16a34a', update:'#1152d4', delete:'#dc2626', view:'#9ca3af' };
+  const AUDIT_DOT_COLOR = { create:'#1152d4', update:'#2563eb', delete:'#60a5fa', view:'#93c5fd' };
   async function loadRecentActivity() {
     const list = document.getElementById('activity-list');
     try {
@@ -2778,17 +2792,19 @@
     c.appendChild(mkBtn('›', currentPage + 1, false, currentPage >= totalPages - 1));
   }
 
-  function disabilityCell(disability) {
-    const raw = disability || '—';
-    if (raw === '—' || raw === '') return `<span style="color:var(--gray-400);font-size:0.8rem;">—</span>`;
-    const parts = Array.isArray(raw) ? raw : raw.split(',').map(s=>s.trim()).filter(Boolean);
+  function disabilityCell(disability, disabilities) {
+    const parts = Array.isArray(disabilities) && disabilities.length
+      ? disabilities
+      : (disability && disability !== '—' ? [disability] : []);
     if (!parts.length) return `<span style="color:var(--gray-400);font-size:0.8rem;">—</span>`;
-    if (parts.length === 1) {
-      const dc = DIS_COLORS[parts[0]] || 'badge-blue';
-      return `<span class="badge ${dc}" style="white-space:nowrap;">${parts[0]}</span>`;
-    }
-    const tooltip = parts.join('\n');
-    return `<span title="${tooltip}" style="font-size:0.7rem;font-weight:700;background:#e0e7ff;color:#3730a3;padding:0.15rem 0.55rem;border-radius:999px;cursor:default;white-space:nowrap;">${parts.length} disabilities</span>`;
+    const first = parts[0];
+    const dc = DIS_COLORS[first] || 'badge-blue';
+    const rest = parts.length - 1;
+    const tooltip = parts.join(', ');
+    return `<div style="display:flex;align-items:center;gap:0.375rem;" title="${tooltip}">
+      <span class="badge ${dc}" style="white-space:nowrap;">${first}</span>
+      ${rest > 0 ? `<span style="font-size:0.7rem;font-weight:700;background:var(--gray-200);color:var(--gray-700);padding:0.1rem 0.4rem;border-radius:999px;">+${rest}</span>` : ''}
+    </div>`;
   }
 
   const READINESS_BADGE = {
@@ -2810,7 +2826,7 @@
     return `<tr class="table-row-hover">
       <td><div style="font-weight:600;color:#111811;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
       <td>${r.age}</td>
-      <td>${disabilityCell(r.disability)}</td>
+      <td>${disabilityCell(r.disability, r.disabilities)}</td>
       <td>${r.region}</td>
       <td>${readinessBadge(r.readiness_score)}</td>
       <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openBenModal('${r.aruga_id}')" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
@@ -2820,6 +2836,46 @@
   // ── All Beneficiaries View ─────────────────────────────────────
   let allBenData = [], allBenFiltered = [], allBenPage = 0, allBenLoaded = false;
   let ben4psOnly = false;
+  let allBenSort = { col: null, dir: 'asc' };
+
+  const READINESS_ORDER = { severe: 0, moderate: 1, low: 2, stable: 3 };
+
+  function sortAllBen(col) {
+    if (allBenSort.col === col) {
+      allBenSort.dir = allBenSort.dir === 'asc' ? 'desc' : 'asc';
+    } else {
+      allBenSort.col = col;
+      allBenSort.dir = 'asc';
+    }
+    // Update icons
+    ['name','age','region','readiness'].forEach(c => {
+      const el = document.getElementById('ben-sort-icon-' + c);
+      if (!el) return;
+      if (c === col) {
+        el.textContent = allBenSort.dir === 'asc' ? 'arrow_upward' : 'arrow_downward';
+        el.style.color = '#1152d4';
+      } else {
+        el.textContent = 'unfold_more';
+        el.style.color = 'var(--gray-400)';
+      }
+    });
+    allBenFiltered = [...allBenFiltered].sort((a, b) => {
+      let va, vb;
+      if (col === 'age') {
+        va = parseInt(a.age) || 0; vb = parseInt(b.age) || 0;
+      } else if (col === 'readiness') {
+        va = READINESS_ORDER[(a.readiness_score||'').toLowerCase()] ?? 99;
+        vb = READINESS_ORDER[(b.readiness_score||'').toLowerCase()] ?? 99;
+      } else {
+        va = (a[col] || '').toLowerCase(); vb = (b[col] || '').toLowerCase();
+      }
+      if (va < vb) return allBenSort.dir === 'asc' ? -1 : 1;
+      if (va > vb) return allBenSort.dir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    allBenPage = 0;
+    renderAllBen();
+  }
 
   function toggle4ps() {
     ben4psOnly = !ben4psOnly;
@@ -2869,6 +2925,11 @@
       if (disability && !(r.disabilities||[]).some(d => d.toLowerCase().includes(disability))) return false;
       if (ben4psOnly && !r.is_4ps_member) return false;
       return true;
+    });
+    allBenSort = { col: null, dir: 'asc' };
+    ['name','age','region','readiness'].forEach(c => {
+      const el = document.getElementById('ben-sort-icon-' + c);
+      if (el) { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
     });
     allBenPage = 0; renderAllBen();
   }
@@ -2933,21 +2994,24 @@
     return `<span class="last-active-chip ${cls}" title="${iso ? new Date(iso).toLocaleString() : 'No activity'}">${text}</span>`;
   }
 
+  const INT_SORT_COLS = ['name','code','email','month','last_active'];
   function sortInterviewers(key) {
     if (intSortKey === key) { intSortDir *= -1; } else { intSortKey = key; intSortDir = -1; }
-    document.getElementById('int-sort-icon').textContent = '↕';
-    document.getElementById('int-sort-icon-date').textContent = '↕';
-    if (key === 'last_active') {
-      document.getElementById('int-sort-icon-date').textContent = intSortDir === -1 ? '↓' : '↑';
-      intFiltered.sort((a, b) => {
-        const da = a.last_active || '', db = b.last_active || '';
-        return intSortDir * (da < db ? 1 : da > db ? -1 : 0);
-      });
-    } else {
-      document.getElementById('int-sort-icon').textContent = intSortDir === -1 ? '↓' : '↑';
-      const field = key === 'month' ? 'submissions_month' : 'submissions_total';
-      intFiltered.sort((a, b) => intSortDir * ((b[field]||0) - (a[field]||0)));
-    }
+    INT_SORT_COLS.forEach(c => {
+      const el = document.getElementById('int-sort-icon-' + c);
+      if (!el) return;
+      if (c === key) { el.textContent = intSortDir === -1 ? 'arrow_downward' : 'arrow_upward'; el.style.color = '#1152d4'; }
+      else { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
+    });
+    intFiltered = [...intFiltered].sort((a, b) => {
+      let va, vb;
+      if (key === 'month')       { va = a.submissions_month||0; vb = b.submissions_month||0; }
+      else if (key === 'last_active') { va = a.last_active||''; vb = b.last_active||''; }
+      else { va = (a[key]||'').toLowerCase(); vb = (b[key]||'').toLowerCase(); }
+      if (va < vb) return intSortDir;
+      if (va > vb) return -intSortDir;
+      return 0;
+    });
     intPage = 0; renderInterviewers();
   }
 
@@ -2973,6 +3037,11 @@
     intFiltered = intData.filter(r => {
       const matchQ = !q || (r.name + r.code + r.region + (r.email||'')).toLowerCase().includes(q);
       return matchQ && (!region || r.region === region);
+    });
+    intSortKey = null; intSortDir = -1;
+    INT_SORT_COLS.forEach(c => {
+      const el = document.getElementById('int-sort-icon-' + c);
+      if (el) { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
     });
     intPage = 0; renderInterviewers();
   }
@@ -3281,6 +3350,26 @@
 
   const AUDIT_PER_PAGE = 10;
   let auditData = [], auditFiltered = [], auditPage = 0, auditLoaded = false;
+  let auditSortCol = null, auditSortDir = 'desc';
+  const AUDIT_SORT_COLS = ['timestamp_raw','user','action','ip_address'];
+
+  function sortAudit(col) {
+    if (auditSortCol === col) { auditSortDir = auditSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { auditSortCol = col; auditSortDir = col === 'timestamp_raw' ? 'desc' : 'asc'; }
+    AUDIT_SORT_COLS.forEach(c => {
+      const el = document.getElementById('audit-sort-icon-' + c);
+      if (!el) return;
+      if (c === col) { el.textContent = auditSortDir === 'asc' ? 'arrow_upward' : 'arrow_downward'; el.style.color = '#1152d4'; }
+      else { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
+    });
+    auditFiltered = [...auditFiltered].sort((a, b) => {
+      const va = (a[col]||'').toLowerCase(), vb = (b[col]||'').toLowerCase();
+      if (va < vb) return auditSortDir === 'asc' ? -1 : 1;
+      if (va > vb) return auditSortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    auditPage = 0; renderAudit();
+  }
 
   function formatPHT(isoStr) {
     if (!isoStr) return '—';
@@ -3324,6 +3413,11 @@
       if (type  && r.action     !== type)  return false;
       if (table && r.table_name !== table) return false;
       return true;
+    });
+    auditSortCol = null; auditSortDir = 'desc';
+    AUDIT_SORT_COLS.forEach(c => {
+      const el = document.getElementById('audit-sort-icon-' + c);
+      if (el) { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
     });
     auditPage = 0;
     renderAudit();
@@ -4016,26 +4110,12 @@
     const enr = AN_EXT?.enrollment;
     if (!enr) { document.getElementById('an-enrollment-donut').innerHTML=AN_EMPTY; return; }
 
-    const total   = (enr.enrolled||0) + (enr.not_enrolled||0);
-    const enrPct  = total>0 ? Math.round((enr.enrolled/total)*100) : 0;
-    const circ    = 2*Math.PI*50;
-    const dash    = enrPct/100*circ;
-    document.getElementById('an-enrollment-donut').innerHTML = `
-      <svg viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);">
-        <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="20"/>
-        <circle cx="60" cy="60" r="50" fill="none" stroke="#22c55e" stroke-width="20"
-          stroke-dasharray="${dash.toFixed(2)} ${(circ-dash).toFixed(2)}" stroke-dashoffset="0"/>
-        <circle cx="60" cy="60" r="50" fill="none" stroke="#ef4444" stroke-width="20"
-          stroke-dasharray="${(circ-dash).toFixed(2)} ${dash.toFixed(2)}" stroke-dashoffset="${(-dash).toFixed(2)}"/>
-      </svg>
-      <div style="text-align:center;">
-        <div style="font-size:1.5rem;font-weight:800;color:var(--dark);">${enrPct}%</div>
-        <div style="font-size:0.75rem;color:var(--gray-500);">Enrolled</div>
-      </div>
-      <div style="display:flex;gap:1rem;font-size:0.75rem;">
-        <div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:#22c55e;"></div>Enrolled: <b>${(enr.enrolled||0).toLocaleString()}</b></div>
-        <div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></div>Not: <b>${(enr.not_enrolled||0).toLocaleString()}</b></div>
-      </div>`;
+    const anEnrTotal = (enr.enrolled||0) + (enr.not_enrolled||0);
+    const enrPct  = anEnrTotal>0 ? Math.round((enr.enrolled/anEnrTotal)*100) : 0;
+    anRenderDonut('an-enrollment-donut', [
+      {label:'Enrolled', val:enr.enrolled||0, color:'#1152d4'},
+      {label:'Not Enrolled', val:enr.not_enrolled||0, color:'#bfdbfe'}
+    ], enrPct+'%', 'Enrolled');
 
     const reasons = enr.top_reasons || [];
     const maxR = Math.max(...reasons.map(r=>r.count),1);
@@ -4178,43 +4258,31 @@
     if (!el) return;
     const total = slices.reduce((s,x)=>s+x.val,0);
     if (!total) { el.innerHTML = AN_EMPTY; return; }
-    const circ = 2*Math.PI*50;
+    const circ = 314;
     const uid = elId;
+    const tipId = uid + '-tip';
     let offset = 0;
     const segs = slices.map((s,i)=>{
       const dash = (s.val/total)*circ;
       const pct = Math.round((s.val/total)*100);
-      const seg = `<circle cx="60" cy="60" r="50" fill="none" stroke="${s.color}" stroke-width="20"
+      const safeLabel = s.label.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+      const seg = `<circle cx="70" cy="70" r="50" fill="none" stroke="${s.color}" stroke-width="20"
         stroke-dasharray="${dash.toFixed(2)} ${(circ-dash).toFixed(2)}"
-        stroke-dashoffset="${(-offset).toFixed(2)}"
-        style="transition:stroke-width 0.15s,opacity 0.15s;cursor:pointer;pointer-events:stroke;"
-        onmouseenter="(function(c){
-          document.querySelectorAll('#${uid}-svg circle[data-i]').forEach(x=>x.style.opacity='0.35');
-          c.style.opacity='1';c.style.strokeWidth='26px';
-          var cv=document.getElementById('${uid}-cv'),cl=document.getElementById('${uid}-cl');
-          if(cv)cv.textContent='${s.val.toLocaleString()} (${pct}%)';
-          if(cl)cl.textContent='${s.label.replace(/'/g,"\\'")}';
-        })(this)"
-        onmouseleave="(function(){
-          document.querySelectorAll('#${uid}-svg circle[data-i]').forEach(x=>{x.style.opacity='1';x.style.strokeWidth='20px';});
-          var cv=document.getElementById('${uid}-cv'),cl=document.getElementById('${uid}-cl');
-          if(cv)cv.textContent='${centerVal}';
-          if(cl)cl.textContent='${centerLabel}';
-        })()"
-        data-i="${i}"/>`;
+        stroke-dashoffset="${(78.5-offset).toFixed(2)}"
+        transform="rotate(-90 70 70)"
+        data-i="${i}"
+        style="cursor:pointer;transition:stroke-width 0.2s ease,opacity 0.2s ease;"
+        onmouseover="(function(c,e){document.querySelectorAll('#${uid}-svg circle[data-i]').forEach(function(x){x.style.opacity='0.3';});c.style.opacity='1';c.style.strokeWidth='27px';var tip=document.getElementById('${tipId}');if(tip){tip.innerHTML='<strong>${safeLabel}</strong>: ${s.val.toLocaleString()}  (${pct}%)';tip.style.display='block';tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-10)+'px';}})(this,event)"
+        onmousemove="(function(e){var tip=document.getElementById('${tipId}');if(tip){tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-10)+'px';}})(event)"
+        onmouseout="(function(){document.querySelectorAll('#${uid}-svg circle[data-i]').forEach(function(x){x.style.opacity='1';x.style.strokeWidth='20px';});var tip=document.getElementById('${tipId}');if(tip)tip.style.display='none';})()"/>`;
       offset += dash;
       return seg;
     }).join('');
     el.innerHTML = `
-      <svg id="${uid}-svg" viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);">
-        ${segs}
-        <g transform="rotate(90,60,60)" style="pointer-events:none;">
-          <text id="${uid}-cv" x="60" y="56" text-anchor="middle" dominant-baseline="middle"
-            style="font-family:Poppins,sans-serif;font-size:10px;font-weight:800;fill:#111827;">${centerVal}</text>
-          <text id="${uid}-cl" x="60" y="68" text-anchor="middle" dominant-baseline="middle"
-            style="font-family:Poppins,sans-serif;font-size:6px;fill:#6b7280;">${centerLabel}</text>
-        </g>
-      </svg>
+      <div style="position:relative;">
+        <svg id="${uid}-svg" viewBox="0 0 140 140" width="150" height="150" style="overflow:visible;">${segs}</svg>
+        <div id="${tipId}" style="display:none;position:fixed;background:#1e293b;color:#fff;border-radius:0.5rem;padding:0.4rem 0.75rem;font-size:10px;pointer-events:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);white-space:nowrap;"></div>
+      </div>
       <div style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;justify-content:center;font-size:0.75rem;">
         ${slices.map(s=>`<div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:${s.color};flex-shrink:0;"></div>${s.label}: <b>${s.val.toLocaleString()}</b></div>`).join('')}
       </div>`;
@@ -4231,7 +4299,7 @@
       const v = item.val||item.count||0;
       const total = items.reduce((s,x)=>s+(x.val||x.count||0),0);
       const pct = total>0?Math.round(v/total*100):0;
-      return `<div title="${item.label}: ${v.toLocaleString()} (${pct}%)" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
+      return `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${item.label.replace(/'/g,"&#39;").replace(/"/g,'&quot;')}</strong>: ${v.toLocaleString()} &nbsp;(${pct}%)')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()">
         <div style="font-size:0.75rem;font-weight:600;width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.label}</div>
         <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
           <div style="height:100%;width:${Math.round((v/maxV)*100)}%;background:${colors[i%colors.length]};border-radius:999px;"></div>
@@ -4817,9 +4885,9 @@
   async function loadTopIssues() {
     function issueSeverity(pct) {
       if (pct === 0) return { bg:'#f9fafb', border:'#d1d5db', icon:'#9ca3af', badge:'#6b7280', label:'No Data' };
-      if (pct >= 80) return { bg:'#fff1f2', border:'#fca5a5', icon:'#dc2626', badge:'#ef4444', label:'Critical' };
-      if (pct >= 60) return { bg:'#fff7ed', border:'#fdba74', icon:'#ea580c', badge:'#f97316', label:'High' };
-      return { bg:'#fefce8', border:'#fde047', icon:'#ca8a04', badge:'#eab308', label:'Moderate' };
+      if (pct >= 80) return { bg:'#eff6ff', border:'#93c5fd', icon:'#1152d4', badge:'#1152d4', label:'Critical' };
+      if (pct >= 60) return { bg:'#eff6ff', border:'#bfdbfe', icon:'#2563eb', badge:'#2563eb', label:'High' };
+      return { bg:'#f0f7ff', border:'#dbeafe', icon:'#3b82f6', badge:'#3b82f6', label:'Moderate' };
     }
     try {
       const res  = await fetch('/api/get-top-issues.php');
@@ -5772,7 +5840,7 @@
 
   async function loadReportView() {
     await Promise.all([fetchAnalyticsData(), fetchExtendedAnalytics()]);
-    rptPopulateProvinces();
+    rptPopulateRegions();
     rptRenderHero();
     rptRenderPace();
     rptRenderBadges();
@@ -5792,7 +5860,7 @@
     const q = AN_DATA?.quality;
     if (!s) return;
     document.getElementById('rpt-total').textContent        = (s.total || 0).toLocaleString();
-    document.getElementById('rpt-total-sub').textContent    = anFilters.province ? 'Province: ' + anFilters.province : 'Across all regions';
+    document.getElementById('rpt-total-sub').textContent    = anFilters.region ? 'Region: ' + anFilters.region : 'Across all regions';
     document.getElementById('rpt-rate').textContent         = (s.completion_rate || 0) + '%';
     document.getElementById('rpt-avgday').textContent       = s.avg_per_day || 0;
     document.getElementById('rpt-interviewers').textContent = (s.active_interviewers || 0).toLocaleString();
@@ -5968,7 +6036,7 @@
       const rColors = ['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe','#1152d4','#2563eb','#3b82f6','#60a5fa','#1d4ed8','#1152d4','#2563eb','#3b82f6'];
       document.getElementById('rpt-region-bars').innerHTML = data.length
         ? data.map((r,i) => `
-          <div title="${r.region}: ${r.count.toLocaleString()} assessments" style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
+          <div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${r.region.replace(/'/g,"&#39;")}</strong>: ${r.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()">
             <div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div>
             <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
               <div style="height:100%;width:${Math.round((r.count/maxV)*100)}%;background:${rColors[i%rColors.length]};border-radius:999px;transition:width 0.6s;"></div>
@@ -5985,8 +6053,8 @@
       const maxP = Math.max(...provs.map(p => p.count), 1);
       document.getElementById('rpt-province-bars').innerHTML = provs.length
         ? provs.map((p,i) => `
-            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
-              <div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${p.name}">${p.name}</div>
+            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${p.name.replace(/'/g,"&#39;")}</strong>: ${p.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()">
+              <div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div>
               <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
                 <div style="height:100%;width:${Math.round((p.count/maxP)*100)}%;background:${gColors[i%gColors.length]};border-radius:999px;transition:width 0.6s;"></div>
               </div>
@@ -5996,9 +6064,9 @@
       const maxC = Math.max(...cities.map(c => c.count), 1);
       document.getElementById('rpt-city-bars').innerHTML = cities.length
         ? cities.map((c,i) => `
-            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
+            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${c.name.replace(/'/g,"&#39;")}</strong>${c.province ? ' · ' + c.province.replace(/'/g,"&#39;") : ''}: ${c.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()">
               <div style="width:200px;min-width:0;">
-                <div style="font-size:0.75rem;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${c.name}">${c.name}</div>
+                <div style="font-size:0.75rem;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>
                 ${c.province ? `<div style="font-size:0.65rem;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.province}</div>` : ''}
               </div>
               <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
@@ -6019,7 +6087,7 @@
         ? `<div style="display:flex;align-items:flex-end;gap:0.875rem;width:100%;height:${CHART_H}px;border-bottom:2px solid #e5e7eb;padding-bottom:0;">
             ${ages.map((a,i) => {
               const barH = Math.max(Math.round((a.val/maxA)*CHART_H), a.val>0?6:2);
-              return `<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:100%;position:relative;">
+              return `<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:100%;position:relative;cursor:pointer;" onmouseover="gTip(event,'<strong>${a.label}</strong>: ${a.val.toLocaleString()}')" onmousemove="gTipMove(event)" onmouseout="gTipHide()">
                 <div style="font-size:0.78rem;font-weight:800;color:${ageColors[i%ageColors.length]};margin-bottom:6px;">${a.val > 0 ? a.val.toLocaleString() : ''}</div>
                 <div style="width:100%;height:${barH}px;background:${ageColors[i%ageColors.length]};border-radius:5px 5px 0 0;transition:height 0.6s ease;"></div>
               </div>`;
@@ -6034,13 +6102,21 @@
       const gTotal = gender.reduce((s,g) => s + g.val, 0);
       if (gTotal) {
         const circ = 314; let offset = 0;
-        const arcs = gender.map((g) => {
+        const arcs = gender.map((g, gi) => {
           const dash = (g.val/gTotal)*circ;
-          const arc = `<circle cx="60" cy="60" r="50" fill="none" stroke="${g.color}" stroke-width="20" stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${78.5-offset}" transform="rotate(-90 60 60)" style="cursor:default;"/>`;
+          const pct = Math.round((g.val/gTotal)*100);
+          const arc = `<circle cx="70" cy="70" r="50" fill="none" stroke="${g.color}" stroke-width="20" stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${78.5-offset}" transform="rotate(-90 70 70)"
+            data-gi="${gi}"
+            style="cursor:pointer;transition:stroke-width 0.2s ease,opacity 0.2s ease;"
+            onmouseover="rptGenderTooltip(event,'${g.label}',${g.val},${pct});(function(c){document.querySelectorAll('#rpt-gender-svg circle[data-gi]').forEach(function(x){x.style.opacity='0.3';});c.style.opacity='1';c.style.strokeWidth='27px';})(this)"
+            onmouseout="rptGenderTooltipHide();(function(){document.querySelectorAll('#rpt-gender-svg circle[data-gi]').forEach(function(x){x.style.opacity='1';x.style.strokeWidth='20px';});})()"/>`;
           offset += dash; return arc;
         }).join('');
         document.getElementById('rpt-gender-donut').innerHTML = `
-          <svg viewBox="0 0 120 120" width="150" height="150">${arcs}</svg>
+          <div style="position:relative;">
+            <svg id="rpt-gender-svg" viewBox="0 0 140 140" width="150" height="150" style="overflow:visible;">${arcs}</svg>
+            <div id="rpt-gender-tooltip" style="display:none;position:fixed;background:#1e293b;color:#fff;border-radius:0.5rem;padding:0.4rem 0.75rem;font-size:10px;pointer-events:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);white-space:nowrap;"></div>
+          </div>
           <div style="display:flex;gap:1.25rem;">${gender.map(g=>`<div style="text-align:center;"><div style="width:10px;height:10px;border-radius:50%;background:${g.color};margin:0 auto 4px;"></div><div style="font-size:0.75rem;font-weight:700;">${g.label}</div><div style="font-size:0.8125rem;font-weight:800;">${Math.round((g.val/gTotal)*100)}%</div></div>`).join('')}</div>`;
       }
       // 4Ps — Analytics style
@@ -6051,15 +6127,15 @@
         const notPct = 100 - psPct;
         psEl.innerHTML = `
           <div style="width:100%;padding:0.5rem 0;">
-            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.875rem;padding:0.5rem 0.75rem;background:#f0fdf4;border-radius:0.5rem;border:1px solid #bbf7d0;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.875rem;padding:0.5rem 0.75rem;background:#eff6ff;border-radius:0.5rem;border:1px solid #bfdbfe;">
+              <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#1152d4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <span class="material-symbols-outlined" style="color:white;font-size:1.2rem;">check_circle</span>
               </div>
               <div style="flex:1;">
-                <div style="font-size:0.8125rem;font-weight:700;color:#15803d;">4Ps Members</div>
-                <div style="font-size:0.72rem;color:#16a34a;">${(ps.yes||0).toLocaleString()} households</div>
+                <div style="font-size:0.8125rem;font-weight:700;color:#1152d4;">4Ps Members</div>
+                <div style="font-size:0.72rem;color:#2563eb;">${(ps.yes||0).toLocaleString()} households</div>
               </div>
-              <div style="font-size:1.75rem;font-weight:800;color:#15803d;">${psPct}%</div>
+              <div style="font-size:1.75rem;font-weight:800;color:#1152d4;">${psPct}%</div>
             </div>
             <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:#f9fafb;border-radius:0.5rem;border:1px solid var(--border);">
               <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#9ca3af;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -6073,7 +6149,7 @@
             </div>
             <div style="margin-top:1rem;">
               <div style="height:12px;border-radius:999px;overflow:hidden;background:#e5e7eb;display:flex;">
-                <div style="width:${psPct}%;background:#22c55e;border-radius:999px 0 0 999px;transition:width 0.6s ease;"></div>
+                <div style="width:${psPct}%;background:#1152d4;border-radius:999px 0 0 999px;transition:width 0.6s ease;"></div>
               </div>
               <div style="display:flex;justify-content:space-between;margin-top:0.3rem;font-size:0.7rem;color:var(--gray-400);">
                 <span>0%</span><span style="color:var(--gray-500);font-weight:600;">Total: ${(ps.total||0).toLocaleString()}</span><span>100%</span>
@@ -6085,7 +6161,7 @@
       const locs = AN_DATA?.top_locations || [];
       const maxL = Math.max(...locs.map(l => l.count), 1);
       document.getElementById('rpt-top-locations').innerHTML = locs.length
-        ? locs.map((l,i) => `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;">
+        ? locs.map((l,i) => `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${l.name.replace(/'/g,"&#39;")}</strong>: ${l.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()">
             <span style="font-size:0.8rem;font-weight:800;color:var(--gray-400);width:1.25rem;">${i+1}</span>
             <div style="flex:1;min-width:0;font-size:0.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${l.name}</div>
             <div style="width:80px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;flex-shrink:0;">
@@ -6101,7 +6177,7 @@
       const maxD = Math.max(...dis.map(d => d.val), 1);
       const disColors = ['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe','#1152d4','#2563eb'];
       document.getElementById('rpt-dis-bars').innerHTML = dis.length
-        ? dis.map((d,i) => `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
+        ? dis.map((d,i) => `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${d.label.replace(/'/g,"&#39;")}</strong>: ${d.val.toLocaleString()}')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()">
             <div style="font-size:0.75rem;font-weight:600;width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div>
             <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
               <div style="height:100%;width:${Math.round((d.val/maxD)*100)}%;background:${disColors[i%disColors.length]};border-radius:999px;"></div>
@@ -6157,7 +6233,7 @@
         document.getElementById('rpt-expenses-total').innerHTML = 'Avg total: <b>₱' + (expData.total_avg||0).toLocaleString() + '</b>/mo';
         const maxExp = Math.max(...(expData.breakdown||[]).map(e=>e.avg),1);
         document.getElementById('rpt-expenses-chart').innerHTML = (expData.breakdown||[]).length
-          ? expData.breakdown.map((e,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;">
+          ? expData.breakdown.map((e,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${e.label.replace(/'/g,"&#39;")}</strong>: ₱${(e.avg||0).toLocaleString()} avg/mo')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()">
               <div style="font-size:0.75rem;font-weight:600;width:130px;">${e.label}</div>
               <div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;">
                 <div style="height:100%;width:${Math.round((e.avg/maxExp)*100)}%;background:#3b82f6;border-radius:999px;"></div>
@@ -6184,23 +6260,12 @@
     if (key === 'education') {
       const enr = AN_EXT?.enrollment;
       if (enr) {
-        const total = (enr.enrolled||0) + (enr.not_enrolled||0);
-        const pct   = total > 0 ? Math.round((enr.enrolled/total)*100) : 0;
-        const circ  = 2*Math.PI*50; const dash = pct/100*circ;
-        document.getElementById('rpt-enrollment-donut').innerHTML = `
-          <svg viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);">
-            <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="20"/>
-            <circle cx="60" cy="60" r="50" fill="none" stroke="#1152d4" stroke-width="20" stroke-dasharray="${dash.toFixed(2)} ${(circ-dash).toFixed(2)}" stroke-dashoffset="0"/>
-            <circle cx="60" cy="60" r="50" fill="none" stroke="#bfdbfe" stroke-width="20" stroke-dasharray="${(circ-dash).toFixed(2)} ${dash.toFixed(2)}" stroke-dashoffset="${(-dash).toFixed(2)}"/>
-          </svg>
-          <div style="text-align:center;">
-            <div style="font-size:1.5rem;font-weight:800;">${pct}%</div>
-            <div style="font-size:0.75rem;color:var(--gray-500);">Enrolled</div>
-          </div>
-          <div style="display:flex;gap:1rem;font-size:0.75rem;">
-            <div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:#1152d4;"></div>Enrolled: <b>${(enr.enrolled||0).toLocaleString()}</b></div>
-            <div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:#bfdbfe;"></div>Not: <b>${(enr.not_enrolled||0).toLocaleString()}</b></div>
-          </div>`;
+        const enrTotal = (enr.enrolled||0) + (enr.not_enrolled||0);
+        const pct   = enrTotal > 0 ? Math.round((enr.enrolled/enrTotal)*100) : 0;
+        anRenderDonut('rpt-enrollment-donut', [
+          {label:'Enrolled', val:enr.enrolled||0, color:'#1152d4'},
+          {label:'Not Enrolled', val:enr.not_enrolled||0, color:'#bfdbfe'}
+        ], pct+'%', 'Enrolled');
         const reasons = enr.top_reasons || [];
         document.getElementById('rpt-enrollment-reasons').innerHTML = reasons.length
           ? reasons.map((r,i) => `<div style="display:flex;align-items:flex-start;gap:0.625rem;padding:0.5rem 0;border-bottom:1px solid var(--gray-100);">
@@ -6327,25 +6392,39 @@
     }
   }
 
-  function rptPopulateProvinces() {
-    const sel = document.getElementById('rpt-province-filter');
+  function rptPopulateRegions() {
+    const sel = document.getElementById('rpt-region-filter');
     if (!sel) return;
-    const provs = (AN_DATA?.top_provinces || []).map(p => p.name);
-    // Also gather from all children data if available
-    const current = anFilters.province;
-    sel.innerHTML = '<option value="">All Provinces</option>' +
-      provs.map(p => `<option value="${p}"${p === current ? ' selected' : ''}>${p}</option>`).join('');
+    const regions = (AN_DATA?.regions || []).map(r => r.region).filter(Boolean);
+    const current = anFilters.region;
+    sel.innerHTML = '<option value="">All Regions</option>' +
+      regions.map(r => `<option value="${r}"${r === current ? ' selected' : ''}>${r}</option>`).join('');
   }
 
-  async function rptApplyProvinceFilter() {
-    const sel = document.getElementById('rpt-province-filter');
+  function rptShowFilterToast(msg) {
+    const toast = document.getElementById('rpt-filter-toast');
+    const msgEl = document.getElementById('rpt-filter-toast-msg');
+    if (!toast || !msgEl) return;
+    msgEl.textContent = msg;
+    toast.style.display = 'flex';
+    toast.style.opacity = '1';
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => { toast.style.display = 'none'; }, 260);
+    }, 2500);
+  }
+
+  async function rptApplyRegionFilter() {
+    const sel = document.getElementById('rpt-region-filter');
     const val = sel?.value || '';
-    anFilters.province = val;
+    anFilters.region = val;
+    anFilters.province = '';
     AN_DATA = null; AN_CACHE_TS = 0; AN_EXT = null; AN_EXT_CACHE_KEY = '';
 
     // Show/hide chip
-    const chip = document.getElementById('rpt-province-chip');
-    const chipLabel = document.getElementById('rpt-province-chip-label');
+    const chip = document.getElementById('rpt-region-chip');
+    const chipLabel = document.getElementById('rpt-region-chip-label');
     if (val) {
       chipLabel.textContent = val;
       chip.style.display = 'flex';
@@ -6353,7 +6432,6 @@
       chip.style.display = 'none';
     }
 
-    // Update subtitle
     document.getElementById('rpt-last-refresh').textContent = 'Filtering…';
 
     await Promise.all([fetchAnalyticsData(), fetchExtendedAnalytics()]);
@@ -6361,20 +6439,40 @@
     rptRenderPace();
     rptRenderBadges();
 
-    // Re-render all currently open sections
+    // Re-render only sections that are currently open
     Object.keys(RPT_OPEN).forEach(k => {
       if (RPT_OPEN[k]) rptRenderSection(k);
     });
 
     document.getElementById('rpt-last-refresh').textContent =
-      (val ? `Province: ${val} · ` : '') +
+      (val ? `Region: ${val} · ` : '') +
       'Last refreshed: ' + new Date().toLocaleTimeString('en-PH', {hour:'2-digit', minute:'2-digit'});
+
+    rptShowFilterToast(val ? `Filtered by: ${val}` : 'Showing all regions');
   }
 
-  function rptClearProvince() {
-    const sel = document.getElementById('rpt-province-filter');
+  function rptClearRegion() {
+    const sel = document.getElementById('rpt-region-filter');
     if (sel) sel.value = '';
-    rptApplyProvinceFilter();
+    rptApplyRegionFilter();
+  }
+
+  function rptGenderTooltip(e, label, val, pct) {
+    const tip = document.getElementById('rpt-gender-tooltip');
+    if (!tip) return;
+    tip.innerHTML = `<strong>${label}</strong>: ${val.toLocaleString()} &nbsp;(${pct}%)`;
+    tip.style.display = 'block';
+    tip.style.left = (e.clientX + 12) + 'px';
+    tip.style.top  = (e.clientY - 10) + 'px';
+    document.onmousemove = function(ev) {
+      tip.style.left = (ev.clientX + 12) + 'px';
+      tip.style.top  = (ev.clientY - 10) + 'px';
+    };
+  }
+  function rptGenderTooltipHide() {
+    const tip = document.getElementById('rpt-gender-tooltip');
+    if (tip) tip.style.display = 'none';
+    document.onmousemove = null;
   }
 
   function rptGeoTab(tab) {

@@ -39,7 +39,7 @@
       <a href="#" class="nav-item active" id="co-nav-overview" title="Overview" onclick="coShowView('overview');return false;"><span class="material-symbols-outlined">dashboard</span><span class="nav-label">Overview</span></a>
       <a href="#" class="nav-item" id="co-nav-beneficiaries" title="Beneficiaries" onclick="coShowView('beneficiaries');return false;"><span class="material-symbols-outlined">group</span><span class="nav-label">Beneficiaries</span></a>
       <a href="#" class="nav-item" id="co-nav-assessments" title="Assessments" onclick="coShowView('assessments');return false;"><span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span></a>
-      <a href="#" class="nav-item" id="co-nav-analytics" title="Analytics" onclick="coShowView('analytics');return false;"><span class="material-symbols-outlined">bar_chart</span><span class="nav-label">Analytics</span></a>
+      <a href="#" class="nav-item" id="co-nav-report" title="Report" onclick="coShowView('report');return false;"><span class="material-symbols-outlined">summarize</span><span class="nav-label">Report</span></a>
 
       <div class="nav-section-label">Management</div>
       <a href="#" class="nav-item" id="co-nav-interviewers" title="Interviewers" onclick="coShowView('interviewers');return false;"><span class="material-symbols-outlined">badge</span><span class="nav-label">Interviewers</span></a>
@@ -83,7 +83,7 @@
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div>
+          <div class="stat-icon blue"><span class="material-symbols-outlined">badge</span></div>
           <div class="stat-body">
             <div class="stat-value" id="co-stat-active-interviewers">—</div>
             <div class="stat-label">Active Interviewers</div>
@@ -99,7 +99,7 @@
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon green"><span class="material-symbols-outlined">trending_up</span></div>
+          <div class="stat-icon blue"><span class="material-symbols-outlined">trending_up</span></div>
           <div class="stat-body">
             <div class="stat-value" id="co-stat-completion-rate">—</div>
             <div class="stat-label">Completion Rate</div>
@@ -140,11 +140,12 @@
           </div>
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem 1rem 1.25rem;gap:0.75rem;">
             <div style="position:relative;width:160px;height:160px;">
-              <svg id="co-status-donut-svg" viewBox="0 0 160 160" width="160" height="160" style="transform:rotate(-90deg);"></svg>
+              <svg id="co-status-donut-svg" viewBox="0 0 160 160" width="160" height="160" style="transform:rotate(-90deg);overflow:visible;"></svg>
               <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
                 <div id="co-status-donut-total" style="font-size:1.5rem;font-weight:800;color:var(--dark);line-height:1;">—</div>
                 <div style="font-size:0.65rem;color:var(--gray-400);font-weight:600;margin-top:2px;">TOTAL</div>
               </div>
+              <div id="co-status-donut-tip" style="display:none;position:fixed;background:#1e293b;color:#fff;border-radius:0.5rem;padding:0.4rem 0.75rem;font-size:10px;pointer-events:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);white-space:nowrap;"></div>
             </div>
             <div id="co-status-donut-legend" style="display:flex;flex-direction:column;gap:0.4rem;width:100%;max-width:180px;"></div>
           </div>
@@ -429,207 +430,236 @@
 
     </div><!-- /co-view-documents -->
 
-    <!-- Analytics View -->
-    <div class="dash-content" id="co-view-analytics" style="display:none;">
+    <!-- Report View -->
+    <div class="dash-content" id="co-view-report" style="display:none;">
 
       <!-- Header -->
-      <div style="margin-bottom:1rem;">
-        <div class="page-title" style="margin:0;">Analytics</div>
-        <div class="page-subtitle" id="an-last-refresh" style="margin:0;">Auto-refreshes every 5 minutes</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+        <div>
+          <div class="page-title" style="margin:0;">Report</div>
+          <div class="page-subtitle" id="rpt-last-refresh" style="margin:0;">—</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.625rem;flex-wrap:wrap;">
+          <div style="position:relative;">
+            <span class="material-symbols-outlined" style="position:absolute;left:0.6rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--gray-400);pointer-events:none;">map</span>
+            <select id="rpt-region-filter" onchange="rptApplyRegionFilter()" style="padding:0.45rem 2rem 0.45rem 2rem;font-size:0.8125rem;font-family:inherit;border:1px solid var(--border);border-radius:0.5rem;background:#fff;color:var(--dark);cursor:pointer;appearance:none;-webkit-appearance:none;min-width:200px;">
+              <option value="">All Regions</option>
+            </select>
+            <span class="material-symbols-outlined" style="position:absolute;right:0.5rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
+          </div>
+          <div id="rpt-region-chip" style="display:none;align-items:center;gap:0.375rem;padding:0.3rem 0.75rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:999px;font-size:0.75rem;font-weight:700;color:#1152d4;">
+            <span id="rpt-region-chip-label"></span>
+            <span onclick="rptClearRegion()" style="cursor:pointer;display:flex;align-items:center;" title="Clear filter"><span class="material-symbols-outlined" style="font-size:0.9rem;">close</span></span>
+          </div>
+        </div>
+        <div id="rpt-filter-toast" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;background:#1152d4;color:#fff;border-radius:0.75rem;padding:0.75rem 1.25rem;font-size:0.8125rem;font-weight:600;box-shadow:0 8px 24px rgba(17,82,212,0.25);align-items:center;gap:0.5rem;opacity:0;transition:opacity 0.25s;">
+          <span class="material-symbols-outlined" style="font-size:1.1rem;">check_circle</span>
+          <span id="rpt-filter-toast-msg"></span>
+        </div>
       </div>
 
-      <!-- Filters -->
+      <!-- Hero Metrics -->
+      <div class="stats-grid" style="margin-bottom:1rem;" id="rpt-hero">
+        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">assignment</span></div><div class="stat-body"><div class="stat-value" id="rpt-total">—</div><div class="stat-label">Total Assessments</div><div class="stat-change" id="rpt-total-sub" style="font-size:0.72rem;color:var(--gray-400);">Loading…</div></div></div>
+        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">task_alt</span></div><div class="stat-body"><div class="stat-value" id="rpt-rate">—</div><div class="stat-label">Completion Rate</div><div id="rpt-rate-badge" style="margin-top:0.25rem;"></div></div></div>
+        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">speed</span></div><div class="stat-body"><div class="stat-value" id="rpt-avgday">—</div><div class="stat-label">Avg / Day</div><div style="font-size:0.72rem;color:var(--gray-400);">Assessments per day</div></div></div>
+        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">badge</span></div><div class="stat-body"><div class="stat-value" id="rpt-interviewers">—</div><div class="stat-label">Active Interviewers</div><div style="font-size:0.72rem;color:var(--gray-400);">Submitted at least once</div></div></div>
+      </div>
+
+      <!-- National Pace -->
       <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
-        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-          <select id="an-f-range" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
-            <option value="all">All time</option>
-            <option value="30">Last 30 days</option>
-            <option value="7">Last 7 days</option>
-            <option value="90">Last 90 days</option>
-          </select>
-          <select id="an-f-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
-            <option value="">All Regions</option>
-          </select>
-          <button class="btn btn-primary btn-sm" onclick="applyAnalyticsFilters()">Apply</button>
-          <button class="btn btn-secondary btn-sm" onclick="clearAnalyticsFilters()">Reset</button>
-          <button class="btn btn-secondary btn-sm" onclick="openAnReportSettings()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">tune</span>Report Settings</button>
-          <button class="btn btn-secondary btn-sm" onclick="exportAllAnalytics()" style="margin-left:auto;"><span class="material-symbols-outlined">download</span>Export All</button>
-        </div>
-      </div>
-
-      <!-- Overview -->
-      <div class="stats-grid" style="margin-bottom:1rem;">
-        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">assignment</span></div><div class="stat-body"><div class="stat-value" id="an-total">—</div><div class="stat-label">Total Assessments</div><div class="stat-change up" id="an-total-sub">Loading...</div></div></div>
-        <div class="stat-card"><div class="stat-icon green"><span class="material-symbols-outlined">task_alt</span></div><div class="stat-body"><div class="stat-value" id="an-rate">—</div><div class="stat-label">Completion Rate</div><div id="an-rate-badge" style="margin-top:0.25rem;"></div></div></div>
-        <div class="stat-card"><div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div><div class="stat-body"><div class="stat-value" id="an-interviewers">—</div><div class="stat-label">Active Interviewers</div><div class="stat-change up" id="an-int-sub">Loading...</div></div></div>
-        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">speed</span></div><div class="stat-body"><div class="stat-value" id="an-avg-day">—</div><div class="stat-label">Avg / Day</div><div class="stat-change up" id="an-avg-sub">Assessments per day</div></div></div>
-      </div>
-
-      <!-- Assessment Trends -->
-      <div class="grid-3-1" style="margin-bottom:1rem;">
-        <div class="card" style="display:flex;flex-direction:column;">
-          <div class="card-header" style="flex-wrap:wrap;gap:0.5rem;flex-shrink:0;">
-            <div><div class="card-title">Assessment Trends</div><div class="card-subtitle" id="an-trend-sub">Completions over time</div></div>
-            <div style="display:flex;border:1px solid var(--border);border-radius:0.375rem;overflow:hidden;">
-              <button class="chart-view-btn active" id="an-toggle-monthly" onclick="setAnTrendView('monthly')">Monthly</button>
-              <button class="chart-view-btn" id="an-toggle-quarterly" onclick="setAnTrendView('quarterly')">Quarterly</button>
-            </div>
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <div id="rpt-pace-icon" style="width:3rem;height:3rem;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#e5e7eb;"><span class="material-symbols-outlined" style="font-size:1.5rem;">hourglass_empty</span></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.7rem;font-weight:700;color:var(--gray-400);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.2rem;">National Pace</div>
+            <div id="rpt-pace-label" style="font-size:1.1rem;font-weight:800;">Loading…</div>
+            <div id="rpt-pace-sub" style="font-size:0.78rem;color:var(--gray-500);margin-top:0.15rem;"></div>
           </div>
-          <div class="bar-chart" id="an-trend-bars" style="flex:1;min-height:160px;margin-top:0.75rem;"></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div><div class="card-title">National Pace</div><div class="card-subtitle">Based on daily completion rate vs. target</div></div></div>
-          <div style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;">
-            <div id="an-status-indicator" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;padding:1.5rem;">
-              <div id="an-status-icon" style="width:3.5rem;height:3.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="font-size:1.75rem;">hourglass_empty</span></div>
-              <div id="an-status-label" style="font-size:1rem;font-weight:800;">Loading...</div>
-              <div id="an-status-sub" style="font-size:0.75rem;color:var(--gray-400);text-align:center;"></div>
-            </div>
-            <div style="border-top:1px solid var(--border);padding:0.75rem 1rem 0.25rem;display:flex;flex-direction:column;gap:0.35rem;">
-              <div style="font-size:0.7rem;color:var(--gray-400);font-weight:600;letter-spacing:0.05em;">HOW IT'S CALCULATED</div>
-              <div style="font-size:0.75rem;color:var(--gray-500);">Compares current avg/day to the daily rate needed to hit the national target by deadline.</div>
-            </div>
+          <div style="width:220px;flex-shrink:0;">
+            <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--gray-400);margin-bottom:0.3rem;"><span>Progress</span><span id="rpt-pace-pct">—</span></div>
+            <div style="height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;"><div id="rpt-pace-bar" style="height:100%;width:0%;background:#1152d4;border-radius:999px;transition:width 0.8s ease;"></div></div>
           </div>
         </div>
       </div>
 
-      <!-- By Region -->
-      <div class="an-section-header">By Region</div>
-      <div class="card" style="margin-bottom:1rem;">
-        <div class="card-header"><div class="card-title">All Regions — Completions Overview</div><div class="card-subtitle">Sorted by total profiled, descending</div></div>
-        <div id="an-region-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div>
-      </div>
-      <div style="margin-bottom:0.75rem;">
-        <span style="font-size:0.75rem;color:var(--gray-500);" id="rg-table-count">—</span>
-      </div>
-      <div id="rgtab-overview" style="display:none;"><tbody id="rg-region-tbody"></tbody></div>
-      <div id="rgtab-province" style="margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;">
-          <div class="card-header"><div class="card-title">By Province</div><div class="card-subtitle">Sorted by column — click header to reorder</div></div>
-          <div class="table-wrap"><table class="dash-table"><thead><tr><th style="cursor:pointer;" onclick="sortRg('provinces','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('provinces','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('provinces','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th></tr></thead><tbody id="rg-province-tbody"><tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody></table></div>
+      <div class="rpt-group-label">Key Insights</div>
+
+      <div class="rpt-section" id="rpts-region">
+        <div class="rpt-section-header" onclick="rptToggle('region')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">map</span><span class="rpt-section-title">By Region</span><span class="rpt-section-badge" id="rpt-badge-region"></span></div>
+          <span class="material-symbols-outlined rpt-chevron open" id="rpt-chev-region">expand_more</span>
         </div>
+        <div class="rpt-section-body" id="rpt-body-region"><div id="rpt-region-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
       </div>
-      <div id="rgtab-city" style="margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;">
-          <div class="card-header"><div class="card-title">By City / Municipality</div><div class="card-subtitle">Sorted by column — click header to reorder</div></div>
-          <div class="table-wrap"><table class="dash-table"><thead><tr><th style="cursor:pointer;" onclick="sortRg('cities','region')">Region <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('cities','province')">Province <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('cities','city')">City / Municipality <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th><th style="cursor:pointer;" onclick="sortRg('cities','total')">Total Profiled <span class="material-symbols-outlined" style="font-size:0.75rem;vertical-align:middle;">unfold_more</span></th></tr></thead><tbody id="rg-city-tbody"><tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr></tbody></table></div>
+
+      <div class="rpt-section" id="rpts-geo">
+        <div class="rpt-section-header" onclick="rptToggle('geo')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">location_on</span><span class="rpt-section-title">Geographic Coverage</span><span class="rpt-section-badge" id="rpt-badge-geo"></span></div>
+          <span class="material-symbols-outlined rpt-chevron open" id="rpt-chev-geo">expand_more</span>
         </div>
-      </div>
-      <div id="rgtab-insights" style="display:none;"></div>
-      <div id="rg-dis-bars" style="display:none;"></div>
-      <div id="rg-top5" style="display:none;"></div>
-      <div id="rg-low-regions" style="display:none;"></div>
-      <div id="rg-monthly-bars" style="display:none;"></div>
-
-      <!-- Beneficiaries -->
-      <div class="an-section-header">Beneficiaries</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Sex Disaggregation</div><div class="card-subtitle">Male vs. Female distribution</div></div><div id="an-gender-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Family Size</div><div class="card-subtitle">Number of household members</div></div><div id="an-family-size-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Age Groups</div></div><div id="an-age-bars" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">4Ps Beneficiaries</div><div class="card-subtitle">Pantawid Pamilya membership</div></div><div id="an-4ps-chart" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Religious Affiliations</div><div class="card-subtitle">Top religious groups</div></div><div id="an-religion-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top 5 Locations</div><div class="card-subtitle">Where most beneficiaries are from</div></div><div id="an-top-locations" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
-      </div>
-
-      <!-- Disabilities -->
-      <div class="an-section-header">Disabilities</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div><div class="card-title">Disability Type Distribution</div><div class="card-subtitle">National breakdown</div></div></div><div id="adm-dis-bars" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"><div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Multiple Conditions</div><div class="card-subtitle">% with 1, 2, or 3+ disabilities</div></div><div id="an-multi-dis" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Disability by Age Group</div></div><div id="an-dis-age" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
-        <div id="an-dis-bars" style="display:none;"></div>
-        <div id="adm-dis-summary" style="display:none;"></div>
-        <div id="adm-dis-region-filter" style="display:none;"></div>
-        <div id="an-dis-type-bars" style="display:none;"></div>
-        <div id="an-dis-type-tbody" style="display:none;"></div>
-      </div>
-
-      <!-- Housing -->
-      <div class="an-section-header">Housing</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Type of Construction Materials</div><div class="card-subtitle">Most common housing materials used</div></div><div id="an-housing-materials" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Tenure Status of House and Lot</div><div class="card-subtitle">Ownership and occupancy arrangements</div></div><div id="an-tenure-status" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">House Modification for CWD</div><div class="card-subtitle">Homes with accessibility modifications</div></div><div id="an-house-mod" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Water Supply</div><div class="card-subtitle">Primary water source by household</div></div><div id="an-water-supply" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
-      </div>
-
-      <!-- Interviewer Performance -->
-      <div class="an-section-header">Interviewer Performance</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Productivity Table</div><div class="card-subtitle">All interviewers ranked by completions</div></div><div class="table-wrap"><table class="dash-table"><thead><tr><th>Rank</th><th>Name</th><th>Code</th><th>Region</th><th>Completed</th><th>Avg/Day</th><th>Workload</th></tr></thead><tbody id="an-int-tbody"></tbody></table></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;">emoji_events</span><div class="card-title" style="margin:0;">Top 5 Performers</div></div></div><div id="an-top5-int" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Workload Distribution</div></div><div id="an-workload-vis" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
-      </div>
-
-      <!-- Readiness -->
-      <div class="an-section-header">Readiness Score Trends</div>
-      <div class="card" style="margin-bottom:1.25rem;">
-        <div class="card-header"><div><div class="card-title">Monthly Severity Breakdown</div><div class="card-subtitle">Severe / Moderate / Low / Stable counts — Jan to Dec</div></div><div style="display:flex;gap:0.75rem;flex-wrap:wrap;" id="an-readiness-legend"></div></div>
-        <div id="an-readiness-chart" style="min-height:200px;padding:0.5rem 0;"></div>
-      </div>
-
-      <!-- Education -->
-      <div class="an-section-header">Education</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Educational Enrollment Status</div><div class="card-subtitle">Currently enrolled vs. not enrolled</div></div><div id="an-enrollment-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top Reasons for Non-Enrollment</div><div class="card-subtitle">Most common reasons reported</div></div><div id="an-enrollment-reasons" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
-        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Highest Educational Attainment</div><div class="card-subtitle">Completed education level of beneficiaries</div></div><div id="an-educ-attainment" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
-      </div>
-
-      <!-- Economic -->
-      <div class="an-section-header">Economic</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Estimated Monthly Income of Families</div><div class="card-subtitle">Distribution across income brackets</div></div><div id="an-income-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Minimum Wage Level</div><div class="card-subtitle">Households at, above, or below minimum wage</div></div><div id="an-min-wage" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
-        <div class="card" style="margin:0;grid-column:1/-1;"><div class="card-header"><div class="card-title">Average Monthly Health Expenses</div><div class="card-subtitle">By category across all households</div></div><div id="an-expenses-total" style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;"></div><div id="an-expenses-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
-      </div>
-
-      <!-- Services -->
-      <div class="an-section-header">Services</div>
-      <div style="display:grid;grid-template-columns:1fr 2fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Service Availment</div><div class="card-subtitle">Financial Assistance recipients</div></div><div id="an-financial-assist-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Service Awareness vs. Availment Gap</div><div class="card-subtitle">Aware % vs Availed % by region</div></div><div id="an-service-gap-chart" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.25rem 0;"></div></div>
-      </div>
-
-      <!-- Health -->
-      <div class="an-section-header">Health</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Availment of Immunization</div><div class="card-subtitle">Children with complete vaccinations</div></div><div id="an-immunization-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Has Ongoing Health Issues</div><div class="card-subtitle">Children with active health conditions</div></div><div id="an-health-issues-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Availment to Health Services</div><div class="card-subtitle">Availed health services in last 6 months</div></div><div id="an-health-availed-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Vaccination Status by Region</div><div class="card-subtitle">Rate per region</div></div><div id="an-vacc-stat" style="display:flex;flex-direction:column;align-items:center;padding:0.5rem 0 0.25rem;gap:0.25rem;"><div id="an-vacc-rate" style="font-size:3rem;font-weight:800;color:#16a34a;line-height:1;">—</div><div style="font-size:0.8rem;color:var(--gray-500);">National vaccination rate</div></div><div id="an-vacc-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;margin-top:0.5rem;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Reasons for Not Availing Health Services</div><div class="card-subtitle">Most common barriers reported</div></div><div id="an-barriers-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
-      </div>
-
-      <!-- Data Quality -->
-      <div class="an-section-header">Data Quality</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Completeness Score</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1.5rem 0;"><div id="an-gauge-wrap" style="position:relative;width:120px;height:120px;"><svg viewBox="0 0 120 120" width="120" height="120"><circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="12"/><circle id="an-gauge-circle" cx="60" cy="60" r="50" fill="none" stroke="#1152d4" stroke-width="12" stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1s ease;"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;"><div id="an-gauge-pct" style="font-size:1.25rem;font-weight:800;color:var(--dark);">—</div><div style="font-size:0.6rem;color:var(--gray-400);">complete</div></div></div><div id="an-gauge-label" style="font-size:0.8125rem;text-align:center;color:var(--gray-500);"></div></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Missing Data</div><div class="card-subtitle">Top 5 skipped fields</div></div><div id="an-missing-fields" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Flagged Records</div></div><div id="an-flagged" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;gap:0.5rem;text-align:center;"><div id="an-flagged-count" style="font-size:2.5rem;font-weight:800;color:#ef4444;">—</div><div style="font-size:0.8125rem;color:var(--gray-500);">records require review</div></div></div>
-      </div>
-
-      <!-- Reports -->
-      <div class="an-section-header">Reports</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1.25rem;">
-        <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:var(--blue);font-size:1rem;">article</span></div><div class="card-title" style="margin:0;">Executive Summary</div></div></div><div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">1-page national overview with key metrics, completion rate, top regions.</div><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('executive','csv')"><span class="material-symbols-outlined">download</span>CSV</button><button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('executive','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1rem;">map</span></div><div class="card-title" style="margin:0;">Regional Breakdown</div></div></div><div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Per-region targets, completions, rates, and interviewer counts.</div><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('regional','csv')"><span class="material-symbols-outlined">download</span>CSV</button><button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('regional','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#ea580c;font-size:1rem;">accessible</span></div><div class="card-title" style="margin:0;">Disability Report</div></div></div><div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Disability type distribution, age groups, and prevalence analysis.</div><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('disability','csv')"><span class="material-symbols-outlined">download</span>CSV</button><button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('disability','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button></div></div>
-        <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#7c3aed;font-size:1rem;">leaderboard</span></div><div class="card-title" style="margin:0;">Interviewer Performance</div></div></div><div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Productivity rankings, avg per day, and workload balance per interviewer.</div><div style="display:flex;gap:0.5rem;"><button class="btn btn-primary btn-sm" style="flex:1;" onclick="downloadReport('interviewer','csv')"><span class="material-symbols-outlined">download</span>CSV</button><button class="btn btn-secondary btn-sm" style="flex:1;" onclick="downloadReport('interviewer','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button></div></div>
-      </div>
-      <div class="card" style="margin-bottom:1.25rem;">
-        <div class="card-header"><div class="card-title">Email Report Delivery</div><div class="card-subtitle">Send any report to an email address</div></div>
-        <div style="display:flex;gap:0.75rem;align-items:flex-end;flex-wrap:wrap;">
-          <div style="flex:1;min-width:200px;"><label class="settings-label">Report Type</label><select id="an-email-type" class="settings-input"><option value="executive">Executive Summary</option><option value="regional">Regional Breakdown</option><option value="disability">Disability Report</option><option value="interviewer">Interviewer Performance</option></select></div>
-          <div style="flex:2;min-width:240px;"><label class="settings-label">Email Address</label><input type="email" id="an-email-addr" class="settings-input" placeholder="e.g. director@dswd.gov.ph"></div>
-          <button class="btn btn-primary btn-sm" onclick="emailReport()" style="margin-bottom:1px;"><span class="material-symbols-outlined">send</span>Send</button>
+        <div class="rpt-section-body" id="rpt-body-geo">
+          <div style="display:flex;gap:0;border-bottom:2px solid var(--gray-100);margin-bottom:1rem;">
+            <button id="rpt-geo-tab-province" onclick="rptGeoTab('province')" style="padding:0.5rem 1.25rem;font-size:0.8125rem;font-weight:700;border:none;background:none;cursor:pointer;color:#1152d4;border-bottom:2px solid #1152d4;margin-bottom:-2px;transition:color 0.15s;">Province</button>
+            <button id="rpt-geo-tab-city" onclick="rptGeoTab('city')" style="padding:0.5rem 1.25rem;font-size:0.8125rem;font-weight:600;border:none;background:none;cursor:pointer;color:var(--gray-400);border-bottom:2px solid transparent;margin-bottom:-2px;transition:color 0.15s;">City / Municipality</button>
+          </div>
+          <div id="rpt-geo-pane-province"><div id="rpt-province-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+          <div id="rpt-geo-pane-city" style="display:none;"><div id="rpt-city-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
         </div>
       </div>
 
-    </div><!-- /co-view-analytics -->
+      <div class="rpt-section" id="rpts-beneficiaries">
+        <div class="rpt-section-header" onclick="rptToggle('beneficiaries')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">group</span><span class="rpt-section-title">Beneficiaries</span><span class="rpt-section-badge" id="rpt-badge-beneficiaries"></span></div>
+          <span class="material-symbols-outlined rpt-chevron open" id="rpt-chev-beneficiaries">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-beneficiaries">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Sex Disaggregation</div></div><div id="rpt-gender-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Age Groups</div></div><div id="rpt-age-bars" style="padding:0.75rem 1rem 0;min-height:180px;"></div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">4Ps Beneficiaries</div><div class="card-subtitle">Pantawid Pamilya membership</div></div><div id="rpt-4ps-chart" style="display:flex;flex-direction:column;gap:1rem;padding:0.5rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top 5 Locations</div></div><div id="rpt-top-locations" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="rpts-disabilities">
+        <div class="rpt-section-header" onclick="rptToggle('disabilities')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">accessible</span><span class="rpt-section-title">Disabilities</span><span class="rpt-section-badge" id="rpt-badge-disabilities"></span></div>
+          <span class="material-symbols-outlined rpt-chevron open" id="rpt-chev-disabilities">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-disabilities"><div id="rpt-dis-bars" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div></div>
+      </div>
+
+      <div class="rpt-group-label">Supporting Data</div>
+
+      <div class="rpt-section" id="rpts-housing">
+        <div class="rpt-section-header" onclick="rptToggle('housing')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">home</span><span class="rpt-section-title">Housing</span><span class="rpt-section-badge" id="rpt-badge-housing"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-housing">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-housing" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Construction Materials</div></div><div id="rpt-housing-materials" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Tenure Status</div></div><div id="rpt-tenure-status" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Water Source</div></div><div id="rpt-water-source" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Electricity Source</div></div><div id="rpt-electricity-source" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Toilet Type</div></div><div id="rpt-toilet-type" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Garbage Disposal</div></div><div id="rpt-garbage-disposal" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="rpts-health">
+        <div class="rpt-section-header" onclick="rptToggle('health')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">health_and_safety</span><span class="rpt-section-title">Health</span><span class="rpt-section-badge" id="rpt-badge-health"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-health">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-health" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Immunization</div></div><div id="rpt-immunization-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Ongoing Health Issues</div></div><div id="rpt-health-issues-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Health Services Availed</div></div><div id="rpt-health-availed-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top Barriers to Health Services</div></div><div id="rpt-barriers-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Health Expenses</div><div class="card-subtitle" id="rpt-expenses-total"></div></div><div id="rpt-expenses-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="rpts-economic">
+        <div class="rpt-section-header" onclick="rptToggle('economic')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">payments</span><span class="rpt-section-title">Economic</span><span class="rpt-section-badge" id="rpt-badge-economic"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-economic">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-economic" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Primary Income Source</div></div><div id="rpt-primary-income-src" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Minimum Wage Level</div></div><div id="rpt-min-wage" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="rpts-education">
+        <div class="rpt-section-header" onclick="rptToggle('education')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">school</span><span class="rpt-section-title">Education</span><span class="rpt-section-badge" id="rpt-badge-education"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-education">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-education" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Enrollment Status</div></div><div id="rpt-enrollment-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top Reasons for Non-Enrollment</div></div><div id="rpt-enrollment-reasons" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+          </div>
+          <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Educational Attainment</div></div><div id="rpt-educ-attainment" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="rpts-religion">
+        <div class="rpt-section-header" onclick="rptToggle('religion')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">diversity_3</span><span class="rpt-section-title">Religion &amp; Indigenous People</span><span class="rpt-section-badge" id="rpt-badge-religion"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-religion">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-religion" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Religious Affiliation</div></div><div id="rpt-religion-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">IP Membership</div></div><div id="rpt-ip-bars" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="rpts-social">
+        <div class="rpt-section-header" onclick="rptToggle('social')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">volunteer_activism</span><span class="rpt-section-title">Financial &amp; Social Services</span><span class="rpt-section-badge" id="rpt-badge-social"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-social">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-social" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Receives Financial Assistance</div></div><div id="rpt-financial-assist-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Aware of Social Services</div></div><div id="rpt-social-awareness-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="rpts-readiness">
+        <div class="rpt-section-header" onclick="rptToggle('readiness')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">insights</span><span class="rpt-section-title">Readiness Score</span><span class="rpt-section-badge" id="rpt-badge-readiness"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-readiness">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-readiness" style="display:none;"><div id="rpt-readiness-bars" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div></div>
+      </div>
+
+      <div class="rpt-group-label">Operational</div>
+
+      <div class="rpt-section" id="rpts-performance">
+        <div class="rpt-section-header" onclick="rptToggle('performance')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">leaderboard</span><span class="rpt-section-title">Interviewer Performance</span><span class="rpt-section-badge" id="rpt-badge-performance"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-performance">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-performance" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;">emoji_events</span><div class="card-title" style="margin:0;">Top 5 Performers</div></div></div><div id="rpt-top5-int" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Workload Distribution</div></div><div id="rpt-workload-vis" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+          </div>
+          <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Productivity Table</div><div class="card-subtitle">All interviewers — ranked by completions</div></div><div class="table-wrap"><table class="dash-table"><thead><tr><th>Rank</th><th>Name</th><th>Code</th><th>Region</th><th>Completed</th><th>Avg/Day</th><th>Workload</th></tr></thead><tbody id="rpt-int-tbody"></tbody></table></div></div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="rpts-quality">
+        <div class="rpt-section-header" onclick="rptToggle('quality')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">verified_user</span><span class="rpt-section-title">Data Quality</span><span class="rpt-section-badge" id="rpt-badge-quality"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-quality">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-quality" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Missing Data</div><div class="card-subtitle">Top 5 skipped fields</div></div><div id="rpt-missing-fields" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Flagged Records</div></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;gap:0.5rem;text-align:center;"><div id="rpt-flagged-count" style="font-size:2.5rem;font-weight:800;color:#ef4444;">—</div><div style="font-size:0.8125rem;color:var(--gray-500);">records require review</div></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /co-view-report -->
 
   </div>
 </div>
@@ -665,9 +695,20 @@
 <script>
   dashRequireAuth();
 
+  // ── Global floating tooltip ───────────────────────────────────
+  (function() {
+    const tip = document.createElement('div');
+    tip.id = 'g-tip';
+    tip.style.cssText = 'display:none;position:fixed;background:#1e293b;color:#fff;border-radius:0.5rem;padding:0.4rem 0.75rem;font-size:10px;font-weight:600;pointer-events:none;z-index:99999;box-shadow:0 4px 12px rgba(0,0,0,0.2);white-space:nowrap;';
+    document.body.appendChild(tip);
+  })();
+  function gTip(e, html) { const t = document.getElementById('g-tip'); if (!t) return; t.innerHTML = html; t.style.display = 'block'; t.style.left = (e.clientX + 12) + 'px'; t.style.top = (e.clientY - 10) + 'px'; }
+  function gTipMove(e) { const t = document.getElementById('g-tip'); if (t) { t.style.left = (e.clientX + 12) + 'px'; t.style.top = (e.clientY - 10) + 'px'; } }
+  function gTipHide() { const t = document.getElementById('g-tip'); if (t) t.style.display = 'none'; }
+
   // ── View switcher ──────────────────────────────────────────────
   function coShowView(view) {
-    ['overview','beneficiaries','assessments','interviewers','documents','analytics'].forEach(v => {
+    ['overview','beneficiaries','assessments','interviewers','documents','report'].forEach(v => {
       const el = document.getElementById('co-view-' + v);
       if (el) el.style.display = v === view ? 'block' : 'none';
     });
@@ -676,7 +717,7 @@
     if (nav) nav.classList.add('active');
     if (view === 'beneficiaries') coBenLoad();
     if (view === 'interviewers') loadInterviewers();
-    if (view === 'analytics') { loadAnalyticsView(); loadRegionsView(); }
+    if (view === 'report') loadReportView();
   }
 
   function coShowDocTab(tab) {
@@ -1229,15 +1270,14 @@
         const maxCount = regions[0]?.total || 1;
         document.getElementById('co-region-badge').textContent = regions.length + ' Region' + (regions.length !== 1 ? 's' : '');
         document.getElementById('co-region-subtitle').textContent = 'All regions with submitted assessments';
-        const colorClass = (i) => i === 0 ? '' : i === 1 ? 'green' : 'orange';
         document.getElementById('co-region-rows').innerHTML = regions.length
           ? regions.map((r, i) => `
-            <div class="region-row">
+            <div class="region-row" onmouseover="gTip(event,'<strong>${r.region.replace(/'/g,"&#39;")}</strong>: ${r.total.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="gTipHide()">
               <div class="region-info">
                 <span class="region-name">${r.region}</span>
                 <span class="region-count">${r.total.toLocaleString()}</span>
               </div>
-              <div class="progress-bar"><div class="progress-fill ${colorClass(i)}" style="width:${Math.round((r.total/maxCount)*100)}%"></div></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:${Math.round((r.total/maxCount)*100)}%"></div></div>
             </div>`).join('')
           : '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No region data available.</div>';
       }
@@ -1254,7 +1294,7 @@
   }
 
   async function coLoadStatusDonut() {
-    const STATUS_COLORS = { severe:'#ef4444', moderate:'#f97316', low:'#eab308', stable:'#22c55e' };
+    const STATUS_COLORS = { severe:'#1152d4', moderate:'#2563eb', low:'#60a5fa', stable:'#bfdbfe' };
     const STATUS_LABELS = { severe:'Severe', moderate:'Moderate', low:'Low', stable:'Stable' };
     try {
       const json = await fetch('/api/get-assessment-status.php').then(r=>r.json());
@@ -1277,11 +1317,13 @@
           const pct = vals[i] / sum;
           const dash = pct * circ;
           const gap = circ - dash;
+          const pctLabel = Math.round(pct*100);
           const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${STATUS_COLORS[s]}" stroke-width="${stroke}" stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-offset}"
-            style="cursor:pointer;"
-            onmouseenter="(function(el){document.querySelectorAll('#co-status-donut-svg circle[data-label]').forEach(c=>c.style.opacity='0.35');el.style.opacity='1';el.style.strokeWidth='${stroke+6}px';document.getElementById('co-status-donut-total').textContent='${vals[i].toLocaleString()}';document.getElementById('co-status-donut-subtitle').textContent='${STATUS_LABELS[s]} — ${Math.round(pct*100)}%';})(this)"
-            onmouseleave="(function(){document.querySelectorAll('#co-status-donut-svg circle[data-label]').forEach(c=>{c.style.opacity='1';c.style.strokeWidth='${stroke}px';});document.getElementById('co-status-donut-total').textContent='${total.toLocaleString()}';document.getElementById('co-status-donut-subtitle').textContent='${total} total assessment${total!==1?'s':''}';})()"
-            data-label="${STATUS_LABELS[s]}"/>`;
+            data-label="${STATUS_LABELS[s]}"
+            style="cursor:pointer;transition:stroke-width 0.2s ease,opacity 0.2s ease;"
+            onmouseover="(function(c,e){document.querySelectorAll('#co-status-donut-svg circle[data-label]').forEach(function(x){x.style.opacity='0.3';});c.style.opacity='1';c.style.strokeWidth='${stroke+7}px';var tip=document.getElementById('co-status-donut-tip');if(tip){tip.innerHTML='<strong>${STATUS_LABELS[s]}</strong>: ${vals[i].toLocaleString()} &nbsp;(${pctLabel}%)';tip.style.display='block';tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-10)+'px';}})(this,event)"
+            onmousemove="(function(e){var tip=document.getElementById('co-status-donut-tip');if(tip){tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-10)+'px';}})(event)"
+            onmouseout="(function(){document.querySelectorAll('#co-status-donut-svg circle[data-label]').forEach(function(x){x.style.opacity='1';x.style.strokeWidth='${stroke}px';});var tip=document.getElementById('co-status-donut-tip');if(tip)tip.style.display='none';})()"/>`;
           offset += dash;
           return el;
         }).join('') + `<circle cx="${cx}" cy="${cy}" r="${r - stroke/2 - 2}" fill="white" style="pointer-events:none;"/>`;
@@ -1302,7 +1344,7 @@
     }
   }
 
-  const CO_AUDIT_DOT = { create:'#16a34a', update:'#1152d4', delete:'#dc2626', view:'#9ca3af' };
+  const CO_AUDIT_DOT = { create:'#1152d4', update:'#2563eb', delete:'#60a5fa', view:'#93c5fd' };
   async function coLoadRecentActivity() {
     const list = document.getElementById('co-activity-list');
     try {
@@ -1494,13 +1536,6 @@
     const container = document.getElementById('co-monthly-bars');
     container.innerHTML = '';
     const usableH = (container.clientHeight || 160) - 32;
-    let tooltip = document.getElementById('chart-tooltip');
-    if (!tooltip) {
-      tooltip = document.createElement('div');
-      tooltip.id = 'chart-tooltip';
-      tooltip.style.cssText = 'position:fixed;background:#1f2937;color:white;font-size:0.7rem;font-weight:600;padding:0.3rem 0.625rem;border-radius:0.375rem;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9000;white-space:nowrap;';
-      document.body.appendChild(tooltip);
-    }
     bars.forEach(b => {
       const heightPx = Math.max((b.value / b.maxVal) * usableH, b.value > 0 ? 6 : 3);
       const col = document.createElement('div'); col.className = 'bar-col';
@@ -1509,9 +1544,9 @@
       valueDiv.textContent = b.value > 0 ? b.value : '';
       const bar = document.createElement('div'); bar.className = 'bar-fill';
       bar.style.cssText = `height:${heightPx}px;background:${b.color};border-radius:4px 4px 0 0;transition:background 0.15s,transform 0.15s;cursor:pointer;`;
-      bar.addEventListener('mouseenter', function(e) { this.style.background = b.hoverColor; this.style.transform = 'scaleY(1.03)'; this.style.transformOrigin = 'bottom'; tooltip.textContent = b.tooltip; tooltip.style.opacity = '1'; });
-      bar.addEventListener('mousemove', function(e) { tooltip.style.left = (e.clientX + 12) + 'px'; tooltip.style.top = (e.clientY - 28) + 'px'; });
-      bar.addEventListener('mouseleave', function() { this.style.background = b.color; this.style.transform = ''; tooltip.style.opacity = '0'; });
+      bar.addEventListener('mouseenter', function(e) { this.style.background = b.hoverColor; this.style.transform = 'scaleY(1.03)'; this.style.transformOrigin = 'bottom'; gTip(e, b.tooltip); });
+      bar.addEventListener('mousemove', gTipMove);
+      bar.addEventListener('mouseleave', function() { this.style.background = b.color; this.style.transform = ''; gTipHide(); });
       const labelSpan = document.createElement('span'); labelSpan.className = 'bar-label';
       labelSpan.style.cssText = `font-weight:${b.highlight ? '700' : '500'};color:${b.highlight ? '#1152d4' : '#6b7280'};`;
       labelSpan.textContent = b.label;
@@ -2034,6 +2069,220 @@
 
   function closeAnReportSettings() {
     document.getElementById('an-report-settings-modal').style.display = 'none';
+  }
+
+  // ── Report Tab Functions ───────────────────────────────────────
+  // (AN_EXT, AN_EXT_CACHE_KEY, fetchExtendedAnalytics, anRenderDonut,
+  //  anRenderHorizBars are all provided by dashboard-analytics.js)
+
+  const RPT_OPEN = {region:true,geo:true,beneficiaries:true,disabilities:true,housing:false,health:false,economic:false,education:false,religion:false,social:false,readiness:false,analysis:false,performance:false,quality:false};
+
+  function rptToggle(key) {
+    const body = document.getElementById('rpt-body-' + key);
+    const chev = document.getElementById('rpt-chev-' + key);
+    if (!body) return;
+    const opening = body.style.display === 'none';
+    body.style.display = opening ? '' : 'none';
+    if (chev) chev.classList.toggle('open', opening);
+    RPT_OPEN[key] = opening;
+    if (opening) rptRenderSection(key);
+  }
+
+  async function loadReportView() {
+    await Promise.all([fetchAnalyticsData(), fetchExtendedAnalytics()]);
+    rptPopulateRegions();
+    rptRenderHero();
+    rptRenderPace();
+    rptRenderBadges();
+    ['region','geo','beneficiaries','disabilities'].forEach(k => { RPT_OPEN[k] = true; rptRenderSection(k); });
+    ['housing','health','economic','education','religion','social','readiness','analysis','performance','quality'].forEach(k => { RPT_OPEN[k] = false; });
+    document.getElementById('rpt-last-refresh').textContent = 'Last refreshed: ' + new Date().toLocaleTimeString('en-PH', {hour:'2-digit', minute:'2-digit'}) + ' · Auto-refreshes every 5 min';
+  }
+
+  function rptRenderHero() {
+    const s = AN_DATA?.summary;
+    if (!s) return;
+    document.getElementById('rpt-total').textContent        = (s.total||0).toLocaleString();
+    document.getElementById('rpt-total-sub').textContent    = anFilters.region ? 'Region: '+anFilters.region : 'Across all regions';
+    document.getElementById('rpt-rate').textContent         = (s.completion_rate||0)+'%';
+    document.getElementById('rpt-avgday').textContent       = s.avg_per_day||0;
+    document.getElementById('rpt-interviewers').textContent = (s.active_interviewers||0).toLocaleString();
+    const rate = s.completion_rate||0;
+    const badge = document.getElementById('rpt-rate-badge');
+    if (badge) { if (rate>=80) badge.innerHTML='<span class="badge badge-green">Ahead</span>'; else if (rate>=60) badge.innerHTML='<span class="badge badge-blue">On Track</span>'; else badge.innerHTML='<span class="badge badge-red">Behind</span>'; }
+  }
+
+  function rptRenderPace() {
+    const s = AN_DATA?.summary; if (!s) return;
+    const rate=s.completion_rate||0, icon=document.getElementById('rpt-pace-icon'), label=document.getElementById('rpt-pace-label'), sub=document.getElementById('rpt-pace-sub'), bar=document.getElementById('rpt-pace-bar'), pct=document.getElementById('rpt-pace-pct');
+    if (pct) pct.textContent=rate+'%';
+    setTimeout(()=>{ if(bar) bar.style.width=Math.min(rate,100)+'%'; },100);
+    if (rate>=80) { if(icon){icon.style.background='#f0fdf4';icon.style.color='#16a34a';icon.querySelector('span').textContent='trending_up';} if(label){label.textContent='Ahead of Target';label.style.color='#16a34a';} if(sub)sub.textContent='Exceeding national target pace'; if(bar)bar.style.background='#16a34a'; }
+    else if (rate>=60) { if(icon){icon.style.background='#eff6ff';icon.style.color='#1152d4';icon.querySelector('span').textContent='check_circle';} if(label){label.textContent='On Track';label.style.color='#1152d4';} if(sub)sub.textContent='Progressing within expected range'; if(bar)bar.style.background='#1152d4'; }
+    else { if(icon){icon.style.background='#fff1f1';icon.style.color='#ef4444';icon.querySelector('span').textContent='warning';} if(label){label.textContent='Behind Target';label.style.color='#ef4444';} if(sub)sub.textContent='National pace below target — action needed'; if(bar)bar.style.background='#ef4444'; }
+  }
+
+  function rptRenderBadges() {
+    const s=AN_DATA?.summary, q=AN_DATA?.quality, regions=AN_DATA?.regions||[], ints=AN_DATA?.interviewers||[], dis=AN_DATA?.disabilities||[], ext=AN_EXT;
+    const setB=(key,text,cls)=>{ const el=document.getElementById('rpt-badge-'+key); if(!el)return; el.textContent=text; el.className='rpt-section-badge'+(cls?' '+cls:''); };
+    const maxV=Math.max(...regions.map(r=>r.count),1); const lagging=regions.filter(r=>r.count<maxV*0.3).length;
+    setB('region',lagging>0?lagging+' lagging':regions.length+' regions',lagging>0?'warn':'');
+    setB('geo',(AN_DATA?.top_provinces||[]).length?(AN_DATA?.top_provinces||[]).length+' provinces · '+(AN_DATA?.top_cities||[]).length+' cities':'—','');
+    setB('beneficiaries',(s?.total||0)?(s.total.toLocaleString()+' profiled'):'—','');
+    setB('disabilities',dis.reduce((s,d)=>s+(d.val||0),0)?dis.reduce((s,d)=>s+(d.val||0),0).toLocaleString()+' cases':'—','');
+    const modPct=ext?.housing?(ext.housing.mod_total>0?Math.round((ext.housing.mod_yes/ext.housing.mod_total)*100):0):null;
+    setB('housing',modPct!==null?modPct+'% homes modified':'—','');
+    const vaccRate=ext?.vaccination?.national_rate;
+    setB('health',vaccRate!=null?vaccRate+'% vaccinated':'—',vaccRate!=null&&vaccRate<60?'warn':'');
+    const below=ext?.min_wage?.below||0, mwTotal=(ext?.min_wage?.below||0)+(ext?.min_wage?.at||0)+(ext?.min_wage?.above||0);
+    const belowPct=mwTotal>0?Math.round((below/mwTotal)*100):null;
+    setB('economic',belowPct!==null?belowPct+'% below min wage':'—',belowPct!==null&&belowPct>50?'alert':belowPct>30?'warn':'');
+    const enrPct=ext?.enrollment?((ext.enrollment.enrolled+ext.enrollment.not_enrolled)>0?Math.round((ext.enrollment.enrolled/(ext.enrollment.enrolled+ext.enrollment.not_enrolled))*100):null):null;
+    setB('education',enrPct!==null?enrPct+'% enrolled':'—',enrPct!==null&&enrPct<70?'warn':'');
+    setB('religion',ext?.religion?.[0]?.label||(ext?.ip_membership||[]).reduce((s,r)=>s+(r.val||0),0)?((ext?.religion?.[0]?.label||'')+(((ext?.ip_membership||[]).reduce((s,r)=>s+(r.val||0),0))?' · '+(ext?.ip_membership||[]).reduce((s,r)=>s+(r.val||0),0).toLocaleString()+' IP':'')||'—'):'—','');
+    const faPct=ext?.financial_assist?.total>0?Math.round((ext.financial_assist.yes/ext.financial_assist.total)*100):null;
+    setB('social',faPct!==null?faPct+'% assisted':'—',faPct!==null&&faPct<30?'warn':'');
+    const rd=ext?.readiness_dist||[], rdTotal=rd.reduce((s,r)=>s+r.val,0);
+    const severePct=rdTotal>0?Math.round(((rd.find(r=>r.label==='Severe')?.val||0)/rdTotal)*100):null;
+    setB('readiness',severePct!==null?severePct+'% severe':'—',severePct!==null&&severePct>30?'alert':severePct>15?'warn':'');
+    const overloaded=ints.filter(iv=>iv.workload==='overloaded').length;
+    setB('performance',overloaded>0?overloaded+' overloaded':ints.length+' interviewers',overloaded>0?'warn':'');
+    const completeness=q?.completeness||0;
+    setB('quality',completeness+'% complete',completeness<80?'alert':completeness<90?'warn':'good');
+  }
+
+  function rptRenderSection(key) {
+    if (!AN_DATA) return;
+    const EMPTY='<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No data available</div>';
+
+    if (key==='region') {
+      const data=AN_DATA?.regions||[], maxV=Math.max(...data.map(r=>r.count),1);
+      const rColors=['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe','#1152d4','#2563eb','#3b82f6','#60a5fa','#1d4ed8','#1152d4','#2563eb','#3b82f6'];
+      document.getElementById('rpt-region-bars').innerHTML=data.length?data.map((r,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${r.region.replace(/'/g,"&#39;")}</strong>: ${r.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((r.count/maxV)*100)}%;background:${rColors[i%rColors.length]};border-radius:999px;transition:width 0.6s;"></div></div><div style="font-size:0.75rem;font-weight:800;color:var(--dark);width:48px;text-align:right;">${r.count.toLocaleString()}</div></div>`).join(''):EMPTY;
+    }
+
+    if (key==='geo') {
+      const provs=AN_DATA?.top_provinces||[], cities=AN_DATA?.top_cities||[];
+      const gColors=['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#1152d4','#2563eb','#3b82f6'];
+      const maxP=Math.max(...provs.map(p=>p.count),1);
+      document.getElementById('rpt-province-bars').innerHTML=provs.length?provs.map((p,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${p.name.replace(/'/g,"&#39;")}</strong>: ${p.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((p.count/maxP)*100)}%;background:${gColors[i%gColors.length]};border-radius:999px;transition:width 0.6s;"></div></div><div style="font-size:0.75rem;font-weight:800;color:var(--dark);width:40px;text-align:right;">${p.count.toLocaleString()}</div></div>`).join(''):EMPTY;
+      const maxC=Math.max(...cities.map(c=>c.count),1);
+      document.getElementById('rpt-city-bars').innerHTML=cities.length?cities.map((c,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${c.name.replace(/'/g,"&#39;")}</strong>${c.province?' · '+c.province.replace(/'/g,"&#39;"):''}: ${c.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><div style="width:200px;min-width:0;"><div style="font-size:0.75rem;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>${c.province?`<div style="font-size:0.65rem;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.province}</div>`:''}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((c.count/maxC)*100)}%;background:${gColors[i%gColors.length]};border-radius:999px;transition:width 0.6s;"></div></div><div style="font-size:0.75rem;font-weight:800;color:var(--dark);width:40px;text-align:right;">${c.count.toLocaleString()}</div></div>`).join(''):EMPTY;
+    }
+
+    if (key==='beneficiaries') {
+      const ages=AN_DATA?.age_groups||[], maxA=Math.max(...ages.map(a=>a.val),1), ageColors=['#1152d4','#2563eb','#3b82f6','#60a5fa'], CHART_H=130;
+      document.getElementById('rpt-age-bars').innerHTML=ages.length?`<div style="display:flex;align-items:flex-end;gap:0.875rem;width:100%;height:${CHART_H}px;border-bottom:2px solid #e5e7eb;padding-bottom:0;">${ages.map((a,i)=>{const barH=Math.max(Math.round((a.val/maxA)*CHART_H),a.val>0?6:2);return`<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:100%;position:relative;cursor:pointer;" onmouseover="gTip(event,'<strong>${a.label}</strong>: ${a.val.toLocaleString()}')" onmousemove="gTipMove(event)" onmouseout="gTipHide()"><div style="font-size:0.78rem;font-weight:800;color:${ageColors[i%ageColors.length]};margin-bottom:6px;">${a.val>0?a.val.toLocaleString():''}</div><div style="width:100%;height:${barH}px;background:${ageColors[i%ageColors.length]};border-radius:5px 5px 0 0;transition:height 0.6s ease;"></div></div>`;}).join('')}</div><div style="display:flex;gap:0.875rem;padding-top:0.5rem;">${ages.map((a,i)=>`<div style="flex:1;text-align:center;font-size:0.72rem;font-weight:${i===ages.findIndex(x=>x.val===maxA)?'700':'500'};color:${i===ages.findIndex(x=>x.val===maxA)?ageColors[i%ageColors.length]:'var(--gray-400)'};">${a.label}</div>`).join('')}</div>`:EMPTY;
+      const gender=AN_DATA?.gender||[], gTotal=gender.reduce((s,g)=>s+g.val,0);
+      if (gTotal) {
+        const circ=314; let offset=0;
+        const arcs=gender.map((g,gi)=>{const dash=(g.val/gTotal)*circ,pct=Math.round((g.val/gTotal)*100);const arc=`<circle cx="70" cy="70" r="50" fill="none" stroke="${g.color}" stroke-width="20" stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${78.5-offset}" transform="rotate(-90 70 70)" data-gi="${gi}" style="cursor:pointer;transition:stroke-width 0.2s ease,opacity 0.2s ease;" onmouseover="rptGenderTooltip(event,'${g.label}',${g.val},${pct});(function(c){document.querySelectorAll('#rpt-gender-svg circle[data-gi]').forEach(function(x){x.style.opacity='0.3';});c.style.opacity='1';c.style.strokeWidth='27px';})(this)" onmouseout="rptGenderTooltipHide();(function(){document.querySelectorAll('#rpt-gender-svg circle[data-gi]').forEach(function(x){x.style.opacity='1';x.style.strokeWidth='20px';});})()"/>`;offset+=dash;return arc;}).join('');
+        document.getElementById('rpt-gender-donut').innerHTML=`<div style="position:relative;"><svg id="rpt-gender-svg" viewBox="0 0 140 140" width="150" height="150" style="overflow:visible;">${arcs}</svg><div id="rpt-gender-tooltip" style="display:none;position:fixed;background:#1e293b;color:#fff;border-radius:0.5rem;padding:0.4rem 0.75rem;font-size:10px;pointer-events:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);white-space:nowrap;"></div></div><div style="display:flex;gap:1.25rem;">${gender.map(g=>`<div style="text-align:center;"><div style="width:10px;height:10px;border-radius:50%;background:${g.color};margin:0 auto 4px;"></div><div style="font-size:0.75rem;font-weight:700;">${g.label}</div><div style="font-size:0.8125rem;font-weight:800;">${Math.round((g.val/gTotal)*100)}%</div></div>`).join('')}</div>`;
+      }
+      const ps=AN_EXT?.fourps, psEl=document.getElementById('rpt-4ps-chart');
+      if (ps&&psEl) { const psPct=ps.total>0?Math.round((ps.yes/ps.total)*100):0,notPct=100-psPct; psEl.innerHTML=`<div style="width:100%;padding:0.5rem 0;"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.875rem;padding:0.5rem 0.75rem;background:#eff6ff;border-radius:0.5rem;border:1px solid #bfdbfe;"><div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#1152d4;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:white;font-size:1.2rem;">check_circle</span></div><div style="flex:1;"><div style="font-size:0.8125rem;font-weight:700;color:#1152d4;">4Ps Members</div><div style="font-size:0.72rem;color:#2563eb;">${(ps.yes||0).toLocaleString()} households</div></div><div style="font-size:1.75rem;font-weight:800;color:#1152d4;">${psPct}%</div></div><div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:#f9fafb;border-radius:0.5rem;border:1px solid var(--border);"><div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#9ca3af;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="color:white;font-size:1.2rem;">remove_circle</span></div><div style="flex:1;"><div style="font-size:0.8125rem;font-weight:700;color:var(--gray-700);">Non-4Ps</div><div style="font-size:0.72rem;color:var(--gray-400);">${(ps.no||0).toLocaleString()} households</div></div><div style="font-size:1.75rem;font-weight:800;color:var(--gray-500);">${notPct}%</div></div><div style="margin-top:1rem;"><div style="height:12px;border-radius:999px;overflow:hidden;background:#e5e7eb;display:flex;"><div style="width:${psPct}%;background:#1152d4;border-radius:999px 0 0 999px;transition:width 0.6s ease;"></div></div><div style="display:flex;justify-content:space-between;margin-top:0.3rem;font-size:0.7rem;color:var(--gray-400);"><span>0%</span><span style="color:var(--gray-500);font-weight:600;">Total: ${(ps.total||0).toLocaleString()}</span><span>100%</span></div></div></div>`; }
+      const locs=AN_DATA?.top_locations||[], maxL=Math.max(...locs.map(l=>l.count),1);
+      document.getElementById('rpt-top-locations').innerHTML=locs.length?locs.map((l,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${l.name.replace(/'/g,"&#39;")}</strong>: ${l.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><span style="font-size:0.8rem;font-weight:800;color:var(--gray-400);width:1.25rem;">${i+1}</span><div style="flex:1;min-width:0;font-size:0.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${l.name}</div><div style="width:80px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;flex-shrink:0;"><div style="height:100%;width:${Math.round((l.count/maxL)*100)}%;background:#2563eb;border-radius:999px;"></div></div><div style="font-size:0.75rem;font-weight:800;width:32px;text-align:right;">${l.count}</div></div>`).join(''):EMPTY;
+    }
+
+    if (key==='disabilities') {
+      const dis=AN_DATA?.disabilities||[], maxD=Math.max(...dis.map(d=>d.val),1);
+      const disColors=['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe','#1152d4','#2563eb'];
+      document.getElementById('rpt-dis-bars').innerHTML=dis.length?dis.map((d,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${d.label.replace(/'/g,"&#39;")}</strong>: ${d.val.toLocaleString()}')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><div style="font-size:0.75rem;font-weight:600;width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((d.val/maxD)*100)}%;background:${disColors[i%disColors.length]};border-radius:999px;"></div></div><div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${d.val.toLocaleString()}</div></div>`).join(''):EMPTY;
+    }
+
+    if (key==='housing') { const h=AN_EXT?.housing; if(h){ anRenderHorizBars('rpt-housing-materials',h.materials,['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd']); anRenderHorizBars('rpt-tenure-status',h.tenure,['#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe']); anRenderHorizBars('rpt-water-source',h.water_source,['#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe']); anRenderHorizBars('rpt-electricity-source',h.electricity_source,['#1d4ed8','#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd']); anRenderHorizBars('rpt-toilet-type',h.toilet_type,['#2563eb','#1152d4','#3b82f6','#60a5fa','#93c5fd','#bfdbfe']); anRenderHorizBars('rpt-garbage-disposal',h.garbage_disposal,['#1152d4','#2563eb','#1d4ed8','#3b82f6','#60a5fa','#93c5fd']); } }
+
+    if (key==='health') {
+      const vacc=AN_EXT?.vaccination, barriers=AN_EXT?.barriers||[];
+      if(vacc){ anRenderDonut('rpt-immunization-donut',[{label:'Complete',val:vacc.vaccinated||0,color:'#1152d4'},{label:'Incomplete',val:(vacc.total||0)-(vacc.vaccinated||0),color:'#bfdbfe'}],vacc.national_rate+'%','Immunized'); }
+      const hi=AN_EXT?.health_issues; if(hi){ anRenderDonut('rpt-health-issues-donut',[{label:'Has Issues',val:hi.yes||0,color:'#2563eb'},{label:'None',val:hi.no||0,color:'#dbeafe'}],hi.total>0?Math.round((hi.yes/hi.total)*100)+'%':'—','With Issues'); }
+      const ha=AN_EXT?.health_availed; if(ha){ anRenderDonut('rpt-health-availed-donut',[{label:'Availed',val:ha.yes||0,color:'#3b82f6'},{label:'Did Not Avail',val:ha.no||0,color:'#93c5fd'}],ha.total>0?Math.round((ha.yes/ha.total)*100)+'%':'—','Availed'); }
+      document.getElementById('rpt-barriers-chart').innerHTML=barriers.length?barriers.map((b,i)=>`<div style="display:flex;align-items:flex-start;gap:0.5rem;padding:0.25rem 0.375rem;"><span style="font-size:0.7rem;font-weight:700;color:#1152d4;min-width:1.1rem;">${i+1}.</span><span style="font-size:0.78rem;color:var(--dark);line-height:1.4;">${b.label}</span></div>`).join(''):EMPTY;
+      const expData=AN_EXT?.expenses; if(expData){ document.getElementById('rpt-expenses-total').innerHTML='Avg total: <b>₱'+(expData.total_avg||0).toLocaleString()+'</b>/mo'; const maxExp=Math.max(...(expData.breakdown||[]).map(e=>e.avg),1); document.getElementById('rpt-expenses-chart').innerHTML=(expData.breakdown||[]).length?(expData.breakdown||[]).map((e,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${e.label.replace(/'/g,"&#39;")}</strong>: ₱${(e.avg||0).toLocaleString()} avg/mo')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><div style="font-size:0.75rem;font-weight:600;width:130px;">${e.label}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((e.avg/maxExp)*100)}%;background:#3b82f6;border-radius:999px;"></div></div><div style="font-size:0.72rem;font-weight:800;width:60px;text-align:right;">₱${(e.avg||0).toLocaleString()}</div></div>`).join(''):EMPTY; }
+    }
+
+    if (key==='economic') { const src=AN_EXT?.primary_income_src||[]; anRenderHorizBars('rpt-primary-income-src',src,['#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#1d4ed8']); const mw=AN_EXT?.min_wage; if(mw){ anRenderHorizBars('rpt-min-wage',[{label:'Below Minimum Wage',val:mw.below||0},{label:'At Minimum Wage',val:mw.at||0},{label:'Above Minimum Wage',val:mw.above||0}],['#1152d4','#3b82f6','#93c5fd']); } }
+
+    if (key==='education') {
+      const enr=AN_EXT?.enrollment; if(enr){ const enrTotal=(enr.enrolled||0)+(enr.not_enrolled||0),pct=enrTotal>0?Math.round((enr.enrolled/enrTotal)*100):0; anRenderDonut('rpt-enrollment-donut',[{label:'Enrolled',val:enr.enrolled||0,color:'#1152d4'},{label:'Not Enrolled',val:enr.not_enrolled||0,color:'#bfdbfe'}],pct+'%','Enrolled'); const reasons=enr.top_reasons||[]; document.getElementById('rpt-enrollment-reasons').innerHTML=reasons.length?reasons.map((r,i)=>`<div style="display:flex;align-items:flex-start;gap:0.625rem;padding:0.5rem 0;border-bottom:1px solid var(--gray-100);"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:1.4rem;height:1.4rem;border-radius:50%;background:#eff6ff;color:#1152d4;font-size:0.65rem;font-weight:800;">${i+1}</span><div style="flex:1;"><div style="font-size:0.8125rem;font-weight:600;color:var(--dark);line-height:1.4;">${r.reason}</div><div style="font-size:0.7rem;color:var(--gray-400);margin-top:0.1rem;">${r.count} student${r.count!==1?'s':''}</div></div></div>`).join(''):EMPTY; }
+      anRenderHorizBars('rpt-educ-attainment',AN_EXT?.educ_attainment,['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe']);
+    }
+
+    if (key==='religion') {
+      const rel=AN_EXT?.religion||[], relColors=['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd'];
+      if(rel.length){ anRenderDonut('rpt-religion-donut',rel.map((r,i)=>({label:r.label,val:r.count,color:relColors[i%relColors.length]})),rel[0]?.label||'—','Most common'); } else { document.getElementById('rpt-religion-donut').innerHTML=EMPTY; }
+      anRenderHorizBars('rpt-ip-bars',AN_EXT?.ip_membership||[],['#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe']);
+    }
+
+    if (key==='social') {
+      const fa=AN_EXT?.financial_assist; if(fa){ anRenderDonut('rpt-financial-assist-donut',[{label:'Receiving',val:fa.yes||0,color:'#1152d4'},{label:'Not Receiving',val:fa.no||0,color:'#bfdbfe'}],fa.total>0?Math.round((fa.yes/fa.total)*100)+'%':'—','Receiving'); }
+      const sa=AN_EXT?.social_awareness; if(sa){ anRenderDonut('rpt-social-awareness-donut',[{label:'Aware',val:sa.yes||0,color:'#2563eb'},{label:'Not Aware',val:sa.no||0,color:'#93c5fd'}],sa.total>0?Math.round((sa.yes/sa.total)*100)+'%':'—','Aware'); }
+    }
+
+    if (key==='readiness') {
+      const rd=AN_EXT?.readiness_dist||[], maxRd=Math.max(...rd.map(r=>r.val),1), totalRd=rd.reduce((s,r)=>s+r.val,0);
+      document.getElementById('rpt-readiness-bars').innerHTML=rd.length?rd.map(r=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background=''"><div style="display:flex;align-items:center;gap:0.5rem;width:110px;"><div style="width:10px;height:10px;border-radius:50%;background:${r.color};flex-shrink:0;"></div><div style="font-size:0.75rem;font-weight:600;">${r.label}</div></div><div style="flex:1;height:12px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((r.val/maxRd)*100)}%;background:${r.color};border-radius:999px;transition:width 0.6s;"></div></div><div style="font-size:0.75rem;font-weight:800;width:40px;text-align:right;">${r.val.toLocaleString()}</div><div style="font-size:0.7rem;color:var(--gray-400);width:36px;">${totalRd>0?Math.round((r.val/totalRd)*100):0}%</div></div>`).join(''):EMPTY;
+    }
+
+    if (key==='performance') {
+      const WL={overloaded:'<span class="badge badge-red" style="font-size:0.65rem;">Overloaded</span>',balanced:'<span class="badge badge-green" style="font-size:0.65rem;">Balanced</span>',underutilized:'<span class="badge badge-orange" style="font-size:0.65rem;">Underutilized</span>'};
+      const medals=['🥇','🥈','🥉','4.','5.']; const sorted=AN_DATA?.interviewers||[];
+      document.getElementById('rpt-int-tbody').innerHTML=sorted.length?sorted.map((iv,i)=>`<tr class="table-row-hover"><td style="font-weight:800;color:var(--gray-400);">${i+1}</td><td style="font-weight:700;">${iv.name}</td><td><span style="font-family:monospace;font-size:0.75rem;color:var(--blue);">${iv.code}</span></td><td style="font-size:0.75rem;">${iv.region}</td><td style="font-weight:800;color:#1152d4;">${iv.completed}</td><td>${iv.avgDay}</td><td>${WL[iv.workload]||''}</td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:1.5rem;font-size:0.75rem;">No data</td></tr>';
+      document.getElementById('rpt-top5-int').innerHTML=sorted.slice(0,5).map((iv,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);"><span style="font-size:1rem;min-width:1.5rem;">${medals[i]}</span><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.8125rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${iv.name}</div><div style="font-size:0.7rem;color:var(--gray-400);">${(iv.region||'').split('–')[0].trim()}</div></div><span style="font-weight:800;color:#1152d4;">${iv.completed}</span></div>`).join('')||EMPTY;
+      const wlCounts={overloaded:0,balanced:0,underutilized:0}; sorted.forEach(iv=>{if(wlCounts[iv.workload]!==undefined)wlCounts[iv.workload]++;});
+      const wlTotal=sorted.length||1;
+      document.getElementById('rpt-workload-vis').innerHTML=[{key:'overloaded',label:'Overloaded',color:'#1152d4'},{key:'balanced',label:'Balanced',color:'#3b82f6'},{key:'underutilized',label:'Underutilized',color:'#93c5fd'}].map(w=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;"><div style="font-size:0.75rem;font-weight:600;width:100px;">${w.label}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((wlCounts[w.key]/wlTotal)*100)}%;background:${w.color};border-radius:999px;"></div></div><div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${wlCounts[w.key]} / ${wlTotal}</div></div>`).join('');
+    }
+
+    if (key==='quality') {
+      const q=AN_DATA?.quality; if(!q)return;
+      const missing=q.missing_fields||[], maxM=Math.max(...missing.map(f=>f.pct),1);
+      document.getElementById('rpt-missing-fields').innerHTML=missing.length?missing.map(f=>`<div style="display:flex;align-items:center;gap:0.75rem;"><div style="font-size:0.75rem;flex:1;">${f.field}</div><div style="width:80px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((f.pct/maxM)*100)}%;background:#3b82f6;border-radius:999px;"></div></div><div style="font-size:0.7rem;font-weight:800;width:32px;text-align:right;color:#1152d4;">${f.pct}%</div></div>`).join(''):EMPTY;
+      document.getElementById('rpt-flagged-count').textContent=q.flagged_count||0;
+    }
+  }
+
+  function rptPopulateRegions() {
+    const sel=document.getElementById('rpt-region-filter'); if(!sel)return;
+    const regions=(AN_DATA?.regions||[]).map(r=>r.region).filter(Boolean), current=anFilters.region;
+    sel.innerHTML='<option value="">All Regions</option>'+regions.map(r=>`<option value="${r}"${r===current?' selected':''}>${r}</option>`).join('');
+  }
+
+  function rptShowFilterToast(msg) {
+    const toast=document.getElementById('rpt-filter-toast'), msgEl=document.getElementById('rpt-filter-toast-msg'); if(!toast||!msgEl)return;
+    msgEl.textContent=msg; toast.style.display='flex'; toast.style.opacity='1';
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer=setTimeout(()=>{ toast.style.opacity='0'; setTimeout(()=>{ toast.style.display='none'; },260); },2500);
+  }
+
+  async function rptApplyRegionFilter() {
+    const sel=document.getElementById('rpt-region-filter'), val=sel?.value||'';
+    anFilters.region=val; anFilters.province='';
+    AN_DATA=null; AN_CACHE_TS=0; AN_EXT=null; AN_EXT_CACHE_KEY='';
+    const chip=document.getElementById('rpt-region-chip'), chipLabel=document.getElementById('rpt-region-chip-label');
+    if(val){ if(chipLabel)chipLabel.textContent=val; if(chip)chip.style.display='flex'; } else { if(chip)chip.style.display='none'; }
+    document.getElementById('rpt-last-refresh').textContent='Filtering…';
+    await Promise.all([fetchAnalyticsData(), fetchExtendedAnalytics()]);
+    rptRenderHero(); rptRenderPace(); rptRenderBadges();
+    Object.keys(RPT_OPEN).forEach(k=>{ if(RPT_OPEN[k])rptRenderSection(k); });
+    document.getElementById('rpt-last-refresh').textContent=(val?`Region: ${val} · `:'')+' Last refreshed: '+new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+    rptShowFilterToast(val?`Filtered by: ${val}`:'Showing all regions');
+  }
+
+  function rptClearRegion() { const sel=document.getElementById('rpt-region-filter'); if(sel)sel.value=''; rptApplyRegionFilter(); }
+
+  function rptGenderTooltip(e,label,val,pct) {
+    const tip=document.getElementById('rpt-gender-tooltip'); if(!tip)return;
+    tip.innerHTML=`<strong>${label}</strong>: ${val.toLocaleString()} &nbsp;(${pct}%)`;
+    tip.style.display='block'; tip.style.left=(e.clientX+12)+'px'; tip.style.top=(e.clientY-10)+'px';
+    document.onmousemove=function(ev){ tip.style.left=(ev.clientX+12)+'px'; tip.style.top=(ev.clientY-10)+'px'; };
+  }
+  function rptGenderTooltipHide() { const tip=document.getElementById('rpt-gender-tooltip'); if(tip)tip.style.display='none'; document.onmousemove=null; }
+
+  function rptGeoTab(tab) {
+    const active='color:#1152d4;border-bottom:2px solid #1152d4;font-weight:700;', inactive='color:var(--gray-400);border-bottom:2px solid transparent;font-weight:600;';
+    ['province','city'].forEach(t=>{ const btn=document.getElementById('rpt-geo-tab-'+t), pane=document.getElementById('rpt-geo-pane-'+t); if(!btn||!pane)return; const isActive=t===tab; btn.style.cssText=btn.style.cssText.replace(/color:[^;]+;|border-bottom:[^;]+;|font-weight:[^;]+;/g,'')+(isActive?active:inactive); pane.style.display=isActive?'':'none'; });
   }
 
 </script>
