@@ -494,17 +494,33 @@ function anRenderDonut(elId, slices, centerVal, centerLabel) {
   if (!el) return;
   const total = slices.reduce((s,x)=>s+x.val,0);
   if (!total) { el.innerHTML = AN_EMPTY; return; }
-  const circ = 2*Math.PI*50;
+  const circ = 314;
+  const uid = elId;
+  const tipId = uid + '-tip';
   let offset = 0;
-  const segs = slices.map(s=>{
+  const segs = slices.map((s,i) => {
     const dash = (s.val/total)*circ;
-    const seg = '<circle cx="60" cy="60" r="50" fill="none" stroke="'+s.color+'" stroke-width="20" stroke-dasharray="'+dash.toFixed(2)+' '+(circ-dash).toFixed(2)+'" stroke-dashoffset="'+(-offset).toFixed(2)+'"/>';
+    const pct = Math.round((s.val/total)*100);
+    const safeLabel = s.label.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    const seg = '<circle cx="70" cy="70" r="50" fill="none" stroke="'+s.color+'" stroke-width="20"'
+      +' stroke-dasharray="'+dash.toFixed(2)+' '+(circ-dash).toFixed(2)+'"'
+      +' stroke-dashoffset="'+(78.5-offset).toFixed(2)+'"'
+      +' transform="rotate(-90 70 70)" data-i="'+i+'"'
+      +' style="cursor:pointer;transition:stroke-width 0.2s ease,opacity 0.2s ease;"'
+      +' onmouseover="(function(c,e){document.querySelectorAll(\'#'+uid+'-svg circle[data-i]\').forEach(function(x){x.style.opacity=\'0.3\';});c.style.opacity=\'1\';c.style.strokeWidth=\'27px\';var tip=document.getElementById(\''+tipId+'\');if(tip){tip.innerHTML=\'<strong>'+safeLabel+'</strong>: '+s.val.toLocaleString()+'  ('+pct+'%)\';tip.style.display=\'block\';tip.style.left=(e.clientX+12)+\'px\';tip.style.top=(e.clientY-10)+\'px\';};})(this,event)"'
+      +' onmousemove="(function(e){var tip=document.getElementById(\''+tipId+'\');if(tip){tip.style.left=(e.clientX+12)+\'px\';tip.style.top=(e.clientY-10)+\'px\';}})(event)"'
+      +' onmouseout="(function(){document.querySelectorAll(\'#'+uid+'-svg circle[data-i]\').forEach(function(x){x.style.opacity=\'1\';x.style.strokeWidth=\'20px\';});var tip=document.getElementById(\''+tipId+'\');if(tip)tip.style.display=\'none\';})()"'
+      +'"/>';
     offset += dash;
     return seg;
   }).join('');
-  el.innerHTML = '<svg viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);">'+segs+'</svg>'
-    +'<div style="text-align:center;"><div style="font-size:1.5rem;font-weight:800;color:var(--dark);">'+centerVal+'</div><div style="font-size:0.75rem;color:var(--gray-500);">'+centerLabel+'</div></div>'
-    +'<div style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;justify-content:center;font-size:0.75rem;">'+slices.map(s=>'<div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:'+s.color+';"></div>'+s.label+': <b>'+s.val.toLocaleString()+'</b></div>').join('')+'</div>';
+  el.innerHTML = '<div style="position:relative;">'
+    +'<svg id="'+uid+'-svg" viewBox="0 0 140 140" width="150" height="150" style="overflow:visible;">'+segs+'</svg>'
+    +'<div id="'+tipId+'" style="display:none;position:fixed;background:#1e293b;color:#fff;border-radius:0.5rem;padding:0.4rem 0.75rem;font-size:10px;pointer-events:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);white-space:nowrap;"></div>'
+    +'</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;justify-content:center;font-size:0.75rem;">'
+    +slices.map(s=>'<div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:'+s.color+';flex-shrink:0;"></div>'+s.label+': <b>'+s.val.toLocaleString()+'</b></div>').join('')
+    +'</div>';
 }
 
 function anRenderHorizBars(elId, items, colorPalette) {
@@ -512,12 +528,21 @@ function anRenderHorizBars(elId, items, colorPalette) {
   if (!el) return;
   if (!items || !items.length) { el.innerHTML = AN_EMPTY; return; }
   const maxV = Math.max(...items.map(i=>i.val||i.count||0), 1);
-  const colors = colorPalette || ['#1152d4','#7c3aed','#ec4899','#f59e0b','#10b981','#ef4444','#06b6d4'];
+  const colors = colorPalette || ['#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#1d4ed8','#bfdbfe'];
   const total = items.reduce((s,x)=>s+(x.val||x.count||0),0);
   el.innerHTML = items.map((item,i)=>{
     const v = item.val||item.count||0;
     const pct = total>0?Math.round(v/total*100):0;
-    return '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background=\'var(--blue-light)\'" onmouseout="this.style.background=\'\'"><div style="font-size:0.75rem;font-weight:600;width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+item.label+'</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:'+Math.round((v/maxV)*100)+'%;background:'+colors[i%colors.length]+';border-radius:999px;"></div></div><div style="font-size:0.72rem;font-weight:800;width:32px;text-align:right;">'+v+'</div><div style="font-size:0.7rem;color:var(--gray-400);width:34px;">'+pct+'%</div></div>';
+    const safeLabel = item.label.replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+    return '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;"'
+      +' onmouseover="this.style.background=\'var(--blue-light)\';if(typeof gTip===\'function\')gTip(event,\'<strong>'+safeLabel+'</strong>: '+v.toLocaleString()+' &nbsp;('+pct+'%)\')"'
+      +' onmousemove="if(typeof gTipMove===\'function\')gTipMove(event)"'
+      +' onmouseout="this.style.background=\'\';if(typeof gTipHide===\'function\')gTipHide()">'
+      +'<div style="font-size:0.75rem;font-weight:600;width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+item.label+'</div>'
+      +'<div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:'+Math.round((v/maxV)*100)+'%;background:'+colors[i%colors.length]+';border-radius:999px;"></div></div>'
+      +'<div style="font-size:0.72rem;font-weight:800;width:32px;text-align:right;">'+v+'</div>'
+      +'<div style="font-size:0.7rem;color:var(--gray-400);width:34px;">'+pct+'%</div>'
+      +'</div>';
   }).join('');
 }
 
