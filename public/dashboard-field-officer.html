@@ -69,6 +69,18 @@
     .fo-modal-close {
       position:absolute;top:1rem;right:1rem;background:none;border:none;cursor:pointer;color:#6b7280;
     }
+    /* ── User Guide ── */
+    .hg-title { font-weight:700; font-size:0.875rem; color:#1f2937; font-family:'Poppins',sans-serif; margin:0; }
+    .hg-body  { font-weight:400; font-size:0.875rem; color:#4b5563; line-height:1.7; font-family:'Poppins',sans-serif; margin:0; }
+    .hg-step-badge { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#1152d4;color:#fff;font-size:12px;font-weight:700;flex-shrink:0; }
+    .hg-tip  { background:#eff6ff;border-left:4px solid #1152d4;border-radius:0 8px 8px 0;padding:0.75rem 1rem;margin-top:1rem; }
+    .hg-warn { background:#fefce8;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:0.75rem 1rem;margin-top:1rem; }
+    .hg-section { background:#fff;border-radius:0.75rem;border:1px solid #e5e7eb;padding:1.5rem;margin-bottom:1.25rem; }
+    .hg-step-block { background:#f9fafb;border-radius:0.625rem;border:1px solid #e5e7eb;padding:1rem 1.25rem;margin-bottom:0.625rem; }
+    .hg-step-block:last-child { margin-bottom:0; }
+    .hg-section-icon { color:#1152d4;font-size:1.25rem; }
+    .hg-toc-item { display:flex;align-items:center;gap:0.5rem;padding:0.625rem 0.75rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;transition:background 0.15s; }
+    .hg-toc-item:hover { background:#dbeafe; }
   </style>
 </head>
 <body>
@@ -113,12 +125,12 @@
       <a href="https://project-aruga.vercel.app/" target="_blank" rel="noopener" class="nav-item" title="Profiling Tool"><span class="material-symbols-outlined">edit_note</span><span class="nav-label">Profiling Tool</span></a>
       <a href="#" class="nav-item" id="nav-documents" title="Documents" onclick="showView('documents');return false;"><span class="material-symbols-outlined">folder_open</span><span class="nav-label">Documents</span></a>
       <a href="#" class="nav-item" id="nav-qr" title="Scan QR Code" onclick="showView('qr');return false;"><span class="material-symbols-outlined">qr_code_scanner</span><span class="nav-label">Scan QR Code</span></a>
-      <a href="#" class="nav-item" id="nav-help" title="Help &amp; Guide" onclick="showView('help');return false;"><span class="material-symbols-outlined">help</span><span class="nav-label">Help &amp; Guide</span></a>
+      <a href="#" class="nav-item" id="nav-help" title="User Guide" onclick="showView('help');return false;"><span class="material-symbols-outlined">help</span><span class="nav-label">User Guide</span></a>
 
       <div class="nav-section-label">Switch View</div>
       <a href="/dashboard-admin.html" class="nav-item" title="Admin"><span class="material-symbols-outlined">shield_person</span><span class="nav-label">Admin</span></a>
       <a href="/dashboard-central.html" class="nav-item" title="Central Office"><span class="material-symbols-outlined">corporate_fare</span><span class="nav-label">Central Office</span></a>
-      <a href="/dashboard-stu-head.html" class="nav-item" title="STU Head"><span class="material-symbols-outlined">manage_accounts</span><span class="nav-label">STU Head</span></a>
+      <a href="/dashboard-stu-head.html" class="nav-item" title="Region Head"><span class="material-symbols-outlined">manage_accounts</span><span class="nav-label">Region Head</span></a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -291,14 +303,32 @@
         </a>
       </div>
 
-      <!-- Search bar -->
-      <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;">
-        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-          <div class="search-bar" style="flex:1;min-width:200px;max-width:360px;">
+      <!-- Filters -->
+      <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
+          <div class="search-bar" style="flex:1;min-width:140px;max-width:220px;">
             <span class="material-symbols-outlined">search</span>
-            <input type="text" id="ben-search" placeholder="Search by name or ARUGA ID..." aria-label="Search beneficiaries">
+            <input type="text" id="ben-search" placeholder="Search name, ID..." aria-label="Search beneficiaries">
           </div>
-          <span style="font-size:0.75rem;color:#6b7280;margin-left:auto;" id="ben-count"></span>
+          <select id="ben-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
+            <option value="">All Readiness</option>
+            <option value="severe">Severe</option>
+            <option value="moderate">Moderate</option>
+            <option value="low">Low</option>
+            <option value="stable">Stable</option>
+          </select>
+          <select id="ben-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;">
+            <option value="">All Disabilities</option>
+            <option value="Physical">Physical</option>
+            <option value="Visual">Visual</option>
+            <option value="Hearing">Hearing</option>
+            <option value="Intellectual">Intellectual</option>
+            <option value="Multiple">Multiple</option>
+            <option value="Psychosocial">Psychosocial</option>
+            <option value="Speech">Speech</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" id="ben-reset">Reset</button>
+          <span style="font-size:0.72rem;color:#6b7280;white-space:nowrap;" id="ben-count"></span>
         </div>
       </div>
 
@@ -308,13 +338,13 @@
           <table class="dash-table">
             <thead>
               <tr>
-                <th>Beneficiary</th>
-                <th>Age</th>
+                <th onclick="benSort('name')" style="cursor:pointer;user-select:none;white-space:nowrap;">Beneficiary <span id="ben-sort-icon-name" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="benSort('age')" style="cursor:pointer;user-select:none;white-space:nowrap;">Age <span id="ben-sort-icon-age" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th>Disability</th>
-                <th>Region</th>
-                <th>Interviewer</th>
-                <th>Date</th>
-                <th>Readiness</th>
+                <th onclick="benSort('region')" style="cursor:pointer;user-select:none;white-space:nowrap;">Region <span id="ben-sort-icon-region" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="benSort('interviewer')" style="cursor:pointer;user-select:none;white-space:nowrap;">Interviewer <span id="ben-sort-icon-interviewer" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="benSort('date')" style="cursor:pointer;user-select:none;white-space:nowrap;">Date <span id="ben-sort-icon-date" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="benSort('readiness')" style="cursor:pointer;user-select:none;white-space:nowrap;">Readiness <span id="ben-sort-icon-readiness" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -581,65 +611,44 @@
       </div>
     </div><!-- /view-qr -->
 
-    <!-- ── HELP & GUIDE VIEW ─────────────────────────────────── -->
+    <!-- ── USER GUIDE VIEW ───────────────────────────────────── -->
     <div class="dash-content" id="view-help" style="display:none;">
-      <style>
-        .hg-title { font-weight:700; font-size:14px; color:#1f2937; font-family:'Poppins',sans-serif; }
-        .hg-body  { font-weight:400; font-size:14px; color:#4b5563; line-height:1.7; font-family:'Poppins',sans-serif; }
-        .hg-step-badge { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#1152d4;color:#fff;font-size:12px;font-weight:700;flex-shrink:0; }
-        .hg-tip  { background:#eff6ff;border-left:4px solid #1152d4;border-radius:0 8px 8px 0;padding:12px 16px; }
-        .hg-warn { background:#fefce8;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:12px 16px; }
-        .hg-section { background:#fff;border-radius:0.75rem;border:1px solid #e5e7eb;padding:1.5rem;margin-bottom:1.25rem; }
-        .hg-step-block { background:#f9fafb;border-radius:0.75rem;border:1px solid #e5e7eb;padding:1.25rem;margin-bottom:0.75rem; }
-      </style>
 
       <!-- Banner -->
       <div style="background:linear-gradient(135deg,#2563eb 0%,#4338ca 100%);border-radius:0.75rem;padding:1.75rem 2rem;margin-bottom:1.25rem;color:white;">
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
-          <div style="width:2.75rem;height:2.75rem;background:rgba(255,255,255,0.2);border-radius:0.5rem;display:flex;align-items:center;justify-content:center;">
+        <div style="display:flex;align-items:center;gap:0.875rem;margin-bottom:0.875rem;">
+          <div style="width:2.75rem;height:2.75rem;background:rgba(255,255,255,0.2);border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <span class="material-symbols-outlined" style="font-size:1.5rem;">menu_book</span>
           </div>
           <div>
-            <div style="font-size:0.7rem;opacity:0.8;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">DSWD Social Technology Bureau</div>
-            <div style="font-size:1.375rem;font-weight:800;">User Guide</div>
+            <div style="font-size:0.68rem;opacity:0.8;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">DSWD Social Technology Bureau</div>
+            <div style="font-size:1.375rem;font-weight:800;line-height:1.2;">User Guide</div>
           </div>
         </div>
-        <p style="opacity:0.9;font-size:0.875rem;max-width:560px;line-height:1.6;">A simple, step-by-step guide to help DSWD social workers and interviewers use the Project Aruga profiling system with ease and confidence.</p>
+        <p style="opacity:0.9;font-size:0.875rem;max-width:560px;line-height:1.65;margin:0;">A simple, step-by-step guide to help DSWD social workers and interviewers use the Project Aruga profiling system with ease and confidence.</p>
       </div>
 
       <!-- TOC -->
-      <div class="hg-section" style="margin-bottom:1.25rem;">
+      <div class="hg-section">
         <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.875rem;">
-          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">format_list_bulleted</span>
-          <span class="hg-title" style="font-size:15px;">WHAT'S IN THIS GUIDE</span>
+          <span class="material-symbols-outlined hg-section-icon">format_list_bulleted</span>
+          <span class="hg-title" style="font-size:0.9375rem;text-transform:uppercase;letter-spacing:0.04em;">What's in this guide</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.5rem;">
-          <a href="#hg-getting-started" style="display:flex;align-items:center;gap:0.5rem;padding:0.625rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;">
-            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;">login</span><span class="hg-body" style="color:#1152d4;">1. Getting Started</span>
-          </a>
-          <a href="#hg-logging-in" style="display:flex;align-items:center;gap:0.5rem;padding:0.625rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;">
-            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;">key</span><span class="hg-body" style="color:#1152d4;">2. How to Log In</span>
-          </a>
-          <a href="#hg-profiling-steps" style="display:flex;align-items:center;gap:0.5rem;padding:0.625rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;">
-            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;">assignment</span><span class="hg-body" style="color:#1152d4;">3. Filling Out the Form</span>
-          </a>
-          <a href="#hg-submitting" style="display:flex;align-items:center;gap:0.5rem;padding:0.625rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;">
-            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;">check_circle</span><span class="hg-body" style="color:#1152d4;">4. Reviewing &amp; Submitting</span>
-          </a>
-          <a href="#hg-qr-code" style="display:flex;align-items:center;gap:0.5rem;padding:0.625rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;">
-            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;">qr_code</span><span class="hg-body" style="color:#1152d4;">5. Aruga ID &amp; QR Code</span>
-          </a>
-          <a href="#hg-tips" style="display:flex;align-items:center;gap:0.5rem;padding:0.625rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;">
-            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;">lightbulb</span><span class="hg-body" style="color:#1152d4;">6. Tips &amp; Common Questions</span>
-          </a>
+          <a href="#hg-getting-started" class="hg-toc-item"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;flex-shrink:0;">login</span><span class="hg-body" style="color:#1152d4;">1. Getting Started</span></a>
+          <a href="#hg-logging-in"      class="hg-toc-item"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;flex-shrink:0;">key</span><span class="hg-body" style="color:#1152d4;">2. How to Log In</span></a>
+          <a href="#hg-profiling-steps" class="hg-toc-item"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;flex-shrink:0;">assignment</span><span class="hg-body" style="color:#1152d4;">3. Filling Out the Form</span></a>
+          <a href="#hg-submitting"      class="hg-toc-item"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;flex-shrink:0;">check_circle</span><span class="hg-body" style="color:#1152d4;">4. Reviewing &amp; Submitting</span></a>
+          <a href="#hg-qr-code"         class="hg-toc-item"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;flex-shrink:0;">qr_code</span><span class="hg-body" style="color:#1152d4;">5. Aruga ID &amp; QR Code</span></a>
+          <a href="#hg-tips"            class="hg-toc-item"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;flex-shrink:0;">lightbulb</span><span class="hg-body" style="color:#1152d4;">6. Tips &amp; Common Questions</span></a>
         </div>
       </div>
 
       <!-- Section 1 -->
       <div id="hg-getting-started" class="hg-section">
-        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
-          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">login</span>
-          <h2 class="hg-title" style="font-size:17px;">1. Getting Started</h2>
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined hg-section-icon">login</span>
+          <h2 class="hg-title" style="font-size:1.0625rem;">1. Getting Started</h2>
         </div>
         <p class="hg-body" style="margin-bottom:1rem;">Before you begin conducting home visits and profiling beneficiaries, make sure you have the following ready:</p>
         <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
@@ -661,9 +670,9 @@
 
       <!-- Section 2 -->
       <div id="hg-logging-in" class="hg-section">
-        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
-          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">key</span>
-          <h2 class="hg-title" style="font-size:17px;">2. How to Log In</h2>
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined hg-section-icon">key</span>
+          <h2 class="hg-title" style="font-size:1.0625rem;">2. How to Log In</h2>
         </div>
         <p class="hg-body" style="margin-bottom:1rem;">Follow these simple steps to access the profiling tool:</p>
         <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;">
@@ -677,9 +686,9 @@
 
       <!-- Section 3 -->
       <div id="hg-profiling-steps" class="hg-section">
-        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
-          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">assignment</span>
-          <h2 class="hg-title" style="font-size:17px;">3. Filling Out the Profiling Form</h2>
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined hg-section-icon">assignment</span>
+          <h2 class="hg-title" style="font-size:1.0625rem;">3. Filling Out the Profiling Form</h2>
         </div>
         <p class="hg-body" style="margin-bottom:1rem;">The profiling form is divided into <strong style="color:#111827;">10 steps</strong>. You must complete each step before moving to the next.</p>
         <div style="display:flex;flex-direction:column;gap:0.625rem;margin-bottom:1rem;">
@@ -699,9 +708,9 @@
 
       <!-- Section 4 -->
       <div id="hg-submitting" class="hg-section">
-        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
-          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">check_circle</span>
-          <h2 class="hg-title" style="font-size:17px;">4. Reviewing &amp; Submitting the Assessment</h2>
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined hg-section-icon">check_circle</span>
+          <h2 class="hg-title" style="font-size:1.0625rem;">4. Reviewing &amp; Submitting the Assessment</h2>
         </div>
         <p class="hg-body" style="margin-bottom:1rem;">After completing all 10 steps, you will be taken to the <strong style="color:#111827;">Review Page</strong> — a full summary of everything you entered.</p>
         <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;">
@@ -714,9 +723,9 @@
 
       <!-- Section 5 -->
       <div id="hg-qr-code" class="hg-section">
-        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
-          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">qr_code</span>
-          <h2 class="hg-title" style="font-size:17px;">5. The Aruga ID &amp; QR Code</h2>
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined hg-section-icon">qr_code</span>
+          <h2 class="hg-title" style="font-size:1.0625rem;">5. The Aruga ID &amp; QR Code</h2>
         </div>
         <p class="hg-body" style="margin-bottom:1rem;">After a successful submission, the system generates a unique <strong style="color:#111827;">Aruga ID</strong> and a <strong style="color:#111827;">QR Code</strong> for the beneficiary.</p>
         <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
@@ -729,9 +738,9 @@
 
       <!-- Section 6 -->
       <div id="hg-tips" class="hg-section">
-        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
-          <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">lightbulb</span>
-          <h2 class="hg-title" style="font-size:17px;">6. Tips &amp; Common Questions</h2>
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined hg-section-icon">lightbulb</span>
+          <h2 class="hg-title" style="font-size:1.0625rem;">6. Tips &amp; Common Questions</h2>
         </div>
         <div style="display:flex;flex-direction:column;gap:0;">
           <div style="padding:1rem 0;border-bottom:1px solid #f3f4f6;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>What is the session timer for?</p><p class="hg-body" style="margin-left:1.75rem;">The timer shows how long you have been in the current session. It does not log you out automatically.</p></div>
@@ -823,6 +832,8 @@
   let benPage = 1;
   let benSearchVal = '';
   let benSearchTimer = null;
+  let benSortCol = '';
+  let benSortDir = 'asc';
   let foCode = '';
 
   function showView(view) {
@@ -891,6 +902,24 @@
       benPage = 1;
       benSearchTimer = setTimeout(loadBeneficiaries, 320);
     });
+
+    // Dropdown filters
+    ['ben-readiness','ben-disability'].forEach(id => {
+      document.getElementById(id)?.addEventListener('change', () => { benPage = 1; loadBeneficiaries(); });
+    });
+
+    // Reset
+    document.getElementById('ben-reset')?.addEventListener('click', () => {
+      document.getElementById('ben-search').value = '';
+      document.getElementById('ben-readiness').value = '';
+      document.getElementById('ben-disability').value = '';
+      benSearchVal = ''; benSortCol = ''; benSortDir = 'asc'; benPage = 1;
+      ['name','age','region','interviewer','date','readiness'].forEach(c => {
+        const el = document.getElementById('ben-sort-icon-' + c);
+        if (el) { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
+      });
+      loadBeneficiaries();
+    });
   });
 
   // ── Helpers ──────────────────────────────────────────────────
@@ -916,7 +945,8 @@
     const map = { accepted:'badge-green', correction:'badge-red', pending:'badge-yellow' };
     const labels = { accepted:'Accepted', correction:'Correction', pending:'Pending' };
     const k = s.toLowerCase();
-    return `<span class="badge ${map[k]||'badge-yellow'}">${labels[k]||esc(s)}</span>`;
+    const label = labels[k] || (s.charAt(0).toUpperCase() + s.slice(1).toLowerCase());
+    return `<span class="badge ${map[k]||'badge-yellow'}">${label}</span>`;
   }
 
   function buildPagination(containerId, currentPage, totalPages, onPageClick) {
@@ -1051,17 +1081,36 @@
 
   // ── Beneficiaries Tab ────────────────────────────────────────
 
+  function benSort(col) {
+    if (benSortCol === col) { benSortDir = benSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { benSortCol = col; benSortDir = 'asc'; }
+    ['name','age','region','interviewer','date','readiness'].forEach(c => {
+      const el = document.getElementById('ben-sort-icon-' + c);
+      if (el) { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
+    });
+    const icon = document.getElementById('ben-sort-icon-' + col);
+    if (icon) { icon.textContent = benSortDir === 'asc' ? 'arrow_upward' : 'arrow_downward'; icon.style.color = 'var(--blue)'; }
+    benPage = 1;
+    loadBeneficiaries();
+  }
+
   async function loadBeneficiaries() {
     const tbody  = document.getElementById('ben-tbody');
     const info   = document.getElementById('ben-page-info');
     const countEl= document.getElementById('ben-count');
     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
 
+    const benReadiness = document.getElementById('ben-readiness')?.value || '';
+    const benDisability = document.getElementById('ben-disability')?.value || '';
     const params = new URLSearchParams({
       interviewerCode: foCode,
       page: benPage,
+      limit: 10,
     });
-    if (benSearchVal) params.set('search', benSearchVal);
+    if (benSearchVal)  params.set('search', benSearchVal);
+    if (benReadiness)  params.set('readiness', benReadiness);
+    if (benDisability) params.set('disability', benDisability);
+    if (benSortCol)    { params.set('sort', benSortCol); params.set('dir', benSortDir); }
 
     try {
       const res  = await fetch('/api/beneficiaries.php?' + params.toString());

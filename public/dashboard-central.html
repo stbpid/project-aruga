@@ -61,12 +61,12 @@
       <a href="#" class="nav-item" id="co-nav-report" title="Report" onclick="coShowView('report');return false;"><span class="material-symbols-outlined">summarize</span><span class="nav-label">Report</span></a>
 
       <div class="nav-section-label">Management</div>
-      <a href="#" class="nav-item" id="co-nav-interviewers" title="Interviewers" onclick="coShowView('interviewers');return false;"><span class="material-symbols-outlined">badge</span><span class="nav-label">Interviewers</span></a>
+      <a href="#" class="nav-item" id="co-nav-interviewers" title="User Management" onclick="coShowView('interviewers');return false;"><span class="material-symbols-outlined">badge</span><span class="nav-label">User Management</span></a>
       <a href="#" class="nav-item" id="co-nav-documents" title="Documents" onclick="coShowView('documents');return false;"><span class="material-symbols-outlined">folder_open</span><span class="nav-label">Documents</span></a>
 
       <div class="nav-section-label">Switch View</div>
       <a href="/dashboard-admin.html" class="nav-item" title="Admin"><span class="material-symbols-outlined">shield_person</span><span class="nav-label">Admin</span></a>
-      <a href="/dashboard-stu-head.html" class="nav-item" title="STU Head"><span class="material-symbols-outlined">manage_accounts</span><span class="nav-label">STU Head</span></a>
+      <a href="/dashboard-stu-head.html" class="nav-item" title="Region Head"><span class="material-symbols-outlined">manage_accounts</span><span class="nav-label">Region Head</span></a>
       <a href="/dashboard-field-officer.html" class="nav-item" title="Field Officer"><span class="material-symbols-outlined">person_pin_circle</span><span class="nav-label">Field Officer</span></a>
     </nav>
     <div class="sidebar-footer">
@@ -225,33 +225,33 @@
             <div class="page-subtitle" style="margin:0;">All submitted assessments across all regions</div>
           </div>
         </div>
-        <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;">
-          <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:nowrap;overflow-x:auto;">
-            <div class="search-bar" style="flex:1;min-width:160px;max-width:220px;">
+        <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
+            <div class="search-bar" style="flex:1;min-width:140px;max-width:200px;">
               <span class="material-symbols-outlined">search</span>
-              <input type="text" id="co-ben-search" placeholder="Search name, ID, interviewer..." aria-label="Search">
+              <input type="text" id="co-ben-search" placeholder="Search name, ID..." aria-label="Search">
             </div>
-            <select id="co-ben-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;">
+            <select id="co-ben-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;">
               <option value="">All Regions</option>
             </select>
-            <select id="co-ben-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;">
+            <select id="co-ben-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
               <option value="">All Readiness</option>
               <option value="severe">Severe</option>
               <option value="moderate">Moderate</option>
               <option value="low">Low</option>
               <option value="stable">Stable</option>
             </select>
-            <select id="co-ben-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;flex-shrink:0;max-width:160px;">
+            <select id="co-ben-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;">
               <option value="">All Disabilities</option>
             </select>
-            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;font-weight:600;color:var(--dark);cursor:pointer;white-space:nowrap;flex-shrink:0;">
+            <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;font-weight:600;color:var(--dark);cursor:pointer;white-space:nowrap;">
               <div id="co-ben-4ps-toggle" onclick="coToggle4ps()" style="width:34px;height:18px;border-radius:999px;background:#e5e7eb;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;">
                 <div id="co-ben-4ps-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
               </div>
               4Ps Only
             </label>
-            <button class="btn btn-secondary btn-sm" id="co-ben-reset" style="flex-shrink:0;">Reset</button>
-            <span style="font-size:0.72rem;color:var(--gray-500);margin-left:auto;white-space:nowrap;flex-shrink:0;" id="co-ben-count">—</span>
+            <button class="btn btn-secondary btn-sm" id="co-ben-reset">Reset</button>
+            <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="co-ben-count">—</span>
           </div>
         </div>
         <div class="card">
@@ -315,18 +315,42 @@
     <!-- Regional View -->
     <div class="dash-content" id="co-view-interviewers" style="display:none;">
       <div style="margin-bottom:1.5rem;">
-        <div class="page-title" style="margin:0;">Interviewers</div>
+        <div class="page-title" style="margin:0;">User Management</div>
         <div class="page-subtitle" style="margin:0;">All registered interviewers in the system</div>
       </div>
 
-      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
-        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-          <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;">
+      <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
+          <div class="search-bar" style="flex:1;min-width:140px;max-width:220px;">
             <span class="material-symbols-outlined">search</span>
-            <input type="text" id="int-search" placeholder="Search name, code, region..." aria-label="Search interviewers">
+            <input type="text" id="int-search" placeholder="Search name, code..." aria-label="Search interviewers">
           </div>
-          <select id="int-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+          <select id="int-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;">
             <option value="">All Regions</option>
+            <option value="NCR">NCR (National Capital Region)</option>
+            <option value="I">Region I (Ilocos Region)</option>
+            <option value="II">Region II (Cagayan Valley)</option>
+            <option value="III">Region III (Central Luzon)</option>
+            <option value="IV-A">Region IV-A (CALABARZON)</option>
+            <option value="IV-B">Region IV-B (MIMAROPA)</option>
+            <option value="V">Region V (Bicol Region)</option>
+            <option value="VI">Region VI (Western Visayas)</option>
+            <option value="VII">Region VII (Central Visayas)</option>
+            <option value="VIII">Region VIII (Eastern Visayas)</option>
+            <option value="IX">Region IX (Zamboanga Peninsula)</option>
+            <option value="X">Region X (Northern Mindanao)</option>
+            <option value="XI">Region XI (Davao Region)</option>
+            <option value="XII">Region XII (SOCCSKSARGEN)</option>
+            <option value="XIII">Region XIII (Caraga)</option>
+            <option value="CAR">CAR (Cordillera Administrative Region)</option>
+            <option value="BARMM">BARMM (Bangsamoro)</option>
+          </select>
+          <select id="int-role" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
+            <option value="">All User Types</option>
+            <option value="field_officer">Field Officer</option>
+            <option value="stu_head">STU Head</option>
+            <option value="central">Central</option>
+            <option value="admin">Admin</option>
           </select>
           <button class="btn btn-secondary btn-sm" id="int-reset">Reset</button>
         </div>
@@ -1910,42 +1934,17 @@
       const json = await (await fetch('/api/get-interviewers.php')).json();
       intData = json.success ? json.data : [];
       intLoaded = true;
-      const REGION_LABELS = {
-        'NCR':'NCR (National Capital Region)',
-        'I':'Region I (Ilocos Region)',
-        'II':'Region II (Cagayan Valley)',
-        'III':'Region III (Central Luzon)',
-        'IV-A':'Region IV-A (CALABARZON)',
-        'IV-B':'Region IV-B (MIMAROPA)',
-        'V':'Region V (Bicol Region)',
-        'VI':'Region VI (Western Visayas)',
-        'VII':'Region VII (Central Visayas)',
-        'VIII':'Region VIII (Eastern Visayas)',
-        'IX':'Region IX (Zamboanga Peninsula)',
-        'X':'Region X (Northern Mindanao)',
-        'XI':'Region XI (Davao Region)',
-        'XII':'Region XII (SOCCSKSARGEN)',
-        'XIII':'Region XIII (Caraga)',
-        'CAR':'CAR (Cordillera Administrative Region)',
-        'BARMM':'BARMM (Bangsamoro)',
-      };
-      const regions = [...new Set(intData.map(r => r.region).filter(r => r && r !== '—'))].sort();
-      const sel = document.getElementById('int-region');
-      regions.forEach(r => {
-        const o = document.createElement('option');
-        o.value = r;
-        o.textContent = REGION_LABELS[r] || r;
-        sel.appendChild(o);
-      });
       intFiltered = [...intData]; intPage = 0; renderInterviewers();
     } catch(e) {
       document.getElementById('int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
     }
     document.getElementById('int-search').addEventListener('input', filterInterviewers);
     document.getElementById('int-region').addEventListener('change', filterInterviewers);
+    document.getElementById('int-role').addEventListener('change', filterInterviewers);
     document.getElementById('int-reset').addEventListener('click', () => {
       document.getElementById('int-search').value = '';
       document.getElementById('int-region').value = '';
+      document.getElementById('int-role').value = '';
       filterInterviewers();
     });
   }
@@ -1953,9 +1952,10 @@
   function filterInterviewers() {
     const q = document.getElementById('int-search').value.toLowerCase();
     const region = document.getElementById('int-region').value;
+    const role = document.getElementById('int-role').value;
     intFiltered = intData.filter(r => {
       const matchQ = !q || (r.name+r.code+r.region+(r.email||'')).toLowerCase().includes(q);
-      return matchQ && (!region || r.region === region);
+      return matchQ && (!region || r.region === region) && (!role || r.dashboard_role === role);
     });
     intPage = 0; renderInterviewers();
   }

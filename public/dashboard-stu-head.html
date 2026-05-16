@@ -3,11 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STU Head Dashboard — Project Aruga</title>
+  <title>Region Head Dashboard — Project Aruga</title>
   <link rel="icon" href="/images/logo.webp" type="image/webp">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
   <link rel="stylesheet" href="/css/dashboard.css">
+  <style>
+    .rpt-section { background:#fff; border:1px solid var(--border); border-radius:0.625rem; margin-bottom:0.625rem; overflow:hidden; }
+    .rpt-section-header { display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1.125rem; cursor:pointer; user-select:none; transition:background 0.13s; }
+    .rpt-section-header:hover { background:var(--gray-50); }
+    .rpt-section-title { font-size:0.875rem; font-weight:700; color:var(--dark); }
+    .rpt-section-badge { font-size:0.68rem; font-weight:600; padding:0.15rem 0.5rem; border-radius:999px; background:var(--gray-100); color:var(--gray-500); }
+    .rpt-section-badge.alert { background:#fee2e2; color:#dc2626; }
+    .rpt-section-badge.warn  { background:#fef3c7; color:#d97706; }
+    .rpt-section-badge.good  { background:#d1fae5; color:#059669; }
+    .rpt-chevron { font-size:1.125rem; color:var(--gray-400); transition:transform 0.2s; }
+    .rpt-chevron.open { transform:rotate(180deg); }
+    .rpt-section-body { padding:0 1.125rem 1rem; }
+    .rpt-group-label { font-size:0.68rem; font-weight:700; color:var(--gray-400); letter-spacing:0.07em; text-transform:uppercase; margin:1.25rem 0 0.5rem; padding-left:0.25rem; display:flex; align-items:center; gap:0.5rem; }
+    .rpt-group-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  </style>
 </head>
 <body>
 
@@ -19,7 +34,7 @@
       <img src="/images/logo.webp" alt="Project Aruga" class="sidebar-brand-logo">
       <div class="sidebar-brand-text">
         <div class="sidebar-brand-name">Project Aruga</div>
-        <div class="sidebar-brand-sub">STU Head</div>
+        <div class="sidebar-brand-sub">Region Head</div>
       </div>
       <button class="sidebar-toggle-btn" id="sidebar-minimize-btn" title="Toggle sidebar">
         <span class="material-symbols-outlined">left_panel_close</span>
@@ -32,16 +47,15 @@
       </button>
     </div>
     <nav class="sidebar-nav">
-      <div class="nav-section-label">My Unit</div>
+      <div class="nav-section-label">Region</div>
       <a href="/dashboard-stu-head.html" class="nav-item active" title="Overview"><span class="material-symbols-outlined">dashboard</span><span class="nav-label">Overview</span></a>
       <a href="#" class="nav-item" id="nav-beneficiaries" title="Beneficiaries" onclick="stuShowView('beneficiaries');return false;"><span class="material-symbols-outlined">group</span><span class="nav-label">Beneficiaries</span></a>
       <a href="#" class="nav-item" id="nav-assessments" title="Assessments" onclick="stuShowView('assessments');return false;"><span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span></a>
-      <a href="#" class="nav-item" id="nav-interviewers" title="My Interviewers" onclick="stuShowView('interviewers');return false;"><span class="material-symbols-outlined">badge</span><span class="nav-label">My Interviewers</span></a>
-      <a href="#" class="nav-item" id="nav-analytics" title="Analytics" onclick="stuShowView('analytics');return false;"><span class="material-symbols-outlined">bar_chart</span><span class="nav-label">Analytics</span></a>
+      <a href="#" class="nav-item" id="nav-interviewers" title="User Management" onclick="stuShowView('interviewers');return false;"><span class="material-symbols-outlined">badge</span><span class="nav-label">User Management</span></a>
+      <a href="#" class="nav-item" id="nav-report" title="Report" onclick="stuShowView('report');return false;"><span class="material-symbols-outlined">summarize</span><span class="nav-label">Report</span></a>
 
       <div class="nav-section-label">Operations</div>
       <a href="#" class="nav-item" title="Pending Reviews"><span class="material-symbols-outlined">task_alt</span><span class="nav-label">Pending Reviews</span></a>
-      <a href="#" class="nav-item" title="Alerts"><span class="material-symbols-outlined">notifications</span><span class="nav-label">Alerts</span></a>
       <a href="#" class="nav-item" id="nav-documents" title="Documents" onclick="stuShowView('documents');return false;"><span class="material-symbols-outlined">folder_open</span><span class="nav-label">Documents</span></a>
 
       <div class="nav-section-label">Switch View</div>
@@ -53,7 +67,7 @@
       <div class="sidebar-user">
         <div class="user-avatar" id="dash-user-avatar">SH</div>
         <div class="user-info">
-          <div class="user-name" id="dash-user-name">STU Head</div>
+          <div class="user-name" id="dash-user-name">Region Head</div>
           <div class="user-role" id="dash-user-role">Unit Head</div>
         </div>
       </div>
@@ -66,7 +80,7 @@
 
   <div class="dash-main">
     <div class="dash-content" id="stu-view-main">
-      <div class="page-title">Unit Overview</div>
+      <div class="page-title">Region Overview</div>
       <div class="page-subtitle" id="stu-page-subtitle">Loading...</div>
 
       <div class="stats-grid">
@@ -91,7 +105,7 @@
       <!-- Tabs -->
       <div class="card" style="margin-bottom:1rem;">
         <div class="tabs">
-          <div class="tab-item active" onclick="switchTab(this,'tab-interviewers')">My Interviewers</div>
+          <div class="tab-item active" onclick="switchTab(this,'tab-interviewers')">User Management</div>
           <div class="tab-item" onclick="switchTab(this,'tab-pending')">Pending Reviews</div>
           <div class="tab-item" onclick="switchTab(this,'tab-recent')">Recent Submissions</div>
         </div>
@@ -179,22 +193,50 @@
           <div class="page-title" style="margin:0;">Region Beneficiaries</div>
           <div class="page-subtitle" id="stu-bene-subtitle" style="margin:0;">Loading...</div>
         </div>
-        <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
-          <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-            <input type="text" id="stu-bene-search" class="settings-input" style="max-width:240px;height:2rem;font-size:0.8125rem;" placeholder="Search name, ID, barangay…">
-            <select id="stu-bene-status" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.75rem;cursor:pointer;padding:0.35rem 0.75rem;">
+        <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
+            <div class="search-bar" style="flex:1;min-width:140px;max-width:200px;">
+              <span class="material-symbols-outlined">search</span>
+              <input type="text" id="stu-bene-search" placeholder="Search name, ID…" aria-label="Search">
+            </div>
+            <select id="stu-bene-status" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
               <option value="">All Status</option>
               <option value="completed">Completed</option>
               <option value="pending">Pending</option>
             </select>
-            <button class="btn btn-primary btn-sm" onclick="stuLoadBeneficiaries(1)">Search</button>
+            <select id="stu-bene-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
+              <option value="">All Readiness</option>
+              <option value="severe">Severe</option>
+              <option value="moderate">Moderate</option>
+              <option value="low">Low</option>
+              <option value="stable">Stable</option>
+            </select>
+            <select id="stu-bene-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;">
+              <option value="">All Disabilities</option>
+              <option value="Physical">Physical</option>
+              <option value="Visual">Visual</option>
+              <option value="Hearing">Hearing</option>
+              <option value="Intellectual">Intellectual</option>
+              <option value="Multiple">Multiple</option>
+              <option value="Psychosocial">Psychosocial</option>
+              <option value="Speech">Speech</option>
+            </select>
             <button class="btn btn-secondary btn-sm" onclick="stuClearBeneFilters()">Reset</button>
           </div>
         </div>
         <div class="card" style="margin:0;">
           <div class="table-wrap">
             <table class="dash-table">
-              <thead><tr><th>Beneficiary</th><th>Age</th><th>Disability</th><th>Region</th><th>Interviewer</th><th>Date</th><th>Readiness</th><th>Action</th></tr></thead>
+              <thead><tr>
+                <th onclick="stuSortBene('name')" style="cursor:pointer;user-select:none;white-space:nowrap;">Beneficiary <span id="stu-ben-sort-icon-name" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="stuSortBene('age')" style="cursor:pointer;user-select:none;white-space:nowrap;">Age <span id="stu-ben-sort-icon-age" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th>Disability</th>
+                <th onclick="stuSortBene('region')" style="cursor:pointer;user-select:none;white-space:nowrap;">Region <span id="stu-ben-sort-icon-region" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="stuSortBene('interviewer')" style="cursor:pointer;user-select:none;white-space:nowrap;">Interviewer <span id="stu-ben-sort-icon-interviewer" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="stuSortBene('date')" style="cursor:pointer;user-select:none;white-space:nowrap;">Date <span id="stu-ben-sort-icon-date" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="stuSortBene('readiness')" style="cursor:pointer;user-select:none;white-space:nowrap;">Readiness <span id="stu-ben-sort-icon-readiness" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th>Action</th>
+              </tr></thead>
               <tbody id="stu-bene-tbody"><tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr></tbody>
             </table>
           </div>
@@ -380,7 +422,7 @@
     <!-- My Interviewers View -->
     <div class="dash-content" id="stu-view-interviewers" style="display:none;">
       <div style="margin-bottom:1.5rem;">
-        <div class="page-title" style="margin:0;">My Interviewers</div>
+        <div class="page-title" style="margin:0;">User Management</div>
         <div class="page-subtitle" style="margin:0;" id="stu-int-subtitle">Interviewers in your region</div>
       </div>
       <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
@@ -398,11 +440,11 @@
           <table class="dash-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Code</th>
-                <th>Email</th>
-                <th style="cursor:pointer;user-select:none;" onclick="stuSortInterviewers('month')" title="Sort by monthly submissions">Submissions <span id="stu-int-sort-icon" style="font-size:0.7rem;color:var(--gray-400);">↕</span></th>
-                <th style="cursor:pointer;user-select:none;" onclick="stuSortInterviewers('last_active')" title="Sort by last active">Last Active <span id="stu-int-sort-icon-date" style="font-size:0.7rem;color:var(--gray-400);">↕</span></th>
+                <th onclick="stuSortInterviewers('name')" style="cursor:pointer;user-select:none;white-space:nowrap;">Name <span id="stu-int-sort-icon-name" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="stuSortInterviewers('code')" style="cursor:pointer;user-select:none;white-space:nowrap;">Code <span id="stu-int-sort-icon-code" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="stuSortInterviewers('email')" style="cursor:pointer;user-select:none;white-space:nowrap;">Email <span id="stu-int-sort-icon-email" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="stuSortInterviewers('month')" style="cursor:pointer;user-select:none;white-space:nowrap;">Submissions <span id="stu-int-sort-icon-month" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="stuSortInterviewers('last_active')" style="cursor:pointer;user-select:none;white-space:nowrap;">Last Active <span id="stu-int-sort-icon-last_active" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -418,6 +460,301 @@
       </div>
     </div><!-- /stu-view-interviewers -->
 
+    <!-- Report View -->
+    <div class="dash-content" id="stu-view-report" style="display:none;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+        <div>
+          <div class="page-title" style="margin:0;">Report</div>
+          <div class="page-subtitle" id="stu-rpt-last-refresh" style="margin:0;">—</div>
+        </div>
+        <div id="stu-rpt-region-chip" style="display:none;align-items:center;gap:0.375rem;padding:0.3rem 0.75rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:999px;font-size:0.75rem;font-weight:700;color:#1152d4;">
+          <span class="material-symbols-outlined" style="font-size:0.9rem;">map</span>
+          <span id="stu-rpt-region-chip-label"></span>
+        </div>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:1rem;">
+        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">assignment</span></div><div class="stat-body"><div class="stat-value" id="stu-rpt-total">—</div><div class="stat-label">Total Assessments</div><div class="stat-change" id="stu-rpt-total-sub" style="font-size:0.72rem;color:var(--gray-400);">Loading…</div></div></div>
+        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">task_alt</span></div><div class="stat-body"><div class="stat-value" id="stu-rpt-rate">—</div><div class="stat-label">Completion Rate</div><div id="stu-rpt-rate-badge" style="margin-top:0.25rem;"></div></div></div>
+        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">speed</span></div><div class="stat-body"><div class="stat-value" id="stu-rpt-avgday">—</div><div class="stat-label">Avg / Day</div><div style="font-size:0.72rem;color:var(--gray-400);">Assessments per day</div></div></div>
+        <div class="stat-card"><div class="stat-icon blue"><span class="material-symbols-outlined">badge</span></div><div class="stat-body"><div class="stat-value" id="stu-rpt-interviewers">—</div><div class="stat-label">Active Interviewers</div><div style="font-size:0.72rem;color:var(--gray-400);">Submitted at least once</div></div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <div id="stu-rpt-pace-icon" style="width:3rem;height:3rem;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#e5e7eb;"><span class="material-symbols-outlined" style="font-size:1.5rem;">hourglass_empty</span></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.7rem;font-weight:700;color:var(--gray-400);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:0.2rem;">Region Pace</div>
+            <div id="stu-rpt-pace-label" style="font-size:1.1rem;font-weight:800;">Loading…</div>
+            <div id="stu-rpt-pace-sub" style="font-size:0.78rem;color:var(--gray-500);margin-top:0.15rem;"></div>
+          </div>
+          <div style="width:220px;flex-shrink:0;">
+            <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--gray-400);margin-bottom:0.3rem;"><span>Progress</span><span id="stu-rpt-pace-pct">—</span></div>
+            <div style="height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;"><div id="stu-rpt-pace-bar" style="height:100%;width:0%;background:#1152d4;border-radius:999px;transition:width 0.8s ease;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-group-label">Key Insights</div>
+
+      <div class="rpt-section" id="stu-rpts-region">
+        <div class="rpt-section-header" onclick="stuRptToggle('region')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">map</span><span class="rpt-section-title">By Province</span><span class="rpt-section-badge" id="stu-rpt-badge-region"></span></div>
+          <span class="material-symbols-outlined rpt-chevron open" id="stu-rpt-chev-region">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-region"><div id="stu-rpt-region-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+      </div>
+
+      <div class="rpt-section" id="stu-rpts-geo">
+        <div class="rpt-section-header" onclick="stuRptToggle('geo')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">location_on</span><span class="rpt-section-title">Geographic Coverage</span><span class="rpt-section-badge" id="stu-rpt-badge-geo"></span></div>
+          <span class="material-symbols-outlined rpt-chevron open" id="stu-rpt-chev-geo">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-geo">
+          <div style="display:flex;gap:0;border-bottom:2px solid var(--gray-100);margin-bottom:1rem;">
+            <button id="stu-rpt-geo-tab-province" onclick="stuRptGeoTab('province')" style="padding:0.5rem 1.25rem;font-size:0.8125rem;font-weight:700;border:none;background:none;cursor:pointer;color:#1152d4;border-bottom:2px solid #1152d4;margin-bottom:-2px;transition:color 0.15s;">Province</button>
+            <button id="stu-rpt-geo-tab-city" onclick="stuRptGeoTab('city')" style="padding:0.5rem 1.25rem;font-size:0.8125rem;font-weight:600;border:none;background:none;cursor:pointer;color:var(--gray-400);border-bottom:2px solid transparent;margin-bottom:-2px;transition:color 0.15s;">City / Municipality</button>
+          </div>
+          <div id="stu-rpt-geo-pane-province"><div id="stu-rpt-province-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+          <div id="stu-rpt-geo-pane-city" style="display:none;"><div id="stu-rpt-city-bars" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="stu-rpts-beneficiaries">
+        <div class="rpt-section-header" onclick="stuRptToggle('beneficiaries')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">group</span><span class="rpt-section-title">Beneficiaries</span><span class="rpt-section-badge" id="stu-rpt-badge-beneficiaries"></span></div>
+          <span class="material-symbols-outlined rpt-chevron open" id="stu-rpt-chev-beneficiaries">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-beneficiaries">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Sex Disaggregation</div></div><div id="stu-rpt-gender-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Age Groups</div></div><div id="stu-rpt-age-bars" style="padding:0.75rem 1rem 0;min-height:180px;"></div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">4Ps Beneficiaries</div><div class="card-subtitle">Pantawid Pamilya membership</div></div><div id="stu-rpt-4ps-chart" style="display:flex;flex-direction:column;gap:1rem;padding:0.5rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top 5 Locations</div></div><div id="stu-rpt-top-locations" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="stu-rpts-disabilities">
+        <div class="rpt-section-header" onclick="stuRptToggle('disabilities')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">accessible</span><span class="rpt-section-title">Disabilities</span><span class="rpt-section-badge" id="stu-rpt-badge-disabilities"></span></div>
+          <span class="material-symbols-outlined rpt-chevron open" id="stu-rpt-chev-disabilities">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-disabilities"><div id="stu-rpt-dis-bars" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div></div>
+      </div>
+
+      <div class="rpt-group-label">Supporting Data</div>
+
+      <div class="rpt-section" id="stu-rpts-housing">
+        <div class="rpt-section-header" onclick="stuRptToggle('housing')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">home</span><span class="rpt-section-title">Housing</span><span class="rpt-section-badge" id="stu-rpt-badge-housing"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="stu-rpt-chev-housing">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-housing" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Construction Materials</div></div><div id="stu-rpt-housing-materials" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Tenure Status</div></div><div id="stu-rpt-tenure-status" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Water Source</div></div><div id="stu-rpt-water-source" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Electricity Source</div></div><div id="stu-rpt-electricity-source" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Toilet Type</div></div><div id="stu-rpt-toilet-type" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Garbage Disposal</div></div><div id="stu-rpt-garbage-disposal" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="stu-rpts-health">
+        <div class="rpt-section-header" onclick="stuRptToggle('health')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">health_and_safety</span><span class="rpt-section-title">Health</span><span class="rpt-section-badge" id="stu-rpt-badge-health"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="stu-rpt-chev-health">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-health" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Immunization</div></div><div id="stu-rpt-immunization-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Ongoing Health Issues</div></div><div id="stu-rpt-health-issues-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Health Services Availed</div></div><div id="stu-rpt-health-availed-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top Barriers to Health Services</div></div><div id="stu-rpt-barriers-chart" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Health Expenses</div><div class="card-subtitle" id="stu-rpt-expenses-total"></div></div><div id="stu-rpt-expenses-chart" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="stu-rpts-economic">
+        <div class="rpt-section-header" onclick="stuRptToggle('economic')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">payments</span><span class="rpt-section-title">Economic</span><span class="rpt-section-badge" id="stu-rpt-badge-economic"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="stu-rpt-chev-economic">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-economic" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Primary Income Source</div></div><div id="stu-rpt-primary-income-src" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Minimum Wage Level</div></div><div id="stu-rpt-min-wage" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="stu-rpts-education">
+        <div class="rpt-section-header" onclick="stuRptToggle('education')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">school</span><span class="rpt-section-title">Education</span><span class="rpt-section-badge" id="stu-rpt-badge-education"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="stu-rpt-chev-education">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-education" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Enrollment Status</div></div><div id="stu-rpt-enrollment-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Top Reasons for Non-Enrollment</div></div><div id="stu-rpt-enrollment-reasons" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+          </div>
+          <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Educational Attainment</div></div><div id="stu-rpt-educ-attainment" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="stu-rpts-religion">
+        <div class="rpt-section-header" onclick="stuRptToggle('religion')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">diversity_3</span><span class="rpt-section-title">Religion &amp; Indigenous People</span><span class="rpt-section-badge" id="stu-rpt-badge-religion"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="stu-rpt-chev-religion">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-religion" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Religious Affiliation</div></div><div id="stu-rpt-religion-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">IP Membership</div></div><div id="stu-rpt-ip-bars" style="display:flex;flex-direction:column;gap:0.625rem;padding:0.25rem 0;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="stu-rpts-social">
+        <div class="rpt-section-header" onclick="stuRptToggle('social')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">volunteer_activism</span><span class="rpt-section-title">Financial &amp; Social Services</span><span class="rpt-section-badge" id="stu-rpt-badge-social"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="stu-rpt-chev-social">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-social" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Receives Financial Assistance</div></div><div id="stu-rpt-financial-assist-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Aware of Social Services</div></div><div id="stu-rpt-social-awareness-donut" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="stu-rpts-readiness">
+        <div class="rpt-section-header" onclick="stuRptToggle('readiness')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">insights</span><span class="rpt-section-title">Readiness Score</span><span class="rpt-section-badge" id="stu-rpt-badge-readiness"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="stu-rpt-chev-readiness">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-readiness" style="display:none;"><div id="stu-rpt-readiness-bars" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div></div>
+      </div>
+
+      <div class="rpt-group-label">Operational</div>
+
+      <div class="rpt-section" id="stu-rpts-performance">
+        <div class="rpt-section-header" onclick="stuRptToggle('performance')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">leaderboard</span><span class="rpt-section-title">Interviewer Performance</span><span class="rpt-section-badge" id="stu-rpt-badge-performance"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="stu-rpt-chev-performance">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-performance" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;">emoji_events</span><div class="card-title" style="margin:0;">Top 5 Performers</div></div></div><div id="stu-rpt-top5-int" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Workload Distribution</div></div><div id="stu-rpt-workload-vis" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+          </div>
+          <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Productivity Table</div><div class="card-subtitle">All interviewers — ranked by completions</div></div><div class="table-wrap"><table class="dash-table"><thead><tr><th>Rank</th><th>Name</th><th>Code</th><th>Region</th><th>Completed</th><th>Avg/Day</th><th>Workload</th></tr></thead><tbody id="stu-rpt-int-tbody"></tbody></table></div></div>
+        </div>
+      </div>
+
+      <div class="rpt-section" id="stu-rpts-quality">
+        <div class="rpt-section-header" onclick="stuRptToggle('quality')">
+          <div style="display:flex;align-items:center;gap:0.6rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">verified_user</span><span class="rpt-section-title">Data Quality</span><span class="rpt-section-badge" id="stu-rpt-badge-quality"></span></div>
+          <span class="material-symbols-outlined rpt-chevron" id="stu-rpt-chev-quality">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-quality" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Missing Data</div><div class="card-subtitle">Top 5 skipped fields</div></div><div id="stu-rpt-missing-fields" style="display:flex;flex-direction:column;gap:0.5rem;padding:0.25rem 0;"></div></div>
+            <div class="card" style="margin:0;"><div class="card-header"><div class="card-title">Flagged Records</div></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;gap:0.5rem;text-align:center;"><div id="stu-rpt-flagged-count" style="font-size:2.5rem;font-weight:800;color:#ef4444;">—</div><div style="font-size:0.8125rem;color:var(--gray-500);">records require review</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generate Payout List -->
+      <div class="rpt-section" id="stu-rpts-payout">
+        <div class="rpt-section-header" onclick="stuRptToggle('payout')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">payments</span>
+            <span class="rpt-section-title">Generate Payout List</span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="stu-rpt-chev-payout">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-payout" style="display:none;">
+          <div class="card" style="margin:0 0 1rem;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Payout List Filters</div>
+                <div class="card-subtitle">Filter beneficiaries to include in the payout list</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin-bottom:1rem;">
+              <div>
+                <label class="settings-label">Readiness Score</label>
+                <select id="stu-payout-readiness" class="settings-input">
+                  <option value="">All</option>
+                  <option value="severe">Severe</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="low">Low</option>
+                  <option value="stable">Stable</option>
+                </select>
+              </div>
+              <div>
+                <label class="settings-label">4Ps Member</label>
+                <select id="stu-payout-4ps" class="settings-input">
+                  <option value="">All</option>
+                  <option value="yes">4Ps Members Only</option>
+                  <option value="no">Non-4Ps Only</option>
+                </select>
+              </div>
+              <div>
+                <label class="settings-label">Assessment Status</label>
+                <select id="stu-payout-status" class="settings-input">
+                  <option value="">All</option>
+                  <option value="completed">Completed</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" onclick="stuPayoutGenerate()">
+                <span class="material-symbols-outlined">table_view</span>Preview List
+              </button>
+              <button class="btn btn-secondary btn-sm" id="stu-payout-export-csv" onclick="stuPayoutExport('csv')" style="display:none;">
+                <span class="material-symbols-outlined">download</span>Export CSV
+              </button>
+              <span id="stu-payout-count-label" style="font-size:0.8rem;color:var(--gray-500);"></span>
+            </div>
+          </div>
+          <div class="card" style="margin:0;">
+            <div class="card-header"><div class="card-title">Payout List Preview</div></div>
+            <div class="table-wrap">
+              <table class="dash-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>ARUGA ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Region</th>
+                    <th>Province</th>
+                    <th>Readiness</th>
+                    <th>4Ps</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="stu-payout-tbody">
+                  <tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">Click <b>Preview List</b> to load beneficiaries.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /stu-view-report -->
+
   </div>
 </div>
 
@@ -429,6 +766,9 @@
     dashPopulateUser();
     stuLoadDashboard();
     document.getElementById('stu-bene-search')?.addEventListener('keydown', e => { if (e.key === 'Enter') stuLoadBeneficiaries(1); });
+    ['stu-bene-status','stu-bene-readiness','stu-bene-disability'].forEach(id => {
+      document.getElementById(id)?.addEventListener('change', () => stuLoadBeneficiaries(1));
+    });
   });
 
   function stuLastActiveLabel(iso) {
@@ -582,6 +922,8 @@
 
     const search = document.getElementById('stu-bene-search')?.value.trim() || '';
     const status = document.getElementById('stu-bene-status')?.value || '';
+    const readiness = document.getElementById('stu-bene-readiness')?.value || '';
+    const disability = document.getElementById('stu-bene-disability')?.value || '';
     const offset = (stuBenePage - 1) * STU_BENE_LIMIT;
 
     const tbody = document.getElementById('stu-bene-tbody');
@@ -590,41 +932,25 @@
     const params = new URLSearchParams({ region, limit: STU_BENE_LIMIT, offset });
     if (search) params.set('search', search);
     if (status) params.set('status', status);
+    if (readiness) params.set('readiness', readiness);
+    if (disability) params.set('disability', disability);
 
     try {
       const res = await fetch('/api/stu-head/beneficiaries.php?' + params);
       const j = await res.json();
 
       if (j.success && Array.isArray(j.data) && j.data.length > 0) {
-        const STU_DIS_COLORS = { 'Physical':'badge-purple','Visual':'badge-blue','Hearing':'badge-orange','Intellectual':'badge-red','Multiple':'badge-purple','Psychosocial':'badge-blue','Speech':'badge-green' };
-        tbody.innerHTML = j.data.map(b => {
-          const raw = b.disability || '—';
-          const parts = Array.isArray(b.disabilities) && b.disabilities.length ? b.disabilities : raw.split(',').map(s=>s.trim()).filter(Boolean);
-          const first = parts[0] || '—';
-          const dc = STU_DIS_COLORS[first] || 'badge-blue';
-          const rest = parts.length - 1;
-          const tooltip = parts.join(', ');
-          const disCell = first === '—'
-            ? `<span style="color:var(--gray-400);font-size:0.8rem;">—</span>`
-            : `<div style="display:flex;align-items:center;gap:0.375rem;" title="${tooltip}">
-                 <span class="badge ${dc}">${first}</span>
-                 ${rest > 0 ? `<span style="font-size:0.7rem;font-weight:700;background:var(--gray-200);color:var(--gray-700);padding:0.1rem 0.4rem;border-radius:999px;">+${rest}</span>` : ''}
-               </div>`;
-          return `<tr class="table-row-hover">
-            <td><div style="font-weight:600;color:#111811;">${b.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${b.aruga_id}</div></td>
-            <td>${b.age}</td>
-            <td>${disCell}</td>
-            <td>${b.region || '—'}</td>
-            <td>${b.interviewer}</td>
-            <td>${b.date}</td>
-            <td>${stuReadinessBadge(b.readiness_score)}</td>
-            <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="stuOpenBeneDetail('${b.aruga_id}')" title="View / Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
-          </tr>`;
-        }).join('');
-
+        stuBeneCurrentData = j.data;
+        stuBeneSortCol = null; stuBeneSortDir = 'asc';
+        ['name','age','region','interviewer','date','readiness'].forEach(c => {
+          const el = document.getElementById('stu-ben-sort-icon-' + c);
+          if (el) { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
+        });
+        stuRenderBeneSorted();
         const totalPages = Math.ceil(j.total / STU_BENE_LIMIT);
         stuRenderBenePagination(totalPages);
       } else {
+        stuBeneCurrentData = [];
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">No beneficiaries found for this region.</td></tr>';
         document.getElementById('stu-bene-pagination').innerHTML = '';
       }
@@ -633,14 +959,45 @@
     }
   }
 
+  function stuRenderBeneSorted() {
+    const STU_DIS_COLORS = { 'Physical':'badge-purple','Visual':'badge-blue','Hearing':'badge-orange','Intellectual':'badge-red','Multiple':'badge-purple','Psychosocial':'badge-blue','Speech':'badge-green' };
+    const tbody = document.getElementById('stu-bene-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = stuBeneCurrentData.map(b => {
+      const raw = b.disability || '—';
+      const parts = Array.isArray(b.disabilities) && b.disabilities.length ? b.disabilities : raw.split(',').map(s=>s.trim()).filter(Boolean);
+      const first = parts[0] || '—';
+      const dc = STU_DIS_COLORS[first] || 'badge-blue';
+      const rest = parts.length - 1;
+      const tooltip = parts.join(', ');
+      const disCell = first === '—'
+        ? `<span style="color:var(--gray-400);font-size:0.8rem;">—</span>`
+        : `<div style="display:flex;align-items:center;gap:0.375rem;" title="${tooltip}">
+             <span class="badge ${dc}">${first}</span>
+             ${rest > 0 ? `<span style="font-size:0.7rem;font-weight:700;background:var(--gray-200);color:var(--gray-700);padding:0.1rem 0.4rem;border-radius:999px;">+${rest}</span>` : ''}
+           </div>`;
+      return `<tr class="table-row-hover">
+        <td><div style="font-weight:600;color:#111811;">${b.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${b.aruga_id}</div></td>
+        <td>${b.age}</td>
+        <td>${disCell}</td>
+        <td>${b.region || '—'}</td>
+        <td>${b.interviewer}</td>
+        <td>${b.date}</td>
+        <td>${stuReadinessBadge(b.readiness_score)}</td>
+        <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="stuOpenBeneDetail('${b.aruga_id}')" title="View / Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
+      </tr>`;
+    }).join('');
+  }
+
   function stuReadinessBadge(score) {
     if (!score || score === '—') return '<span style="color:#9ca3af;">—</span>';
     const s = String(score).toLowerCase();
-    if (s === 'severe')   return '<span class="badge badge-red">'   + score + '</span>';
-    if (s === 'moderate') return '<span class="badge badge-orange">' + score + '</span>';
-    if (s === 'low')      return '<span class="badge badge-yellow">' + score + '</span>';
-    if (s === 'stable')   return '<span class="badge badge-green">'  + score + '</span>';
-    return score;
+    const label = s.charAt(0).toUpperCase() + s.slice(1);
+    if (s === 'severe')   return '<span class="badge badge-red">'   + label + '</span>';
+    if (s === 'moderate') return '<span class="badge badge-orange">' + label + '</span>';
+    if (s === 'low')      return '<span class="badge badge-yellow">' + label + '</span>';
+    if (s === 'stable')   return '<span class="badge badge-green">'  + label + '</span>';
+    return label;
   }
 
   function stuStatusRowBadge(status) {
@@ -663,10 +1020,9 @@
   }
 
   function stuClearBeneFilters() {
-    const s = document.getElementById('stu-bene-search');
-    const st = document.getElementById('stu-bene-status');
-    if (s) s.value = '';
-    if (st) st.value = '';
+    ['stu-bene-search','stu-bene-status','stu-bene-readiness','stu-bene-disability'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
     stuLoadBeneficiaries(1);
   }
 
@@ -1000,19 +1356,298 @@
     }
   }
 
+  // ── Report View ───────────────────────────────────────────────
+  const STU_RPT_OPEN = {region:true,geo:true,beneficiaries:true,disabilities:true,housing:false,health:false,economic:false,education:false,religion:false,social:false,readiness:false,performance:false,quality:false,payout:false};
+  let stuRptLoaded = false;
+
+  function stuRptToggle(key) {
+    const body = document.getElementById('stu-rpt-body-' + key);
+    const chev = document.getElementById('stu-rpt-chev-' + key);
+    if (!body) return;
+    const opening = body.style.display === 'none';
+    body.style.display = opening ? '' : 'none';
+    if (chev) chev.classList.toggle('open', opening);
+    STU_RPT_OPEN[key] = opening;
+    if (opening) stuRptRenderSection(key);
+  }
+
+  async function stuLoadReportView() {
+    if (stuRptLoaded) return;
+    stuRptLoaded = true;
+    const region = sessionStorage.getItem('interviewer_region') || '';
+    stuAnFilters.region = region;
+    const chip = document.getElementById('stu-rpt-region-chip');
+    const chipLabel = document.getElementById('stu-rpt-region-chip-label');
+    if (region) { if (chipLabel) chipLabel.textContent = region; if (chip) chip.style.display = 'flex'; }
+    await Promise.all([stuFetchAnalytics(), stuFetchExtended()]);
+    stuRptRenderHero();
+    stuRptRenderPace();
+    stuRptRenderBadges();
+    ['region','geo','beneficiaries','disabilities'].forEach(k => { STU_RPT_OPEN[k]=true; stuRptRenderSection(k); });
+    document.getElementById('stu-rpt-last-refresh').textContent = (region ? 'Region: '+region+' · ' : '') + 'Last refreshed: ' + new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  function stuRptRenderHero() {
+    const s = STU_AN_DATA?.summary; if (!s) return;
+    const region = stuAnFilters.region;
+    document.getElementById('stu-rpt-total').textContent        = (s.total||0).toLocaleString();
+    document.getElementById('stu-rpt-total-sub').textContent    = region ? 'Region: '+region : 'Across all regions';
+    document.getElementById('stu-rpt-rate').textContent         = (s.completion_rate||0)+'%';
+    document.getElementById('stu-rpt-avgday').textContent       = s.avg_per_day||0;
+    document.getElementById('stu-rpt-interviewers').textContent = (s.active_interviewers||0).toLocaleString();
+    const rate = s.completion_rate||0;
+    const badge = document.getElementById('stu-rpt-rate-badge');
+    if (badge) { if (rate>=80) badge.innerHTML='<span class="badge badge-green">Ahead</span>'; else if (rate>=60) badge.innerHTML='<span class="badge badge-blue">On Track</span>'; else badge.innerHTML='<span class="badge badge-red">Behind</span>'; }
+  }
+
+  function stuRptRenderPace() {
+    const s = STU_AN_DATA?.summary; if (!s) return;
+    const rate=s.completion_rate||0, icon=document.getElementById('stu-rpt-pace-icon'), label=document.getElementById('stu-rpt-pace-label'), sub=document.getElementById('stu-rpt-pace-sub'), bar=document.getElementById('stu-rpt-pace-bar'), pct=document.getElementById('stu-rpt-pace-pct');
+    if (pct) pct.textContent=rate+'%';
+    setTimeout(()=>{ if(bar) bar.style.width=Math.min(rate,100)+'%'; },100);
+    if (rate>=80) { if(icon){icon.style.background='#f0fdf4';icon.style.color='#16a34a';icon.querySelector('span').textContent='trending_up';} if(label){label.textContent='Ahead of Target';label.style.color='#16a34a';} if(sub)sub.textContent='Exceeding regional target pace'; if(bar)bar.style.background='#16a34a'; }
+    else if (rate>=60) { if(icon){icon.style.background='#eff6ff';icon.style.color='#1152d4';icon.querySelector('span').textContent='check_circle';} if(label){label.textContent='On Track';label.style.color='#1152d4';} if(sub)sub.textContent='Progressing within expected range'; if(bar)bar.style.background='#1152d4'; }
+    else { if(icon){icon.style.background='#fff1f1';icon.style.color='#ef4444';icon.querySelector('span').textContent='warning';} if(label){label.textContent='Behind Target';label.style.color='#ef4444';} if(sub)sub.textContent='Regional pace below target — action needed'; if(bar)bar.style.background='#ef4444'; }
+  }
+
+  function stuRptRenderBadges() {
+    const s=STU_AN_DATA?.summary, q=STU_AN_DATA?.quality, regions=STU_AN_DATA?.regions||[], ints=STU_AN_DATA?.interviewers||[], dis=STU_AN_DATA?.disabilities||[], ext=STU_AN_EXT;
+    const setB=(key,text,cls)=>{ const el=document.getElementById('stu-rpt-badge-'+key); if(!el)return; el.textContent=text; el.className='rpt-section-badge'+(cls?' '+cls:''); };
+    const maxV=Math.max(...regions.map(r=>r.count),1); const lagging=regions.filter(r=>r.count<maxV*0.3).length;
+    setB('region',(STU_AN_DATA?.top_provinces||[]).length?(STU_AN_DATA?.top_provinces||[]).length+' provinces':'—','');
+    setB('geo',(STU_AN_DATA?.top_provinces||[]).length?(STU_AN_DATA?.top_provinces||[]).length+' provinces · '+(STU_AN_DATA?.top_cities||[]).length+' cities':'—','');
+    setB('beneficiaries',(s?.total||0)?(s.total.toLocaleString()+' profiled'):'—','');
+    setB('disabilities',dis.reduce((s,d)=>s+(d.val||0),0)?dis.reduce((s,d)=>s+(d.val||0),0).toLocaleString()+' cases':'—','');
+    const modPct=ext?.housing?(ext.housing.mod_total>0?Math.round((ext.housing.mod_yes/ext.housing.mod_total)*100):0):null;
+    setB('housing',modPct!==null?modPct+'% homes modified':'—','');
+    const vaccRate=ext?.vaccination?.national_rate;
+    setB('health',vaccRate!=null?vaccRate+'% vaccinated':'—',vaccRate!=null&&vaccRate<60?'warn':'');
+    const below=ext?.min_wage?.below||0, mwTotal=(ext?.min_wage?.below||0)+(ext?.min_wage?.at||0)+(ext?.min_wage?.above||0);
+    const belowPct=mwTotal>0?Math.round((below/mwTotal)*100):null;
+    setB('economic',belowPct!==null?belowPct+'% below min wage':'—',belowPct!==null&&belowPct>50?'alert':belowPct>30?'warn':'');
+    const enrPct=ext?.enrollment?((ext.enrollment.enrolled+ext.enrollment.not_enrolled)>0?Math.round((ext.enrollment.enrolled/(ext.enrollment.enrolled+ext.enrollment.not_enrolled))*100):null):null;
+    setB('education',enrPct!==null?enrPct+'% enrolled':'—',enrPct!==null&&enrPct<70?'warn':'');
+    setB('religion',ext?.religion?.[0]?.label||'—','');
+    const faPct=ext?.financial_assist?.total>0?Math.round((ext.financial_assist.yes/ext.financial_assist.total)*100):null;
+    setB('social',faPct!==null?faPct+'% assisted':'—',faPct!==null&&faPct<30?'warn':'');
+    const rd=ext?.readiness_dist||[], rdTotal=rd.reduce((s,r)=>s+r.val,0);
+    const severePct=rdTotal>0?Math.round(((rd.find(r=>r.label==='Severe')?.val||0)/rdTotal)*100):null;
+    setB('readiness',severePct!==null?severePct+'% severe':'—',severePct!==null&&severePct>30?'alert':severePct>15?'warn':'');
+    const overloaded=ints.filter(iv=>iv.workload==='overloaded').length;
+    setB('performance',overloaded>0?overloaded+' overloaded':ints.length+' interviewers',overloaded>0?'warn':'');
+    const completeness=q?.completeness||0;
+    setB('quality',completeness+'% complete',completeness<80?'alert':completeness<90?'warn':'good');
+  }
+
+  function stuRptRenderSection(key) {
+    if (!STU_AN_DATA) return;
+    const EMPTY='<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No data available</div>';
+    const ext=STU_AN_EXT;
+
+    if (key==='region') {
+      const data=STU_AN_DATA?.top_provinces||[], maxV=Math.max(...data.map(r=>r.count),1);
+      const rColors=['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe'];
+      document.getElementById('stu-rpt-region-bars').innerHTML=data.length?data.map((r,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${r.name.replace(/'/g,"&#39;")}</strong>: ${r.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((r.count/maxV)*100)}%;background:${rColors[i%rColors.length]};border-radius:999px;transition:width 0.6s;"></div></div><div style="font-size:0.75rem;font-weight:800;color:var(--dark);width:48px;text-align:right;">${r.count.toLocaleString()}</div></div>`).join(''):EMPTY;
+    }
+
+    if (key==='geo') {
+      const provs=STU_AN_DATA?.top_provinces||[], cities=STU_AN_DATA?.top_cities||[];
+      const gColors=['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#1152d4','#2563eb','#3b82f6'];
+      const maxP=Math.max(...provs.map(p=>p.count),1);
+      document.getElementById('stu-rpt-province-bars').innerHTML=provs.length?provs.map((p,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${p.name.replace(/'/g,"&#39;")}</strong>: ${p.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><div style="font-size:0.75rem;font-weight:600;color:var(--dark);width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((p.count/maxP)*100)}%;background:${gColors[i%gColors.length]};border-radius:999px;transition:width 0.6s;"></div></div><div style="font-size:0.75rem;font-weight:800;color:var(--dark);width:40px;text-align:right;">${p.count.toLocaleString()}</div></div>`).join(''):EMPTY;
+      const maxC=Math.max(...cities.map(c=>c.count),1);
+      document.getElementById('stu-rpt-city-bars').innerHTML=cities.length?cities.map((c,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${c.name.replace(/'/g,"&#39;")}</strong>${c.province?' · '+c.province.replace(/'/g,"&#39;"):''}: ${c.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><div style="width:200px;min-width:0;"><div style="font-size:0.75rem;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>${c.province?`<div style="font-size:0.65rem;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.province}</div>`:''}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((c.count/maxC)*100)}%;background:${gColors[i%gColors.length]};border-radius:999px;transition:width 0.6s;"></div></div><div style="font-size:0.75rem;font-weight:800;color:var(--dark);width:40px;text-align:right;">${c.count.toLocaleString()}</div></div>`).join(''):EMPTY;
+    }
+
+    if (key==='beneficiaries') {
+      const ages=STU_AN_DATA?.age_groups||[], maxA=Math.max(...ages.map(a=>a.val),1), ageColors=['#1152d4','#2563eb','#3b82f6','#60a5fa'], CHART_H=130;
+      document.getElementById('stu-rpt-age-bars').innerHTML=ages.length?`<div style="display:flex;align-items:flex-end;gap:0.875rem;width:100%;height:${CHART_H}px;border-bottom:2px solid #e5e7eb;padding-bottom:0;">${ages.map((a,i)=>{const barH=Math.max(Math.round((a.val/maxA)*CHART_H),a.val>0?6:2);const bar=`<div style="width:100%;height:${barH}px;background:${ageColors[i%ageColors.length]};border-radius:5px 5px 0 0;transition:height 0.6s ease,background 0.15s;"></div>`;return`<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:100%;position:relative;cursor:pointer;" onmouseover="gTip(event,'<strong>${a.label}</strong>: ${a.val.toLocaleString()}')" onmousemove="gTipMove(event)" onmouseout="gTipHide()"><div style="font-size:0.78rem;font-weight:800;color:${ageColors[i%ageColors.length]};margin-bottom:6px;">${a.val>0?a.val.toLocaleString():''}</div>${bar}</div>`;}).join('')}</div><div style="display:flex;gap:0.875rem;padding-top:0.5rem;">${ages.map((a,i)=>`<div style="flex:1;text-align:center;font-size:0.72rem;font-weight:500;color:var(--gray-400);">${a.label}</div>`).join('')}</div>`:EMPTY;
+      // Gender donut with hover tooltip
+      const gender=STU_AN_DATA?.gender||[], gTotal=gender.reduce((s,g)=>s+g.val,0);
+      if(gTotal){const circ=314;let offset=0;const arcs=gender.map((g,gi)=>{const dash=(g.val/gTotal)*circ,pct=Math.round((g.val/gTotal)*100);const arc=`<circle cx="70" cy="70" r="50" fill="none" stroke="${g.color}" stroke-width="20" stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${78.5-offset}" transform="rotate(-90 70 70)" data-gi="${gi}" style="cursor:pointer;transition:stroke-width 0.2s ease,opacity 0.2s ease;" onmouseover="(function(c,e){document.querySelectorAll('#stu-rpt-gender-svg circle[data-gi]').forEach(function(x){x.style.opacity='0.3';});c.style.opacity='1';c.style.strokeWidth='27px';gTip(e,'<strong>${g.label}</strong>: ${g.val.toLocaleString()} &nbsp;(${pct}%)');})(this,event)" onmousemove="gTipMove(event)" onmouseout="(function(){document.querySelectorAll('#stu-rpt-gender-svg circle[data-gi]').forEach(function(x){x.style.opacity='1';x.style.strokeWidth='20px';});gTipHide();})()"/>`;offset+=dash;return arc;}).join('');document.getElementById('stu-rpt-gender-donut').innerHTML=`<div style="position:relative;"><svg id="stu-rpt-gender-svg" viewBox="0 0 140 140" width="150" height="150" style="overflow:visible;">${arcs}</svg></div><div style="display:flex;gap:1.25rem;">${gender.map(g=>`<div style="text-align:center;"><div style="width:10px;height:10px;border-radius:50%;background:${g.color};margin:0 auto 4px;"></div><div style="font-size:0.75rem;font-weight:700;">${g.label}</div><div style="font-size:0.8125rem;font-weight:800;">${Math.round((g.val/gTotal)*100)}%</div></div>`).join('')}</div>`;}else{document.getElementById('stu-rpt-gender-donut').innerHTML=EMPTY;}
+      const ps=ext?.fourps, psEl=document.getElementById('stu-rpt-4ps-chart');
+      if (ps&&psEl) { const psPct=ps.total>0?Math.round((ps.yes/ps.total)*100):0,notPct=100-psPct; psEl.innerHTML=`<div style="width:100%;padding:0.5rem 0;"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.875rem;padding:0.5rem 0.75rem;background:#eff6ff;border-radius:0.5rem;border:1px solid #bfdbfe;"><div style="flex:1;"><div style="font-size:0.8125rem;font-weight:700;color:#1152d4;">4Ps Members</div><div style="font-size:0.72rem;color:#2563eb;">${(ps.yes||0).toLocaleString()} households</div></div><div style="font-size:1.75rem;font-weight:800;color:#1152d4;">${psPct}%</div></div><div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:#f9fafb;border-radius:0.5rem;border:1px solid var(--border);"><div style="flex:1;"><div style="font-size:0.8125rem;font-weight:700;color:var(--gray-700);">Non-4Ps</div><div style="font-size:0.72rem;color:var(--gray-400);">${(ps.no||0).toLocaleString()} households</div></div><div style="font-size:1.75rem;font-weight:800;color:var(--gray-500);">${notPct}%</div></div><div style="margin-top:1rem;"><div style="height:12px;border-radius:999px;overflow:hidden;background:#e5e7eb;display:flex;"><div style="width:${psPct}%;background:#1152d4;border-radius:999px 0 0 999px;transition:width 0.6s ease;"></div></div></div></div>`; }
+      const locs=STU_AN_DATA?.top_locations||[], maxL=Math.max(...locs.map(l=>l.count),1);
+      document.getElementById('stu-rpt-top-locations').innerHTML=locs.length?locs.map((l,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.25rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${l.name.replace(/'/g,"&#39;")}</strong>: ${l.count.toLocaleString()} assessments')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><span style="font-size:0.8rem;font-weight:800;color:var(--gray-400);width:1.25rem;">${i+1}</span><div style="flex:1;min-width:0;font-size:0.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${l.name}</div><div style="width:80px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;flex-shrink:0;"><div style="height:100%;width:${Math.round((l.count/maxL)*100)}%;background:#2563eb;border-radius:999px;"></div></div><div style="font-size:0.75rem;font-weight:800;width:32px;text-align:right;">${l.count}</div></div>`).join(''):EMPTY;
+    }
+
+    if (key==='disabilities') {
+      const dis=STU_AN_DATA?.disabilities||[], maxD=Math.max(...dis.map(d=>d.val),1);
+      const disColors=['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe'];
+      document.getElementById('stu-rpt-dis-bars').innerHTML=dis.length?dis.map((d,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${d.label.replace(/'/g,"&#39;")}</strong>: ${d.val.toLocaleString()}')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><div style="font-size:0.75rem;font-weight:600;width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.label}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((d.val/maxD)*100)}%;background:${disColors[i%disColors.length]};border-radius:999px;"></div></div><div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${d.val.toLocaleString()}</div></div>`).join(''):EMPTY;
+    }
+
+    if (key==='housing') { const h=ext?.housing; if(h){ stuAnRenderHorizBars('stu-rpt-housing-materials',h.materials,['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd']); stuAnRenderHorizBars('stu-rpt-tenure-status',h.tenure,['#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe']); stuAnRenderHorizBars('stu-rpt-water-source',h.water_source,['#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe']); stuAnRenderHorizBars('stu-rpt-electricity-source',h.electricity_source,['#1d4ed8','#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd']); stuAnRenderHorizBars('stu-rpt-toilet-type',h.toilet_type,['#2563eb','#1152d4','#3b82f6','#60a5fa','#93c5fd','#bfdbfe']); stuAnRenderHorizBars('stu-rpt-garbage-disposal',h.garbage_disposal,['#1152d4','#2563eb','#1d4ed8','#3b82f6','#60a5fa','#93c5fd']); } }
+
+    if (key==='health') {
+      const vacc=ext?.vaccination, barriers=ext?.barriers||[];
+      if(vacc){ stuRptRenderDonut('stu-rpt-immunization-donut',[{label:'Complete',val:vacc.vaccinated||0,color:'#1152d4'},{label:'Incomplete',val:(vacc.total||0)-(vacc.vaccinated||0),color:'#bfdbfe'}],vacc.national_rate+'%','Immunized'); }
+      const hi=ext?.health_issues; if(hi){ stuRptRenderDonut('stu-rpt-health-issues-donut',[{label:'Has Issues',val:hi.yes||0,color:'#2563eb'},{label:'None',val:hi.no||0,color:'#dbeafe'}],hi.total>0?Math.round((hi.yes/hi.total)*100)+'%':'—','With Issues'); }
+      const ha=ext?.health_availed; if(ha){ stuRptRenderDonut('stu-rpt-health-availed-donut',[{label:'Availed',val:ha.yes||0,color:'#3b82f6'},{label:'Did Not Avail',val:ha.no||0,color:'#93c5fd'}],ha.total>0?Math.round((ha.yes/ha.total)*100)+'%':'—','Availed'); }
+      document.getElementById('stu-rpt-barriers-chart').innerHTML=barriers.length?barriers.map((b,i)=>`<div style="display:flex;align-items:flex-start;gap:0.5rem;padding:0.25rem 0.375rem;"><span style="font-size:0.7rem;font-weight:700;color:#1152d4;min-width:1.1rem;">${i+1}.</span><span style="font-size:0.78rem;color:var(--dark);line-height:1.4;">${b.label}</span></div>`).join(''):EMPTY;
+      const expData=ext?.expenses; if(expData){ document.getElementById('stu-rpt-expenses-total').innerHTML='Avg total: <b>₱'+(expData.total_avg||0).toLocaleString()+'</b>/mo'; const maxExp=Math.max(...(expData.breakdown||[]).map(e=>e.avg),1); document.getElementById('stu-rpt-expenses-chart').innerHTML=(expData.breakdown||[]).length?(expData.breakdown||[]).map((e,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--blue-light)';gTip(event,'<strong>${e.label.replace(/'/g,"&#39;")}</strong>: ₱${(e.avg||0).toLocaleString()} avg/mo')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><div style="font-size:0.75rem;font-weight:600;width:130px;">${e.label}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((e.avg/maxExp)*100)}%;background:#3b82f6;border-radius:999px;"></div></div><div style="font-size:0.72rem;font-weight:800;width:60px;text-align:right;">₱${(e.avg||0).toLocaleString()}</div></div>`).join(''):EMPTY; }
+    }
+
+    if (key==='economic') { const src=ext?.primary_income_src||[]; stuAnRenderHorizBars('stu-rpt-primary-income-src',src,['#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#1d4ed8']); const mw=ext?.min_wage; if(mw){ stuAnRenderHorizBars('stu-rpt-min-wage',[{label:'Below Minimum Wage',val:mw.below||0},{label:'At Minimum Wage',val:mw.at||0},{label:'Above Minimum Wage',val:mw.above||0}],['#1152d4','#3b82f6','#93c5fd']); } }
+
+    if (key==='education') {
+      const enr=ext?.enrollment; if(enr){ const enrTotal=(enr.enrolled||0)+(enr.not_enrolled||0),pct=enrTotal>0?Math.round((enr.enrolled/enrTotal)*100):0; stuRptRenderDonut('stu-rpt-enrollment-donut',[{label:'Enrolled',val:enr.enrolled||0,color:'#1152d4'},{label:'Not Enrolled',val:enr.not_enrolled||0,color:'#bfdbfe'}],pct+'%','Enrolled'); const reasons=enr.top_reasons||[]; document.getElementById('stu-rpt-enrollment-reasons').innerHTML=reasons.length?reasons.map((r,i)=>`<div style="display:flex;align-items:flex-start;gap:0.625rem;padding:0.5rem 0;border-bottom:1px solid var(--gray-100);"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:1.4rem;height:1.4rem;border-radius:50%;background:#eff6ff;color:#1152d4;font-size:0.65rem;font-weight:800;">${i+1}</span><div style="flex:1;"><div style="font-size:0.8125rem;font-weight:600;color:var(--dark);line-height:1.4;">${r.reason}</div><div style="font-size:0.7rem;color:var(--gray-400);margin-top:0.1rem;">${r.count} student${r.count!==1?'s':''}</div></div></div>`).join(''):EMPTY; }
+      stuAnRenderHorizBars('stu-rpt-educ-attainment',ext?.educ_attainment,['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe']);
+    }
+
+    if (key==='religion') {
+      const rel=ext?.religion||[], relColors=['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd'];
+      if(rel.length){ stuRptRenderDonut('stu-rpt-religion-donut',rel.map((r,i)=>({label:r.label,val:r.count,color:relColors[i%relColors.length]})),rel[0]?.label||'—','Most common'); }
+      stuAnRenderHorizBars('stu-rpt-ip-bars',ext?.ip_membership||[],['#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe']);
+    }
+
+    if (key==='social') {
+      const fa=ext?.financial_assist; if(fa){ stuRptRenderDonut('stu-rpt-financial-assist-donut',[{label:'Receiving',val:fa.yes||0,color:'#1152d4'},{label:'Not Receiving',val:fa.no||0,color:'#bfdbfe'}],fa.total>0?Math.round((fa.yes/fa.total)*100)+'%':'—','Receiving'); }
+      const sa=ext?.social_awareness; if(sa){ stuRptRenderDonut('stu-rpt-social-awareness-donut',[{label:'Aware',val:sa.yes||0,color:'#2563eb'},{label:'Not Aware',val:sa.no||0,color:'#93c5fd'}],sa.total>0?Math.round((sa.yes/sa.total)*100)+'%':'—','Aware'); }
+    }
+
+    if (key==='readiness') {
+      const rd=ext?.readiness_dist||[], maxRd=Math.max(...rd.map(r=>r.val),1), totalRd=rd.reduce((s,r)=>s+r.val,0);
+      document.getElementById('stu-rpt-readiness-bars').innerHTML=rd.length?rd.map(r=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;border-radius:0.375rem;transition:background 0.13s;cursor:default;" onmouseover="this.style.background='var(--gray-50)';gTip(event,'<strong>${r.label}</strong>: ${r.val.toLocaleString()} (${totalRd>0?Math.round((r.val/totalRd)*100):0}%)')" onmousemove="gTipMove(event)" onmouseout="this.style.background='';gTipHide()"><div style="display:flex;align-items:center;gap:0.5rem;width:110px;"><div style="width:10px;height:10px;border-radius:50%;background:${r.color};flex-shrink:0;"></div><div style="font-size:0.75rem;font-weight:600;">${r.label}</div></div><div style="flex:1;height:12px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((r.val/maxRd)*100)}%;background:${r.color};border-radius:999px;transition:width 0.6s;"></div></div><div style="font-size:0.75rem;font-weight:800;width:40px;text-align:right;">${r.val.toLocaleString()}</div><div style="font-size:0.7rem;color:var(--gray-400);width:36px;">${totalRd>0?Math.round((r.val/totalRd)*100):0}%</div></div>`).join(''):EMPTY;
+    }
+
+    if (key==='performance') {
+      const WL={overloaded:'<span class="badge badge-red" style="font-size:0.65rem;">Overloaded</span>',balanced:'<span class="badge badge-green" style="font-size:0.65rem;">Balanced</span>',underutilized:'<span class="badge badge-orange" style="font-size:0.65rem;">Underutilized</span>'};
+      const medals=['🥇','🥈','🥉','4.','5.']; const sorted=STU_AN_DATA?.interviewers||[];
+      document.getElementById('stu-rpt-int-tbody').innerHTML=sorted.length?sorted.map((iv,i)=>`<tr class="table-row-hover"><td style="font-weight:800;color:var(--gray-400);">${i+1}</td><td style="font-weight:700;">${iv.name}</td><td><span style="font-family:monospace;font-size:0.75rem;color:var(--blue);">${iv.code}</span></td><td style="font-size:0.75rem;">${iv.region}</td><td style="font-weight:800;color:#1152d4;">${iv.completed}</td><td>${iv.avgDay}</td><td>${WL[iv.workload]||''}</td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:1.5rem;font-size:0.75rem;">No data</td></tr>';
+      document.getElementById('stu-rpt-top5-int').innerHTML=sorted.slice(0,5).map((iv,i)=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;background:var(--gray-50);border-radius:0.5rem;border:1px solid var(--border);"><span style="font-size:1rem;min-width:1.5rem;">${medals[i]}</span><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:0.8125rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${iv.name}</div><div style="font-size:0.7rem;color:var(--gray-400);">${(iv.region||'').split('–')[0].trim()}</div></div><span style="font-weight:800;color:#1152d4;">${iv.completed}</span></div>`).join('')||EMPTY;
+      const wlCounts={overloaded:0,balanced:0,underutilized:0}; sorted.forEach(iv=>{if(wlCounts[iv.workload]!==undefined)wlCounts[iv.workload]++;});
+      const wlTotal=sorted.length||1;
+      document.getElementById('stu-rpt-workload-vis').innerHTML=[{key:'overloaded',label:'Overloaded',color:'#1152d4'},{key:'balanced',label:'Balanced',color:'#3b82f6'},{key:'underutilized',label:'Underutilized',color:'#93c5fd'}].map(w=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.2rem 0.375rem;" onmouseover="gTip(event,'${w.label}: ${wlCounts[w.key]} of ${wlTotal}')" onmousemove="gTipMove(event)" onmouseout="gTipHide()"><div style="font-size:0.75rem;font-weight:600;width:100px;">${w.label}</div><div style="flex:1;height:10px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((wlCounts[w.key]/wlTotal)*100)}%;background:${w.color};border-radius:999px;"></div></div><div style="font-size:0.75rem;font-weight:800;width:48px;text-align:right;">${wlCounts[w.key]} / ${wlTotal}</div></div>`).join('');
+    }
+
+    if (key==='quality') {
+      const q=STU_AN_DATA?.quality; if(!q)return;
+      const missing=q.missing_fields||[], maxM=Math.max(...missing.map(f=>f.pct),1);
+      document.getElementById('stu-rpt-missing-fields').innerHTML=missing.length?missing.map(f=>`<div style="display:flex;align-items:center;gap:0.75rem;" onmouseover="gTip(event,'<strong>${f.field}</strong>: ${f.pct}% missing')" onmousemove="gTipMove(event)" onmouseout="gTipHide()"><div style="font-size:0.75rem;flex:1;">${f.field}</div><div style="width:80px;height:8px;background:var(--gray-200);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round((f.pct/maxM)*100)}%;background:#3b82f6;border-radius:999px;"></div></div><div style="font-size:0.7rem;font-weight:800;width:32px;text-align:right;color:#1152d4;">${f.pct}%</div></div>`).join(''):EMPTY;
+      document.getElementById('stu-rpt-flagged-count').textContent=q.flagged_count||0;
+    }
+
+    if (key==='payout') { stuRptRenderPayoutRegion(); }
+  }
+
+  // Donut helper with gTip tooltip for report sections
+  function stuRptRenderDonut(elId, slices, centerVal, centerLabel) {
+    const el=document.getElementById(elId); if(!el) return;
+    const total=slices.reduce((s,x)=>s+x.val,0);
+    const EMPTY='<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No data available</div>';
+    if(!total){el.innerHTML=EMPTY;return;}
+    const circ=2*Math.PI*50; let offset=0;
+    const segs=slices.map((s,i)=>{
+      const dash=(s.val/total)*circ,pct=Math.round((s.val/total)*100);
+      const seg=`<circle cx="60" cy="60" r="50" fill="none" stroke="${s.color}" stroke-width="20" stroke-dasharray="${dash.toFixed(2)} ${(circ-dash).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" data-i="${i}"
+        style="cursor:pointer;transition:stroke-width 0.2s ease,opacity 0.2s ease;"
+        onmouseover="(function(c,e){document.querySelectorAll('#${elId}-svg circle[data-i]').forEach(function(x){x.style.opacity='0.3';});c.style.opacity='1';c.style.strokeWidth='27px';gTip(e,'<strong>${s.label}</strong>: ${s.val.toLocaleString()} &nbsp;(${pct}%)');var cv=document.getElementById('${elId}-cv'),cl=document.getElementById('${elId}-cl');if(cv)cv.textContent='${s.val.toLocaleString()} (${pct}%)';if(cl)cl.textContent='${s.label}';})(this,event)"
+        onmousemove="gTipMove(event)"
+        onmouseout="(function(){document.querySelectorAll('#${elId}-svg circle[data-i]').forEach(function(x){x.style.opacity='1';x.style.strokeWidth='20px';});gTipHide();var cv=document.getElementById('${elId}-cv'),cl=document.getElementById('${elId}-cl');if(cv)cv.textContent='${centerVal}';if(cl)cl.textContent='${centerLabel}';})()"
+      />`;
+      offset+=dash; return seg;
+    }).join('');
+    el.innerHTML=`<div style="position:relative;display:flex;align-items:center;justify-content:center;">
+      <svg id="${elId}-svg" viewBox="0 0 120 120" width="150" height="150" style="transform:rotate(-90deg);">${segs}</svg>
+      <div style="position:absolute;text-align:center;pointer-events:none;">
+        <div id="${elId}-cv" style="font-size:1.1rem;font-weight:800;color:var(--dark);">${centerVal}</div>
+        <div id="${elId}-cl" style="font-size:0.65rem;color:var(--gray-400);font-weight:600;">${centerLabel}</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;justify-content:center;font-size:0.75rem;">${slices.map(s=>`<div style="display:flex;align-items:center;gap:0.3rem;"><div style="width:10px;height:10px;border-radius:50%;background:${s.color};"></div>${s.label}: <b>${s.val.toLocaleString()}</b></div>`).join('')}</div>`;
+  }
+
+  // ── Payout List ───────────────────────────────────────────────
+  let stuPayoutData = [];
+
+  function stuRptRenderPayoutRegion() {
+    // Region is already locked — no extra population needed
+  }
+
+  function stuPayoutGenerate() {
+    const region    = sessionStorage.getItem('interviewer_region') || '';
+    const readiness = document.getElementById('stu-payout-readiness')?.value || '';
+    const fourps    = document.getElementById('stu-payout-4ps')?.value || '';
+    const status    = document.getElementById('stu-payout-status')?.value || '';
+
+    const tbody = document.getElementById('stu-payout-tbody');
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading…</td></tr>';
+
+    const params = new URLSearchParams({ region, limit: 500, offset: 0 });
+    if (readiness) params.set('readiness', readiness);
+    if (status)    params.set('status', status);
+
+    fetch('/api/stu-head/beneficiaries.php?' + params)
+      .then(r => r.json())
+      .then(j => {
+        let data = j.success && Array.isArray(j.data) ? j.data : [];
+        if (fourps === 'yes') data = data.filter(r => r.is_4ps_member);
+        if (fourps === 'no')  data = data.filter(r => !r.is_4ps_member);
+        stuPayoutData = data;
+        const countLabel = document.getElementById('stu-payout-count-label');
+        if (!data.length) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">No beneficiaries match the selected filters.</td></tr>';
+          if (countLabel) countLabel.textContent = '';
+          document.getElementById('stu-payout-export-csv').style.display = 'none';
+          return;
+        }
+        tbody.innerHTML = data.map((r, i) => `<tr class="table-row-hover">
+          <td style="color:var(--gray-400);font-size:0.75rem;">${i + 1}</td>
+          <td style="font-weight:600;font-size:0.8rem;">${r.aruga_id || '—'}</td>
+          <td><div style="font-weight:600;font-size:0.85rem;color:#111;">${r.name || '—'}</div></td>
+          <td>${r.age || '—'}</td>
+          <td style="font-size:0.8rem;">${r.region || '—'}</td>
+          <td style="font-size:0.8rem;">${r.province || '—'}</td>
+          <td>${stuReadinessBadge(r.readiness_score)}</td>
+          <td>${r.is_4ps_member ? '<span style="background:#eff6ff;color:#1d4ed8;font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:999px;">4Ps</span>' : '<span style="color:var(--gray-400);font-size:0.75rem;">—</span>'}</td>
+          <td style="font-size:0.8rem;text-transform:capitalize;">${r.status || '—'}</td>
+        </tr>`).join('');
+        if (countLabel) countLabel.textContent = `${data.length.toLocaleString()} beneficiar${data.length === 1 ? 'y' : 'ies'} found`;
+        document.getElementById('stu-payout-export-csv').style.display = '';
+      })
+      .catch(() => {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#ef4444;padding:2rem;font-size:0.85rem;">Failed to load beneficiaries.</td></tr>';
+      });
+  }
+
+  function stuPayoutExport(format) {
+    if (!stuPayoutData.length) { if(typeof showGlobalToast==='function') showGlobalToast('Generate a preview first.','error'); return; }
+    if (format === 'csv') {
+      const headers = ['#','ARUGA ID','Name','Age','Region','Province','Readiness','4Ps Member','Status'];
+      const rows = stuPayoutData.map((r, i) => [
+        i + 1, r.aruga_id || '', r.name || '', r.age || '',
+        r.region || '', r.province || '', r.readiness_score || '',
+        r.is_4ps_member ? 'Yes' : 'No', r.status || '',
+      ]);
+      const csv = [headers, ...rows].map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const a = document.createElement('a');
+      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      a.download = 'payout_list_' + new Date().toISOString().slice(0,10) + '.csv';
+      a.click();
+      if(typeof showGlobalToast==='function') showGlobalToast('Payout list exported as CSV.','success');
+    }
+  }
+
+  function stuRptGeoTab(tab) {
+    const active='color:#1152d4;border-bottom:2px solid #1152d4;font-weight:700;', inactive='color:var(--gray-400);border-bottom:2px solid transparent;font-weight:600;';
+    ['province','city'].forEach(t=>{ const btn=document.getElementById('stu-rpt-geo-tab-'+t), pane=document.getElementById('stu-rpt-geo-pane-'+t); if(!btn||!pane)return; const isActive=t===tab; btn.style.cssText=btn.style.cssText.replace(/color:[^;]+;|border-bottom:[^;]+;|font-weight:[^;]+;/g,'')+(isActive?active:inactive); pane.style.display=isActive?'':'none'; });
+  }
+
   // ── View switching ────────────────────────────────────────────
-  const STU_VIEWS = { main:'stu-view-main', documents:'stu-view-documents', analytics:'stu-view-analytics', beneficiaries:'stu-view-beneficiaries', assessments:'stu-view-assessments', interviewers:'stu-view-interviewers' };
+  const STU_VIEWS = { main:'stu-view-main', documents:'stu-view-documents', analytics:'stu-view-analytics', beneficiaries:'stu-view-beneficiaries', assessments:'stu-view-assessments', interviewers:'stu-view-interviewers', report:'stu-view-report' };
   function stuShowView(view) {
     Object.values(STU_VIEWS).forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
     const target = document.getElementById(STU_VIEWS[view]);
     if (target) target.style.display = '';
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    const navMap = { documents:'nav-documents', analytics:'nav-analytics', beneficiaries:'nav-beneficiaries', assessments:'nav-assessments', interviewers:'nav-interviewers' };
+    const navMap = { documents:'nav-documents', beneficiaries:'nav-beneficiaries', assessments:'nav-assessments', interviewers:'nav-interviewers', report:'nav-report' };
     if (view === 'main') { const ov = document.querySelector('a[href="/dashboard-stu-head.html"]'); if (ov) ov.classList.add('active'); }
     if (navMap[view]) { const nav = document.getElementById(navMap[view]); if(nav) nav.classList.add('active'); }
     if (view === 'analytics') stuLoadAnalyticsView();
     if (view === 'beneficiaries') stuLoadBeneficiaries(1);
     if (view === 'interviewers') stuLoadMyInterviewers();
+    if (view === 'report') stuLoadReportView();
   }
 
   // ── Analytics ─────────────────────────────────────────────────
@@ -1555,17 +2190,45 @@
 
   function stuSortInterviewers(key) {
     if (stuIntSortKey === key) { stuIntSortDir *= -1; } else { stuIntSortKey = key; stuIntSortDir = -1; }
-    document.getElementById('stu-int-sort-icon').textContent = '↕';
-    document.getElementById('stu-int-sort-icon-date').textContent = '↕';
+    ['name','code','email','month','last_active'].forEach(k => {
+      const el = document.getElementById('stu-int-sort-icon-' + k);
+      if (el) { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
+    });
+    const activeIcon = document.getElementById('stu-int-sort-icon-' + key);
+    if (activeIcon) { activeIcon.textContent = stuIntSortDir === -1 ? 'arrow_downward' : 'arrow_upward'; activeIcon.style.color = 'var(--blue)'; }
     if (key === 'last_active') {
-      document.getElementById('stu-int-sort-icon-date').textContent = stuIntSortDir === -1 ? '↓' : '↑';
       stuIntFiltered.sort((a,b) => { const da=a.last_active||'', db=b.last_active||''; return stuIntSortDir*(da<db?1:da>db?-1:0); });
+    } else if (key === 'month') {
+      stuIntFiltered.sort((a,b) => stuIntSortDir*((b.submissions_month||0)-(a.submissions_month||0)));
     } else {
-      document.getElementById('stu-int-sort-icon').textContent = stuIntSortDir === -1 ? '↓' : '↑';
-      const field = key === 'month' ? 'submissions_month' : 'submissions_total';
-      stuIntFiltered.sort((a,b) => stuIntSortDir*((b[field]||0)-(a[field]||0)));
+      stuIntFiltered.sort((a,b) => { const va=(a[key]||'').toLowerCase(), vb=(b[key]||'').toLowerCase(); return stuIntSortDir*(va<vb?1:va>vb?-1:0); });
     }
     stuIntPage = 0; stuRenderMyInterviewers();
+  }
+
+  let stuBeneSortCol = null, stuBeneSortDir = 'asc';
+  const STU_READINESS_ORDER = { severe:0, moderate:1, low:2, stable:3 };
+  let stuBeneCurrentData = [];
+
+  function stuSortBene(col) {
+    if (stuBeneSortCol === col) { stuBeneSortDir = stuBeneSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { stuBeneSortCol = col; stuBeneSortDir = 'asc'; }
+    ['name','age','region','interviewer','date','readiness'].forEach(c => {
+      const el = document.getElementById('stu-ben-sort-icon-' + c);
+      if (el) { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
+    });
+    const icon = document.getElementById('stu-ben-sort-icon-' + col);
+    if (icon) { icon.textContent = stuBeneSortDir === 'asc' ? 'arrow_upward' : 'arrow_downward'; icon.style.color = 'var(--blue)'; }
+    stuBeneCurrentData.sort((a, b) => {
+      let va, vb;
+      if (col === 'readiness') { va = STU_READINESS_ORDER[(a.readiness_score||'').toLowerCase()] ?? 99; vb = STU_READINESS_ORDER[(b.readiness_score||'').toLowerCase()] ?? 99; }
+      else if (col === 'age') { va = parseInt(a.age)||0; vb = parseInt(b.age)||0; }
+      else { va = (a[col]||'').toString().toLowerCase(); vb = (b[col]||'').toString().toLowerCase(); }
+      if (va < vb) return stuBeneSortDir === 'asc' ? -1 : 1;
+      if (va > vb) return stuBeneSortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    stuRenderBeneSorted();
   }
 
   function stuRenderMyInterviewers() {
