@@ -370,7 +370,7 @@
           </div>
           <div style="margin-left:auto;display:flex;gap:0.5rem;">
             <span id="fo-bene-save-err" style="font-size:0.75rem;color:#dc2626;align-self:center;"></span>
-            <button class="btn btn-primary btn-sm" id="fo-bene-save-btn" onclick="foSaveBeneficiary()"><span class="material-symbols-outlined" style="font-size:0.875rem;">save</span>Save Changes</button>
+            <button class="btn btn-primary btn-sm" id="fo-bene-save-btn" onclick="foSaveBeneficiary()"><span class="material-symbols-outlined" style="font-size:0.875rem;">send</span>Submit for Approval</button>
           </div>
         </div>
         <div id="fo-bene-detail-body"></div>
@@ -1448,14 +1448,16 @@
     if (!foBeneDetailData) return;
     const arugaId = foBeneDetailData.assessment?.aruga_id;
     if (!arugaId) return;
+    const interviewerCode = sessionStorage.getItem('interviewer_code') || '';
     const btn = document.getElementById('fo-bene-save-btn');
     const errEl = document.getElementById('fo-bene-save-err');
-    btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">hourglass_empty</span>Saving...'; errEl.textContent = '';
+    btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">hourglass_empty</span>Submitting...'; errEl.textContent = '';
 
     const splitArr = (id) => fobgv(id).split(',').map(s=>s.trim()).filter(Boolean);
 
     const payload = {
       aruga_id: arugaId,
+      interviewer_code: interviewerCode,
       pre_qualification: { is_4ps_member: fobgvb('pq-4ps'), household_id: fobgv('pq-household') },
       respondent: { full_name: fobgv('resp-name'), relationship_to_child: fobgv('resp-rel'), email: fobgv('resp-email'), contact_number: fobgv('resp-contact') },
       child: {
@@ -1505,17 +1507,17 @@
     };
 
     try {
-      const res = await fetch('/api/update-beneficiary.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const res = await fetch('/api/field-officer/submit-edit-request.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
       const j = await res.json();
-      if (!j.success) throw new Error(j.message || 'Update failed');
-      showGlobalToast('Beneficiary updated successfully.', 'success');
+      if (!j.success) throw new Error(j.message || 'Submission failed');
+      showGlobalToast('Edit request submitted. Awaiting Region Head approval.', 'success');
       foBeneBack();
       loadBeneficiaries();
     } catch(e) {
       errEl.textContent = 'Error: ' + e.message;
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">save</span>Save Changes';
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">send</span>Submit for Approval';
     }
   }
 

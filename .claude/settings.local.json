@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\lenovo\\\\Downloads\\\\project-aruga\" -Exclude .vercel,node_modules -Recurse -File -Filter \"*.ts\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object -First 50 FullName)"
+    ]
+  }
+}
