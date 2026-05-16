@@ -22,6 +22,33 @@
     .rpt-section-body { padding:0 1.125rem 1rem; }
     .rpt-group-label { font-size:0.68rem; font-weight:700; color:var(--gray-400); letter-spacing:0.07em; text-transform:uppercase; margin:1.25rem 0 0.5rem; padding-left:0.25rem; display:flex; align-items:center; gap:0.5rem; }
     .rpt-group-label::after { content:''; flex:1; height:1px; background:var(--border); }
+    /* QR Scanner */
+    .qr-frame { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none; }
+    .qr-frame-box { width:62%;height:62%;position:relative; }
+    .qr-frame-box::before,.qr-frame-box::after,.qr-frame-corner-br,.qr-frame-corner-bl { content:'';position:absolute;width:28px;height:28px;border-color:#fff;border-style:solid; }
+    .qr-frame-box::before { top:0;left:0;border-width:3px 0 0 3px;border-radius:4px 0 0 0; }
+    .qr-frame-box::after  { top:0;right:0;border-width:3px 3px 0 0;border-radius:0 4px 0 0; }
+    .qr-frame-corner-br   { bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 4px 0; }
+    .qr-frame-corner-bl   { bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 4px; }
+    .qr-scan-line { position:absolute;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,#1152d4,transparent);animation:qr-sweep 2s ease-in-out infinite;top:10%; }
+    @keyframes qr-sweep { 0%{top:10%;opacity:1} 50%{top:85%;opacity:1} 100%{top:10%;opacity:1} }
+    .qr-overlay-text { position:absolute;bottom:1rem;left:0;right:0;text-align:center;color:rgba(255,255,255,0.85);font-size:0.75rem;font-weight:500;font-family:'Poppins',sans-serif; }
+    .qr-btn-row { display:flex;gap:0.625rem;justify-content:center;flex-wrap:wrap;margin-top:1rem; }
+    .qr-ctrl-btn { display:flex;align-items:center;gap:0.375rem;padding:0.5rem 1rem;border-radius:0.5rem;font-family:'Poppins',sans-serif;font-size:0.8rem;font-weight:600;border:none;cursor:pointer;transition:opacity 0.15s; }
+    .qr-ctrl-btn:hover { opacity:0.85; }
+    .qr-manual-wrap { display:flex;gap:0.5rem;margin-top:0.625rem; }
+    /* User Guide */
+    .hg-title { font-weight:700; font-size:0.875rem; color:#1f2937; font-family:'Poppins',sans-serif; margin:0; }
+    .hg-body  { font-weight:400; font-size:0.875rem; color:#4b5563; line-height:1.7; font-family:'Poppins',sans-serif; margin:0; }
+    .hg-step-badge { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#1152d4;color:#fff;font-size:12px;font-weight:700;flex-shrink:0; }
+    .hg-tip  { background:#eff6ff;border-left:4px solid #1152d4;border-radius:0 8px 8px 0;padding:0.75rem 1rem;margin-top:1rem; }
+    .hg-warn { background:#fefce8;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:0.75rem 1rem;margin-top:1rem; }
+    .hg-section { background:#fff;border-radius:0.75rem;border:1px solid #e5e7eb;padding:1.5rem;margin-bottom:1.25rem; }
+    .hg-step-block { background:#f9fafb;border-radius:0.625rem;border:1px solid #e5e7eb;padding:1rem 1.25rem;margin-bottom:0.625rem; }
+    .hg-step-block:last-child { margin-bottom:0; }
+    .hg-section-icon { color:#1152d4;font-size:1.25rem; }
+    .hg-toc-item { display:flex;align-items:center;gap:0.5rem;padding:0.625rem 0.75rem;border-radius:0.5rem;background:#f0f7ff;text-decoration:none;transition:background 0.15s; }
+    .hg-toc-item:hover { background:#dbeafe; }
   </style>
 </head>
 <body>
@@ -57,6 +84,8 @@
       <div class="nav-section-label">Operations</div>
       <a href="#" class="nav-item" title="Pending Reviews"><span class="material-symbols-outlined">task_alt</span><span class="nav-label">Pending Reviews</span></a>
       <a href="#" class="nav-item" id="nav-documents" title="Documents" onclick="stuShowView('documents');return false;"><span class="material-symbols-outlined">folder_open</span><span class="nav-label">Documents</span></a>
+      <a href="#" class="nav-item" id="nav-qr" title="Scan QR Code" onclick="stuShowView('qr');return false;"><span class="material-symbols-outlined">qr_code_scanner</span><span class="nav-label">Scan QR Code</span></a>
+      <a href="#" class="nav-item" id="nav-help" title="User Guide" onclick="stuShowView('help');return false;"><span class="material-symbols-outlined">help</span><span class="nav-label">User Guide</span></a>
 
       <div class="nav-section-label">Switch View</div>
       <a href="/dashboard-admin.html" class="nav-item" title="Admin"><span class="material-symbols-outlined">shield_person</span><span class="nav-label">Admin</span></a>
@@ -240,7 +269,10 @@
               <tbody id="stu-bene-tbody"><tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr></tbody>
             </table>
           </div>
-          <div id="stu-bene-pagination" style="display:flex;justify-content:center;gap:0.5rem;padding:1rem;flex-wrap:wrap;"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+            <span style="font-size:0.75rem;color:#6b7280;" id="stu-bene-page-info">—</span>
+            <div id="stu-bene-pagination" style="display:flex;gap:0.5rem;flex-wrap:wrap;"></div>
+          </div>
         </div>
       </div>
 
@@ -427,10 +459,17 @@
       </div>
       <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
         <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-          <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;">
+          <div class="search-bar" style="flex:1;min-width:140px;max-width:220px;">
             <span class="material-symbols-outlined">search</span>
             <input type="text" id="stu-int-search" placeholder="Search name, code..." aria-label="Search interviewers">
           </div>
+          <select id="stu-int-role" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
+            <option value="">All User Types</option>
+            <option value="field_officer">Field Officer</option>
+            <option value="stu_head">STU Head</option>
+            <option value="central">Central</option>
+            <option value="admin">Admin</option>
+          </select>
           <button class="btn btn-secondary btn-sm" id="stu-int-reset">Reset</button>
           <span style="font-size:0.72rem;color:var(--gray-500);margin-left:auto;" id="stu-int-page-info"></span>
         </div>
@@ -755,6 +794,314 @@
 
     </div><!-- /stu-view-report -->
 
+    <!-- ── QR SCANNER VIEW ───────────────────────────────────── -->
+    <div class="dash-content" id="stu-view-qr" style="display:none;">
+      <style>
+        #stu-qr-video-wrap {
+          position:relative;width:100%;max-width:420px;margin:0 auto;border-radius:1rem;overflow:hidden;background:#000;aspect-ratio:1/1;
+        }
+        #stu-qr-video {
+          width:100%;height:100%;object-fit:cover;display:block;
+        }
+      </style>
+
+      <div style="margin-bottom:1.25rem;">
+        <div class="page-title" style="margin:0;">Scan QR Code</div>
+        <div class="page-subtitle" style="margin:0;">Scan beneficiary QR code to quickly access their profile</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;" class="stu-qr-layout">
+        <style>
+          @media(max-width:700px){ .stu-qr-layout{ grid-template-columns:1fr !important; } }
+        </style>
+
+        <!-- Left: scanner -->
+        <div class="card" style="padding:1.25rem;">
+          <div style="text-align:center;margin-bottom:0.875rem;">
+            <div style="font-size:0.9rem;font-weight:700;color:#111827;margin-bottom:0.25rem;">Scan Beneficiary QR Code</div>
+            <div style="font-size:0.75rem;color:#6b7280;">Position the QR code within the frame</div>
+          </div>
+
+          <div id="stu-qr-video-wrap" style="display:none;">
+            <video id="stu-qr-video" autoplay playsinline muted></video>
+            <canvas id="stu-qr-canvas" style="display:none;"></canvas>
+            <div class="qr-frame">
+              <div class="qr-frame-box">
+                <span class="qr-frame-corner-br"></span>
+                <span class="qr-frame-corner-bl"></span>
+                <div class="qr-scan-line"></div>
+              </div>
+            </div>
+            <div class="qr-overlay-text">Align QR code within the frame</div>
+          </div>
+
+          <div id="stu-qr-idle" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem 1rem;background:#f9fafb;border-radius:0.75rem;border:2px dashed #d1d5db;">
+            <span class="material-symbols-outlined" style="font-size:3.5rem;color:#9ca3af;margin-bottom:0.75rem;">qr_code_scanner</span>
+            <div style="font-size:0.875rem;font-weight:600;color:#6b7280;margin-bottom:0.25rem;">Camera is off</div>
+            <div style="font-size:0.75rem;color:#9ca3af;">Click "Start Scan" to begin</div>
+          </div>
+
+          <div id="stu-qr-denied" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;background:#fef2f2;border-radius:0.75rem;border:2px dashed #fecaca;text-align:center;">
+            <span class="material-symbols-outlined" style="font-size:2.5rem;color:#dc2626;margin-bottom:0.75rem;">no_photography</span>
+            <div style="font-size:0.875rem;font-weight:700;color:#dc2626;margin-bottom:0.375rem;">Camera Access Denied</div>
+            <div style="font-size:0.75rem;color:#6b7280;line-height:1.5;">Please allow camera access in your browser settings, then refresh the page to try again.</div>
+          </div>
+
+          <div id="stu-qr-loading" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem 1rem;">
+            <div style="width:2.5rem;height:2.5rem;border:3px solid #e5e7eb;border-top-color:#1152d4;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:0.75rem;"></div>
+            <div style="font-size:0.8rem;color:#6b7280;">Initializing camera…</div>
+          </div>
+
+          <div class="qr-btn-row">
+            <button id="stu-qr-start-btn" class="qr-ctrl-btn" style="background:#1152d4;color:white;" onclick="stuQrStart()">
+              <span class="material-symbols-outlined" style="font-size:1rem;">play_circle</span>Start Scan
+            </button>
+            <button id="stu-qr-stop-btn" class="qr-ctrl-btn" style="background:#6b7280;color:white;display:none;" onclick="stuQrStop()">
+              <span class="material-symbols-outlined" style="font-size:1rem;">stop_circle</span>Stop
+            </button>
+            <button id="stu-qr-switch-btn" class="qr-ctrl-btn" style="background:#f3f4f6;color:#374151;display:none;" onclick="stuQrSwitchCamera()" title="Switch camera">
+              <span class="material-symbols-outlined" style="font-size:1rem;">flip_camera_ios</span>Switch
+            </button>
+            <button id="stu-qr-torch-btn" class="qr-ctrl-btn" style="background:#f3f4f6;color:#374151;display:none;" onclick="stuQrToggleTorch()" title="Toggle flashlight">
+              <span class="material-symbols-outlined" style="font-size:1rem;" id="stu-qr-torch-icon">flashlight_on</span>
+            </button>
+          </div>
+
+          <div id="stu-qr-error-card" style="border-radius:0.75rem;border:2px solid #fecaca;background:#fef2f2;padding:1rem;margin-top:1rem;display:none;">
+            <div style="display:flex;gap:0.5rem;align-items:flex-start;">
+              <span class="material-symbols-outlined" style="color:#dc2626;font-size:1.1rem;flex-shrink:0;">error</span>
+              <div>
+                <div style="font-size:0.8125rem;font-weight:600;color:#dc2626;" id="stu-qr-error-msg">Invalid QR code. Please try again.</div>
+                <button onclick="stuQrRetry()" style="margin-top:0.5rem;background:none;border:none;color:#1152d4;font-family:'Poppins',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;padding:0;">Try Again</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: result + manual -->
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+
+          <div id="stu-qr-result-card" class="card" style="display:none;border:2px solid #bbf7d0;background:#f0fdf4;">
+            <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+              <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.5rem;">check_circle</span>
+              <div>
+                <div style="font-size:0.8125rem;font-weight:700;color:#15803d;">QR Code Scanned!</div>
+                <div style="font-size:0.7rem;color:#6b7280;">Beneficiary found</div>
+              </div>
+            </div>
+            <div style="background:white;border-radius:0.5rem;padding:0.875rem;margin-bottom:0.875rem;border:1px solid #d1fae5;">
+              <div style="display:flex;gap:0.75rem;align-items:center;">
+                <div style="width:2.5rem;height:2.5rem;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">person</span>
+                </div>
+                <div>
+                  <div style="font-size:0.9rem;font-weight:700;color:#111827;" id="stu-qr-result-name">—</div>
+                  <div style="font-size:0.7rem;color:#9ca3af;font-family:monospace;" id="stu-qr-result-id">—</div>
+                </div>
+              </div>
+              <div style="margin-top:0.75rem;display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.75rem;">
+                <div><span style="color:#9ca3af;">Age:</span> <span style="font-weight:600;" id="stu-qr-result-age">—</span></div>
+                <div><span style="color:#9ca3af;">Barangay:</span> <span style="font-weight:600;" id="stu-qr-result-barangay">—</span></div>
+                <div><span style="color:#9ca3af;">Status:</span> <span id="stu-qr-result-status">—</span></div>
+                <div><span style="color:#9ca3af;">Readiness:</span> <span style="font-weight:600;" id="stu-qr-result-readiness">—</span></div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+              <button onclick="stuQrReset()" style="display:flex;align-items:center;justify-content:center;gap:0.375rem;background:#f3f4f6;color:#374151;border:none;border-radius:0.5rem;padding:0.6rem;font-family:'Poppins',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;width:100%;">
+                <span class="material-symbols-outlined" style="font-size:1rem;">qr_code_scanner</span>Scan Another
+              </button>
+            </div>
+          </div>
+
+          <!-- Manual Entry -->
+          <div class="card">
+            <div style="font-size:0.875rem;font-weight:700;color:#111827;margin-bottom:0.25rem;">Enter ARUGA ID Manually</div>
+            <div style="font-size:0.75rem;color:#6b7280;margin-bottom:0.75rem;">Use this if the QR code is damaged or unreadable</div>
+            <div class="qr-manual-wrap">
+              <input type="text" id="stu-qr-manual-input" placeholder="e.g. ARUGA-2024-00123" style="text-transform:uppercase;flex:1;padding:0.5rem 0.75rem;border:1px solid #d1d5db;border-radius:0.5rem;font-family:'Poppins',sans-serif;font-size:0.8125rem;outline:none;" oninput="this.value=this.value.toUpperCase()">
+              <button onclick="stuQrManualLookup()" style="background:#1152d4;color:white;border:none;border-radius:0.5rem;padding:0.5rem 1rem;font-family:'Poppins',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+                Search
+              </button>
+            </div>
+            <div id="stu-qr-manual-status" style="font-size:0.75rem;margin-top:0.5rem;"></div>
+          </div>
+
+          <!-- How to use -->
+          <div class="card" style="background:#f8faff;border:1px solid #dbeafe;">
+            <div style="font-size:0.8rem;font-weight:700;color:#1152d4;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.375rem;">
+              <span class="material-symbols-outlined" style="font-size:1rem;">info</span>How to Use
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+              <div style="display:flex;gap:0.625rem;align-items:flex-start;font-size:0.75rem;">
+                <span style="background:#1152d4;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">1</span>
+                <span style="color:#4b5563;">Click <strong>Start Scan</strong> and allow camera access when prompted</span>
+              </div>
+              <div style="display:flex;gap:0.625rem;align-items:flex-start;font-size:0.75rem;">
+                <span style="background:#1152d4;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">2</span>
+                <span style="color:#4b5563;">Point the camera at the QR code on the beneficiary's document</span>
+              </div>
+              <div style="display:flex;gap:0.625rem;align-items:flex-start;font-size:0.75rem;">
+                <span style="background:#1152d4;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">3</span>
+                <span style="color:#4b5563;">Hold steady until the QR code is recognized</span>
+              </div>
+              <div style="display:flex;gap:0.625rem;align-items:flex-start;font-size:0.75rem;">
+                <span style="background:#1152d4;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;margin-top:1px;">4</span>
+                <span style="color:#4b5563;">Choose an action from the results panel</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /stu-view-qr -->
+
+    <!-- ── USER GUIDE VIEW ───────────────────────────────────── -->
+    <div class="dash-content" id="stu-view-help" style="display:none;">
+
+      <div style="background:linear-gradient(135deg,#2563eb 0%,#4338ca 100%);border-radius:0.75rem;padding:1.75rem 2rem;margin-bottom:1.25rem;color:white;">
+        <div style="display:flex;align-items:center;gap:0.875rem;margin-bottom:0.875rem;">
+          <div style="width:2.75rem;height:2.75rem;background:rgba(255,255,255,0.2);border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-outlined" style="font-size:1.5rem;">menu_book</span>
+          </div>
+          <div>
+            <div style="font-size:0.68rem;opacity:0.8;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">DSWD Social Technology Bureau</div>
+            <div style="font-size:1.375rem;font-weight:800;line-height:1.2;">User Guide</div>
+          </div>
+        </div>
+        <p style="opacity:0.9;font-size:0.875rem;max-width:560px;line-height:1.65;margin:0;">A simple, step-by-step guide to help DSWD social workers and interviewers use the Project Aruga profiling system with ease and confidence.</p>
+      </div>
+
+      <div class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.875rem;">
+          <span class="material-symbols-outlined hg-section-icon">format_list_bulleted</span>
+          <span class="hg-title" style="font-size:0.9375rem;text-transform:uppercase;letter-spacing:0.04em;">What's in this guide</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.5rem;">
+          <a href="#stu-hg-getting-started" class="hg-toc-item"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;flex-shrink:0;">login</span><span class="hg-body" style="color:#1152d4;">1. Getting Started</span></a>
+          <a href="#stu-hg-logging-in"      class="hg-toc-item"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;flex-shrink:0;">key</span><span class="hg-body" style="color:#1152d4;">2. How to Log In</span></a>
+          <a href="#stu-hg-profiling-steps" class="hg-toc-item"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;flex-shrink:0;">assignment</span><span class="hg-body" style="color:#1152d4;">3. Filling Out the Form</span></a>
+          <a href="#stu-hg-submitting"      class="hg-toc-item"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;flex-shrink:0;">check_circle</span><span class="hg-body" style="color:#1152d4;">4. Reviewing &amp; Submitting</span></a>
+          <a href="#stu-hg-qr-code"         class="hg-toc-item"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;flex-shrink:0;">qr_code</span><span class="hg-body" style="color:#1152d4;">5. Aruga ID &amp; QR Code</span></a>
+          <a href="#stu-hg-tips"            class="hg-toc-item"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;flex-shrink:0;">lightbulb</span><span class="hg-body" style="color:#1152d4;">6. Tips &amp; Common Questions</span></a>
+        </div>
+      </div>
+
+      <div id="stu-hg-getting-started" class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined hg-section-icon">login</span>
+          <h2 class="hg-title" style="font-size:1.0625rem;">1. Getting Started</h2>
+        </div>
+        <p class="hg-body" style="margin-bottom:1rem;">Before you begin conducting home visits and profiling beneficiaries, make sure you have the following ready:</p>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;margin-top:2px;">check_circle</span><div><p class="hg-title" style="margin-bottom:2px;">Your Interviewer Code</p><p class="hg-body">This is the 8-character code assigned to you by your supervisor. You will need this every time you log in. It looks like this: <strong style="color:#1152d4;">AB12CD34</strong></p></div></div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;margin-top:2px;">check_circle</span><div><p class="hg-title" style="margin-bottom:2px;">A Device with Internet Connection</p><p class="hg-body">The system works on smartphones, tablets, and computers. Use a modern browser like Google Chrome or Microsoft Edge for the best experience.</p></div></div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;margin-top:2px;">check_circle</span><div><p class="hg-title" style="margin-bottom:2px;">The Beneficiary's Information</p><p class="hg-body">Have the household's 4Ps ID ready (if applicable), along with the child's personal details, health records, and family information.</p></div></div>
+        </div>
+        <div class="hg-tip"><div style="display:flex;gap:0.5rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;margin-top:2px;">info</span><p class="hg-body"><strong style="color:#111827;">Good to know:</strong> The system is designed for one beneficiary per session. After submitting, you can start a new session for the next beneficiary.</p></div></div>
+      </div>
+
+      <div id="stu-hg-logging-in" class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined hg-section-icon">key</span>
+          <h2 class="hg-title" style="font-size:1.0625rem;">2. How to Log In</h2>
+        </div>
+        <p class="hg-body" style="margin-bottom:1rem;">Follow these simple steps to access the profiling tool:</p>
+        <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;">
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">1</span><div><p class="hg-title" style="margin-bottom:4px;">Open the Project Aruga website</p><p class="hg-body">Visit the system on your browser. You will see the login page with a <strong style="color:#111827;">Data Privacy Agreement</strong> on the right side.</p></div></div>
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">2</span><div><p class="hg-title" style="margin-bottom:4px;">Read and accept the Data Privacy Agreement</p><p class="hg-body">Scroll through the agreement text, then check the box. This is required before you can proceed.</p></div></div>
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">3</span><div><p class="hg-title" style="margin-bottom:4px;">Enter your Interviewer Code</p><p class="hg-body">Type your 8-character code in the field labeled <strong style="color:#111827;">Interviewer Code</strong>. The code will appear in uppercase automatically.</p></div></div>
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">4</span><div><p class="hg-title" style="margin-bottom:4px;">Click "Submit and Proceed"</p><p class="hg-body">The system will verify your code. If correct, you will be taken directly to the profiling tool.</p></div></div>
+        </div>
+        <div class="hg-warn"><div style="display:flex;gap:0.5rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#d97706;font-size:1.1rem;margin-top:2px;">warning</span><p class="hg-body"><strong style="color:#111827;">Important:</strong> Do not share your Interviewer Code with anyone. Each code is linked to your account and all submitted records will be tagged under your name.</p></div></div>
+      </div>
+
+      <div id="stu-hg-profiling-steps" class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined hg-section-icon">assignment</span>
+          <h2 class="hg-title" style="font-size:1.0625rem;">3. Filling Out the Profiling Form</h2>
+        </div>
+        <p class="hg-body" style="margin-bottom:1rem;">The profiling form is divided into <strong style="color:#111827;">10 steps</strong>. You must complete each step before moving to the next.</p>
+        <div style="display:flex;flex-direction:column;gap:0.625rem;margin-bottom:1rem;">
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">1</span><h3 class="hg-title">Pre-Qualification</h3></div><p class="hg-body" style="margin-left:2.5rem;">Asks if the beneficiary is a 4Ps member. If yes, enter their 18-digit Household ID.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">2</span><h3 class="hg-title">Respondent Profile</h3></div><p class="hg-body" style="margin-left:2.5rem;">Enter the details of the person you are interviewing — usually a parent or guardian.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">3</span><h3 class="hg-title">Child Profile</h3></div><p class="hg-body" style="margin-left:2.5rem;">Enter the child's complete name, address, date of birth, religion, IP group, educational level, disabilities, and critical illnesses.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">4</span><h3 class="hg-title">Family Profile</h3></div><p class="hg-body" style="margin-left:2.5rem;">List all household members — name, age, sex, civil status, occupation, and any disabilities.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">5</span><h3 class="hg-title">Socio Economic</h3></div><p class="hg-body" style="margin-left:2.5rem;">Describe the family's living situation — house materials, ownership, electricity, water, toilet, and garbage disposal.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">6</span><h3 class="hg-title">Health</h3></div><p class="hg-body" style="margin-left:2.5rem;">Vaccinations, ongoing conditions, monthly health expenses, and barriers to accessing care.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">7</span><h3 class="hg-title">Education</h3></div><p class="hg-body" style="margin-left:2.5rem;">Whether the child is enrolled in school, grade level, accessibility features, and learning support received.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">8</span><h3 class="hg-title">Economic Capacity</h3></div><p class="hg-body" style="margin-left:2.5rem;">Family's monthly income and its source. The system will classify the income level automatically.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">9</span><h3 class="hg-title">Service Availment</h3></div><p class="hg-body" style="margin-left:2.5rem;">Financial assistance received, awareness of social services, and challenges in accessing them.</p></div>
+          <div class="hg-step-block"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.375rem;"><span class="hg-step-badge">10</span><h3 class="hg-title">Assessment Notes</h3></div><p class="hg-body" style="margin-left:2.5rem;">Write your professional observations — Strengths, Assessment, and Recommended Actions. Select a <strong style="color:#111827;">Readiness Score</strong> to indicate urgency of intervention.</p></div>
+        </div>
+        <div class="hg-tip"><div style="display:flex;gap:0.5rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;margin-top:2px;">info</span><p class="hg-body"><strong style="color:#111827;">Validation:</strong> If you miss a required field, the system will highlight it in red. Fix all errors before moving to the next step.</p></div></div>
+      </div>
+
+      <div id="stu-hg-submitting" class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined hg-section-icon">check_circle</span>
+          <h2 class="hg-title" style="font-size:1.0625rem;">4. Reviewing &amp; Submitting the Assessment</h2>
+        </div>
+        <p class="hg-body" style="margin-bottom:1rem;">After completing all 10 steps, you will be taken to the <strong style="color:#111827;">Review Page</strong> — a full summary of everything you entered.</p>
+        <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:1rem;">
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">1</span><div><p class="hg-title" style="margin-bottom:4px;">Check the Summary</p><p class="hg-body">Scroll through the review page and make sure all the information is correct.</p></div></div>
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">2</span><div><p class="hg-title" style="margin-bottom:4px;">Go Back if Needed</p><p class="hg-body">If you notice a mistake, click <strong style="color:#111827;">"Edit Forms"</strong> to go back and make corrections.</p></div></div>
+          <div style="display:flex;gap:1rem;align-items:flex-start;"><span class="hg-step-badge" style="margin-top:2px;">3</span><div><p class="hg-title" style="margin-bottom:4px;">Click "Submit Assessment"</p><p class="hg-body">Once satisfied, click the blue <strong style="color:#111827;">"Submit Assessment"</strong> button. The system will save the record and take you to the Success page.</p></div></div>
+        </div>
+        <div class="hg-warn"><div style="display:flex;gap:0.5rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#d97706;font-size:1.1rem;margin-top:2px;">warning</span><p class="hg-body"><strong style="color:#111827;">Once submitted, you cannot edit the record.</strong> Please double-check all information before clicking Submit.</p></div></div>
+      </div>
+
+      <div id="stu-hg-qr-code" class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined hg-section-icon">qr_code</span>
+          <h2 class="hg-title" style="font-size:1.0625rem;">5. The Aruga ID &amp; QR Code</h2>
+        </div>
+        <p class="hg-body" style="margin-bottom:1rem;">After a successful submission, the system generates a unique <strong style="color:#111827;">Aruga ID</strong> and a <strong style="color:#111827;">QR Code</strong> for the beneficiary.</p>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;margin-top:2px;">print</span><div><p class="hg-title" style="margin-bottom:4px;">Print the QR Code</p><p class="hg-body">Click <strong style="color:#111827;">"Print QR Code"</strong> to print it. Give the printout to the beneficiary's family for safekeeping.</p></div></div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;margin-top:2px;">download</span><div><p class="hg-title" style="margin-bottom:4px;">Save a Digital Copy</p><p class="hg-body">Click <strong style="color:#111827;">"Save Digital Copy"</strong> to download the QR code as an image file.</p></div></div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;margin-top:2px;">qr_code_scanner</span><div><p class="hg-title" style="margin-bottom:4px;">How the QR Code is Used</p><p class="hg-body">When scanned, it opens the beneficiary's verified profile page showing their Aruga ID and registration date.</p></div></div>
+        </div>
+        <div class="hg-tip"><div style="display:flex;gap:0.5rem;align-items:flex-start;"><span class="material-symbols-outlined" style="color:#1152d4;font-size:1.1rem;margin-top:2px;">info</span><p class="hg-body"><strong style="color:#111827;">New Beneficiary:</strong> Once done, click <strong style="color:#111827;">"New Beneficiary"</strong> on the success page to start a fresh session for the next family.</p></div></div>
+      </div>
+
+      <div id="stu-hg-tips" class="hg-section">
+        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+          <span class="material-symbols-outlined hg-section-icon">lightbulb</span>
+          <h2 class="hg-title" style="font-size:1.0625rem;">6. Tips &amp; Common Questions</h2>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div style="padding:1rem 0;border-bottom:1px solid #f3f4f6;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>What is the session timer for?</p><p class="hg-body" style="margin-left:1.75rem;">The timer shows how long you have been in the current session. It does not log you out automatically.</p></div>
+          <div style="padding:1rem 0;border-bottom:1px solid #f3f4f6;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>What if I press the back button on my phone?</p><p class="hg-body" style="margin-left:1.75rem;">The system will show an "End Session?" warning to prevent you from accidentally losing your work.</p></div>
+          <div style="padding:1rem 0;border-bottom:1px solid #f3f4f6;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>A required field is highlighted red. What do I do?</p><p class="hg-body" style="margin-left:1.75rem;">Read the error message below the field, fix the input, and click Next again. All red fields must be resolved before you can proceed.</p></div>
+          <div style="padding:1rem 0;border-bottom:1px solid #f3f4f6;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>The dropdown is empty / not loading?</p><p class="hg-body" style="margin-left:1.75rem;">Wait a few seconds and try again. Make sure you have a stable internet connection. If it continues, try refreshing the page.</p></div>
+          <div style="padding:1rem 0;border-bottom:1px solid #f3f4f6;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>Can I profile the same beneficiary twice?</p><p class="hg-body" style="margin-left:1.75rem;">The system will create a new record each time. Please coordinate with your supervisor to avoid duplicate submissions.</p></div>
+          <div style="padding:1rem 0;"><p class="hg-title" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;"><span class="material-symbols-outlined" style="color:#f59e0b;font-size:1.1rem;">help</span>I need help. Who do I contact?</p><p class="hg-body" style="margin-left:1.75rem;">Reach out to the DSWD Social Technology Bureau at <a href="mailto:stb_projectaruga@dswd.gov.ph" style="color:#1152d4;">stb_projectaruga@dswd.gov.ph</a> or call <strong style="color:#111827;">(02) 8931-8108 local 1234</strong>.</p></div>
+        </div>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#eff6ff 0%,#eef2ff 100%);border-radius:0.75rem;border:1px solid #bfdbfe;padding:1.5rem;margin-bottom:1rem;">
+        <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem;">
+          <div style="width:3rem;height:3rem;background:#1152d4;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-outlined" style="color:white;font-size:1.5rem;">support_agent</span>
+          </div>
+          <div><h3 class="hg-title" style="font-size:15px;margin-bottom:4px;">Need More Help?</h3><p class="hg-body">Our support team is ready to assist you. Don't hesitate to reach out if you have questions not covered in this guide.</p></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;">
+          <a href="/contact.html" style="background:white;border-radius:0.5rem;padding:1rem;border:1px solid #e5e7eb;display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
+            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.375rem;">contact_support</span>
+            <div><p class="hg-title" style="font-size:13px;">Contact Us</p><p class="hg-body" style="font-size:12px;">Get in touch with support</p></div>
+          </a>
+          <a href="/privacy.html" style="background:white;border-radius:0.5rem;padding:1rem;border:1px solid #e5e7eb;display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
+            <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.375rem;">policy</span>
+            <div><p class="hg-title" style="font-size:13px;">Privacy Policy</p><p class="hg-body" style="font-size:12px;">Learn how we protect your data</p></div>
+          </a>
+        </div>
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #bfdbfe;text-align:center;">
+          <p class="hg-body" style="font-size:12px;color:#9ca3af;">Last Updated: April 2026 &nbsp;·&nbsp; Version 1.0</p>
+        </div>
+      </div>
+
+    </div><!-- /stu-view-help -->
+
   </div>
 </div>
 
@@ -909,7 +1256,7 @@
 
   // ── Beneficiaries ─────────────────────────────────────────────
   let stuBenePage = 1;
-  const STU_BENE_LIMIT = 50;
+  const STU_BENE_LIMIT = 10;
 
   async function stuLoadBeneficiaries(page) {
     stuBenePage = page || 1;
@@ -948,10 +1295,11 @@
         });
         stuRenderBeneSorted();
         const totalPages = Math.ceil(j.total / STU_BENE_LIMIT);
-        stuRenderBenePagination(totalPages);
+        stuRenderBenePagination(totalPages, j.total);
       } else {
         stuBeneCurrentData = [];
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">No beneficiaries found for this region.</td></tr>';
+        stuRenderBenePagination(0, 0);
         document.getElementById('stu-bene-pagination').innerHTML = '';
       }
     } catch(e) {
@@ -1005,8 +1353,14 @@
     return '<span class="badge badge-yellow">Pending</span>';
   }
 
-  function stuRenderBenePagination(totalPages) {
+  function stuRenderBenePagination(totalPages, totalCount) {
     const container = document.getElementById('stu-bene-pagination');
+    const pageInfo = document.getElementById('stu-bene-page-info');
+    if (pageInfo && totalCount != null) {
+      const from = totalCount === 0 ? 0 : (stuBenePage - 1) * STU_BENE_LIMIT + 1;
+      const to = Math.min(stuBenePage * STU_BENE_LIMIT, totalCount);
+      pageInfo.textContent = totalCount === 0 ? '0 results' : `Showing ${from}–${to} of ${totalCount}`;
+    }
     if (totalPages <= 1) { container.innerHTML = ''; return; }
     let html = '';
     const prev = stuBenePage - 1, next = stuBenePage + 1;
@@ -1635,13 +1989,13 @@
   }
 
   // ── View switching ────────────────────────────────────────────
-  const STU_VIEWS = { main:'stu-view-main', documents:'stu-view-documents', analytics:'stu-view-analytics', beneficiaries:'stu-view-beneficiaries', assessments:'stu-view-assessments', interviewers:'stu-view-interviewers', report:'stu-view-report' };
+  const STU_VIEWS = { main:'stu-view-main', documents:'stu-view-documents', analytics:'stu-view-analytics', beneficiaries:'stu-view-beneficiaries', assessments:'stu-view-assessments', interviewers:'stu-view-interviewers', report:'stu-view-report', qr:'stu-view-qr', help:'stu-view-help' };
   function stuShowView(view) {
     Object.values(STU_VIEWS).forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
     const target = document.getElementById(STU_VIEWS[view]);
     if (target) target.style.display = '';
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    const navMap = { documents:'nav-documents', beneficiaries:'nav-beneficiaries', assessments:'nav-assessments', interviewers:'nav-interviewers', report:'nav-report' };
+    const navMap = { documents:'nav-documents', beneficiaries:'nav-beneficiaries', assessments:'nav-assessments', interviewers:'nav-interviewers', report:'nav-report', qr:'nav-qr', help:'nav-help' };
     if (view === 'main') { const ov = document.querySelector('a[href="/dashboard-stu-head.html"]'); if (ov) ov.classList.add('active'); }
     if (navMap[view]) { const nav = document.getElementById(navMap[view]); if(nav) nav.classList.add('active'); }
     if (view === 'analytics') stuLoadAnalyticsView();
@@ -2176,15 +2530,22 @@
     }
 
     document.getElementById('stu-int-search').addEventListener('input', stuFilterMyInterviewers);
+    document.getElementById('stu-int-role').addEventListener('change', stuFilterMyInterviewers);
     document.getElementById('stu-int-reset').addEventListener('click', () => {
       document.getElementById('stu-int-search').value = '';
+      document.getElementById('stu-int-role').value = '';
       stuIntFiltered = [...stuIntData]; stuIntPage = 0; stuRenderMyInterviewers();
     });
   }
 
   function stuFilterMyInterviewers() {
     const q = document.getElementById('stu-int-search').value.toLowerCase();
-    stuIntFiltered = stuIntData.filter(r => !q || (r.name + r.code + (r.email||'')).toLowerCase().includes(q));
+    const role = document.getElementById('stu-int-role').value;
+    stuIntFiltered = stuIntData.filter(r => {
+      const matchQ = !q || (r.name + r.code + (r.email||'')).toLowerCase().includes(q);
+      const matchRole = !role || (r.dashboard_role || r.role || '') === role;
+      return matchQ && matchRole;
+    });
     stuIntPage = 0; stuRenderMyInterviewers();
   }
 
@@ -2296,6 +2657,107 @@
       })
       .catch(() => { alert('File not available. Please try again later.'); })
       .finally(() => { btn.disabled = false; btn.innerHTML = origHTML; });
+  }
+
+  // ── QR Scanner ────────────────────────────────────────────────
+  let stuQrStream = null, stuQrAnimFrame = null, stuQrFacingMode = 'environment', stuQrTorchOn = false;
+  function stuQrEl(id) { return document.getElementById(id); }
+  function stuQrShowState(state) {
+    ['idle','loading','denied'].forEach(s => { const el = stuQrEl('stu-qr-'+s); if (el) el.style.display = s===state ? 'flex' : 'none'; });
+    const wrap = stuQrEl('stu-qr-video-wrap'); if (wrap) wrap.style.display = state==='scanning' ? '' : 'none';
+  }
+  async function stuQrStart() {
+    stuQrShowState('loading');
+    stuQrEl('stu-qr-start-btn').style.display = 'none';
+    try {
+      stuQrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: stuQrFacingMode } });
+      const video = stuQrEl('stu-qr-video'); video.srcObject = stuQrStream; await video.play();
+      stuQrShowState('scanning');
+      stuQrEl('stu-qr-stop-btn').style.display = '';
+      stuQrEl('stu-qr-switch-btn').style.display = '';
+      stuQrScan();
+    } catch(e) {
+      if (e.name === 'NotAllowedError') { stuQrShowState('denied'); } else { stuQrShowState('idle'); }
+      stuQrEl('stu-qr-start-btn').style.display = '';
+    }
+  }
+  function stuQrStop() {
+    if (stuQrStream) { stuQrStream.getTracks().forEach(t => t.stop()); stuQrStream = null; }
+    if (stuQrAnimFrame) { cancelAnimationFrame(stuQrAnimFrame); stuQrAnimFrame = null; }
+    stuQrShowState('idle');
+    stuQrEl('stu-qr-start-btn').style.display = '';
+    stuQrEl('stu-qr-stop-btn').style.display = 'none';
+    stuQrEl('stu-qr-switch-btn').style.display = 'none';
+    stuQrEl('stu-qr-torch-btn').style.display = 'none';
+  }
+  async function stuQrSwitchCamera() {
+    stuQrFacingMode = stuQrFacingMode === 'environment' ? 'user' : 'environment';
+    stuQrStop(); await stuQrStart();
+  }
+  function stuQrToggleTorch() {
+    const track = stuQrStream?.getVideoTracks()[0]; if (!track) return;
+    stuQrTorchOn = !stuQrTorchOn;
+    track.applyConstraints({ advanced: [{ torch: stuQrTorchOn }] }).catch(()=>{});
+    stuQrEl('stu-qr-torch-icon').textContent = stuQrTorchOn ? 'flashlight_off' : 'flashlight_on';
+  }
+  function stuQrScan() {
+    const video = stuQrEl('stu-qr-video'), canvas = stuQrEl('stu-qr-canvas');
+    if (!video || !canvas) return;
+    const ctx = canvas.getContext('2d');
+    function tick() {
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+        try {
+          const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          if (typeof jsQR !== 'undefined') {
+            const code = jsQR(img.data, img.width, img.height);
+            if (code) { stuQrHandleResult(code.data); return; }
+          }
+        } catch(e) {}
+      }
+      stuQrAnimFrame = requestAnimationFrame(tick);
+    }
+    stuQrAnimFrame = requestAnimationFrame(tick);
+  }
+  async function stuQrHandleResult(data) {
+    stuQrStop();
+    const arugaId = data.trim().toUpperCase();
+    await stuQrLookup(arugaId);
+  }
+  async function stuQrLookup(arugaId) {
+    const errCard = stuQrEl('stu-qr-error-card'); if (errCard) errCard.style.display = 'none';
+    try {
+      const res = await fetch('/api/field-officer/qr-lookup.php?id=' + encodeURIComponent(arugaId));
+      const j = await res.json();
+      if (j.success && j.data) {
+        const d = j.data;
+        stuQrEl('stu-qr-result-name').textContent = d.name || '—';
+        stuQrEl('stu-qr-result-id').textContent = d.aruga_id || arugaId;
+        stuQrEl('stu-qr-result-age').textContent = d.age || '—';
+        stuQrEl('stu-qr-result-barangay').textContent = d.barangay || '—';
+        stuQrEl('stu-qr-result-status').textContent = d.status || '—';
+        stuQrEl('stu-qr-result-readiness').textContent = d.readiness_score || '—';
+        stuQrEl('stu-qr-result-card').style.display = '';
+      } else {
+        stuQrEl('stu-qr-error-msg').textContent = j.message || 'Beneficiary not found.';
+        if (errCard) errCard.style.display = '';
+      }
+    } catch(e) {
+      stuQrEl('stu-qr-error-msg').textContent = 'Network error. Please try again.';
+      if (errCard) errCard.style.display = '';
+    }
+  }
+  function stuQrReset() { stuQrEl('stu-qr-result-card').style.display = 'none'; const ec = stuQrEl('stu-qr-error-card'); if (ec) ec.style.display = 'none'; }
+  function stuQrRetry() { stuQrEl('stu-qr-error-card').style.display = 'none'; stuQrStart(); }
+  async function stuQrManualLookup() {
+    const input = stuQrEl('stu-qr-manual-input'); if (!input) return;
+    const val = input.value.trim(); if (!val) return;
+    const status = stuQrEl('stu-qr-manual-status');
+    if (status) status.textContent = 'Searching…';
+    stuQrEl('stu-qr-result-card').style.display = 'none';
+    await stuQrLookup(val);
+    if (status) status.textContent = '';
   }
 </script>
 
