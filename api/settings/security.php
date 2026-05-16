@@ -57,6 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         echo json_encode(['success' => false, 'message' => 'Failed to save settings']);
         exit;
     }
+    $changedKeys = array_column($upserts, 'key');
+    logAudit('update', 'system_settings', null, null,
+        ['event' => 'security_settings_changed', 'fields' => $changedKeys]
+    );
     echo json_encode(['success' => true]); exit;
 }
 

@@ -61,6 +61,9 @@ if (!$result['success']) {
 
 // Check if interviewer exists and is active
 if (empty($result['data']) || count($result['data']) === 0) {
+    logAudit('login_failed', 'sessions', null, null,
+        ['event' => 'login_failed', 'interviewer_code' => $interviewerCode, 'reason' => 'invalid_or_inactive']
+    );
     sendResponse(false, 'Invalid interviewer code or account is inactive', null, 401);
 }
 
@@ -87,6 +90,11 @@ $session = $sessionResult['data'][0] ?? null;
 if (!$session) {
     sendResponse(false, 'Session creation failed', null, 500);
 }
+
+logAudit('login', 'sessions', $session['id'], null,
+    ['event' => 'login', 'interviewer_code' => $interviewer['interviewer_code'], 'full_name' => $interviewer['full_name'], 'region' => $interviewer['region']],
+    $interviewer['id']
+);
 
 // Return success with interviewer and session data
 sendResponse(true, 'Login successful', [

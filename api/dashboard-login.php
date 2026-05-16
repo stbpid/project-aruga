@@ -26,6 +26,9 @@ if (!$result['success']) {
 }
 
 if (empty($result['data'])) {
+    logAudit('login_failed', 'sessions', null, null,
+        ['event' => 'login_failed', 'email' => $email, 'reason' => 'user_not_found']
+    );
     sendResponse(false, 'Invalid email or password', null, 401);
 }
 
@@ -59,6 +62,10 @@ if (!$passwordValid) {
 }
 
 if (!$passwordValid) {
+    logAudit('login_failed', 'sessions', null, null,
+        ['event' => 'login_failed', 'email' => $email, 'reason' => 'wrong_password', 'role' => $user['dashboard_role'] ?? null],
+        $user['id']
+    );
     sendResponse(false, 'Invalid email or password', null, 401);
 }
 

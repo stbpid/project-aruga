@@ -50,10 +50,24 @@ foreach ($res['data'] as $log) {
 
     $event = is_array($newVals) ? ($newVals['event'] ?? null) : null;
 
-    if ($event === 'login') {
+    if ($event === 'login' && $table === 'sessions' && isset($newVals['interviewer_code'])) {
+        $code   = $newVals['interviewer_code'] ?? '';
+        $name   = $newVals['full_name'] ?? '';
+        $region = $newVals['region'] ?? '';
+        $details = 'Field interviewer logged in' . ($name ? ': ' . $name : '') . ($code ? ' (' . $code . ')' : '') . ($region ? ' — ' . $region : '');
+    } elseif ($event === 'login') {
         $email = is_array($newVals) ? ($newVals['email'] ?? '') : '';
         $role  = is_array($newVals) ? ($newVals['role']  ?? '') : '';
-        $details = 'User logged in' . ($email ? ' as ' . $email : '') . ($role ? ' (' . $role . ')' : '');
+        $details = 'Dashboard user logged in' . ($email ? ' as ' . $email : '') . ($role ? ' (' . $role . ')' : '');
+    } elseif ($event === 'login_failed') {
+        $email = is_array($newVals) ? ($newVals['email'] ?? '') : '';
+        $code  = is_array($newVals) ? ($newVals['interviewer_code'] ?? '') : '';
+        $reason = is_array($newVals) ? ($newVals['reason'] ?? '') : '';
+        $who = $email ?: $code;
+        $details = 'Failed login attempt' . ($who ? ' for ' . $who : '') . ($reason ? ' — ' . str_replace('_', ' ', $reason) : '');
+    } elseif ($event === 'security_settings_changed') {
+        $fields = is_array($newVals) && isset($newVals['fields']) ? implode(', ', $newVals['fields']) : '';
+        $details = 'Security settings updated' . ($fields ? ' — fields: ' . $fields : '');
     } elseif ($action === 'create' && $table === 'assessments') {
         $childName = is_array($newVals) ? ($newVals['child_name'] ?? '') : '';
         $arugaId   = is_array($newVals) ? ($newVals['aruga_id']   ?? '') : '';
