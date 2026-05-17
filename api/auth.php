@@ -18,57 +18,59 @@
 // config.php is already included by the calling endpoint — do not re-include it.
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY constants and supabaseRequest() are available.
 
-function requireAuth() {
-    global $authSession, $authInterviewer;
+if (!function_exists('requireAuth')) {
+    function requireAuth() {
+        global $authSession, $authInterviewer;
 
-    $sessionId     = $_SERVER['HTTP_X_SESSION_ID']     ?? '';
-    $interviewerId = $_SERVER['HTTP_X_INTERVIEWER_ID'] ?? '';
+        $sessionId     = $_SERVER['HTTP_X_SESSION_ID']     ?? '';
+        $interviewerId = $_SERVER['HTTP_X_INTERVIEWER_ID'] ?? '';
 
-    if (empty($sessionId) || empty($interviewerId)) {
-        http_response_code(401);
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Authentication required.']);
-        exit;
+        if (empty($sessionId) || empty($interviewerId)) {
+            http_response_code(401);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Authentication required.']);
+            exit;
+        }
+
+        // Validate UUID format to prevent injection
+        $uuidPattern = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
+        if (!preg_match($uuidPattern, $sessionId) || !preg_match($uuidPattern, $interviewerId)) {
+            http_response_code(401);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Invalid session.']);
+            exit;
+        }
+
+        // Look up session in database
+        $endpoint = 'sessions?id=eq.' . urlencode($sessionId)
+                  . '&interviewer_id=eq.' . urlencode($interviewerId)
+                  . '&status=eq.active'
+                  . '&select=*'
+                  . '&limit=1';
+
+        $result = supabaseRequest('GET', $endpoint);
+
+        if (!$result['success'] || empty($result['data'])) {
+            http_response_code(401);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Session expired or invalid. Please log in again.']);
+            exit;
+        }
+
+        $authSession = $result['data'][0];
+
+        // Also fetch the interviewer to make role available to endpoints
+        $intResult = supabaseRequest('GET', 'interviewers?id=eq.' . urlencode($interviewerId) . '&status=eq.active&select=*&limit=1');
+
+        if (!$intResult['success'] || empty($intResult['data'])) {
+            http_response_code(401);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Account not found or inactive.']);
+            exit;
+        }
+
+        $authInterviewer = $intResult['data'][0];
     }
-
-    // Validate UUID format to prevent injection
-    $uuidPattern = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
-    if (!preg_match($uuidPattern, $sessionId) || !preg_match($uuidPattern, $interviewerId)) {
-        http_response_code(401);
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Invalid session.']);
-        exit;
-    }
-
-    // Look up session in database
-    $endpoint = 'sessions?id=eq.' . urlencode($sessionId)
-              . '&interviewer_id=eq.' . urlencode($interviewerId)
-              . '&status=eq.active'
-              . '&select=*'
-              . '&limit=1';
-
-    $result = supabaseRequest('GET', $endpoint);
-
-    if (!$result['success'] || empty($result['data'])) {
-        http_response_code(401);
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Session expired or invalid. Please log in again.']);
-        exit;
-    }
-
-    $authSession = $result['data'][0];
-
-    // Also fetch the interviewer to make role available to endpoints
-    $intResult = supabaseRequest('GET', 'interviewers?id=eq.' . urlencode($interviewerId) . '&status=eq.active&select=*&limit=1');
-
-    if (!$intResult['success'] || empty($intResult['data'])) {
-        http_response_code(401);
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Account not found or inactive.']);
-        exit;
-    }
-
-    $authInterviewer = $intResult['data'][0];
 }
 
 requireAuth();

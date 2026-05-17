@@ -4,9 +4,9 @@
  * Project Aruga - DSWD STB
  */
 
-// Enable error reporting for development
+// Only show errors locally, never on production
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', getenv('APP_ENV') === 'local' ? 1 : 0);
 
 // ================================================================
 // SUPABASE CREDENTIALS
@@ -21,8 +21,8 @@ ini_set('display_errors', 1);
 // Replace the values below with your actual credentials
 // ================================================================
 
-$supabaseUrl = getenv('SUPABASE_URL');
-$supabaseKey = getenv('SUPABASE_SERVICE_ROLE_KEY');
+$supabaseUrl = getenv('SUPABASE_URL') ?: ($_ENV['SUPABASE_URL'] ?? $_SERVER['SUPABASE_URL'] ?? '');
+$supabaseKey = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: ($_ENV['SUPABASE_SERVICE_ROLE_KEY'] ?? $_SERVER['SUPABASE_SERVICE_ROLE_KEY'] ?? '');
 
 // For local development, create a .env file (see .env.example) and load it here,
 // or set the environment variables in your local server configuration.
