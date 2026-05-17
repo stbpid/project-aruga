@@ -27,9 +27,11 @@ function supabaseCount($endpoint) {
     curl_setopt($ch, CURLOPT_HEADER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     $resp = curl_exec($ch);
+    $err = curl_error($ch);
     curl_close($ch);
 
-    // Content-Range: 0-0/14  or  Content-Range: */14
+    if ($err || !$resp) return 0;
+
     if (preg_match('/Content-Range:\s*[\d\*]+-?[\d\*]*\/(\d+)/i', $resp, $m)) {
         return (int)$m[1];
     }
@@ -49,14 +51,12 @@ if ($activeInterviewers === 0) {
     $activeInterviewers = supabaseCount('interviewers?select=id');
 }
 
-// Regions covered = number of top-level regions in get-locations.php dropdown
-// Parse the PHP file, extract $locations array keys without executing it
-$locRaw = file_get_contents(__DIR__ . '/get-locations.php');
-preg_match('/\$locations\s*=\s*\[(.+)\];/s', $locRaw, $arrMatch);
+// Regions covered = distinct regions from interviewers table
+$regResult = supabaseRequest('GET', 'interviewers?select=region&status=eq.active');
 $regionsCovered = 0;
-if (!empty($arrMatch[1])) {
-    preg_match_all("/^    '([^']+)'\s*=>/m", $arrMatch[1], $keys);
-    $regionsCovered = count($keys[1]);
+if ($regResult['success'] && !empty($regResult['data'])) {
+    $regions = array_unique(array_filter(array_column($regResult['data'], 'region')));
+    $regionsCovered = count($regions);
 }
 
 // Completion rate = completed / total * 100
