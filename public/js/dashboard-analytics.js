@@ -1,4 +1,4 @@
-// ── Shared Analytics + Regions JS ─────────────────────────────
+﻿// ── Shared Analytics + Regions JS ─────────────────────────────
 
 const AN_SECTIONS = [
   { key: 'overview',     label: 'Overview Stats',           selector: '.stats-grid' },

@@ -4,9 +4,9 @@
  * Project Aruga - DSWD STB
  */
 
-// Only show errors locally, never on production
+// Enable error reporting for development
 error_reporting(E_ALL);
-ini_set('display_errors', getenv('APP_ENV') === 'local' ? 1 : 0);
+ini_set('display_errors', 1);
 
 // ================================================================
 // SUPABASE CREDENTIALS
@@ -24,15 +24,8 @@ ini_set('display_errors', getenv('APP_ENV') === 'local' ? 1 : 0);
 $supabaseUrl = getenv('SUPABASE_URL') ?: ($_ENV['SUPABASE_URL'] ?? $_SERVER['SUPABASE_URL'] ?? '');
 $supabaseKey = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: ($_ENV['SUPABASE_SERVICE_ROLE_KEY'] ?? $_SERVER['SUPABASE_SERVICE_ROLE_KEY'] ?? '');
 
-// For local development, create a .env file (see .env.example) and load it here,
-// or set the environment variables in your local server configuration.
-// NEVER hardcode credentials in this file.
-if (empty($supabaseUrl) || empty($supabaseKey)) {
-    error_log('FATAL: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variable is not set.');
-    http_response_code(500);
-    header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'message' => 'Server configuration error.']);
-    exit;
+if (empty($supabaseUrl)) {
+    $supabaseUrl = 'https://kdwrhsprotihupursvre.supabase.co';
 }
 
 define('SUPABASE_URL', $supabaseUrl);
