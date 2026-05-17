@@ -1,4 +1,5 @@
 <?php
+ob_start();
 /**
  * Supabase Configuration
  * Project Aruga - DSWD STB

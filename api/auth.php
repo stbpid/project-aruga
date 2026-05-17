@@ -1,4 +1,6 @@
 <?php
+// Ensure no output before headers
+ob_start();
 /**
  * Authentication middleware for all protected API endpoints.
  * Include at the top of any endpoint that requires a valid session:
@@ -73,5 +75,6 @@ if (!function_exists('requireAuth')) {
     }
 }
 
+ob_end_clean();
 requireAuth();
 ?>
