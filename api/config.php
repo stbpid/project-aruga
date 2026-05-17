@@ -24,15 +24,15 @@ ini_set('display_errors', 1);
 $supabaseUrl = getenv('SUPABASE_URL');
 $supabaseKey = getenv('SUPABASE_SERVICE_ROLE_KEY');
 
-// Fallback to hardcoded values for local development
-if (empty($supabaseUrl)) {
-    // 👇 REPLACE THIS with your actual Supabase URL
-    $supabaseUrl = 'https://kdwrhsprotihupursvre.supabase.co';
-}
-
-if (empty($supabaseKey)) {
-    // 👇 REPLACE THIS with your actual Service Role Key
-    $supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtkd3Joc3Byb3RpaHVwdXJzdnJlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3Njg4MjYyNCwiZXhwIjoyMDkyNDU4NjI0fQ.hNQM9w52WxHq1S8rg4cnaK_PQqohvD_WhCXh09-KFk0';
+// For local development, create a .env file (see .env.example) and load it here,
+// or set the environment variables in your local server configuration.
+// NEVER hardcode credentials in this file.
+if (empty($supabaseUrl) || empty($supabaseKey)) {
+    error_log('FATAL: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variable is not set.');
+    http_response_code(500);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Server configuration error.']);
+    exit;
 }
 
 define('SUPABASE_URL', $supabaseUrl);
