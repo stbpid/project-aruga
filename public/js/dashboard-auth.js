@@ -83,12 +83,9 @@ function dashPopulateUser() {
 
 // Block back navigation after logout
 function dashBlockBack() {
-  history.pushState(null, '', window.location.href);
   window.addEventListener('popstate', () => {
     if (!sessionStorage.getItem('session_id')) {
       window.location.replace('/dashboard.html');
-    } else {
-      history.pushState(null, '', window.location.href);
     }
   });
 }
