@@ -61,7 +61,7 @@ async function fetchAnalyticsData(force = false) {
   const params = new URLSearchParams({ range: anFilters.range });
   if (anFilters.region) params.set('region', anFilters.region);
   try {
-    const json = await (await fetch('/api/get-analytics.php?' + params)).json();
+    const json = await (await authFetch('/api/get-analytics.php?' + params)).json();
     if (json.success) { AN_DATA = json; AN_CACHE_TS = Date.now(); }
   } catch(e) { AN_DATA = AN_DATA || null; }
 }
@@ -258,7 +258,7 @@ async function fetchExtendedAnalytics() {
   if (AN_EXT && AN_EXT_CACHE_KEY===cacheKey) return;
   const params=new URLSearchParams({range:anFilters.range});
   if (anFilters.region) params.set('region',anFilters.region);
-  try { const json=await(await fetch('/api/get-analytics-extended.php?'+params)).json(); if(json.success){AN_EXT=json;AN_EXT_CACHE_KEY=cacheKey;} } catch(e) {}
+  try { const json=await(await authFetch('/api/get-analytics-extended.php?'+params)).json(); if(json.success){AN_EXT=json;AN_EXT_CACHE_KEY=cacheKey;} } catch(e) {}
 }
 
 const READINESS_COLORS={severe:'#ef4444',moderate:'#f97316',low:'#eab308',stable:'#22c55e'};
@@ -343,7 +343,7 @@ function renderAnQuality() {
 let admAllDisabilities = [];
 async function admLoadDisabilityDist() {
   try {
-    const json=await(await fetch('/api/get-regions-stats.php')).json();
+    const json=await(await authFetch('/api/get-regions-stats.php')).json();
     admAllDisabilities=(json.success&&json.disabilities)?json.disabilities:[];
     if(json.success&&json.regions){
       const sel=document.getElementById('adm-dis-region-filter');
@@ -356,7 +356,7 @@ async function admLoadDisabilityDist() {
 async function admRenderDisBars() {
   const region=document.getElementById('adm-dis-region-filter')?.value||'';
   let dis=admAllDisabilities;
-  if(region){try{const res=await(await fetch('/api/get-regions-stats.php?region='+encodeURIComponent(region))).json();dis=(res.success&&res.disabilities)?res.disabilities:[];}catch(e){dis=[];}}
+  if(region){try{const res=await(await authFetch('/api/get-regions-stats.php?region='+encodeURIComponent(region))).json();dis=(res.success&&res.disabilities)?res.disabilities:[];}catch(e){dis=[];}}
   const container=document.getElementById('adm-dis-bars'), summary=document.getElementById('adm-dis-summary');
   if(!container) return;
   if(!dis.length){container.innerHTML='<div style="color:var(--gray-400);font-size:0.75rem;padding:1rem;text-align:center;">No disability data.</div>';if(summary)summary.innerHTML='';return;}
@@ -410,7 +410,7 @@ const RG_TARGETS={'Region I (Ilocos Region)':150,'Region II (Cagayan Valley)':10
 async function loadRegionsView() {
   if(!rgLoaded){
     ['rg-region-tbody','rg-province-tbody','rg-city-tbody'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';});
-    try{const json=await(await fetch('/api/get-regions-stats.php')).json();if(json.success){RG_DATA.summary=json.summary||{};RG_DATA.regions=json.regions||[];RG_DATA.provinces=json.provinces||[];RG_DATA.cities=json.cities||[];RG_DATA.disabilities=json.disabilities||[];RG_DATA.monthly_trend=json.monthly_trend||[];}}catch(e){}
+    try{const json=await(await authFetch('/api/get-regions-stats.php')).json();if(json.success){RG_DATA.summary=json.summary||{};RG_DATA.regions=json.regions||[];RG_DATA.provinces=json.provinces||[];RG_DATA.cities=json.cities||[];RG_DATA.disabilities=json.disabilities||[];RG_DATA.monthly_trend=json.monthly_trend||[];}}catch(e){}
     rgLoaded=true;
   }
   applyRgFilters();
