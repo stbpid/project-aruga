@@ -1439,7 +1439,7 @@
   async function coLoadRecentActivity() {
     const list = document.getElementById('co-activity-list');
     try {
-      const json = await fetch('/api/get-audit-logs.php?limit=8').then(r=>r.json());
+      const json = await authFetch('/api/get-audit-logs.php?limit=8').then(r=>r.json());
       if (!json.success || !json.data.length) {
         list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No recent activity.</div>';
         return;

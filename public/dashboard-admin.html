@@ -2868,7 +2868,7 @@
   async function loadRecentActivity() {
     const list = document.getElementById('activity-list');
     try {
-      const res = await fetch('/api/get-audit-logs.php?limit=8');
+      const res = await authFetch('/api/get-audit-logs.php?limit=8');
       const json = await res.json();
       if (!json.success || !json.data.length) {
         list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No recent activity.</div>';
@@ -3517,7 +3517,7 @@
     if (auditLoaded) return;
     document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
-      const json = await (await fetch('/api/get-audit-logs.php?limit=40')).json();
+      const json = await (await authFetch('/api/get-audit-logs.php?limit=40')).json();
       auditData = json.success ? json.data : [];
     } catch(e) { auditData = []; }
     auditLoaded = true;
