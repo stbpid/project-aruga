@@ -27,16 +27,7 @@ $rateCheck = supabaseRequest('GET',
     '&select=id&limit=10'
 );
 $failCount = count($rateCheck['data'] ?? []);
-// DEBUG - remove after testing
-if (isset($input['debug']) && $input['debug'] === 'rate_check') {
-    $allFails = supabaseRequest('GET', 'audit_logs?action=eq.view&ip_address=eq.' . urlencode($ip) . '&new_values=cs.' . urlencode('{"event":"login_failed"}') . '&select=*&limit=5&order=id.desc');
-    sendResponse(true, 'Rate check debug', [
-        'ip' => $ip,
-        'window' => $window,
-        'fail_count' => $failCount,
-        'recent_fails' => $allFails['data'] ?? [],
-    ]);
-}
+
 if ($failCount >= 5) {
     sendResponse(false, 'Too many failed login attempts. Please try again in 15 minutes.', null, 429);
 }
