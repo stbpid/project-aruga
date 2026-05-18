@@ -1160,7 +1160,7 @@
 
     // Load stats
     try {
-      const r = await fetch('/api/stu-head/stats.php?region=' + encodeURIComponent(region));
+      const r = await authFetch('/api/stu-head/stats.php?region=' + encodeURIComponent(region));
       const j = await r.json();
       if (j.success && j.data) {
         const d = j.data;
@@ -1195,7 +1195,7 @@
 
   async function stuRefreshPendingBadge(region) {
     try {
-      const res = await fetch('/api/stu-head/edit-requests.php?region=' + encodeURIComponent(region) + '&status=pending&limit=50');
+      const res = await authFetch('/api/stu-head/edit-requests.php?region=' + encodeURIComponent(region) + '&status=pending&limit=50');
       const j = await res.json();
       if (!j.success) return;
       const count = (j.data || []).length;
@@ -1323,7 +1323,7 @@
     if (disability) params.set('disability', disability);
 
     try {
-      const res = await fetch('/api/stu-head/beneficiaries.php?' + params);
+      const res = await authFetch('/api/stu-head/beneficiaries.php?' + params);
       const j = await res.json();
 
       if (j.success && Array.isArray(j.data) && j.data.length > 0) {
@@ -1736,7 +1736,7 @@
     };
 
     try {
-      const res = await fetch('/api/update-beneficiary.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const res = await authFetch('/api/update-beneficiary.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
       const j = await res.json();
       if (!j.success) throw new Error(j.message || 'Update failed');
       showGlobalToast('Beneficiary updated successfully.', 'success');
@@ -1972,7 +1972,7 @@
     if (readiness) params.set('readiness', readiness);
     if (status)    params.set('status', status);
 
-    fetch('/api/stu-head/beneficiaries.php?' + params)
+    authFetch('/api/stu-head/beneficiaries.php?' + params)
       .then(r => r.json())
       .then(j => {
         let data = j.success && Array.isArray(j.data) ? j.data : [];
@@ -2090,7 +2090,7 @@
     const params = new URLSearchParams({ range: stuAnFilters.range });
     if (stuAnFilters.region) params.set('region', stuAnFilters.region);
     try {
-      const json = await (await fetch('/api/get-analytics.php?' + params)).json();
+      const json = await (await authFetch('/api/get-analytics.php?' + params)).json();
       if (json.success) { STU_AN_DATA=json; STU_AN_TS=Date.now(); }
     } catch(e) {}
   }
@@ -2101,7 +2101,7 @@
     const params = new URLSearchParams({ range: stuAnFilters.range });
     if (stuAnFilters.region) params.set('region', stuAnFilters.region);
     try {
-      const json = await (await fetch('/api/get-analytics-extended.php?' + params)).json();
+      const json = await (await authFetch('/api/get-analytics-extended.php?' + params)).json();
       if (json.success) { STU_AN_EXT=json; STU_AN_EXT_KEY=key; }
     } catch(e) {}
   }
@@ -2768,7 +2768,7 @@
   async function stuQrLookup(arugaId) {
     const errCard = stuQrEl('stu-qr-error-card'); if (errCard) errCard.style.display = 'none';
     try {
-      const res = await fetch('/api/field-officer/qr-lookup.php?id=' + encodeURIComponent(arugaId));
+      const res = await authFetch('/api/field-officer/qr-lookup.php?id=' + encodeURIComponent(arugaId));
       const j = await res.json();
       if (j.success && j.data) {
         const d = j.data;
@@ -2830,7 +2830,7 @@
     if (!tbody) return;
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr>';
     try {
-      const res = await fetch('/api/stu-head/edit-requests.php?region=' + encodeURIComponent(region) + '&status=pending&limit=50');
+      const res = await authFetch('/api/stu-head/edit-requests.php?region=' + encodeURIComponent(region) + '&status=pending&limit=50');
       const j = await res.json();
       if (!j.success) throw new Error(j.message || 'Failed');
       const rows = j.data || [];
@@ -2943,7 +2943,7 @@
 
     const reviewerCode = sessionStorage.getItem('interviewer_code') || '';
     try {
-      const res = await fetch('/api/stu-head/review-edit-request.php', {
+      const res = await authFetch('/api/stu-head/review-edit-request.php', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({
