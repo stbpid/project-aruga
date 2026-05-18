@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // PROJECT ARUGA - PROFILING TOOL JAVASCRIPT
 // ============================================================================
 
@@ -3466,7 +3466,7 @@ async function submitAssessment() {
         email:   d.email      || '',
       });
       sessionStorage.clear();
-      window.location.href = '/success.html?' + params.toString();
+      window.location.href = '/success?' + params.toString();
     } else {
       throw new Error(result.message || 'Submission failed');
     }

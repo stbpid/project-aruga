@@ -37,6 +37,30 @@
       "dest": "/public/docs.html"
     },
     {
+      "src": "/dashboard",
+      "dest": "/public/dashboard.html"
+    },
+    {
+      "src": "/login",
+      "dest": "/public/login-dashboard.html"
+    },
+    {
+      "src": "/dashboard-admin",
+      "dest": "/public/dashboard-admin.html"
+    },
+    {
+      "src": "/dashboard-central",
+      "dest": "/public/dashboard-central.html"
+    },
+    {
+      "src": "/dashboard-stu-head",
+      "dest": "/public/dashboard-stu-head.html"
+    },
+    {
+      "src": "/dashboard-field-officer",
+      "dest": "/public/dashboard-field-officer.html"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/$1"
     },
