@@ -1931,7 +1931,7 @@
     if (intLoaded) return;
     document.getElementById('int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
-      const json = await (await fetch('/api/get-interviewers.php')).json();
+      const json = await (await authFetch('/api/get-interviewers.php')).json();
       intData = json.success ? json.data : [];
       intLoaded = true;
       intFiltered = [...intData]; intPage = 0; renderInterviewers();

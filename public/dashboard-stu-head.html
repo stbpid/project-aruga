@@ -1231,7 +1231,7 @@
     const REGION_NORM = {'NCR':'NCR (National Capital Region)','NCR – Metro Manila':'NCR (National Capital Region)','NCR - Metro Manila':'NCR (National Capital Region)','National Capital Region':'NCR (National Capital Region)','CAR':'CAR (Cordillera Administrative Region)','CAR – Cordillera':'CAR (Cordillera Administrative Region)','CAR - Cordillera':'CAR (Cordillera Administrative Region)','Cordillera':'CAR (Cordillera Administrative Region)','BARMM':'BARMM (Bangsamoro)','Bangsamoro':'BARMM (Bangsamoro)','CALABARZON':'Region IV-A (CALABARZON)','MIMAROPA':'Region IV-B (MIMAROPA)','Bicol Region':'Region V (Bicol Region)','Caraga':'Region XIII (Caraga)'};
     const normRegion = REGION_NORM[region] || region;
     try {
-      const json = await (await fetch('/api/get-interviewers.php')).json();
+      const json = await (await authFetch('/api/get-interviewers.php')).json();
       const all = json.success ? json.data : [];
       stuIntData = normRegion ? all.filter(r => r.region === normRegion) : all;
       stuIntLoaded = true;
@@ -2555,7 +2555,7 @@
     document.getElementById('stu-int-subtitle').textContent = region ? 'Interviewers in ' + region : 'Interviewers in your region';
     document.getElementById('stu-int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
-      const json = await (await fetch('/api/get-interviewers.php')).json();
+      const json = await (await authFetch('/api/get-interviewers.php')).json();
       const all = json.success ? json.data : [];
       // Filter to same region only
       const REGION_NORM = {'NCR':'NCR (National Capital Region)','NCR – Metro Manila':'NCR (National Capital Region)','NCR - Metro Manila':'NCR (National Capital Region)','National Capital Region':'NCR (National Capital Region)','CAR':'CAR (Cordillera Administrative Region)','CAR – Cordillera':'CAR (Cordillera Administrative Region)','CAR - Cordillera':'CAR (Cordillera Administrative Region)','Cordillera':'CAR (Cordillera Administrative Region)','BARMM':'BARMM (Bangsamoro)','Bangsamoro':'BARMM (Bangsamoro)','CALABARZON':'Region IV-A (CALABARZON)','MIMAROPA':'Region IV-B (MIMAROPA)','Bicol Region':'Region V (Bicol Region)','Caraga':'Region XIII (Caraga)'};
