@@ -2770,7 +2770,7 @@
 
   async function loadDashboardStats() {
     try {
-      const res = await fetch('/api/get-dashboard-stats.php');
+      const res = await authFetch('/api/get-dashboard-stats.php');
       const json = await res.json();
       if (!json.success) return;
       const d = json.data;

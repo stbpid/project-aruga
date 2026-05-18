@@ -99,3 +99,12 @@ function dashRequireAuth() {
   dashBlockBack();
   document.addEventListener('DOMContentLoaded', dashPopulateUser);
 }
+
+// Authenticated fetch — attaches session headers to every API request
+function authFetch(url, options = {}) {
+  const user = dashGetUser();
+  const headers = Object.assign({}, options.headers || {});
+  if (user.session_id)     headers['X-Session-ID']     = user.session_id;
+  if (user.interviewer_id) headers['X-Interviewer-ID'] = user.interviewer_id;
+  return fetch(url, Object.assign({}, options, { headers }));
+}

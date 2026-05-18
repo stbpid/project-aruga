@@ -1318,7 +1318,7 @@
   async function loadCentralData() {
     try {
       const [statsRes, regionsRes] = await Promise.all([
-        fetch('/api/get-dashboard-stats.php').then(r=>r.json()),
+        authFetch('/api/get-dashboard-stats.php').then(r=>r.json()),
         fetch('/api/get-regions-stats.php').then(r=>r.json()),
       ]);
 
