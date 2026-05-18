@@ -8,6 +8,11 @@
     }
   },
   "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/css/(.*)", "dest": "/public/css/$1" },
+    { "src": "/js/(.*)", "dest": "/public/js/$1" },
+    { "src": "/images/(.*)", "dest": "/public/images/$1" },
+    { "src": "/", "dest": "/public/index.html" },
     { "src": "/profiling", "dest": "/public/profiling.html" },
     { "src": "/privacy", "dest": "/public/privacy.html" },
     { "src": "/contact", "dest": "/public/contact.html" },
@@ -20,11 +25,6 @@
     { "src": "/dashboard-central", "dest": "/public/dashboard-central.html" },
     { "src": "/dashboard-stu-head", "dest": "/public/dashboard-stu-head.html" },
     { "src": "/dashboard-field-officer", "dest": "/public/dashboard-field-officer.html" },
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/css/(.*)", "dest": "/public/css/$1" },
-    { "src": "/js/(.*)", "dest": "/public/js/$1" },
-    { "src": "/images/(.*)", "dest": "/public/images/$1" },
-    { "src": "/(.*\\..+)", "dest": "/public/$1" },
-    { "src": "/(.*)", "dest": "/public/$1.html" }
+    { "src": "/(.*\\..+)", "dest": "/public/$1" }
   ]
 }
