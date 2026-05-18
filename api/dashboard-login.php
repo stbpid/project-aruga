@@ -17,6 +17,18 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     sendResponse(false, 'Invalid email address', null, 400);
 }
 
+// Rate limit: max 5 failed attempts per IP in 15 minutes
+$ip = getUserIP();
+$window = date('c', strtotime('-15 minutes'));
+$rateCheck = supabaseRequest('GET',
+    'audit_logs?action=eq.login_failed&ip_address=eq.' . urlencode($ip) .
+    '&created_at=gte.' . urlencode($window) .
+    '&select=id'
+);
+if ($rateCheck['success'] && count($rateCheck['data'] ?? []) >= 5) {
+    sendResponse(false, 'Too many failed login attempts. Please try again in 15 minutes.', null, 429);
+}
+
 // Fetch interviewer by email
 $endpoint = 'interviewers?email=eq.' . urlencode($email) . '&status=eq.active&select=*';
 $result   = supabaseRequest('GET', $endpoint);
