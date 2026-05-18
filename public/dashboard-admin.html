@@ -3023,7 +3023,7 @@
     if (allBenLoaded) return;
     document.getElementById('all-ben-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
-      const json = await (await fetch('/api/get-all-beneficiaries.php?limit=10000&offset=0')).json();
+      const json = await (await authFetch('/api/get-all-beneficiaries.php?limit=10000&offset=0')).json();
       allBenData = json.success ? json.data : [];
       allBenLoaded = true;
 
