@@ -55,7 +55,8 @@ if (!preg_match('/^[A-Z0-9]{8}$/', $interviewerCode)) {
 $ip = getUserIP();
 $window = date('Y-m-d\TH:i:s\Z', strtotime('-15 minutes'));
 $rateCheck = supabaseRequest('GET',
-    'audit_logs?action=eq.login_failed&ip_address=eq.' . urlencode($ip) .
+    'audit_logs?action=eq.view&ip_address=eq.' . urlencode($ip) .
+    '&new_values=cs.' . urlencode('{"event":"login_failed"}') .
     '&created_at=gte.' . urlencode($window) .
     '&select=id&limit=10'
 );
@@ -74,7 +75,7 @@ if (!$result['success']) {
 
 // Check if interviewer exists and is active
 if (empty($result['data']) || count($result['data']) === 0) {
-    logAudit('login_failed', 'sessions', null, null,
+    logAudit('view', 'sessions', null, null,
         ['event' => 'login_failed', 'interviewer_code' => $interviewerCode, 'reason' => 'invalid_or_inactive']
     );
     sendResponse(false, 'Invalid interviewer code or account is inactive', null, 401);

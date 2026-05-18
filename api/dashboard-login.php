@@ -21,24 +21,20 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 $ip = getUserIP();
 $window = date('Y-m-d\TH:i:s\Z', strtotime('-15 minutes'));
 $rateCheck = supabaseRequest('GET',
-    'audit_logs?action=eq.login_failed&ip_address=eq.' . urlencode($ip) .
+    'audit_logs?action=eq.view&ip_address=eq.' . urlencode($ip) .
+    '&new_values=cs.' . urlencode('{"event":"login_failed"}') .
     '&created_at=gte.' . urlencode($window) .
     '&select=id&limit=10'
 );
 $failCount = count($rateCheck['data'] ?? []);
 // DEBUG - remove after testing
 if (isset($input['debug']) && $input['debug'] === 'rate_check') {
-    // Test writing a login_failed log and reading it back
-    $testLog = logAuditDebug('login_failed', 'sessions', null, null,
-        ['event' => 'login_failed', 'email' => $email, 'reason' => 'debug_test']
-    );
-    $allFails = supabaseRequest('GET', 'audit_logs?action=eq.login_failed&ip_address=eq.' . urlencode($ip) . '&select=*&limit=5&order=id.desc');
+    $allFails = supabaseRequest('GET', 'audit_logs?action=eq.view&ip_address=eq.' . urlencode($ip) . '&new_values=cs.' . urlencode('{"event":"login_failed"}') . '&select=*&limit=5&order=id.desc');
     sendResponse(true, 'Rate check debug', [
         'ip' => $ip,
         'window' => $window,
         'fail_count' => $failCount,
-        'test_log_result' => $testLog,
-        'recent_fails_no_filter' => $allFails['data'] ?? [],
+        'recent_fails' => $allFails['data'] ?? [],
     ]);
 }
 if ($failCount >= 5) {
@@ -54,7 +50,7 @@ if (!$result['success']) {
 }
 
 if (empty($result['data'])) {
-    logAudit('login_failed', 'sessions', null, null,
+    logAudit('view', 'sessions', null, null,
         ['event' => 'login_failed', 'email' => $email, 'reason' => 'user_not_found']
     );
     sendResponse(false, 'Invalid email or password', null, 401);
@@ -90,7 +86,7 @@ if (!$passwordValid) {
 }
 
 if (!$passwordValid) {
-    logAudit('login_failed', 'sessions', null, null,
+    logAudit('view', 'sessions', null, null,
         ['event' => 'login_failed', 'email' => $email, 'reason' => 'wrong_password', 'role' => $user['dashboard_role'] ?? null],
         $user['id']
     );
