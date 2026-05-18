@@ -41,12 +41,12 @@ if (empty($assessments)) {
 // Get all assessment IDs
 $ids = array_column($assessments, 'id');
 
-// Fetch first family member for each assessment
+// Fetch member_number = 1 for each assessment (head of household)
 $familyResult = supabaseRequest('GET',
-    'family_members?select=assessment_id,first_name,last_name,middle_name,relationship&order=created_at.asc&limit=100000'
+    'family_members?select=assessment_id,full_name,relationship_to_head&member_number=eq.1&limit=100000'
 );
 
-// Build family member map (assessment_id => first member)
+// Build family member map (assessment_id => member #1)
 $familyMap = [];
 if ($familyResult['success'] && !empty($familyResult['data'])) {
     foreach ($familyResult['data'] as $fm) {
@@ -70,17 +70,9 @@ foreach ($assessments as $a) {
     if ($firstName) $beneficiaryName .= ', ' . $firstName;
     if ($middleName) $beneficiaryName .= ' ' . $middleName;
 
-    // Authorized claimant = first family member
+    // Authorized claimant = family member #1 (head of household)
     $fm = $familyMap[$a['id']] ?? null;
-    $claimantName = '';
-    if ($fm) {
-        $fmLast   = trim($fm['last_name']   ?? '');
-        $fmFirst  = trim($fm['first_name']  ?? '');
-        $fmMiddle = trim($fm['middle_name'] ?? '');
-        $claimantName = $fmLast;
-        if ($fmFirst) $claimantName .= ', ' . $fmFirst;
-        if ($fmMiddle) $claimantName .= ' ' . $fmMiddle;
-    }
+    $claimantName = trim($fm['full_name'] ?? '');
 
     $rows[] = [
         'aruga_id'         => $a['aruga_id']   ?? '—',
