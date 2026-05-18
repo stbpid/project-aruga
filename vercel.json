@@ -7,23 +7,24 @@
       "runtime": "vercel-php@0.7.1"
     }
   },
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/css/(.*)", "destination": "/public/css/$1" },
-    { "source": "/js/(.*)", "destination": "/public/js/$1" },
-    { "source": "/images/(.*)", "destination": "/public/images/$1" },
-    { "source": "/", "destination": "/public/index.html" },
-    { "source": "/profiling", "destination": "/public/profiling.html" },
-    { "source": "/privacy", "destination": "/public/privacy.html" },
-    { "source": "/contact", "destination": "/public/contact.html" },
-    { "source": "/success", "destination": "/public/success.html" },
-    { "source": "/profile", "destination": "/public/profile.html" },
-    { "source": "/docs", "destination": "/public/docs.html" },
-    { "source": "/dashboard", "destination": "/public/dashboard.html" },
-    { "source": "/login", "destination": "/public/login-dashboard.html" },
-    { "source": "/dashboard-admin", "destination": "/public/dashboard-admin.html" },
-    { "source": "/dashboard-central", "destination": "/public/dashboard-central.html" },
-    { "source": "/dashboard-stu-head", "destination": "/public/dashboard-stu-head.html" },
-    { "source": "/dashboard-field-officer", "destination": "/public/dashboard-field-officer.html" }
+  "routes": [
+    { "src": "/", "dest": "/public/index.html" },
+    { "src": "/profiling", "dest": "/public/profiling.html" },
+    { "src": "/privacy", "dest": "/public/privacy.html" },
+    { "src": "/contact", "dest": "/public/contact.html" },
+    { "src": "/success", "dest": "/public/success.html" },
+    { "src": "/profile", "dest": "/public/profile.html" },
+    { "src": "/docs", "dest": "/public/docs.html" },
+    { "src": "/dashboard", "dest": "/public/dashboard.html" },
+    { "src": "/login", "dest": "/public/login-dashboard.html" },
+    { "src": "/dashboard-admin", "dest": "/public/dashboard-admin.html" },
+    { "src": "/dashboard-central", "dest": "/public/dashboard-central.html" },
+    { "src": "/dashboard-stu-head", "dest": "/public/dashboard-stu-head.html" },
+    { "src": "/dashboard-field-officer", "dest": "/public/dashboard-field-officer.html" },
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/css/(.*)", "dest": "/public/css/$1" },
+    { "src": "/js/(.*)", "dest": "/public/js/$1" },
+    { "src": "/images/(.*)", "dest": "/public/images/$1" },
+    { "src": "/(.*\\..+)", "dest": "/public/$1" }
   ]
 }
