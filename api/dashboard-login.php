@@ -17,12 +17,12 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     sendResponse(false, 'Invalid email address', null, 400);
 }
 
-// Rate limit: block after 5 failed attempts from same IP in 15 minutes
+// Rate limit: block after 5 failed attempts for same IP + email in 15 minutes
 $ip = getUserIP();
 $window = date('Y-m-d\TH:i:s\Z', strtotime('-15 minutes'));
 $rateCheck = supabaseRequest('GET',
     'audit_logs?action=eq.view&ip_address=eq.' . urlencode($ip) .
-    '&new_values=cs.' . urlencode('{"event":"login_failed"}') .
+    '&new_values=cs.' . urlencode('{"event":"login_failed","email":"' . $email . '"}') .
     '&created_at=gte.' . urlencode($window) .
     '&select=id&limit=10'
 );
