@@ -97,7 +97,7 @@
   <script>
     // Show idle logout message if redirected due to inactivity
     if (new URLSearchParams(window.location.search).get('reason') === 'idle') {
-      window.history.replaceState({}, '', '/dashboard');
+      window.history.replaceState({}, '', '/dashboard.html');
       document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => toast.error('You were logged out due to 30 minutes of inactivity.', 'Session Expired'), 300);
       });
@@ -128,10 +128,10 @@
     });
 
     const ROLE_REDIRECT = {
-      admin:          '/dashboard-admin',
-      central:        '/dashboard-central',
-      stu_head:       '/dashboard-stu-head',
-      field_officer:  '/dashboard-field-officer',
+      admin:          '/dashboard-admin.html',
+      central:        '/dashboard-central.html',
+      stu_head:       '/dashboard-stu-head.html',
+      field_officer:  '/dashboard-field-officer.html',
     };
 
     btnSubmit.addEventListener('click', async function() {
@@ -172,7 +172,7 @@
 
           const role = (d.role || '').trim().toLowerCase();
           console.log('Login role received:', JSON.stringify(role));
-          const redirect = ROLE_REDIRECT[role] || '/dashboard-admin';
+          const redirect = ROLE_REDIRECT[role] || '/dashboard-admin.html';
           console.log('Redirecting to:', redirect);
           setTimeout(() => { window.location.href = redirect; }, 1000);
         } else {
