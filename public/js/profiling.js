@@ -2,6 +2,16 @@
 // PROJECT ARUGA - PROFILING TOOL JAVASCRIPT
 // ============================================================================
 
+// Authenticated fetch for profiling tool — attaches session headers
+function profilingFetch(url, options = {}) {
+  const headers = Object.assign({}, options.headers || {});
+  const sessionId     = sessionStorage.getItem('session_id');
+  const interviewerId = sessionStorage.getItem('interviewer_id');
+  if (sessionId)     headers['X-Session-ID']     = sessionId;
+  if (interviewerId) headers['X-Interviewer-ID'] = interviewerId;
+  return fetch(url, Object.assign({}, options, { headers }));
+}
+
 // Global Variables
 let memberCount = 1;
 let globalData = {};
@@ -3440,7 +3450,7 @@ async function submitAssessment() {
   try {
     const formData = collectFormData();
 
-    const response = await fetch('/api/submit-assessment.php', {
+    const response = await profilingFetch('/api/submit-assessment.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
