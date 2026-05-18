@@ -970,7 +970,7 @@
 
   async function loadStats(code) {
     try {
-      const res  = await fetch('/api/field-officer/stats.php?interviewerCode=' + encodeURIComponent(code));
+      const res  = await authFetch('/api/field-officer/stats.php?interviewerCode=' + encodeURIComponent(code));
       const json = await res.json();
       if (!json.success) throw new Error();
       const d = json.data;
@@ -990,7 +990,7 @@
   async function loadRecentBeneficiaries(code) {
     const tbody = document.getElementById('beneficiaries-tbody');
     try {
-      const res  = await fetch('/api/field-officer/recent-beneficiaries.php?interviewerCode=' + encodeURIComponent(code) + '&limit=5');
+      const res  = await authFetch('/api/field-officer/recent-beneficiaries.php?interviewerCode=' + encodeURIComponent(code) + '&limit=5');
       const json = await res.json();
       if (!json.success) throw new Error();
       const rows = json.data;
@@ -1013,7 +1013,7 @@
 
   async function loadMonthlyProgress(code) {
     try {
-      const res  = await fetch('/api/field-officer/monthly-progress.php?interviewerCode=' + encodeURIComponent(code));
+      const res  = await authFetch('/api/field-officer/monthly-progress.php?interviewerCode=' + encodeURIComponent(code));
       const json = await res.json();
       if (!json.success) throw new Error();
       const d = json.data;
@@ -1032,7 +1032,7 @@
     const body    = document.getElementById('action-required-body');
     const countEl = document.getElementById('action-count');
     try {
-      const res  = await fetch('/api/field-officer/action-required.php?interviewerCode=' + encodeURIComponent(code));
+      const res  = await authFetch('/api/field-officer/action-required.php?interviewerCode=' + encodeURIComponent(code));
       const json = await res.json();
       if (!json.success) throw new Error();
       const items = json.data;
@@ -1064,7 +1064,7 @@
   async function loadPerformance(code) {
     const body = document.getElementById('performance-body');
     try {
-      const res  = await fetch('/api/field-officer/performance.php?interviewerCode=' + encodeURIComponent(code));
+      const res  = await authFetch('/api/field-officer/performance.php?interviewerCode=' + encodeURIComponent(code));
       const json = await res.json();
       if (!json.success) throw new Error();
       const d = json.data;
@@ -1113,7 +1113,7 @@
     if (benSortCol)    { params.set('sort', benSortCol); params.set('dir', benSortDir); }
 
     try {
-      const res  = await fetch('/api/beneficiaries.php?' + params.toString());
+      const res  = await authFetch('/api/beneficiaries.php?' + params.toString());
       const json = await res.json();
       if (!json.success) throw new Error(json.message);
 
@@ -1507,7 +1507,7 @@
     };
 
     try {
-      const res = await fetch('/api/field-officer/submit-edit-request.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const res = await authFetch('/api/field-officer/submit-edit-request.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
       const j = await res.json();
       if (!j.success) throw new Error(j.message || 'Submission failed');
       showGlobalToast('Edit request submitted. Awaiting Region Head approval.', 'success');
@@ -1683,7 +1683,7 @@
   async function qrLookup(arugaId) {
     qrEl('qr-error-card').style.display = 'none';
     try {
-      const res  = await fetch('/api/field-officer/qr-lookup.php?arugaId=' + encodeURIComponent(arugaId));
+      const res  = await authFetch('/api/field-officer/qr-lookup.php?arugaId=' + encodeURIComponent(arugaId));
       const json = await res.json();
       if (!json.success || !json.data) {
         qrShowError('Beneficiary not found for ID: ' + esc(arugaId));
@@ -1738,7 +1738,7 @@
     qrEl('qr-result-card').style.display = 'none';
     qrEl('qr-error-card').style.display  = 'none';
     try {
-      const res  = await fetch('/api/field-officer/qr-lookup.php?arugaId=' + encodeURIComponent(val));
+      const res  = await authFetch('/api/field-officer/qr-lookup.php?arugaId=' + encodeURIComponent(val));
       const json = await res.json();
       if (!json.success || !json.data) {
         statusEl.style.color='#dc2626'; statusEl.textContent='No beneficiary found for "' + val + '".';
