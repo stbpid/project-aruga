@@ -1702,41 +1702,15 @@
           <div class="card" style="margin:0 0 1rem;">
             <div class="card-header">
               <div>
-                <div class="card-title">Payout List Filters</div>
-                <div class="card-subtitle">Filter beneficiaries to include in the payout list</div>
+                <div class="card-title">Payout List Filter</div>
+                <div class="card-subtitle">Select a region to generate the payroll</div>
               </div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin-bottom:1rem;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0.75rem;margin-bottom:1rem;">
               <div>
                 <label class="settings-label">Region</label>
                 <select id="payout-region" class="settings-input">
                   <option value="">All Regions</option>
-                </select>
-              </div>
-              <div>
-                <label class="settings-label">Readiness Score</label>
-                <select id="payout-readiness" class="settings-input">
-                  <option value="">All</option>
-                  <option value="severe">Severe</option>
-                  <option value="moderate">Moderate</option>
-                  <option value="low">Low</option>
-                  <option value="stable">Stable</option>
-                </select>
-              </div>
-              <div>
-                <label class="settings-label">4Ps Member</label>
-                <select id="payout-4ps" class="settings-input">
-                  <option value="">All</option>
-                  <option value="yes">4Ps Members Only</option>
-                  <option value="no">Non-4Ps Only</option>
-                </select>
-              </div>
-              <div>
-                <label class="settings-label">Assessment Status</label>
-                <select id="payout-status" class="settings-input">
-                  <option value="">All</option>
-                  <option value="completed">Completed</option>
-                  <option value="pending">Pending</option>
                 </select>
               </div>
             </div>
@@ -1744,11 +1718,8 @@
               <button class="btn btn-primary btn-sm" onclick="payoutGenerate()">
                 <span class="material-symbols-outlined">table_view</span>Preview List
               </button>
-              <button class="btn btn-secondary btn-sm" id="payout-export-csv" onclick="payoutExport('csv')" style="display:none;">
-                <span class="material-symbols-outlined">download</span>Export CSV
-              </button>
-              <button class="btn btn-secondary btn-sm" id="payout-export-pdf" onclick="payoutExport('pdf')" style="display:none;">
-                <span class="material-symbols-outlined">picture_as_pdf</span>Export PDF
+              <button class="btn btn-secondary btn-sm" id="payout-download-btn" onclick="payoutDownload()" style="display:none;">
+                <span class="material-symbols-outlined">picture_as_pdf</span>Download Payroll
               </button>
               <span id="payout-count-label" style="font-size:0.8rem;color:var(--gray-500);"></span>
             </div>
@@ -1760,18 +1731,15 @@
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>ARUGA ID</th>
-                    <th>Name</th>
-                    <th>Age</th>
-                    <th>Region</th>
-                    <th>Province</th>
-                    <th>Readiness</th>
-                    <th>4Ps</th>
-                    <th>Status</th>
+                    <th>CLIENT UNIQUE ID NO.</th>
+                    <th>BENEFICIARY'S NAME</th>
+                    <th>AUTHORIZED CLAIMANT</th>
+                    <th>AMOUNT</th>
+                    <th>REGION</th>
                   </tr>
                 </thead>
                 <tbody id="payout-tbody">
-                  <tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">Click <b>Preview List</b> to load beneficiaries.</td></tr>
+                  <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">Click <b>Preview List</b> to load beneficiaries.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -7397,74 +7365,118 @@
     regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o); });
   }
 
-  function payoutGenerate() {
+  async function payoutGenerate() {
     if (!allBenLoaded) { showGlobalToast('Beneficiary data is still loading. Please wait.', 'error'); return; }
     payoutPopulateRegions();
-    const region    = document.getElementById('payout-region').value;
-    const readiness = document.getElementById('payout-readiness').value;
-    const fourps    = document.getElementById('payout-4ps').value;
-    const status    = document.getElementById('payout-status').value;
-
-    payoutData = allBenData.filter(r => {
-      if (region    && r.region !== region) return false;
-      if (readiness && (r.readiness_score || '').toLowerCase() !== readiness) return false;
-      if (fourps === 'yes' && !r.is_4ps_member) return false;
-      if (fourps === 'no'  &&  r.is_4ps_member) return false;
-      if (status    && (r.status || '').toLowerCase() !== status) return false;
-      return true;
-    });
-
+    const region = document.getElementById('payout-region').value;
     const tbody = document.getElementById('payout-tbody');
     const countLabel = document.getElementById('payout-count-label');
+
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">Loading...</td></tr>`;
+    document.getElementById('payout-download-btn').style.display = 'none';
+    countLabel.textContent = '';
+
+    try {
+      const params = new URLSearchParams();
+      if (region) params.set('region', region);
+      const res = await authFetch('/api/get-payout-data.php?' + params);
+      const json = await res.json();
+
+      if (!json.success) { showGlobalToast('Failed to load payout data.', 'error'); return; }
+      payoutData = json.data || [];
+    } catch(e) {
+      showGlobalToast('Error loading payout data.', 'error'); return;
+    }
+
     if (!payoutData.length) {
-      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">No beneficiaries match the selected filters.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">No beneficiaries found for the selected region.</td></tr>`;
       countLabel.textContent = '';
-      document.getElementById('payout-export-csv').style.display = 'none';
-      document.getElementById('payout-export-pdf').style.display = 'none';
       return;
     }
 
     tbody.innerHTML = payoutData.map((r, i) => `<tr class="table-row-hover">
       <td style="color:var(--gray-400);font-size:0.75rem;">${i + 1}</td>
       <td style="font-weight:600;font-size:0.8rem;">${r.aruga_id || '—'}</td>
-      <td><div style="font-weight:600;font-size:0.85rem;color:#111;">${r.name || r.child_name || '—'}</div></td>
-      <td>${r.age || '—'}</td>
+      <td style="font-size:0.85rem;font-weight:600;">${r.beneficiary_name || '—'}</td>
+      <td style="font-size:0.85rem;">${r.claimant_name || '—'}</td>
+      <td style="font-size:0.85rem;">₱2,000.00</td>
       <td style="font-size:0.8rem;">${r.region || '—'}</td>
-      <td style="font-size:0.8rem;">${r.province || '—'}</td>
-      <td>${readinessBadge(r.readiness_score)}</td>
-      <td>${r.is_4ps_member ? '<span style="background:#eff6ff;color:#1d4ed8;font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:999px;">4Ps</span>' : '<span style="color:var(--gray-400);font-size:0.75rem;">—</span>'}</td>
-      <td style="font-size:0.8rem;text-transform:capitalize;">${r.status || '—'}</td>
     </tr>`).join('');
 
     countLabel.textContent = `${payoutData.length.toLocaleString()} beneficiar${payoutData.length === 1 ? 'y' : 'ies'} found`;
-    document.getElementById('payout-export-csv').style.display = '';
-    document.getElementById('payout-export-pdf').style.display = '';
+    document.getElementById('payout-download-btn').style.display = '';
   }
 
-  function payoutExport(format) {
+  function payoutDownload() {
     if (!payoutData.length) { showGlobalToast('Generate a preview first.', 'error'); return; }
-    if (format === 'csv') {
-      const headers = ['#','ARUGA ID','Name','Age','Region','Province','Readiness','4Ps Member','Status'];
-      const rows = payoutData.map((r, i) => [
-        i + 1,
-        r.aruga_id || '',
-        r.name || r.child_name || '',
-        r.age || '',
-        r.region || '',
-        r.province || '',
-        r.readiness_score || '',
-        r.is_4ps_member ? 'Yes' : 'No',
-        r.status || '',
-      ]);
-      const csv = [headers, ...rows].map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-      const a = document.createElement('a');
-      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-      a.download = 'payout_list_' + new Date().toISOString().slice(0,10) + '.csv';
-      a.click();
-      showGlobalToast('Payout list exported as CSV.', 'success');
-    } else {
-      showGlobalToast('PDF export coming soon.', 'info');
+
+    const region = document.getElementById('payout-region').value || 'All Regions';
+    const now = new Date();
+    const monthYear = now.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
+
+    const rows = payoutData.map((r, i) => `
+      <tr>
+        <td>${r.aruga_id || ''}</td>
+        <td>${r.beneficiary_name || ''}</td>
+        <td>${r.claimant_name || ''}</td>
+        <td>2,000.00</td>
+        <td></td>
+        <td></td>
+      </tr>`).join('');
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Project Aruga Payroll</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; font-size: 10pt; padding: 20mm 15mm; }
+    .header { text-align: center; margin-bottom: 16px; }
+    .header p { font-size: 10pt; line-height: 1.5; }
+    .header .title { font-weight: bold; font-size: 11pt; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid #000; padding: 5px 7px; font-size: 9pt; vertical-align: top; }
+    th { font-weight: bold; text-align: center; background: #fff; }
+    td { min-height: 22px; }
+    .amount-col { text-align: right; }
+    tr { height: 28px; }
+    @media print {
+      body { padding: 10mm; }
     }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <p>Republic of the Philippines</p>
+    <p>Department of Social Welfare and Development</p>
+    <p>Field Office - ${region}</p>
+    <p class="title">PROJECT ARUGA PAYROLL FOR DISABILITY SUPPORT ALLOWANCE</p>
+    <p class="title">${monthYear}</p>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:18%;">CLIENT UNIQUE<br>IDENTIFICATION NO.</th>
+        <th style="width:22%;">BENEFICIARY'S NAME</th>
+        <th style="width:22%;">AUTHORIZED CLAIMANT</th>
+        <th style="width:12%;">AMOUNT<br>RECEIVED</th>
+        <th style="width:13%;">DATE<br>RECEIVED</th>
+        <th style="width:13%;">CLAIMANT'S<br>SIGNATURE</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+  </table>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => { win.print(); }, 500);
   }
 
   function rptEmailReport() {
