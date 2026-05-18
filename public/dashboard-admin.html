@@ -1735,11 +1735,12 @@
                     <th>BENEFICIARY'S NAME</th>
                     <th>AUTHORIZED CLAIMANT</th>
                     <th>AMOUNT</th>
-                    <th>REGION</th>
+                    <th>DATE RECEIVED</th>
+                    <th>CLAIMANT'S SIGNATURE</th>
                   </tr>
                 </thead>
                 <tbody id="payout-tbody">
-                  <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">Click <b>Preview List</b> to load beneficiaries.</td></tr>
+                  <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">Click <b>Preview List</b> to load beneficiaries.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -7358,21 +7359,32 @@
   // ── Payout List ────────────────────────────────────────────────
   let payoutData = [];
 
-  function payoutPopulateRegions() {
+  let payoutRegionsLoaded = false;
+
+  async function payoutPopulateRegions() {
     const sel = document.getElementById('payout-region');
-    if (!sel || sel.options.length > 1) return;
-    const regions = [...new Set(allBenData.map(r => r.region).filter(r => r && r !== '—'))].sort();
-    regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o); });
+    if (!sel || payoutRegionsLoaded) return;
+    try {
+      const res = await authFetch('/api/get-regions-stats.php');
+      const json = await res.json();
+      if (json.success && json.regions) {
+        json.regions.forEach(r => {
+          const o = document.createElement('option');
+          o.value = r.region; o.textContent = r.region;
+          sel.appendChild(o);
+        });
+        payoutRegionsLoaded = true;
+      }
+    } catch(e) {}
   }
 
   async function payoutGenerate() {
-    if (!allBenLoaded) { showGlobalToast('Beneficiary data is still loading. Please wait.', 'error'); return; }
-    payoutPopulateRegions();
+    await payoutPopulateRegions();
     const region = document.getElementById('payout-region').value;
     const tbody = document.getElementById('payout-tbody');
     const countLabel = document.getElementById('payout-count-label');
 
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">Loading...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">Loading...</td></tr>`;
     document.getElementById('payout-download-btn').style.display = 'none';
     countLabel.textContent = '';
 
@@ -7389,7 +7401,7 @@
     }
 
     if (!payoutData.length) {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">No beneficiaries found for the selected region.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.85rem;">No beneficiaries found for the selected region.</td></tr>`;
       countLabel.textContent = '';
       return;
     }
@@ -7400,7 +7412,8 @@
       <td style="font-size:0.85rem;font-weight:600;">${r.beneficiary_name || '—'}</td>
       <td style="font-size:0.85rem;">${r.claimant_name || '—'}</td>
       <td style="font-size:0.85rem;">₱2,000.00</td>
-      <td style="font-size:0.8rem;">${r.region || '—'}</td>
+      <td></td>
+      <td></td>
     </tr>`).join('');
 
     countLabel.textContent = `${payoutData.length.toLocaleString()} beneficiar${payoutData.length === 1 ? 'y' : 'ies'} found`;
