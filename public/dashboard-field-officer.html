@@ -1205,7 +1205,7 @@
     document.getElementById('fo-bene-detail-body').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray-400);">Loading...</div>';
     document.getElementById('fo-bene-save-err').textContent = '';
     try {
-      const res = await fetch('/api/get-beneficiary-detail.php?aruga_id=' + encodeURIComponent(arugaId));
+      const res = await authFetch('/api/get-beneficiary-detail.php?aruga_id=' + encodeURIComponent(arugaId));
       const j = await res.json();
       if (!j.success) throw new Error(j.message || 'Not found');
       foBeneDetailData = j;
