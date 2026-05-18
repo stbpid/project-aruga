@@ -28,11 +28,13 @@ $rateCheck = supabaseRequest('GET',
 $failCount = count($rateCheck['data'] ?? []);
 // DEBUG - remove after testing
 if (isset($input['debug']) && $input['debug'] === 'rate_check') {
+    // Also fetch without date filter to see raw logs
+    $allFails = supabaseRequest('GET', 'audit_logs?action=eq.login_failed&ip_address=eq.' . urlencode($ip) . '&select=*&limit=5&order=id.desc');
     sendResponse(true, 'Rate check debug', [
         'ip' => $ip,
         'window' => $window,
         'fail_count' => $failCount,
-        'raw' => $rateCheck,
+        'recent_fails_no_filter' => $allFails['data'] ?? [],
     ]);
 }
 if ($failCount >= 5) {
