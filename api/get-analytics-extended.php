@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
 
@@ -11,8 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 $range          = $_GET['range']      ?? '30';
-$regionFilter   = trim($_GET['region']   ?? '');
-$provinceFilter = trim($_GET['province'] ?? '');
+$regionFilter   = getStr('region');
+$provinceFilter = getStr('province');
 
 // Date filter
 $dateFilter = '';

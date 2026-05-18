@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
 
@@ -11,9 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-$interviewerCode = trim($_GET['interviewerCode'] ?? '');
-$search          = trim($_GET['search'] ?? '');
-$page            = max(1, (int)($_GET['page'] ?? 1));
+$interviewerCode = getStr('interviewerCode');
+$search          = getStr('search');
+$page            = getInt('page', 1, 1);
 $limit           = 20;
 $offset          = ($page - 1) * $limit;
 

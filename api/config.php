@@ -320,6 +320,23 @@ function sanitizeInput($input) {
     return $input;
 }
 
+// Safe GET parameter helpers — sanitize and type-cast all URL inputs
+function getStr($key, $default = '') {
+    return sanitizeInput($_GET[$key] ?? $default);
+}
+
+function getInt($key, $default = 0, $min = null, $max = null) {
+    $val = (int)($_GET[$key] ?? $default);
+    if ($min !== null) $val = max($min, $val);
+    if ($max !== null) $val = min($max, $val);
+    return $val;
+}
+
+function postStr($key, $default = '') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    return sanitizeInput($input[$key] ?? $default);
+}
+
 /**
  * Generate UUID v4
  * @return string UUID

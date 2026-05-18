@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../auth.php';
 
@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-$arugaId = trim($_GET['arugaId'] ?? '');
+$arugaId = getStr('arugaId');
 if (empty($arugaId)) {
     echo json_encode(['success' => false, 'message' => 'arugaId required']);
     exit;

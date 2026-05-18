@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../auth.php';
 
@@ -11,8 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-$interviewerCode = trim($_GET['interviewerCode'] ?? '');
-$limit = (int)($_GET['limit'] ?? 5);
+$interviewerCode = getStr('interviewerCode');
+$limit = getInt('limit', 5, 1, 100);
 if (empty($interviewerCode)) {
     echo json_encode(['success' => false, 'message' => 'interviewerCode required']);
     exit;

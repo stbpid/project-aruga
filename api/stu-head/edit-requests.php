@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../auth.php';
 header('Content-Type: application/json');
@@ -8,9 +8,9 @@ header('Access-Control-Allow-Headers: Content-Type');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') { echo json_encode(['success'=>false]); exit; }
 
-$region = trim($_GET['region'] ?? '');
-$status = trim($_GET['status'] ?? 'pending');   // pending | approved | for_update | declined | all
-$page   = max(1, (int)($_GET['page'] ?? 1));
+$region = getStr('region');
+$status = getStr('status', 'pending');   // pending | approved | for_update | declined | all
+$page   = getInt('page', 1, 1);
 $limit  = min(50, max(1, (int)($_GET['limit'] ?? 20)));
 $offset = ($page - 1) * $limit;
 

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
 header('Content-Type: application/json');
@@ -6,7 +6,7 @@ header('Access-Control-Allow-Origin: https://project-aruga.vercel.app');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') { echo json_encode(['success'=>false]); exit; }
 
-$arugaId = trim($_GET['aruga_id'] ?? '');
+$arugaId = getStr('aruga_id');
 if (!$arugaId) { echo json_encode(['success'=>false,'message'=>'aruga_id required']); exit; }
 
 $aRes = supabaseRequest('GET', 'assessments?select=id,aruga_id,interviewer_code,readiness_score,status,created_at,completed_at&aruga_id=eq.'.urlencode($arugaId).'&limit=1');

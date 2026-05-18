@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
 
@@ -10,9 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(['success' => false]); exit;
 }
 
-$limit  = min((int)($_GET['limit']  ?? 500), 1000);
-$action = trim($_GET['action'] ?? '');
-$search = trim($_GET['search'] ?? '');
+$limit  = getInt('limit', 500, 1, 1000);
+$action = getStr('action');
+$search = getStr('search');
 
 $query = 'audit_logs?select=id,action,table_name,record_id,old_values,new_values,ip_address,user_agent,created_at,interviewer_id,assessment_id&order=created_at.desc&limit=' . $limit;
 
