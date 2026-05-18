@@ -1,5 +1,5 @@
-<?php
-header('Access-Control-Allow-Origin: *');
+﻿<?php
+header('Access-Control-Allow-Origin: https://project-aruga.vercel.app');
 header('Content-Type: application/json');
 
 $options = [

@@ -1,8 +1,8 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/config.php';
 
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: https://project-aruga.vercel.app');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(['success' => false]); exit;
