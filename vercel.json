@@ -37,6 +37,10 @@
       "dest": "/public/docs.html"
     },
     {
+      "src": "/user-manual",
+      "dest": "/public/user-manual.html"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/$1"
     },

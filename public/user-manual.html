@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation - Project Aruga</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <link rel="icon" href="/images/logo.webp" type="image/webp">
+  <link rel="stylesheet" href="/css/tailwind.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .doc-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1f2937;
+    }
+    .doc-body {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.7;
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: #1152d4;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-badge.accent { background-color: var(--role-accent, #1152d4); }
+    .tip-box {
+      background-color: #eff6ff;
+      border-left: 4px solid #1152d4;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+    }
+    .warning-box {
+      background-color: #fefce8;
+      border-left: 4px solid #f59e0b;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+    }
+    .info-box {
+      background-color: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+    }
+
+    /* Role Selector */
+    .role-card {
+      cursor: pointer;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.2s;
+      background: #fff;
+      text-align: center;
+    }
+    .role-card:hover { border-color: #1152d4; background: #eff6ff; }
+    .role-card.selected { border-color: var(--role-accent, #1152d4); background: color-mix(in srgb, var(--role-accent, #1152d4) 8%, #fff); }
+
+    /* Sidebar nav */
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      text-decoration: none;
+      transition: all 0.15s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .sidebar-link:hover { background: #eff6ff; color: #1152d4; }
+    .sidebar-link.active { background: #eff6ff; color: #1152d4; font-weight: 700; }
+
+    /* Accordion */
+    .accordion-item { border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+    .accordion-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: #fff;
+      border: none;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f2937;
+      text-align: left;
+      transition: background 0.15s;
+    }
+    .accordion-header:hover { background: #f9fafb; }
+    .accordion-header .chevron { transition: transform 0.2s; font-size: 16px; opacity: 0.5; }
+    .accordion-header.open .chevron { transform: rotate(180deg); }
+    .accordion-body { display: none; padding: 0 18px 16px; font-family: 'Poppins', sans-serif; font-size: 14px; line-height: 1.75; color: #4b5563; }
+    .accordion-body.open { display: block; }
+
+    /* ARUGA ID Decoder */
+    #id-input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 2px solid #d1d5db;
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2937;
+      background: #fff;
+      box-sizing: border-box;
+      outline: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    #id-input:focus { border-color: #1152d4; }
+
+    /* Section content */
+    .section-content { display: none; }
+    .section-content.active { display: block; }
+
+    /* Role selector page */
+    #role-picker { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; }
+
+    /* Fade transition */
+    .fade-in { animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Mobile sidebar toggle */
+    #mobile-nav-toggle { display: none; }
+    @media (max-width: 768px) {
+      #mobile-nav-toggle { display: flex; }
+      #sidebar { display: none; }
+      #sidebar.mobile-open { display: block; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+  <!-- HEADER -->
+  <header class="w-full bg-[#f6f8f6f2] border-b border-[#e0e4e0] h-14 sticky top-0 z-50 backdrop-blur-sm">
+    <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="/images/logo.webp" alt="Project Aruga Logo" class="h-10 w-auto object-contain">
+        <h2 class="font-bold text-brand-dark text-lg sm:text-xl">Project Aruga</h2>
+      </div>
+      <nav class="flex items-center gap-6">
+        <a href="/" class="text-xs font-semibold text-brand-blue hover:text-brand-blueHover transition-colors flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          Back to Home
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-grow py-8 px-4">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- PAGE HEADER -->
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-8 sm:p-12 mb-8 text-white shadow-xl">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined text-[28px]">auto_stories</span>
+          </div>
+          <div>
+            <p class="text-sm opacity-90 font-medium">DSWD Social Technology Bureau</p>
+            <h1 class="text-3xl sm:text-4xl font-extrabold">Documentation</h1>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROLE PICKER (shown first) -->
+      <div id="role-picker-section">
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-10 mb-8">
+          <div class="text-center mb-8">
+            <span class="material-symbols-outlined text-brand-blue text-[32px] mb-2 block">manage_accounts</span>
+            <h2 class="doc-title text-xl mb-2">Who are you?</h2>
+            <p class="doc-body">Select your role to get a guide that's tailored just for you. You can change this anytime.</p>
+          </div>
+          <div class="grid sm:grid-cols-3 gap-4" id="role-cards">
+            <div class="role-card" data-role="field_officer" data-accent="#1152d4" onclick="selectRole('field_officer','#1152d4')">
+              <span class="material-symbols-outlined text-[32px] text-brand-blue mb-2 block">badge</span>
+              <div class="doc-title text-sm mb-1">Field Officer</div>
+              <div class="doc-body text-xs">I register and assess children in the field</div>
+            </div>
+            <div class="role-card" data-role="stu_head" data-accent="#7c3aed" onclick="selectRole('stu_head','#7c3aed')">
+              <span class="material-symbols-outlined text-[32px] mb-2 block" style="color:#7c3aed">supervisor_account</span>
+              <div class="doc-title text-sm mb-1">STU Head</div>
+              <div class="doc-body text-xs">I manage field officers and approve requests in my region</div>
+            </div>
+            <div class="role-card" data-role="central" data-accent="#0891b2" onclick="selectRole('central','#0891b2')">
+              <span class="material-symbols-outlined text-[32px] mb-2 block" style="color:#0891b2">account_balance</span>
+              <div class="doc-title text-sm mb-1">Central Office</div>
+              <div class="doc-body text-xs">I view national reports and monitor trends</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN GUIDE (hidden until role selected) -->
+      <div id="guide-section" style="display:none">
+
+        <!-- Role badge + change -->
+        <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <span id="role-icon-badge" class="material-symbols-outlined text-[26px]"></span>
+            <div>
+              <div class="doc-body text-xs text-gray-500">Showing guide for</div>
+              <div class="doc-title text-base" id="role-label-display"></div>
+            </div>
+          </div>
+          <button onclick="changeRole()" class="flex items-center gap-1 text-xs font-semibold text-brand-blue hover:text-brand-blueHover transition-colors border border-blue-200 rounded-lg px-3 py-2 bg-white hover:bg-blue-50">
+            <span class="material-symbols-outlined text-[15px]">swap_horiz</span>
+            Change Role
+          </button>
+        </div>
+
+        <!-- Mobile section toggle -->
+        <button id="mobile-nav-toggle" onclick="toggleMobileNav()" class="w-full flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-3 mb-4 shadow-sm">
+          <span class="doc-title text-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-brand-blue text-[18px]">menu</span>
+            Jump to a section
+          </span>
+          <span class="material-symbols-outlined text-gray-400 text-[18px]" id="mobile-nav-chevron">expand_more</span>
+        </button>
+
+        <div class="flex gap-6 items-start">
+
+          <!-- SIDEBAR -->
+          <aside id="sidebar" class="w-56 flex-shrink-0 bg-white rounded-xl shadow-lg border border-gray-200 p-3 sticky top-20 self-start">
+            <div class="doc-title text-xs text-gray-700 uppercase tracking-wider px-2 mb-2">Sections</div>
+            <nav id="sidebar-nav"></nav>
+          </aside>
+
+          <!-- CONTENT -->
+          <div class="flex-1 min-w-0">
+            <div id="section-quickstart" class="section-content">
+              <!-- filled by JS -->
+            </div>
+            <div id="section-profiling" class="section-content">
+            </div>
+            <div id="section-dashboard" class="section-content">
+            </div>
+            <div id="section-qrcode" class="section-content">
+            </div>
+            <div id="section-arugaid" class="section-content">
+            </div>
+            <div id="section-security" class="section-content">
+            </div>
+            <div id="section-troubleshoot" class="section-content">
+            </div>
+            <div id="section-glossary" class="section-content">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-gray-200 py-6 mt-8">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <p class="doc-body text-xs text-gray-400">Project Aruga &mdash; DSWD Social Technology Bureau &mdash; <a href="/contact.html" class="text-brand-blue hover:underline">Contact Support</a></p>
+    </div>
+  </footer>
+
+<script>
+// ─── ROLE CONFIG ──────────────────────────────────────────────────────────────
+const ROLES = {
+  field_officer: { label: 'Field Officer', icon: 'badge',                 accent: '#1152d4' },
+  stu_head:      { label: 'STU Head',       icon: 'supervisor_account',    accent: '#7c3aed' },
+  central:       { label: 'Central Office', icon: 'account_balance',       accent: '#0891b2' },
+  admin:         { label: 'System Admin',   icon: 'admin_panel_settings',  accent: '#dc2626' },
+};
+
+// ─── SECTION DEFINITIONS ──────────────────────────────────────────────────────
+const SECTIONS = [
+  { id: 'quickstart',   title: 'Getting Started',             icon: 'rocket_launch', roles: ['field_officer','stu_head','central','admin'] },
+  { id: 'profiling',    title: 'How to Register a Child',     icon: 'assignment',    roles: ['field_officer'] },
+  { id: 'dashboard',    title: 'Using Your Dashboard',        icon: 'dashboard',     roles: ['field_officer','stu_head','central','admin'] },
+  { id: 'qrcode',       title: 'QR Codes & Verification',     icon: 'qr_code',       roles: ['field_officer','stu_head','central','admin'] },
+  { id: 'arugaid',      title: 'Understanding the ARUGA ID',  icon: 'tag',           roles: ['field_officer','stu_head','central','admin'] },
+  { id: 'security',     title: 'Keeping Your Account Safe',   icon: 'lock',          roles: ['field_officer','stu_head','central','admin'] },
+  { id: 'troubleshoot', title: 'Common Questions & Fixes',    icon: 'help',          roles: ['field_officer','stu_head','central','admin'] },
+  { id: 'glossary',     title: 'Words You Might Not Know',    icon: 'menu_book',     roles: ['field_officer','stu_head','central','admin'] },
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentRole = null;
+let currentAccent = '#1152d4';
+let activeSection = 'quickstart';
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function el(id) { return document.getElementById(id); }
+
+function tipBox(text, type = 'tip') {
+  const styles = {
+    tip:     { cls: 'tip-box',     icon: 'info',        label: 'Helpful Tip' },
+    warning: { cls: 'warning-box', icon: 'warning',     label: 'Important' },
+    info:    { cls: 'info-box',    icon: 'check_circle',label: 'Good to Know' },
+  };
+  const s = styles[type];
+  return `<div class="${s.cls} my-4"><div class="flex items-start gap-2">
+    <span class="material-symbols-outlined text-[18px] mt-0.5">${s.icon}</span>
+    <p class="doc-body"><span class="font-semibold text-gray-800">${s.label}:</span> ${text}</p>
+  </div></div>`;
+}
+
+function stepCard(num, title, body) {
+  return `<div class="flex items-start gap-4 py-4 border-b border-gray-100">
+    <span class="step-badge accent mt-0.5">${num}</span>
+    <div>
+      <p class="doc-title mb-1">${title}</p>
+      <p class="doc-body">${body}</p>
+    </div>
+  </div>`;
+}
+
+function sectionHeader(text, icon) {
+  return `<div class="flex items-center gap-3 mb-6">
+    <span class="material-symbols-outlined text-brand-blue text-[24px]">${icon}</span>
+    <h2 class="doc-title" style="font-size:18px">${text}</h2>
+  </div>`;
+}
+
+function accordion(title, body, openByDefault = false) {
+  const id = 'acc_' + Math.random().toString(36).substr(2,6);
+  return `<div class="accordion-item">
+    <button class="accordion-header${openByDefault ? ' open' : ''}" onclick="toggleAccordion('${id}',this)">
+      ${title}
+      <span class="material-symbols-outlined chevron">expand_more</span>
+    </button>
+    <div class="accordion-body${openByDefault ? ' open' : ''}" id="${id}">${body}</div>
+  </div>`;
+}
+
+function toggleAccordion(bodyId, btn) {
+  const body = el(bodyId);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  btn.classList.toggle('open', !isOpen);
+}
+
+// ─── ROLE SELECTION ───────────────────────────────────────────────────────────
+function selectRole(role, accent) {
+  currentRole = role;
+  currentAccent = accent;
+  document.documentElement.style.setProperty('--role-accent', accent);
+
+  // Update role cards UI
+  document.querySelectorAll('.role-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.role === role);
+    if (c.dataset.role === role) c.style.setProperty('--role-accent', accent);
+  });
+
+  // Show guide
+  el('role-picker-section').style.display = 'none';
+  el('guide-section').style.display = 'block';
+
+  // Update badge
+  el('role-icon-badge').textContent = ROLES[role].icon;
+  el('role-label-display').textContent = ROLES[role].label;
+
+  // Build sidebar and render sections
+  buildSidebar();
+  renderAllSections();
+  showSection('quickstart');
+}
+
+function changeRole() {
+  el('role-picker-section').style.display = 'block';
+  el('guide-section').style.display = 'none';
+  // reset selection highlight
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+}
+
+// ─── SIDEBAR ─────────────────────────────────────────────────────────────────
+function buildSidebar() {
+  const nav = el('sidebar-nav');
+  const filtered = SECTIONS.filter(s => s.roles.includes(currentRole));
+  nav.innerHTML = filtered.map(s => `
+    <button class="sidebar-link${s.id === activeSection ? ' active' : ''}" id="nav_${s.id}" onclick="showSection('${s.id}')">
+      <span class="material-symbols-outlined text-[17px]">${s.icon}</span>
+      ${s.title}
+    </button>
+  `).join('');
+}
+
+function showSection(id) {
+  activeSection = id;
+  document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
+  const target = document.getElementById('section_' + id) || document.getElementById('section-' + id);
+  if (target) {
+    target.classList.add('active');
+    target.classList.add('fade-in');
+    setTimeout(() => target.classList.remove('fade-in'), 300);
+  }
+  // Update sidebar active
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  const activeLink = el('nav_' + id);
+  if (activeLink) activeLink.classList.add('active');
+  // Scroll to top of content
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Close mobile nav
+  el('sidebar').classList.remove('mobile-open');
+  el('mobile-nav-chevron').textContent = 'expand_more';
+}
+
+// ─── MOBILE NAV ───────────────────────────────────────────────────────────────
+function toggleMobileNav() {
+  const s = el('sidebar');
+  const open = s.classList.toggle('mobile-open');
+  el('mobile-nav-chevron').textContent = open ? 'expand_less' : 'expand_more';
+}
+
+// ─── RENDER ALL SECTIONS ─────────────────────────────────────────────────────
+function renderAllSections() {
+  SECTIONS.forEach(s => {
+    const cont = document.getElementById('section-' + s.id);
+    if (!cont) return;
+    if (!s.roles.includes(currentRole)) { cont.innerHTML = ''; return; }
+    cont.innerHTML = getContent(s.id);
+    // Apply accent to step badges
+    cont.querySelectorAll('.step-badge.accent').forEach(b => b.style.backgroundColor = currentAccent);
+  });
+}
+
+// ─── CONTENT BUILDERS ────────────────────────────────────────────────────────
+function getContent(sectionId) {
+  const r = currentRole;
+  switch(sectionId) {
+    case 'quickstart':   return contentQuickstart(r);
+    case 'profiling':    return contentProfiling();
+    case 'dashboard':    return contentDashboard(r);
+    case 'qrcode':       return contentQrcode();
+    case 'arugaid':      return contentArugaId();
+    case 'security':     return contentSecurity();
+    case 'troubleshoot': return contentTroubleshoot();
+    case 'glossary':     return contentGlossary();
+    default: return '';
+  }
+}
+
+// ─── QUICKSTART ───────────────────────────────────────────────────────────────
+function contentQuickstart(r) {
+  let steps = '';
+  if (r === 'field_officer') {
+    steps = `
+      ${stepCard(1, 'Open the system website', 'Go to the main ARUGA link you were given by your office. You will see the login page for the Profiling Tool. Make sure you are using a stable internet connection before you begin, since the form needs to stay connected while you fill it out.')}
+      ${stepCard(2, 'Enter your interviewer code', 'Type in your 8-character code (for example, DSWD0001). This code is unique to you and was assigned by your office. Enter it exactly as given, including capital letters and numbers. If you do not have a code yet, ask your STU Head or system administrator.')}
+      ${stepCard(3, 'Agree to the privacy notice and proceed', 'Check the Data Privacy Agreement box to confirm you understand and will follow the rules for handling personal information under RA 10173. After checking the box, click <strong>Submit and Proceed</strong> to go to the registration form.')}
+      ${stepCard(4, 'Fill out the registration form', 'The form has 11 steps. Go through each one carefully. When you reach Step 10, review all the information before submitting. After submission, you will get the child\'s ARUGA ID and QR code.')}
+      ${tipBox('You have a separate login for your dashboard. Use your email and password to access that. The 8-digit code is only for the registration form.')}
+      ${tipBox('Before heading out to the field, have ready: the child\'s full name, birthday, address down to the barangay, school information, and any health or disability records.', 'info')}
+    `;
+  } else if (r === 'stu_head') {
+    steps = `
+      ${stepCard(1, 'Go to the Dashboard login page', 'Open the ARUGA dashboard link (it usually ends in /dashboard or /login-dashboard). This is different from the Profiling Tool that your field officers use.')}
+      ${stepCard(2, 'Log in with your email and password', 'Use the email and password set up for your account. If you have not received these yet, contact your system administrator. Your password is case sensitive.')}
+      ${stepCard(3, 'Start managing your region', 'Once inside, you will see a summary of your region\'s data right away. Check on your field officers\' work, review and approve or reject edit requests, and browse the list of registered children in your area.')}
+      ${tipBox('Your dashboard session expires after 30 minutes of inactivity. This is a security feature to protect the data.', 'info')}
+    `;
+  } else if (r === 'central') {
+    steps = `
+      ${stepCard(1, 'Open the Dashboard login page', 'Visit the ARUGA dashboard link provided by your office. It usually ends in /dashboard or /login-dashboard. Bookmark it so you can find it easily next time.')}
+      ${stepCard(2, 'Enter your email and password', 'Your account gives you access to data from all regions nationwide. If you make too many mistakes, the system will lock you out for 15 minutes as a safety measure.')}
+      ${stepCard(3, 'Explore national reports', 'Once you are in, you will see a big-picture view of all the data across the country. You can compare performance between regions, look at monthly trends, and see how completion rates are changing. Everything on your dashboard is read-only.')}
+      ${tipBox('Your dashboard session expires after 30 minutes of inactivity. Save or export any reports you are working on before stepping away.', 'info')}
+    `;
+  } else if (r === 'admin') {
+    steps = `
+      ${stepCard(1, 'Log into the Admin Dashboard', 'Open the dashboard login page and sign in with your admin email and password. As an administrator, you have the highest level of access in the system. Keep your credentials safe and do not share them with anyone.')}
+      ${stepCard(2, 'Review the full system', 'You have complete access to everything: all beneficiary records from every region, all user accounts, all system settings, and all audit logs. The main dashboard gives you a high-level overview.')}
+      ${stepCard(3, 'Manage users and monitor activity', 'You can add or remove interviewer accounts, check audit logs to see who did what and when, configure system settings, and export data. Check the audit logs regularly to spot any unusual activities.')}
+      ${tipBox('With full access comes full responsibility. Every action you take is also logged in the system. Be careful when deactivating accounts or changing settings, as these changes affect all users.', 'warning')}
+    `;
+  }
+  return `<div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 fade-in">
+    ${sectionHeader('Getting Started', 'rocket_launch')}
+    <p class="doc-body mb-4">Welcome to Project ARUGA! This system helps the DSWD register, assess, and keep track of children with disabilities who may be eligible for social protection programs. Here is how to get started based on your role.</p>
+    ${steps}
+  </div>`;
+}
+
+// ─── PROFILING ────────────────────────────────────────────────────────────────
+function contentProfiling() {
+  return `<div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 fade-in">
+    ${sectionHeader('How to Register a Child', 'assignment')}
+    <p class="doc-body mb-2">The registration form is where you record a child's information step by step. It has 11 sections. The system will guide you through each one.</p>
+    ${tipBox('There is no time limit on the profiling form, so you can take your time. Just make sure you do not close the browser or navigate away before you finish, because unsaved progress may be lost.', 'info')}
+    <h3 class="doc-title mt-6 mb-3" style="font-size:16px">The 11 Steps</h3>
+    ${stepCard(1, 'Pre-Qualification Check', 'The system will ask if the child\'s family is part of the 4Ps program and their household ID. This helps determine whether the child qualifies for ARUGA services. If the family is a 4Ps member, have their household ID number ready. If they are not part of the program, you can still proceed.')}
+    ${stepCard(2, 'Respondent Information', 'Enter the details of the person answering the questions — usually a parent, guardian, or someone who takes care of the child. You will put their full name and their relationship to the child (for example, mother, father, grandmother, or legal guardian).')}
+    ${stepCard(3, "Child's Basic Information", 'Fill in the child\'s full name, birthday, sex, and complete address. The address fields work like a cascade: first pick the region, then the province, then the city or municipality, then the barangay. Make sure the birthday is correct because it cannot be easily changed after submission.')}
+    ${stepCard(4, 'Education Status', 'Record whether the child is currently enrolled in school, what grade level they are in, and what type of school they attend. If the child is not enrolled, select the appropriate reason.')}
+    ${stepCard(5, 'Health and Disabilities', 'Select the type (or types) of disability the child has, along with any other health conditions. You can choose more than one if the child has multiple disabilities. Be as accurate as possible — this information determines what kind of support the child may receive.')}
+    ${stepCard(6, 'Health Assessment', 'Answer a more detailed set of health screening questions about the child\'s medical history and current condition. If the respondent is unsure about certain medical details, note what they do know and encourage them to bring medical records if available.')}
+    ${stepCard(7, 'Functional Assessment', 'Rate the child\'s ability to do everyday tasks like eating, bathing, dressing, moving around, and communicating. Answer based on what you observe and what the respondent tells you.')}
+    ${stepCard(8, 'Psychosocial Assessment', 'Answer questions about the child\'s behavior, social skills, and emotional wellbeing. Be sensitive when asking these questions, as some topics may be difficult for the family.')}
+    ${stepCard(9, 'Intervention Readiness', 'This checks whether the child and family are ready and willing to receive help from DSWD programs. It looks at the family\'s awareness of available services and any barriers that might prevent them from accessing support.')}
+    ${stepCard(10, 'Review Everything', 'The system will show you a complete summary of everything you entered. Go through each section carefully. If you spot a mistake, go back to that step and fix it. This is your last chance to make changes before the record is saved.')}
+    ${stepCard(11, 'Submit', 'Once you are satisfied that everything is correct, click the submit button. The system will save the record, generate the child\'s unique ARUGA ID, and create a QR code. You will be taken to a success page where you can print the QR code or save a digital copy.')}
+    ${tipBox('Do not press the browser\'s back button while filling out the form. Always use the form\'s own <strong>Next</strong> and <strong>Previous</strong> buttons to move between steps.', 'warning')}
+    ${tipBox('After submitting, give the printed QR code to the family so they have proof of registration they can show to health workers, teachers, or other agencies.')}
+    ${tipBox('If you realize you made a mistake after submitting, you can submit an edit request through your dashboard. Your STU Head will review and approve the change.', 'info')}
+  </div>`;
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+function contentDashboard(r) {
+  let body = '';
+  if (r === 'field_officer') {
+    body = `
+      ${accordion('Your Performance Overview', 'The top of your dashboard shows your personal numbers — how many children you have registered this month, your completion rate, and how your progress compares to your monthly target. This helps you stay on track.', true)}
+      ${accordion('Recently Registered Children', 'Below your stats, you will find a list of the children you recently registered. You can click on any name to see their full record.')}
+      ${accordion('Action Items', 'This section shows anything that needs your attention, like follow-up tasks or records that need updates.')}
+      ${accordion('QR Code Lookup', 'You can scan a QR code or type in an ARUGA ID to quickly pull up a child\'s profile and verify their status. This is useful when a family comes to your office and you need to confirm their registration, or when another agency asks you to verify a beneficiary.')}
+    `;
+  } else if (r === 'stu_head') {
+    body = `
+      ${accordion('Your Region at a Glance', 'The dashboard opens with a summary of your region\'s data. You can see total registrations, the number of active field officers, and key performance numbers. This gives you a quick snapshot of how your region is doing.', true)}
+      ${accordion('Managing Your Field Officers', 'You can view the full list of field officers assigned to your region, see how many assessments each one has completed, and check who has been active recently. This helps you identify officers who might need additional support or training.')}
+      ${accordion('Approving Edit Requests', 'When a field officer needs to change something in a record they already submitted, they send an edit request. These requests show up on your dashboard for review. You can read what the officer wants to change and why, then either approve the request or reject it with a reason.')}
+      ${accordion('Beneficiary Lists and Reports', 'Browse the full list of children registered in your region. You can filter the list by status, registration date, or other criteria to find specific records. This section also lets you export data for your own reports.')}
+    `;
+  } else if (r === 'central') {
+    body = `
+      ${accordion('National Overview', 'Your dashboard shows the big picture — the total number of children registered across the entire country, broken down by region. This helps you quickly identify which regions are ahead of their targets and which ones might need additional support.', true)}
+      ${accordion('Trends Over Time', 'See monthly charts that show how many assessments were completed over time, how fast registration numbers are growing, and where completion rates are improving or declining. These trends are useful for planning and reporting to leadership.')}
+      ${accordion('Regional Comparisons', 'A side-by-side view that lets you compare performance between different regions. You can see which regions have the most registrations, the highest completion rates, or the most active field officers.')}
+      ${tipBox('Your access is read-only. You can view and export reports, but you cannot change any records. If you notice something that needs correction, reach out to the relevant STU Head or system administrator.', 'info')}
+    `;
+  } else if (r === 'admin') {
+    body = `
+      ${accordion('Full System View', 'You see everything — all beneficiaries, all interviewers, all regions. The main dashboard gives you a high-level summary with the option to drill down into any area.', true)}
+      ${accordion('Managing Interviewer Accounts', 'You can add new field officers to the system, update their details, or deactivate accounts that are no longer in use. Each interviewer gets an 8-character code that they use to log into the Profiling Tool.')}
+      ${accordion('Audit Logs', 'Every action taken in the system is recorded. You can see who logged in, who submitted a form, who edited a record, and when it happened. This is important for accountability and security.')}
+      ${accordion('System Settings', 'Configure how the system behaves. This includes session rules, access permissions, and other settings that affect all users.')}
+    `;
+  }
+  return `<div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 fade-in">
+    ${sectionHeader('Using Your Dashboard', 'dashboard')}
+    <p class="doc-body mb-4">The dashboard is where you can see data, track progress, and manage tasks. What you see depends on your role. Here is what is available to you:</p>
+    ${body}
+  </div>`;
+}
+
+// ─── QR CODE ─────────────────────────────────────────────────────────────────
+function contentQrcode() {
+  return `<div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 fade-in">
+    ${sectionHeader('QR Codes & Verification', 'qr_code')}
+    <p class="doc-body mb-4">Every child who gets registered in ARUGA receives a unique QR code. Think of it as a quick digital ID card.</p>
+    <h3 class="doc-title mt-6 mb-2" style="font-size:15px">How the QR Code is Created</h3>
+    <p class="doc-body mb-4">After a field officer finishes the registration form and submits it, the system automatically creates a QR code. This code is shown on the success page along with the child's ARUGA ID. The officer can print it immediately or save a digital copy.</p>
+    <h3 class="doc-title mt-6 mb-2" style="font-size:15px">What Happens When Someone Scans It</h3>
+    <p class="doc-body mb-2">When anyone scans the QR code with a phone camera, it opens a web page that shows the child's basic profile. This page is public — no login is needed. It shows:</p>
+    <ul class="list-disc pl-6 doc-body mb-4 space-y-1">
+      <li>A badge confirming the child is a verified ARUGA beneficiary</li>
+      <li>The child's full name</li>
+      <li>Their ARUGA ID</li>
+      <li>The date they were registered</li>
+      <li>Their current status (for example, Active)</li>
+      <li>DSWD contact details for anyone who needs more information</li>
+    </ul>
+    <h3 class="doc-title mt-6 mb-2" style="font-size:15px">Who Can Use It</h3>
+    <p class="doc-body mb-4">The QR code is meant to make verification easy for everyone involved in the child's care — health workers, school teachers, social workers from other agencies, and even the child's family. Nobody needs to log into ARUGA to see this page.</p>
+    ${tipBox('Give the printed QR code to the child\'s parent or guardian so they can use it whenever they need to prove the child is registered.')}
+  </div>`;
+}
+
+// ─── ARUGA ID ─────────────────────────────────────────────────────────────────
+function contentArugaId() {
+  return `<div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 fade-in">
+    ${sectionHeader('Understanding the ARUGA ID', 'tag')}
+    <p class="doc-body mb-4">Every child registered in the system gets a unique ARUGA ID. This ID is automatically created when the registration form is submitted. You do not choose it or type it in. It follows a specific format that tells you a few things about the registration at a glance.</p>
+
+    <div class="bg-gray-50 rounded-xl p-5 text-center mb-4 border border-gray-200">
+      <div class="font-mono text-2xl font-bold tracking-widest text-gray-800 mb-3">ARUGA-2026-R5-0001</div>
+      <div class="flex flex-wrap justify-center gap-2">
+        <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:#dbeafe;color:#1d4ed8">System Name</span>
+        <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:#ede9fe;color:#6d28d9">Year</span>
+        <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:#e0f2fe;color:#0369a1">Region</span>
+        <span class="text-xs font-bold px-3 py-1 rounded-full" style="background:#fee2e2;color:#b91c1c">Number</span>
+      </div>
+    </div>
+
+    <div class="space-y-3 mb-6">
+      <p class="doc-body"><strong>ARUGA</strong> is always at the beginning. It tells you this ID belongs to the ARUGA system.</p>
+      <p class="doc-body"><strong>2026</strong> is the year the child was registered.</p>
+      <p class="doc-body"><strong>R5</strong> is the region code. In this example, R5 means Bicol Region. Other examples include NCR for the National Capital Region or R11 for Davao.</p>
+      <p class="doc-body"><strong>0001</strong> is the sequence number — the order in which the child was registered within that region and year. The first child registered in Bicol in 2026 is 0001, the second is 0002, and so on.</p>
+    </div>
+
+    <!-- Interactive Decoder -->
+    <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+      <div class="doc-body text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Try it! Paste or type an ARUGA ID below</div>
+      <input id="id-input" type="text" value="ARUGA-2026-R5-0001" oninput="decodeId(this.value)" placeholder="ARUGA-2026-R5-0001">
+      <div id="id-result" class="mt-3"></div>
+    </div>
+  </div>`;
+}
+
+const REGION_MAP = {
+  NCR:'National Capital Region', CAR:'Cordillera Administrative Region',
+  R1:'Ilocos Region', R2:'Cagayan Valley', R3:'Central Luzon',
+  R4A:'CALABARZON', R4B:'MIMAROPA', R5:'Bicol Region',
+  R6:'Western Visayas', R7:'Central Visayas', R8:'Eastern Visayas',
+  R9:'Zamboanga Peninsula', R10:'Northern Mindanao', R11:'Davao Region',
+  R12:'SOCCSKSARGEN', R13:'Caraga', BARMM:'Bangsamoro'
+};
+
+function decodeId(val) {
+  val = val.toUpperCase();
+  const resultEl = document.getElementById('id-result');
+  if (!resultEl) return;
+  const parts = val.split('-');
+  const valid = parts.length === 4 && parts[0] === 'ARUGA';
+  if (valid) {
+    const regionName = REGION_MAP[parts[2]] || parts[2];
+    const colors = ['#1d4ed8','#6d28d9','#0369a1','#b91c1c'];
+    const bgs = ['#dbeafe','#ede9fe','#e0f2fe','#fee2e2'];
+    const labels = ['System','Year Registered','Region','Sequence Number'];
+    const values = [parts[0], parts[1], regionName, parts[3]];
+    resultEl.innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      ${labels.map((l,i) => `<div class="bg-white rounded-lg p-3 border-l-4" style="border-color:${colors[i]}">
+        <div class="text-xs font-bold uppercase tracking-wide mb-1" style="color:${colors[i]}">${l}</div>
+        <div class="doc-title text-sm">${values[i]}</div>
+      </div>`).join('')}
+    </div>`;
+  } else if (val.length > 0) {
+    resultEl.innerHTML = `<p class="doc-body text-red-600 text-sm mt-2">This doesn't look like a valid ARUGA ID. It should look like: ARUGA-2026-R5-0001</p>`;
+  } else {
+    resultEl.innerHTML = '';
+  }
+}
+
+// ─── SECURITY ─────────────────────────────────────────────────────────────────
+function contentSecurity() {
+  return `<div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 fade-in">
+    ${sectionHeader('Keeping Your Account Safe', 'lock')}
+    <p class="doc-body mb-4">Because this system handles sensitive information about children, it has several safety features built in. Here is what you should know:</p>
+    ${accordion('Dashboard sessions have a time limit', 'If you are using the Dashboard, your session will expire after <strong>30 minutes of inactivity</strong>. After that, the system will automatically log you out to protect the data. The Profiling Tool does not have a time limit, so you can take as long as you need. However, if you close the tab, you may lose your progress.', true)}
+    ${accordion('Too many wrong passwords will lock you out', 'If you enter the wrong login code or password <strong>5 times in a row</strong>, the system will temporarily block your account for <strong>15 minutes</strong>. Just wait 15 minutes and try again carefully.')}
+    ${accordion('Always log out when you are done', 'Do not just close the browser tab. Use the proper logout option so your session is ended securely. This is especially important if you are using a shared computer or device.')}
+    ${accordion('Everything is recorded', 'The system keeps a log of all important actions. Every login, every form submission, and every change made in the dashboard is tracked. This is for accountability and to make sure the system is being used properly.')}
+    ${accordion('Your interviewer code is personal', 'Your 8-character interviewer code is yours alone. Do not share it with anyone else. If someone else uses your code, their actions will be recorded under your name.')}
+    ${tipBox('If you think someone else has used your account or you notice anything unusual, report it to your supervisor or system administrator right away.', 'warning')}
+  </div>`;
+}
+
+// ─── TROUBLESHOOT ─────────────────────────────────────────────────────────────
+function contentTroubleshoot() {
+  return `<div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 fade-in">
+    ${sectionHeader('Common Questions & Fixes', 'help')}
+    <p class="doc-body mb-4">Here are the most common issues users run into, along with what to do about them.</p>
+    ${accordion('I accidentally closed the browser while filling out the form', 'If you close the browser tab or navigate away before submitting, your progress will not be saved and you will need to start the form over. There is no time limit on the form, so take your time. Just make sure to stay on the page until you have finished all 11 steps and clicked Submit.', true)}
+    ${accordion('I forgot my interviewer code', 'Your 8-character code was assigned to you by your office. Contact your STU Head or system administrator and they can look it up for you. Do not try to guess, because 5 wrong attempts will lock you out for 15 minutes.')}
+    ${accordion('I forgot my dashboard password', 'If you forgot the email and password you use for the management dashboard, contact your system administrator. They can help you reset your password.')}
+    ${accordion('I got locked out after too many attempts', 'Wait 15 minutes and then try again. The lockout is temporary and will lift on its own. When you try again, make sure you are typing your code or password exactly as it was given to you, including capital letters and numbers.')}
+    ${accordion('The QR code is not scanning', 'Make sure the printed QR code is clear and not crumpled, folded, or smudged. Try scanning in good lighting and hold your phone steady about 15–20 centimeters from the code. If print quality is poor, you can look up the child\'s record on your dashboard using their ARUGA ID.')}
+    ${accordion('I pressed the back button and got a logout popup', 'That is by design. The browser\'s back button is intentionally blocked during the form to prevent accidental data loss. If you see this popup, always choose to stay on the page. Use the <strong>Next</strong> and <strong>Previous</strong> buttons built into the form to move between steps.')}
+    ${accordion('I cannot find my dashboard', 'The dashboard login is at a different web address than the profiling form. Look for a link that ends in /dashboard or /login-dashboard. Also remember the dashboard login uses your <strong>email and password</strong>, not your 8-character interviewer code — those are two separate logins.')}
+    ${accordion('I submitted a mistake and need to fix a record', 'As a field officer, you cannot directly edit a record that has already been submitted. Instead, go to your dashboard and submit an edit request. Describe what needs to be changed and why. Your STU Head will review and approve or reject the request.')}
+    ${accordion('The page is loading very slowly or not at all', 'Check your internet connection first. Try refreshing the page. If the problem continues, try clearing your browser\'s cache or using a different browser (Chrome or Edge are recommended). Consider gathering all information offline first and entering it once you have a better connection.')}
+    ${accordion('The address dropdown is not showing my barangay', 'The address fields depend on each other. Make sure you have selected the correct region, then province, then city or municipality. The barangay list will only appear after all previous fields are filled in. If your barangay is still not showing, contact your administrator to have it added.')}
+    ${accordion('I need help and nothing here answers my question', 'Visit the <a href="/contact.html" class="text-brand-blue hover:underline">Contact page</a> for support contact details. You can also check the <a href="/docs.html" class="text-brand-blue hover:underline">Documentation page</a> for additional guides and resources. If your issue is urgent, reach out to your immediate supervisor.')}
+  </div>`;
+}
+
+// ─── GLOSSARY ─────────────────────────────────────────────────────────────────
+function contentGlossary() {
+  const terms = [
+    { term: '4Ps', def: 'Short for "Pantawid Pamilyang Pilipino Program." The government\'s conditional cash transfer program for poor households. The system checks if a child\'s family is part of this program.' },
+    { term: 'ARUGA ID', def: 'A unique code given to every child registered in the system. It is automatically created when the form is submitted. Example: ARUGA-2026-R5-0001.' },
+    { term: 'Barangay', def: 'The smallest administrative division in the Philippines, similar to a village or neighborhood.' },
+    { term: 'Beneficiary', def: 'The child who is being registered and assessed. They are the person who may receive help from the program.' },
+    { term: 'Dashboard', def: 'The management side of the system. This is where supervisors, regional heads, and administrators can see data, track progress, and manage users.' },
+    { term: 'Edit Request', def: 'When a field officer needs to change information they already submitted, they send an edit request. Their STU Head must approve it before the change takes effect.' },
+    { term: 'Field Officer', def: 'The person who goes out to communities, meets with families, and fills out the registration form for each child.' },
+    { term: 'Interviewer Code', def: 'An 8-character code (like DSWD0001) assigned to each field officer. This is what they use to log into the Profiling Tool.' },
+    { term: 'Profiling Tool', def: 'The part of the system where field officers fill out the 11-step registration form. It is separate from the Dashboard.' },
+    { term: 'QR Code', def: 'A square barcode that can be scanned with a phone camera. In ARUGA, each child gets a QR code that links to their public profile page.' },
+    { term: 'RA 10173', def: 'Also called the "Data Privacy Act of 2012." This is the Philippine law that protects personal information. The system follows this law.' },
+    { term: 'Session', def: 'The time window during which you are logged in. It starts when you log in and ends when you log out. On the Dashboard, sessions expire after 30 minutes of inactivity.' },
+    { term: 'STU Head', def: 'The supervisor in charge of a regional office. They oversee field officers and approve edit requests.' },
+    { term: 'Supabase', def: 'The database system used behind the scenes to store all the information. You do not need to interact with it directly.' },
+  ];
+  return `<div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 fade-in">
+    ${sectionHeader('Words You Might Not Know', 'menu_book')}
+    <p class="doc-body mb-4">Here are some terms you might come across while using the system:</p>
+    <div class="divide-y divide-gray-100">
+      ${terms.map(t => `<div class="py-3">
+        <span class="font-mono font-bold text-gray-800">${t.term}</span>
+        <span class="mx-2 text-gray-300">—</span>
+        <span class="doc-body">${t.def}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+// Auto-decode on page load
+window.addEventListener('load', () => {
+  const input = document.getElementById('id-input');
+  if (input) decodeId(input.value);
+});
+</script>
+</body>
+</html>
