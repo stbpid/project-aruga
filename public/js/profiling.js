@@ -2603,7 +2603,7 @@ function validateStep3() {
 
   const illVals = getMultiVals('dd-illness');
   if (illVals.length === 0) {
-    chkMulti('dd-illness', 'err-dd-illness', 'Please select at least one critical illness (or select "None")');
+    showFieldError('dd-illness-btn', 'Please select at least one critical illness (or select "None")');
     ok = false;
   } else if (illVals.includes('Others')) {
     const v = (document.getElementById('illness-other-input')?.value || '').trim();
