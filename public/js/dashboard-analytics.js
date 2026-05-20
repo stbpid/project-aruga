@@ -405,7 +405,7 @@ let rgLoaded=false;
 let rgSortState={regions:{key:'total',dir:-1},provinces:{key:'total',dir:-1},cities:{key:'total',dir:-1}};
 let rgCurrentTab='overview';
 
-const RG_TARGETS={'Region I (Ilocos Region)':150,'Region II (Cagayan Valley)':100,'Region III (Central Luzon)':100,'Region IV-A (CALABARZON)':100,'Region IV-A (MIMAROPA)':150,'Region V (Bicol)':100,'Region VI (Western Visayas)':150,'Region XI (Davao)':150,'National Capital Region':140};
+const RG_TARGETS={'Region I (Ilocos Region)':150,'Region II (Cagayan Valley)':100,'Region III (Central Luzon)':100,'Region IV-A (CALABARZON)':100,'Region IV-B (MIMAROPA)':150,'Region V (Bicol Region)':100,'Region VI (Western Visayas)':150,'Region XI (Davao)':150,'National Capital Region':140};
 
 async function loadRegionsView() {
   if(!rgLoaded){
