@@ -85,23 +85,33 @@ function normalizeRegion($r) {
         'Region V – Bicol Region'     => 'Region V (Bicol Region)',
         'Region V - Bicol Region'     => 'Region V (Bicol Region)',
         'Bicol Region'                => 'Region V (Bicol Region)',
+        'Region V'                    => 'Region V (Bicol Region)',
+        'Region V (Bicol)'            => 'Region V (Bicol Region)',
         'Region VI – Western Visayas' => 'Region VI (Western Visayas)',
         'Region VI - Western Visayas' => 'Region VI (Western Visayas)',
+        'Region VI'                   => 'Region VI (Western Visayas)',
         'Region VII – Central Visayas'=> 'Region VII (Central Visayas)',
         'Region VII - Central Visayas'=> 'Region VII (Central Visayas)',
+        'Region VII'                  => 'Region VII (Central Visayas)',
         'Region VIII – Eastern Visayas'=> 'Region VIII (Eastern Visayas)',
         'Region VIII - Eastern Visayas'=> 'Region VIII (Eastern Visayas)',
+        'Region VIII'                 => 'Region VIII (Eastern Visayas)',
         'Region IX – Zamboanga Peninsula'=> 'Region IX (Zamboanga Peninsula)',
         'Region IX - Zamboanga Peninsula'=> 'Region IX (Zamboanga Peninsula)',
+        'Region IX'                   => 'Region IX (Zamboanga Peninsula)',
         'Region X – Northern Mindanao'=> 'Region X (Northern Mindanao)',
         'Region X - Northern Mindanao'=> 'Region X (Northern Mindanao)',
+        'Region X'                    => 'Region X (Northern Mindanao)',
         'Region XI – Davao Region'    => 'Region XI (Davao Region)',
         'Region XI - Davao Region'    => 'Region XI (Davao Region)',
+        'Region XI'                   => 'Region XI (Davao Region)',
         'Region XII – SOCCSKSARGEN'   => 'Region XII (SOCCSKSARGEN)',
         'Region XII - SOCCSKSARGEN'   => 'Region XII (SOCCSKSARGEN)',
+        'Region XII'                  => 'Region XII (SOCCSKSARGEN)',
         'Region XIII – Caraga'        => 'Region XIII (Caraga)',
         'Region XIII - Caraga'        => 'Region XIII (Caraga)',
         'Caraga'                      => 'Region XIII (Caraga)',
+        'Region XIII'                 => 'Region XIII (Caraga)',
         'CAR – Cordillera'            => 'CAR (Cordillera Administrative Region)',
         'CAR - Cordillera'            => 'CAR (Cordillera Administrative Region)',
         'CAR'                         => 'CAR (Cordillera Administrative Region)',
@@ -140,7 +150,7 @@ foreach ($childRes['data'] as $row) {
     $dob      = $row['date_of_birth']          ?? null;
 
     if ($region === '') continue;
-    if ($filterRegion  !== '' && $region   !== $filterRegion)  continue;
+    if ($filterRegion  !== '' && $region   !== normalizeRegion($filterRegion))  continue;
     if ($filterProvince !== '' && $province !== $filterProvince) continue;
 
     $ass    = $assMap[$aid]    ?? ['status'=>'in_progress','readiness_score'=>null,'created_at'=>null];
