@@ -2939,9 +2939,9 @@
       allBenData = json.success ? json.data : [];
       allBenLoaded = true;
 
-      const regions = [...new Set(allBenData.map(r => r.region).filter(r => r && r !== '—'))].sort();
       const rSel = document.getElementById('all-ben-region');
-      regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; rSel.appendChild(o); });
+      const BEN_REGIONS = ['NCR (National Capital Region)','Region I (Ilocos Region)','Region II (Cagayan Valley)','Region III (Central Luzon)','Region IV-A (CALABARZON)','Region IV-B (MIMAROPA)','Region V (Bicol Region)','Region VI (Western Visayas)','Region XI (Davao Region)'];
+      BEN_REGIONS.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; rSel.appendChild(o); });
 
       const disSet = new Map();
       allBenData.forEach(r => {
@@ -6500,8 +6500,8 @@
   function populateExportRegions() {
     const sel = document.getElementById('exp-ben-region');
     if (sel.options.length > 1) return;
-    const regions = [...new Set(allBenData.map(r => r.region).filter(r => r && r !== '—'))].sort();
-    regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o); });
+    const BEN_REGIONS = ['NCR (National Capital Region)','Region I (Ilocos Region)','Region II (Cagayan Valley)','Region III (Central Luzon)','Region IV-A (CALABARZON)','Region IV-B (MIMAROPA)','Region V (Bicol Region)','Region VI (Western Visayas)','Region XI (Davao Region)'];
+    BEN_REGIONS.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o); });
   }
 
   function exportData(type) {
@@ -7117,10 +7117,10 @@
   function rptPopulateRegions() {
     const sel = document.getElementById('rpt-region-filter');
     if (!sel) return;
-    const regions = (AN_DATA?.regions || []).map(r => r.region).filter(Boolean);
     const current = anFilters.region;
+    const RPT_REGIONS = ['NCR (National Capital Region)','Region I (Ilocos Region)','Region II (Cagayan Valley)','Region III (Central Luzon)','Region IV-A (CALABARZON)','Region IV-B (MIMAROPA)','Region V (Bicol Region)','Region VI (Western Visayas)','Region XI (Davao Region)'];
     sel.innerHTML = '<option value="">All Regions</option>' +
-      regions.map(r => `<option value="${r}"${r === current ? ' selected' : ''}>${r}</option>`).join('');
+      RPT_REGIONS.map(r => `<option value="${r}"${r === current ? ' selected' : ''}>${r}</option>`).join('');
   }
 
   function rptShowFilterToast(msg) {
