@@ -4783,10 +4783,11 @@
           <tbody>${rws.map((r,i)=>`<tr class="${i%2===1?'alt':''}">${r.map(v=>`<td>${v??'—'}</td>`).join('')}</tr>`).join('')}</tbody>
         </table>`;
 
-      const sec = (icon, title, content, pageBreak) => `
+      const sec = (icon, title, content, pageBreak, insight) => `
         <div class="section${pageBreak?' page-break':''}">
           <div class="section-title"><span class="sec-line"></span>${title}</div>
           ${content}
+          ${insight?`<div class="sec-insight">${insight}</div>`:''}
         </div>`;
 
       const card = (content, cols) => `<div class="card-grid" style="grid-template-columns:${cols||'1fr 1fr'};">${content}</div>`;
@@ -4839,27 +4840,30 @@
         <style>
         *{box-sizing:border-box;margin:0;padding:0;}
 
-        /* ── Page setup: 1-inch margins, reserve space for fixed header/footer ── */
-        @page{size:A4 portrait;margin:1in;}
+        /* ── Page setup ── */
+        @page{size:A4 portrait;margin:0.5in;}
         html,body{background:#fff;font-family:'Poppins',Arial,sans-serif;font-size:8.5pt;color:#0f172a;}
 
         /* ── Fixed header — prints on every page ── */
         #lh-header{position:fixed;top:0;left:0;right:0;
-          padding:0.3in 1in 0;
+          padding:0.5in 0.5in 0;
           background:#fff;z-index:9999;}
         .lh-header-inner{display:flex;align-items:center;gap:16px;padding-bottom:8px;}
-        .lh-logo img{height:58px;width:auto;object-fit:contain;}
+        .lh-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+        .lh-logo img{height:54px;width:auto;object-fit:contain;}
+        .lh-logo-text{text-align:left;}
+        .lh-logo-name{font-family:Arial,sans-serif;font-size:1.1rem;font-weight:900;color:#1152d4;letter-spacing:0.03em;line-height:1;}
+        .lh-logo-dept{font-family:Arial,sans-serif;font-size:6pt;color:#374151;font-weight:600;max-width:110px;line-height:1.3;}
         .lh-titles{flex:1;text-align:center;}
         .lh-bureau{font-family:Arial,sans-serif;font-size:11pt;font-weight:700;color:#111;line-height:1.2;}
         .lh-sub{font-family:Arial,sans-serif;font-size:9pt;font-weight:700;color:#111;line-height:1.3;}
-        .lh-rule{height:3px;background:#111;}
-        .lh-rule2{height:1px;background:#111;margin-top:2px;}
+        .lh-rule{height:2px;background:#000;margin-top:6px;}
 
         /* ── Fixed footer — prints on every page ── */
         #lh-footer{position:fixed;bottom:0;left:0;right:0;
-          padding:0 1in 0.25in;
+          padding:0 0.5in 0.5in;
           background:#fff;z-index:9999;}
-        .lh-footer-rule{height:1.5px;background:#111;margin-bottom:4px;}
+        .lh-footer-rule{height:1px;background:#d1d5db;margin-bottom:4px;}
         .lh-footer-pagenum{font-family:Arial,sans-serif;text-align:center;font-size:8pt;font-weight:700;color:#111;margin-bottom:2px;}
         .lh-footer-addr{font-family:Arial,sans-serif;text-align:center;font-size:6.5pt;color:#111;line-height:1.5;}
 
@@ -4868,9 +4872,9 @@
 
         /* ── Content — pushed below fixed header & above fixed footer ── */
         #lh-content{
-          margin-top:1.35in;   /* header height reservation */
-          margin-bottom:0.9in; /* footer height reservation */
-          padding:0 0 0 0;
+          margin-top:1.5in;
+          margin-bottom:1.1in;
+          padding:0;
         }
 
         /* ── Report title block ── */
@@ -4934,26 +4938,35 @@
 
         /* ── Page break ── */
         .page-break{page-break-before:always;}
+
+        /* ── Section insights ── */
+        .sec-insight{background:#f0f4ff;border-left:3px solid #1152d4;border-radius:0 5px 5px 0;padding:6px 10px;margin-top:8px;font-size:6.8pt;color:#1e3a8a;line-height:1.6;page-break-inside:avoid;}
+        .sec-insight b{color:#1152d4;}
         </style></head><body>
 
         <!-- Fixed DSWD Header (repeats every page) -->
         <div id="lh-header">
           <div class="lh-header-inner">
-            <div class="lh-logo"><img src="${dswdLogoUrl}" alt="DSWD" onerror="this.style.display='none'"></div>
+            <div class="lh-logo">
+              <img src="${dswdLogoUrl}" alt="DSWD" onerror="this.style.display='none'">
+              <div class="lh-logo-text">
+                <div class="lh-logo-name">DSWD</div>
+                <div class="lh-logo-dept">Department of Social Welfare and Development</div>
+              </div>
+            </div>
             <div class="lh-titles">
               <div class="lh-bureau">SOCIAL TECHNOLOGY BUREAU</div>
               <div class="lh-sub">INNOVATIONS AND PROGRAM DEVELOPMENT GROUP</div>
             </div>
           </div>
           <div class="lh-rule"></div>
-          <div class="lh-rule2"></div>
         </div>
 
         <!-- Fixed DSWD Footer (repeats every page) -->
         <div id="lh-footer">
           <div class="lh-footer-rule"></div>
           <div class="lh-footer-pagenum"></div>
-          <div class="lh-footer-addr">DSWD Central Office, IBP Road, Batasan Pambansa Complex, Constitution Hills, Quezon City, Philippines 1126<br>Website: http://www.dswd.gov.ph &nbsp; Tel Nos.: (632)8 931-8101 to 07 &nbsp; Telefax: (632) 8 931-8191</div>
+          <div class="lh-footer-addr">DSWD Central Office, IBP Road, Batasan Pambansa Complex, Constitution Hills, Quezon City, Philippines 1126<br>Website: http://www.dswd.gov.ph &nbsp;&nbsp; Tel Nos.: (632)8 931-8101 to 07 &nbsp;&nbsp; Telefax: (632) 8 931-8191</div>
         </div>
 
         <!-- Main Content -->
@@ -5010,7 +5023,9 @@
           </div>
           <div style="margin-top:8px;">
             ${rd.map(r=>svgProgressBar(rdTotal>0?Math.round((r.val/rdTotal)*100):0, rdColor[r.label]||'#1152d4', r.label)).join('')}
-          </div>`)}
+          </div>`,
+          false,
+          (()=>{const sev=rd.find(r=>r.label==='Severe');const mod=rd.find(r=>r.label==='Moderate');const sevPct=rdTotal>0?Math.round(((sev?.val||0)/rdTotal)*100):0;const modPct=rdTotal>0?Math.round(((mod?.val||0)/rdTotal)*100):0;return '<b>'+sevPct+'%</b> of assessed children are classified as <b>Severe</b>, while <b>'+modPct+'%</b> are Moderate. '+(sevPct>50?'Majority of cases require <b>priority intervention</b> and immediate program response.':'Readiness distribution indicates manageable caseloads for most regions.');})()`)}
 
         ${sec('','Demographics & Beneficiary Profile', `
           <div class="two-col">
@@ -5039,7 +5054,9 @@
                 </div>
               </div>
             </div>
-          </div>`)}
+          </div>`,
+          false,
+          (()=>{const malePct=gTotal>0?Math.round(((gender.find(g=>g.label==='Male')?.val||0)/gTotal)*100):0;const psPct=ps.total>0?Math.round(((ps.yes||0)/(ps.total||1))*100):0;const fsNote=(fs.avg||0)>5?'large households that may require additional support services':'manageable household sizes';return 'Beneficiary profile shows <b>'+malePct+'% male</b> and <b>'+(100-malePct)+'% female</b> assessed children. <b>'+psPct+'%</b> are 4Ps members, indicating the program is reaching its core target population. Average family size of <b>'+(fs.avg||'—')+'</b> suggests '+fsNote+'.';})()`)}
 
         ${sec('','Disability Profile', `
           <div class="two-col">
@@ -5055,7 +5072,9 @@
                 ${tbl(['Age Group','Count'], (d?.dis_age||[]).map(r=>{const topKey=(d?.dis_types||[])[0]||''; return [r.group, r[topKey]!=null?r[topKey]:'—'];}))}
               </div>
             </div>
-          </div>`)}
+          </div>`,
+          false,
+          (()=>{const topDis=(d?.disabilities||[])[0];const multiPct=(ext?.multi_dis||[]).find(m=>m.label==='Multiple')?.pct||0;return '<b>'+(topDis?.label||'—')+'</b> is the most prevalent disability type with <b>'+(topDis?.val||0).toLocaleString()+'</b> recorded cases. <b>'+multiPct+'%</b> of beneficiaries present with multiple disabilities, requiring integrated multi-service interventions. Program planners should prioritize assistive devices and specialized support for dominant disability types.';})()`)}
 
         ${sec('','Health & Immunization', `
           <div class="three-col">
@@ -5091,7 +5110,9 @@
               ${svgHorizBars((ext?.expenses?.breakdown||[]).slice(0,5), ['#1e3a8a','#1d4ed8','#2563eb','#3b82f6','#60a5fa'])}
               <div style="font-size:7pt;color:#334155;margin-top:4px;font-weight:500;">Total avg: <b>&#8369;${(ext?.expenses?.total_avg||0).toLocaleString()}</b>/month</div>
             </div>
-          </div>`)}
+          </div>`,
+          false,
+          (()=>{const vaccPct=vacc.national_rate!=null?vacc.national_rate:null;const hiPct=hi.total>0?Math.round(((hi.yes||0)/(hi.total||1))*100):0;const topBarrier=(ext?.barriers||[])[0];let s='';if(vaccPct!=null)s+='Vaccination coverage stands at <b>'+vaccPct+'%</b> — '+(vaccPct<80?'<b>below the 80% target</b>, indicating gaps in immunization program reach':'meeting immunization targets')+'. ';s+=hiPct+'% of children present with ongoing health issues. ';if(topBarrier)s+='The top healthcare barrier is <b>'+topBarrier.label+'</b> ('+topBarrier.count+' cases), which should be addressed in health service planning.';return s;})()`)}
 
         ${sec('','Economic Capacity', `
           <div class="two-col">
@@ -5107,7 +5128,9 @@
               ${cardLabel('Primary Income Sources')}
               ${svgHorizBars((ext?.primary_income_src||[]).slice(0,6), ['#1e3a8a','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd'])}
             </div>
-          </div>`)}
+          </div>`,
+          false,
+          (()=>{const belowPct=mwTotal>0?Math.round(((mw.below||0)/mwTotal)*100):0;const topSrc=(ext?.primary_income_src||[])[0];let s='<b>'+belowPct+'%</b> of families earn below minimum wage — '+(belowPct>50?'a majority, indicating <b>high economic vulnerability</b> among assessed households':'indicating moderate economic strain')+'. ';if(topSrc)s+='The primary income source is <b>'+topSrc.label+'</b>, which may reflect informal employment patterns common in underserved communities. ';s+='Economic data should guide prioritization of livelihood and financial assistance programs.';return s;})()`)}
 
         ${sec('','Education', `
           <div class="two-col">
@@ -5126,7 +5149,9 @@
                 ${svgHorizBars((ext?.educ_attainment||[]).slice(0,5), ['#1e3a8a','#1d4ed8','#2563eb','#3b82f6','#60a5fa'])}
               </div>
             </div>
-          </div>`)}
+          </div>`,
+          false,
+          (()=>{const enrPct=enrTotal>0?Math.round(((enr.enrolled||0)/enrTotal)*100):0;const topReason=(enr.top_reasons||[])[0];let s='School enrollment rate is <b>'+enrPct+'%</b>. '+(enrPct<85?'<b>'+(100-enrPct)+'% of children are not enrolled</b> in school — a critical concern requiring immediate educational outreach.':'Enrollment levels are within acceptable range.')+' ';if(topReason)s+='The top reason for non-enrollment is <b>'+topReason.reason+'</b> ('+topReason.count+' cases), which should inform targeted school re-integration strategies.';return s;})()`)}
 
         ${sec('','Social Services & Financial Assistance', `
           <div class="two-col">
@@ -5144,7 +5169,9 @@
                 {label:'Not Aware', val:sa.no||0, color:'#93c5fd'}
               ], sa.total>0?Math.round(((sa.yes||0)/(sa.total||1))*100)+'%':'—', 'Aware', 80)}
             </div>
-          </div>`)}
+          </div>`,
+          false,
+          (()=>{const faPct=fa.total>0?Math.round(((fa.yes||0)/(fa.total||1))*100):0;const saPct=sa.total>0?Math.round(((sa.yes||0)/(sa.total||1))*100):0;return '<b>'+faPct+'%</b> of assessed families are currently receiving financial assistance. <b>'+saPct+'%</b> are aware of available social services — '+(saPct<60?'suggesting a <b>significant service awareness gap</b> that requires information dissemination campaigns':'indicating good social service visibility in the community')+'. Bridging the gap between awareness and actual service availing should be a key program objective.';})()`)}
 
         ${sec('','Housing & Living Conditions', `
           <div class="three-col">
@@ -5180,7 +5207,9 @@
                 </div>
               </div>
             </div>
-          </div>`)}
+          </div>`,
+          false,
+          (()=>{const modPct=(ext?.housing?.mod_total||0)>0?Math.round(((ext?.housing?.mod_yes||0)/(ext?.housing?.mod_total||1))*100):0;const topMat=(ext?.housing?.materials||[])[0];const topTenure=(ext?.housing?.tenure||[])[0];let s='';if(topMat)s+='<b>'+topMat.label+'</b> is the most common housing material, indicating the level of structural resilience in assessed communities. ';if(topTenure)s+='The majority of families have <b>'+topTenure.label+'</b> tenure status. ';s+='Only <b>'+modPct+'%</b> of homes have been modified for accessibility — '+(modPct<30?'a low figure given the prevalence of physical disabilities among beneficiaries':'showing some progress in inclusive housing adaptation')+'.';return s;})()`)}
 
         ${sec('','Regional Coverage', `
           <div class="two-col">
@@ -5197,7 +5226,9 @@
                   return [r.region.replace(/\s*\(.*?\)\s*/g,'').trim(), sg.aware_pct!=null?sg.aware_pct+'%':'—', sg.availed_pct!=null?sg.availed_pct+'%':'—', vr.rate!=null?vr.rate+'%':'—'];
                 }))}
             </div>
-          </div>`)}
+          </div>`,
+          false,
+          (()=>{const topReg=(d?.regions||[]).slice().sort((a,b)=>b.count-a.count)[0];const lowReg=(d?.regions||[]).slice().sort((a,b)=>a.count-b.count)[0];let s='';if(topReg)s+='<b>'+topReg.region+'</b> leads all regions with <b>'+(topReg.count||0).toLocaleString()+'</b> completed assessments. ';if(lowReg&&lowReg.region!==topReg?.region)s+='<b>'+lowReg.region+'</b> has the fewest completions ('+(lowReg.count||0).toLocaleString()+'), suggesting a need for targeted field deployment or stakeholder engagement in that area. ';s+='Regional service gap data should guide resource allocation for the next assessment cycle.';return s;})()`)}
 
         ${sec('','Interviewer Performance', `
           ${tbl(['Rank','Name','Code','Region','Completed','Avg/Day','Workload'],
@@ -5206,7 +5237,10 @@
             <div class="pill4" style="border-top:3px solid #1e3a8a;"><div class="pill4-val" style="color:#1e3a8a;">${overloaded}</div><div class="pill4-label">Overloaded</div></div>
             <div class="pill4" style="border-top:3px solid #1152d4;"><div class="pill4-val" style="color:#1152d4;">${(d?.interviewers||[]).filter(iv=>iv.workload==='balanced').length}</div><div class="pill4-label">Balanced</div></div>
             <div class="pill4" style="border-top:3px solid #3b82f6;"><div class="pill4-val" style="color:#3b82f6;">${(d?.interviewers||[]).filter(iv=>iv.workload==='underutilized').length}</div><div class="pill4-label">Underutilized</div></div>
-          </div>`)}
+          </div>`,
+          false,
+          (()=>{const topIv=(d?.interviewers||[])[0];const balanced=(d?.interviewers||[]).filter(iv=>iv.workload==='balanced').length;const total=(d?.interviewers||[]).length;let s='';if(topIv)s+='<b>'+topIv.name+'</b> leads in performance with <b>'+topIv.completed+'</b> completed assessments and an average of <b>'+topIv.avgDay+'</b>/day. ';if(overloaded>0)s+='<b>'+overloaded+' interviewer(s) are flagged as overloaded</b> — workload redistribution is recommended to prevent burnout and ensure data quality. ';s+=balanced+' of '+total+' interviewers maintain a balanced workload, supporting consistent field operations.';return s;})()`)}
+
 
         ${sec('','Data Quality', `
           <div class="two-col">
@@ -5242,22 +5276,25 @@
       <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
       <style>
       *{box-sizing:border-box;margin:0;padding:0;}
-      @page{size:A4 portrait;margin:1in;}
+      @page{size:A4 portrait;margin:0.5in;}
       html,body{background:#fff;font-family:'Poppins',Arial,sans-serif;font-size:9pt;color:#0f172a;}
-      #lh-header{position:fixed;top:0;left:0;right:0;padding:0.3in 1in 0;background:#fff;z-index:9999;}
+      #lh-header{position:fixed;top:0;left:0;right:0;padding:0.5in 0.5in 0;background:#fff;z-index:9999;}
       .lh-header-inner{display:flex;align-items:center;gap:16px;padding-bottom:8px;}
-      .lh-logo img{height:58px;width:auto;object-fit:contain;}
+      .lh-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+      .lh-logo img{height:54px;width:auto;object-fit:contain;}
+      .lh-logo-text{text-align:left;}
+      .lh-logo-name{font-family:Arial,sans-serif;font-size:1.1rem;font-weight:900;color:#1152d4;letter-spacing:0.03em;line-height:1;}
+      .lh-logo-dept{font-family:Arial,sans-serif;font-size:6pt;color:#374151;font-weight:600;max-width:110px;line-height:1.3;}
       .lh-titles{flex:1;text-align:center;}
       .lh-bureau{font-family:Arial,sans-serif;font-size:11pt;font-weight:700;color:#111;line-height:1.2;}
       .lh-sub{font-family:Arial,sans-serif;font-size:9pt;font-weight:700;color:#111;line-height:1.3;}
-      .lh-rule{height:3px;background:#111;}
-      .lh-rule2{height:1px;background:#111;margin-top:2px;}
-      #lh-footer{position:fixed;bottom:0;left:0;right:0;padding:0 1in 0.25in;background:#fff;z-index:9999;}
-      .lh-footer-rule{height:1.5px;background:#111;margin-bottom:4px;}
+      .lh-rule{height:2px;background:#000;margin-top:6px;}
+      #lh-footer{position:fixed;bottom:0;left:0;right:0;padding:0 0.5in 0.5in;background:#fff;z-index:9999;}
+      .lh-footer-rule{height:1px;background:#d1d5db;margin-bottom:4px;}
       .lh-footer-pagenum{font-family:Arial,sans-serif;text-align:center;font-size:8pt;font-weight:700;color:#111;margin-bottom:2px;}
       .lh-footer-pagenum::before{content:'PAGE ' counter(page) ' of ' counter(pages);}
       .lh-footer-addr{font-family:Arial,sans-serif;text-align:center;font-size:6.5pt;color:#111;line-height:1.5;}
-      #lh-content{margin-top:1.35in;margin-bottom:0.9in;}
+      #lh-content{margin-top:1.5in;margin-bottom:1.1in;}
       .rpt-title{font-size:11pt;font-weight:800;color:#1152d4;margin-bottom:2px;}
       .rpt-meta{font-size:7.5pt;color:#64748b;font-weight:500;margin-bottom:4px;}
       .rpt-scope{display:inline-block;background:#eef4ff;border:1px solid #c7d9ff;border-radius:999px;padding:2px 10px;font-size:7pt;font-weight:600;color:#1152d4;margin-bottom:12px;}
@@ -5268,14 +5305,19 @@
     </style></head><body>
       <div id="lh-header">
         <div class="lh-header-inner">
-          <div class="lh-logo"><img src="${dswdLogo2}" alt="DSWD" onerror="this.style.display='none'"></div>
+          <div class="lh-logo">
+            <img src="${dswdLogo2}" alt="DSWD" onerror="this.style.display='none'">
+            <div class="lh-logo-text">
+              <div class="lh-logo-name">DSWD</div>
+              <div class="lh-logo-dept">Department of Social Welfare and Development</div>
+            </div>
+          </div>
           <div class="lh-titles">
             <div class="lh-bureau">SOCIAL TECHNOLOGY BUREAU</div>
             <div class="lh-sub">INNOVATIONS AND PROGRAM DEVELOPMENT GROUP</div>
           </div>
         </div>
         <div class="lh-rule"></div>
-        <div class="lh-rule2"></div>
       </div>
       <div id="lh-footer">
         <div class="lh-footer-rule"></div>
