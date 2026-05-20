@@ -1,5 +1,5 @@
 <?php
-header('Access-Control-Allow-Origin: https://project-aruga.vercel.app');
+header('Access-Control-Allow-Origin: https://projectaruga.com');
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/config.php';

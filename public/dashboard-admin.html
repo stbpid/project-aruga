@@ -2184,6 +2184,76 @@
           </div>
 
         </div>
+
+        <!-- ── Full Database Backup ── -->
+        <div class="card" style="margin-top:1.25rem;">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span class="material-symbols-outlined" style="color:#dc2626;font-size:1.25rem;">database</span>
+              </div>
+              <div>
+                <div class="card-title" style="margin:0;">Full Database Backup</div>
+                <div class="card-subtitle" style="margin:0;">Export all 15 Supabase tables as a single JSON snapshot or individual CSV files.</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.875rem;margin-top:0.75rem;">
+            <!-- Admin token input -->
+            <div style="grid-column:1/-1;">
+              <label class="settings-label">Admin Export Token <span style="color:#dc2626;">*</span></label>
+              <input type="password" id="backup-token" class="settings-input" placeholder="Enter ADMIN_EXPORT_TOKEN" style="font-family:monospace;">
+              <div class="settings-help">Required to authorize the backup. Set <code>ADMIN_EXPORT_TOKEN</code> in Vercel environment variables.</div>
+            </div>
+
+            <!-- Table selector -->
+            <div>
+              <label class="settings-label">Table</label>
+              <select id="backup-table" class="settings-input">
+                <option value="all">All Tables (full backup)</option>
+                <option value="interviewers">interviewers</option>
+                <option value="sessions">sessions</option>
+                <option value="assessments">assessments</option>
+                <option value="pre_qualification">pre_qualification</option>
+                <option value="respondents">respondents</option>
+                <option value="children">children</option>
+                <option value="child_education_health">child_education_health</option>
+                <option value="family_members">family_members</option>
+                <option value="socio_economic">socio_economic</option>
+                <option value="health_info">health_info</option>
+                <option value="education_info">education_info</option>
+                <option value="economic_capacity">economic_capacity</option>
+                <option value="service_availment">service_availment</option>
+                <option value="assessment_notes">assessment_notes</option>
+                <option value="audit_logs">audit_logs</option>
+              </select>
+            </div>
+
+            <!-- Format selector -->
+            <div>
+              <label class="settings-label">Format</label>
+              <select id="backup-format" class="settings-input" onchange="backupFormatChange()">
+                <option value="json">JSON (single file, all tables)</option>
+                <option value="csv">CSV (one file per table)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-top:1rem;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="backup-btn" onclick="startBackup()">
+              <span class="material-symbols-outlined" id="backup-btn-icon">cloud_download</span>
+              <span id="backup-btn-label">Download Backup</span>
+            </button>
+            <div id="backup-status" style="font-size:0.8125rem;color:var(--gray-500);display:none;">
+              <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle;animation:spin 0.8s linear infinite;color:var(--blue);">autorenew</span>
+              <span id="backup-status-text">Fetching data…</span>
+            </div>
+          </div>
+
+          <div id="backup-result" style="margin-top:0.75rem;display:none;"></div>
+        </div>
+
         <div id="export-toast" class="settings-toast" style="display:none;"></div>
       </div>
 
@@ -6543,6 +6613,93 @@
     a.click();
     URL.revokeObjectURL(url);
     showToast('export-toast', `${data.length} records exported as CSV.`, 'success');
+  }
+
+  // ── Full Database Backup ───────────────────────────────────────
+  function backupFormatChange() {
+    const fmt   = document.getElementById('backup-format').value;
+    const table = document.getElementById('backup-table');
+    // CSV multi-table triggers per-file downloads; warn user
+    if (fmt === 'csv' && table.value === 'all') {
+      document.getElementById('backup-btn-label').textContent = 'Download CSVs (15 files)';
+    } else {
+      document.getElementById('backup-btn-label').textContent = 'Download Backup';
+    }
+  }
+
+  async function startBackup() {
+    const token  = document.getElementById('backup-token').value.trim();
+    const table  = document.getElementById('backup-table').value;
+    const format = document.getElementById('backup-format').value;
+
+    if (!token) {
+      showToast('export-toast', 'Enter the Admin Export Token first.', 'error');
+      return;
+    }
+
+    const btn    = document.getElementById('backup-btn');
+    const status = document.getElementById('backup-status');
+    const result = document.getElementById('backup-result');
+    btn.disabled = true;
+    status.style.display = 'flex';
+    status.style.alignItems = 'center';
+    status.style.gap = '0.375rem';
+    document.getElementById('backup-status-text').textContent = 'Connecting to Supabase…';
+    result.style.display = 'none';
+
+    const url = `/api/export-backup.php?format=${format}&table=${table}&token=${encodeURIComponent(token)}`;
+
+    try {
+      document.getElementById('backup-status-text').textContent = 'Fetching data…';
+
+      if (format === 'json' || table !== 'all') {
+        // Direct download via anchor
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        status.style.display = 'none';
+        result.style.display = '';
+        result.innerHTML = '<div style="padding:0.625rem 0.875rem;border-radius:0.5rem;background:#d1fae5;color:#065f46;font-size:0.8125rem;font-weight:500;display:flex;align-items:center;gap:0.5rem;"><span class="material-symbols-outlined" style="font-size:1rem;">check_circle</span>Download started. Check your Downloads folder.</div>';
+      } else {
+        // CSV all-tables: fetch bundle then trigger per-file downloads
+        document.getElementById('backup-status-text').textContent = 'Downloading all tables as CSV…';
+        const res  = await fetch(url, { headers: { 'X-Admin-Token': token } });
+        const data = await res.json();
+
+        if (!data.success) throw new Error(data.message || 'Export failed');
+
+        let count = 0;
+        for (const file of data.files) {
+          const bytes = atob(file.csv);
+          const arr   = new Uint8Array(bytes.length);
+          for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+          const blob  = new Blob([arr], { type: 'text/csv;charset=utf-8;' });
+          const a     = document.createElement('a');
+          a.href      = URL.createObjectURL(blob);
+          a.download  = file.filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(a.href);
+          count++;
+          document.getElementById('backup-status-text').textContent = `Downloaded ${count} / ${data.files.length} tables…`;
+          await new Promise(r => setTimeout(r, 300)); // brief pause between downloads
+        }
+
+        status.style.display = 'none';
+        result.style.display = '';
+        result.innerHTML = `<div style="padding:0.625rem 0.875rem;border-radius:0.5rem;background:#d1fae5;color:#065f46;font-size:0.8125rem;font-weight:500;display:flex;align-items:center;gap:0.5rem;"><span class="material-symbols-outlined" style="font-size:1rem;">check_circle</span>${count} CSV files downloaded successfully.</div>`;
+      }
+    } catch (err) {
+      status.style.display = 'none';
+      result.style.display = '';
+      result.innerHTML = `<div style="padding:0.625rem 0.875rem;border-radius:0.5rem;background:#fee2e2;color:#991b1b;font-size:0.8125rem;font-weight:500;display:flex;align-items:center;gap:0.5rem;"><span class="material-symbols-outlined" style="font-size:1rem;">error</span>Error: ${err.message}</div>`;
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   // ── Report View ────────────────────────────────────────────────

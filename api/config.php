@@ -269,7 +269,7 @@ function sendResponse($success, $message, $data = null, $httpCode = 200) {
     
     // Set headers
     header('Content-Type: application/json');
-    header('Access-Control-Allow-Origin: https://project-aruga.vercel.app');
+    header('Access-Control-Allow-Origin: https://projectaruga.com');
     header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, Authorization');
     
