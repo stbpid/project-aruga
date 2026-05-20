@@ -5,13 +5,10 @@
     },
     "api/**/*.php": {
       "runtime": "vercel-php@0.7.1"
-    },
-    "*.php": {
-      "runtime": "vercel-php@0.7.1"
     }
   },
   "routes": [
-    { "src": "/contact", "dest": "/contact.php" },
+    { "src": "/contact", "dest": "/api/contact.php" },
     { "src": "/profiling", "dest": "/public/profiling.html" },
     { "src": "/privacy", "dest": "/public/privacy.html" },
     { "src": "/success", "dest": "/public/success.html" },
