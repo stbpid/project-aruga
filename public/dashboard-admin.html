@@ -4833,397 +4833,181 @@
 
       const dswdLogoUrl = window.location.origin + '/images/form-logo.webp';
 
+      // ── Geographic summary data ─────────────────────────────────
+      const topProvinces = (d?.top_provinces||[]).slice(0,5);
+      const topCities = (d?.top_cities||[]).slice(0,5);
+
+      // ── Report Analysis (AI-style narrative) ───────────────────
+      const analysisItems = [];
+      const totalStr = (s.total||0).toLocaleString();
+      const completedStr = (s.completed||0).toLocaleString();
+      analysisItems.push(`The assessment program has recorded <b>${totalStr}</b> total assessments with <b>${completedStr}</b> completed, representing a <b>${rate}%</b> completion rate.`);
+      if (topRegion) analysisItems.push(`Regional coverage is led by <b>${topRegion.region}</b> with <b>${topRegion.count.toLocaleString()}</b> assessments, indicating strong field presence in this area.`);
+      const maleVal = gender.find(g=>g.label==='Male')?.val||0;
+      const femaleVal = gender.find(g=>g.label==='Female')?.val||0;
+      if (gTotal>0) analysisItems.push(`Beneficiary sex distribution shows <b>${Math.round((maleVal/gTotal)*100)}% male</b> and <b>${Math.round((femaleVal/gTotal)*100)}% female</b> among assessed children.`);
+      if (ps.total>0) analysisItems.push(`<b>${Math.round(((ps.yes||0)/(ps.total||1))*100)}%</b> of beneficiaries are <b>4Ps members</b>, highlighting the program's alignment with conditional cash transfer households.`);
+      if (topDis) analysisItems.push(`The most prevalent disability type is <b>${topDis.label}</b> with <b>${topDis.val.toLocaleString()}</b> cases, which should inform targeted intervention priorities.`);
+      const severeRd = rd.find(r=>r.label==='Severe');
+      const stableRd = rd.find(r=>r.label==='Stable');
+      if (severeRd && rdTotal>0) analysisItems.push(`Readiness scoring reveals <b>${Math.round((severeRd.val/rdTotal)*100)}%</b> with Severe scores${stableRd?` and <b>${Math.round((stableRd.val/rdTotal)*100)}%</b> achieving Stable status`:''}, pointing to significant intervention needs in the cohort.`);
+      if (rate<60) analysisItems.push(`The current completion rate of <b>${rate}%</b> is below the 60% threshold. Immediate deployment support and workload redistribution among interviewers is recommended.`);
+      else if (rate>=80) analysisItems.push(`With a completion rate of <b>${rate}%</b>, the program is <b>ahead of target</b>. Maintaining current momentum while ensuring data quality will be critical.`);
+
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Executive Summary Report — Project Aruga</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <style>
         *{box-sizing:border-box;margin:0;padding:0;}
-
-        /* ── Page setup: 1-inch margins, reserve space for fixed header/footer ── */
-        @page{size:A4 portrait;margin:1in;}
-        html,body{background:#fff;font-family:'Poppins',Arial,sans-serif;font-size:8.5pt;color:#0f172a;}
-
-        /* ── Fixed header — prints on every page ── */
-        #lh-header{position:fixed;top:0;left:0;right:0;
-          padding:0.3in 1in 0;
-          background:#fff;z-index:9999;}
-        .lh-header-inner{display:flex;align-items:center;gap:16px;padding-bottom:8px;}
-        .lh-logo img{height:58px;width:auto;object-fit:contain;}
-        .lh-titles{flex:1;text-align:center;}
-        .lh-bureau{font-family:Arial,sans-serif;font-size:11pt;font-weight:700;color:#111;line-height:1.2;}
-        .lh-sub{font-family:Arial,sans-serif;font-size:9pt;font-weight:700;color:#111;line-height:1.3;}
-        .lh-rule{height:3px;background:#111;}
-        .lh-rule2{height:1px;background:#111;margin-top:2px;}
-
-        /* ── Fixed footer — prints on every page ── */
-        #lh-footer{position:fixed;bottom:0;left:0;right:0;
-          padding:0 1in 0.25in;
-          background:#fff;z-index:9999;}
-        .lh-footer-rule{height:1.5px;background:#111;margin-bottom:4px;}
-        .lh-footer-pagenum{font-family:Arial,sans-serif;text-align:center;font-size:8pt;font-weight:700;color:#111;margin-bottom:2px;}
-        .lh-footer-addr{font-family:Arial,sans-serif;text-align:center;font-size:6.5pt;color:#111;line-height:1.5;}
-
-        /* ── Page counter via CSS ── */
-        .lh-footer-pagenum::before{content:'PAGE ' counter(page) ' of ' counter(pages);}
-
-        /* ── Content — pushed below fixed header & above fixed footer ── */
-        #lh-content{
-          margin-top:1.35in;   /* header height reservation */
-          margin-bottom:0.9in; /* footer height reservation */
-          padding:0 0 0 0;
-        }
-
-        /* ── Report title block ── */
-        .rpt-title-block{margin-bottom:12px;padding-bottom:10px;border-bottom:1.5px solid #c7d9ff;}
-        .rpt-title{font-size:12pt;font-weight:800;color:#1152d4;margin-bottom:1px;}
-        .rpt-meta{font-size:7.5pt;color:#64748b;font-weight:500;}
-        .rpt-scope{display:inline-block;background:#eef4ff;border:1px solid #c7d9ff;border-radius:999px;padding:2px 10px;font-size:7pt;font-weight:600;color:#1152d4;margin-top:4px;}
-
-        /* ── KPI row ── */
-        .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
-        .kpi{background:#f0f5ff;border:1px solid #c7d9ff;border-radius:8px;padding:9px 11px;border-top:3px solid #1152d4;}
-        .kpi-val{font-size:16pt;font-weight:800;color:#1152d4;line-height:1.1;margin-bottom:1px;}
-        .kpi-label{font-size:6.5pt;color:#475569;font-weight:500;}
-        .kpi.dark{border-top-color:#1e3a8a;} .kpi.dark .kpi-val{color:#1e3a8a;}
-        .kpi.mid{border-top-color:#2563eb;} .kpi.mid .kpi-val{color:#2563eb;}
-        .kpi.light{border-top-color:#3b82f6;} .kpi.light .kpi-val{color:#3b82f6;}
-
-        /* ── Pace bar ── */
-        .pace-wrap{background:#f0f5ff;border:1px solid #c7d9ff;border-radius:8px;padding:9px 13px;margin-bottom:12px;display:flex;align-items:center;gap:14px;}
-        .pace-left{flex:1;}
-        .pace-label-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
-        .pace-title{font-size:8pt;font-weight:700;}
-        .pace-pct{font-size:10pt;font-weight:800;}
-
-        /* ── Alerts ── */
-        .alerts{margin-bottom:10px;}
-        .alert-item{padding:5px 9px 5px 11px;border-radius:5px;font-size:7pt;margin-bottom:4px;line-height:1.5;border-left:4px solid;font-weight:500;}
-
-        /* ── Key Insights ── */
-        .insights-box{background:#eef4ff;border:1px solid #c7d9ff;border-radius:8px;padding:9px 11px;margin-bottom:12px;}
-        .insights-title{font-size:7pt;font-weight:700;color:#1152d4;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.08em;}
-        .insight-item{display:flex;align-items:flex-start;gap:6px;margin-bottom:3px;font-size:7pt;line-height:1.5;color:#1e3a8a;}
-        .insight-dot{width:5px;height:5px;border-radius:50%;margin-top:4px;flex-shrink:0;}
-
-        /* ── Sections ── */
-        .section{margin-bottom:14px;}
-        .section-title{font-size:7.5pt;font-weight:700;color:#1152d4;border-bottom:1.5px solid #c7d9ff;padding-bottom:4px;margin-bottom:8px;display:flex;align-items:center;text-transform:uppercase;letter-spacing:0.07em;}
+        @page{size:A4 portrait;margin:0.75in;}
+        html,body{background:#fff;font-family:'Poppins',Arial,sans-serif;font-size:8.5pt;color:#000;}
+        .rpt-title-block{margin-bottom:12px;padding-bottom:10px;border-bottom:1.5px solid #000;page-break-inside:avoid;}
+        .rpt-title{font-size:13pt;font-weight:800;color:#000;margin-bottom:2px;}
+        .rpt-meta{font-size:7.5pt;color:#000;font-weight:500;}
+        .rpt-scope{display:inline-block;background:#eef4ff;border:1px solid #c7d9ff;border-radius:999px;padding:2px 10px;font-size:7pt;font-weight:600;color:#000;margin-top:4px;}
+        .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;page-break-inside:avoid;}
+        .kpi{background:#f0f5ff;border:1px solid #c7d9ff;border-radius:8px;padding:10px 12px;border-top:3px solid #1152d4;}
+        .kpi-val{font-size:16pt;font-weight:800;color:#1152d4;line-height:1.1;margin-bottom:2px;}
+        .kpi-label{font-size:6.5pt;color:#000;font-weight:600;}
+        .insights-box{background:#eef4ff;border:1px solid #c7d9ff;border-radius:8px;padding:9px 12px;margin-bottom:14px;page-break-inside:avoid;}
+        .insights-title{font-size:7pt;font-weight:700;color:#000;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.08em;}
+        .insight-item{display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;font-size:7pt;line-height:1.5;color:#000;}
+        .insight-dot{width:5px;height:5px;border-radius:50%;background:#1152d4;margin-top:4px;flex-shrink:0;}
+        .section{margin-bottom:16px;page-break-inside:avoid;}
+        .section-title{font-size:8pt;font-weight:700;color:#000;border-bottom:1.5px solid #000;padding-bottom:4px;margin-bottom:9px;display:flex;align-items:center;text-transform:uppercase;letter-spacing:0.07em;page-break-after:avoid;}
         .sec-line{display:inline-block;width:3px;height:12px;background:#1152d4;border-radius:2px;margin-right:7px;flex-shrink:0;}
-
-        /* ── Card label ── */
-        .card-item-label{font-size:6pt;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
-
-        /* ── Pill4 ── */
-        .pill4-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
-        .pill4{background:#f0f5ff;border:1px solid #c7d9ff;border-radius:7px;padding:7px 8px;text-align:center;}
-        .pill4-val{font-size:12pt;font-weight:800;line-height:1.1;margin-bottom:1px;}
-        .pill4-label{font-size:6pt;color:#334155;font-weight:500;}
-        .pill4-sub{font-size:5.5pt;color:#94a3b8;margin-top:1px;}
-        .pill4-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
-        .pill4-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-
-        /* ── Tables ── */
-        table{width:100%;border-collapse:collapse;font-size:7pt;margin-top:3px;}
-        th{background:#1152d4;color:#fff;padding:4px 7px;text-align:left;font-size:6.5pt;font-weight:600;letter-spacing:0.03em;}
-        td{padding:3px 7px;border-bottom:1px solid #e2e8f0;vertical-align:top;color:#1e293b;}
+        .card-item-label{font-size:6pt;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;}
+        .pill4-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px;page-break-inside:avoid;}
+        .pill4{background:#f0f5ff;border:1px solid #c7d9ff;border-radius:7px;padding:8px;text-align:center;}
+        .pill4-val{font-size:13pt;font-weight:800;color:#1152d4;line-height:1.1;margin-bottom:2px;}
+        .pill4-label{font-size:6pt;color:#000;font-weight:600;}
+        .pill4-sub{font-size:5.5pt;color:#555;margin-top:1px;}
+        .pill4-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:6px;page-break-inside:avoid;}
+        table{width:100%;border-collapse:collapse;font-size:7.5pt;margin-top:4px;page-break-inside:auto;}
+        thead{display:table-header-group;}
+        tr{page-break-inside:avoid;}
+        th{background:#1152d4;color:#fff;padding:5px 8px;text-align:left;font-size:7pt;font-weight:600;}
+        td{padding:4px 8px;border-bottom:1px solid #e2e8f0;vertical-align:top;color:#000;}
         tr.alt td{background:#f0f5ff;}
-
-        /* ── Grid layouts ── */
-        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-        .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-
-        /* ── Page break ── */
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;page-break-inside:avoid;}
         .page-break{page-break-before:always;}
+        .analysis-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:8pt;line-height:1.7;color:#000;page-break-inside:avoid;}
+        .analysis-num{font-size:7pt;font-weight:800;color:#fff;background:#1152d4;border-radius:50%;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
         </style></head><body>
 
-        <!-- Fixed DSWD Header (repeats every page) -->
-        <div id="lh-header">
-          <div class="lh-header-inner">
-            <div class="lh-logo"><img src="${dswdLogoUrl}" alt="DSWD" onerror="this.style.display='none'"></div>
-            <div class="lh-titles">
-              <div class="lh-bureau">SOCIAL TECHNOLOGY BUREAU</div>
-              <div class="lh-sub">INNOVATIONS AND PROGRAM DEVELOPMENT GROUP</div>
-            </div>
-          </div>
-          <div class="lh-rule"></div>
-          <div class="lh-rule2"></div>
+        <!-- Report Title -->
+        <div class="rpt-title-block">
+          <div class="rpt-title">Executive Summary Report &mdash; Project Aruga</div>
+          <div class="rpt-meta">DSWD Child Assessment Profiling System &nbsp;&middot;&nbsp; Generated: ${date}</div>
+          <div class="rpt-scope">Scope: ${filterLabel}</div>
         </div>
 
-        <!-- Fixed DSWD Footer (repeats every page) -->
-        <div id="lh-footer">
-          <div class="lh-footer-rule"></div>
-          <div class="lh-footer-pagenum"></div>
-          <div class="lh-footer-addr">DSWD Central Office, IBP Road, Batasan Pambansa Complex, Constitution Hills, Quezon City, Philippines 1126<br>Website: http://www.dswd.gov.ph &nbsp; Tel Nos.: (632)8 931-8101 to 07 &nbsp; Telefax: (632) 8 931-8191</div>
-        </div>
-
-        <!-- Main Content -->
-        <div id="lh-content">
-
-          <!-- Report Title Block -->
-          <div class="rpt-title-block">
-            <div class="rpt-title">Executive Summary Report &mdash; Project Aruga</div>
-            <div class="rpt-meta">DSWD Child Assessment Profiling System &nbsp;&middot;&nbsp; Generated: ${date}</div>
-            <div class="rpt-scope">Scope: ${filterLabel}</div>
-          </div>
-
-        ${alerts.length ? `<div class="alerts">${alerts.map(a=>`<div class="alert-item" style="border-color:${a.color};background:${a.bg};">${a.text}</div>`).join('')}</div>` : ''}
-
-        <!-- KPI Row -->
+        <!-- 1. Stat Boxes -->
         <div class="kpi-row">
-          <div class="kpi dark"><div class="kpi-val">${(s.total||0).toLocaleString()}</div><div class="kpi-label">Total Assessments</div></div>
-          <div class="kpi ${rate>=80?'':'mid'}"><div class="kpi-val">${rate}%</div><div class="kpi-label">Completion Rate</div></div>
-          <div class="kpi mid"><div class="kpi-val">${s.active_interviewers||0}</div><div class="kpi-label">Active Interviewers</div></div>
-          <div class="kpi light"><div class="kpi-val">${s.avg_per_day||0}</div><div class="kpi-label">Avg Assessments / Day</div></div>
+          <div class="kpi"><div class="kpi-val">${(s.total||0).toLocaleString()}</div><div class="kpi-label">Total Assessments</div></div>
+          <div class="kpi"><div class="kpi-val">${rate}%</div><div class="kpi-label">Completion Rate</div></div>
+          <div class="kpi"><div class="kpi-val">${s.active_interviewers||0}</div><div class="kpi-label">Active Interviewers</div></div>
+          <div class="kpi"><div class="kpi-val">${s.avg_per_day||0}</div><div class="kpi-label">Avg Assessments / Day</div></div>
         </div>
 
-        <!-- Pace Bar -->
-        <div class="pace-wrap">
-          <div class="pace-left">
-            <div class="pace-label-row">
-              <span class="pace-title" style="color:${paceColor};">${paceLabel}</span>
-              <span class="pace-pct" style="color:${paceColor};">${rate}%</span>
-            </div>
-            <svg width="100%" height="10" style="display:block;border-radius:5px;overflow:hidden;">
-              <rect width="100%" height="10" rx="5" fill="#dbeafe"/>
-              <rect width="${Math.min(rate,100)}%" height="10" rx="5" fill="${paceColor}"/>
-            </svg>
-          </div>
-          <div style="font-size:7pt;color:#64748b;min-width:130px;text-align:right;font-weight:500;">
-            Completed: <b style="color:#1152d4;">${(s.completed||0).toLocaleString()}</b><br>
-            Flagged: <b style="color:#1e3a8a;">${q.flagged_count||0}</b> &nbsp;|&nbsp; Completeness: <b style="color:#1d4ed8;">${q.completeness||0}%</b>
-          </div>
-        </div>
-
-        <!-- Key Insights -->
+        <!-- 2. Key Insights -->
         ${insights.length ? `<div class="insights-box">
           <div class="insights-title">Key Insights</div>
-          ${insights.map(ins=>`<div class="insight-item"><div class="insight-dot" style="background:${ins.color};"></div><div>${ins.text}</div></div>`).join('')}
+          ${insights.map(ins=>`<div class="insight-item"><div class="insight-dot"></div><div>${ins.text}</div></div>`).join('')}
         </div>` : ''}
 
-        ${sec('','Readiness Score Distribution', `
+        <!-- By Region -->
+        <div class="section">
+          <div class="section-title"><span class="sec-line"></span>By Region</div>
+          ${tbl(['Region','Count'],
+            (d?.regions||[]).map(r=>[r.region.replace(/\s*\(.*?\)\s*/g,'').trim(), (r.count||0).toLocaleString()]))}
+        </div>
+
+        <!-- Geographic Summary -->
+        <div class="section">
+          <div class="section-title"><span class="sec-line"></span>Geographic Summary</div>
+          <div class="two-col">
+            <div>
+              ${cardLabel('Top 5 Provinces')}
+              ${topProvinces.length ? tbl(['Province','Assessments'], topProvinces.map(p=>[p.label||p.name||p.province||'—', (p.val||p.count||0).toLocaleString()])) : '<div style="font-size:7pt;">No data</div>'}
+            </div>
+            <div>
+              ${cardLabel('Top 5 Cities / Municipalities')}
+              ${topCities.length ? tbl(['City / Municipality','Assessments'], topCities.map(c=>[c.label||c.name||c.city||'—', (c.val||c.count||0).toLocaleString()])) : '<div style="font-size:7pt;">No data</div>'}
+            </div>
+          </div>
+          <div style="margin-top:8px;" class="pill4-grid-2">
+            <div class="pill4"><div class="pill4-val">${(d?.top_provinces||[]).length}</div><div class="pill4-label">Provinces Covered</div></div>
+            <div class="pill4"><div class="pill4-val">${(d?.top_cities||[]).length}</div><div class="pill4-label">Cities / Municipalities</div></div>
+          </div>
+        </div>
+
+        <!-- Beneficiaries -->
+        <div class="section page-break">
+          <div class="section-title"><span class="sec-line"></span>Beneficiaries</div>
+          <div class="two-col">
+            <div>
+              ${cardLabel('Sex Disaggregation')}
+              ${svgDonut(gender.map(g=>({label:g.label,val:g.val,color:g.color==='#1152d4'?'#1152d4':'#93c5fd'})), gTotal>0?Math.round(((gender.find(g=>g.label==='Male')?.val||0)/gTotal)*100)+'%':'—', 'Male %', 90)}
+              <div style="margin-top:12px;">
+                ${cardLabel('Age Groups')}
+                ${svgHorizBars(ages.map(a=>({label:a.label,val:a.val})), '#1152d4')}
+              </div>
+            </div>
+            <div>
+              ${cardLabel('4Ps Beneficiaries')}
+              ${svgDonut([
+                {label:'4Ps Member', val:ps.yes||0, color:'#1152d4'},
+                {label:'Non-4Ps', val:ps.no||0, color:'#bfdbfe'}
+              ], ps.total>0?Math.round(((ps.yes||0)/(ps.total||1))*100)+'%':'—', '4Ps', 90)}
+              <div style="margin-top:12px;">
+                ${cardLabel('Top 5 Locations')}
+                ${topProvinces.length ? svgHorizBars(topProvinces.map(p=>({label:p.label||p.name||p.province||'—', val:p.val||p.count||0})), '#1152d4') : '<div style="font-size:7pt;">No data</div>'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Disabilities -->
+        <div class="section page-break">
+          <div class="section-title"><span class="sec-line"></span>Disabilities</div>
+          <div class="two-col">
+            <div>
+              ${cardLabel('Top Disability Types')}
+              ${svgHorizBars((d?.disabilities||[]).slice(0,8), '#1152d4')}
+            </div>
+            <div>
+              ${cardLabel('Multiple Disabilities')}
+              ${(ext?.multi_dis||[]).map(m=>`<div style="margin-bottom:6px;">${svgProgressBar(m.pct||0,'#1152d4',m.label)}</div>`).join('')||'<div style="font-size:7pt;">No data</div>'}
+              <div style="margin-top:10px;">
+                ${cardLabel('Age Group \xd7 Top Disability')}
+                ${tbl(['Age Group','Count'], (d?.dis_age||[]).map(r=>{const topKey=(d?.dis_types||[])[0]||''; return [r.group, r[topKey]!=null?r[topKey]:'—'];}))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Readiness Score -->
+        <div class="section page-break">
+          <div class="section-title"><span class="sec-line"></span>Readiness Score</div>
           <div class="pill4-grid">
-            ${rd.map(r=>`<div class="pill4" style="border-top:3px solid ${rdColor[r.label]||'#1152d4'};">
-              <div class="pill4-val" style="color:${rdColor[r.label]||'#1152d4'};">${r.val.toLocaleString()}</div>
+            ${rd.map(r=>`<div class="pill4">
+              <div class="pill4-val">${r.val.toLocaleString()}</div>
               <div class="pill4-label">${r.label}</div>
               <div class="pill4-sub">${rdTotal>0?Math.round((r.val/rdTotal)*100):0}% of total</div>
             </div>`).join('')}
           </div>
-          <div style="margin-top:8px;">
-            ${rd.map(r=>svgProgressBar(rdTotal>0?Math.round((r.val/rdTotal)*100):0, rdColor[r.label]||'#1152d4', r.label)).join('')}
-          </div>`)}
-
-        ${sec('','Demographics & Beneficiary Profile', `
-          <div class="two-col">
-            <div>
-              ${cardLabel('Age Distribution')}
-              ${svgHorizBars(ages.map(a=>({label:a.label,val:a.val})), ['#1e3a8a','#1d4ed8','#2563eb','#3b82f6'])}
-              <div style="margin-top:8px;">
-                ${cardLabel('Gender')}
-                ${svgDonut(gender.map(g=>({label:g.label,val:g.val,color:g.color==='#1152d4'?'#1152d4':'#93c5fd'})), gTotal>0?Math.round(((gender.find(g=>g.label==='Male')?.val||0)/gTotal)*100)+'%':'—', 'Male %', 80)}
-              </div>
-            </div>
-            <div>
-              ${cardLabel('4Ps Membership')}
-              ${svgDonut([
-                {label:'4Ps Member', val:ps.yes||0, color:'#1152d4'},
-                {label:'Non-4Ps', val:ps.no||0, color:'#bfdbfe'}
-              ], ps.total>0?Math.round(((ps.yes||0)/(ps.total||1))*100)+'%':'—', '4Ps', 80)}
-              <div style="margin-top:10px;" class="pill4-grid-2">
-                <div class="pill4" style="border-top:3px solid #1152d4;">
-                  <div class="pill4-val" style="color:#1152d4;">${fs.avg||'—'}</div>
-                  <div class="pill4-label">Avg Family Size</div>
-                </div>
-                <div class="pill4" style="border-top:3px solid #2563eb;">
-                  <div class="pill4-val" style="color:#2563eb;">${(d?.top_provinces||[]).length}</div>
-                  <div class="pill4-label">Provinces Covered</div>
-                </div>
-              </div>
-            </div>
-          </div>`)}
-
-        ${sec('','Disability Profile', `
-          <div class="two-col">
-            <div>
-              ${cardLabel('Top Disability Types')}
-              ${svgHorizBars((d?.disabilities||[]).slice(0,8), ['#1e3a8a','#1d4ed8','#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe'])}
-            </div>
-            <div>
-              ${cardLabel('Multiple Disabilities')}
-              ${(ext?.multi_dis||[]).map(m=>`<div style="margin-bottom:6px;">${svgProgressBar(m.pct||0,'#1d4ed8',m.label)}</div>`).join('')}
-              <div style="margin-top:8px;">
-                ${cardLabel('Age Group x Disability (Top Type)')}
-                ${tbl(['Age Group','Count'], (d?.dis_age||[]).map(r=>{const topKey=(d?.dis_types||[])[0]||''; return [r.group, r[topKey]!=null?r[topKey]:'—'];}))}
-              </div>
-            </div>
-          </div>`)}
-
-        ${sec('','Health & Immunization', `
-          <div class="three-col">
-            <div>
-              ${cardLabel('Vaccination Coverage')}
-              ${svgDonut([
-                {label:'Vaccinated', val:vacc.vaccinated||0, color:'#1152d4'},
-                {label:'Incomplete', val:(vacc.total||0)-(vacc.vaccinated||0), color:'#bfdbfe'}
-              ], vacc.national_rate!=null?vacc.national_rate+'%':'—', 'Immunized', 80)}
-            </div>
-            <div>
-              ${cardLabel('Ongoing Health Issues')}
-              ${svgDonut([
-                {label:'With Issues', val:hi.yes||0, color:'#1e3a8a'},
-                {label:'None', val:hi.no||0, color:'#dbeafe'}
-              ], hi.total>0?Math.round(((hi.yes||0)/(hi.total||1))*100)+'%':'—', 'With Issues', 80)}
-            </div>
-            <div>
-              ${cardLabel('Availed Services (6mo)')}
-              ${svgDonut([
-                {label:'Availed', val:ha.yes||0, color:'#2563eb'},
-                {label:'Did Not', val:ha.no||0, color:'#93c5fd'}
-              ], ha.total>0?Math.round(((ha.yes||0)/(ha.total||1))*100)+'%':'—', 'Availed', 80)}
-            </div>
+          <div style="margin-top:10px;">
+            ${rd.map(r=>svgProgressBar(rdTotal>0?Math.round((r.val/rdTotal)*100):0,'#1152d4',r.label)).join('')}
           </div>
-          <div style="margin-top:10px;display:flex;gap:10px;align-items:flex-start;">
-            <div style="flex:1;">
-              ${cardLabel('Top Healthcare Barriers')}
-              ${(ext?.barriers||[]).slice(0,5).map((b,i)=>`<div style="font-size:7pt;padding:3px 0;border-bottom:1px solid #e2e8f0;font-weight:500;"><span style="color:#1152d4;font-weight:700;">${i+1}.</span> ${b.label} <span style="color:#94a3b8;">(${b.count})</span></div>`).join('')||'<div style="color:#94a3b8;font-size:7pt;">No data</div>'}
-            </div>
-            <div style="flex:1;">
-              ${cardLabel('Health Expenses (avg/mo)')}
-              ${svgHorizBars((ext?.expenses?.breakdown||[]).slice(0,5), ['#1e3a8a','#1d4ed8','#2563eb','#3b82f6','#60a5fa'])}
-              <div style="font-size:7pt;color:#334155;margin-top:4px;font-weight:500;">Total avg: <b>&#8369;${(ext?.expenses?.total_avg||0).toLocaleString()}</b>/month</div>
-            </div>
-          </div>`)}
+        </div>
 
-        ${sec('','Economic Capacity', `
-          <div class="two-col">
-            <div>
-              ${cardLabel('Wage Level Distribution')}
-              ${svgDonut([
-                {label:'Below Min Wage', val:mw.below||0, color:'#1e3a8a'},
-                {label:'At Min Wage',    val:mw.at||0,    color:'#2563eb'},
-                {label:'Above Min Wage', val:mw.above||0, color:'#93c5fd'}
-              ], mwTotal>0?Math.round(((mw.below||0)/mwTotal)*100)+'%':'—', 'Below MW', 85)}
-            </div>
-            <div>
-              ${cardLabel('Primary Income Sources')}
-              ${svgHorizBars((ext?.primary_income_src||[]).slice(0,6), ['#1e3a8a','#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd'])}
-            </div>
-          </div>`)}
+        <!-- Report Analysis -->
+        <div class="section page-break">
+          <div class="section-title"><span class="sec-line"></span>Report Analysis</div>
+          ${analysisItems.map((item,i)=>`<div class="analysis-item"><div class="analysis-num">${i+1}</div><div>${item}</div></div>`).join('')}
+        </div>
 
-        ${sec('','Education', `
-          <div class="two-col">
-            <div>
-              ${cardLabel('School Enrollment')}
-              ${svgDonut([
-                {label:'Enrolled', val:enr.enrolled||0, color:'#1152d4'},
-                {label:'Not Enrolled', val:enr.not_enrolled||0, color:'#bfdbfe'}
-              ], enrTotal>0?Math.round(((enr.enrolled||0)/enrTotal)*100)+'%':'—', 'Enrolled', 80)}
-            </div>
-            <div>
-              ${cardLabel('Non-Enrollment Reasons')}
-              ${(enr.top_reasons||[]).length ? tbl(['Reason','Count'], (enr.top_reasons||[]).map(r=>[r.reason,r.count])) : '<div style="color:#94a3b8;font-size:7.5pt;">No data</div>'}
-              <div style="margin-top:8px;">
-                ${cardLabel('Educational Attainment (Top 5)')}
-                ${svgHorizBars((ext?.educ_attainment||[]).slice(0,5), ['#1e3a8a','#1d4ed8','#2563eb','#3b82f6','#60a5fa'])}
-              </div>
-            </div>
-          </div>`)}
-
-        ${sec('','Social Services & Financial Assistance', `
-          <div class="two-col">
-            <div>
-              ${cardLabel('Financial Assistance')}
-              ${svgDonut([
-                {label:'Receiving', val:fa.yes||0, color:'#1152d4'},
-                {label:'Not Receiving', val:fa.no||0, color:'#bfdbfe'}
-              ], fa.total>0?Math.round(((fa.yes||0)/(fa.total||1))*100)+'%':'—', 'Assisted', 80)}
-            </div>
-            <div>
-              ${cardLabel('Social Services Awareness')}
-              ${svgDonut([
-                {label:'Aware', val:sa.yes||0, color:'#1d4ed8'},
-                {label:'Not Aware', val:sa.no||0, color:'#93c5fd'}
-              ], sa.total>0?Math.round(((sa.yes||0)/(sa.total||1))*100)+'%':'—', 'Aware', 80)}
-            </div>
-          </div>`)}
-
-        ${sec('','Housing & Living Conditions', `
-          <div class="three-col">
-            <div>
-              ${cardLabel('Housing Materials')}
-              ${svgHorizBars((ext?.housing?.materials||[]).slice(0,5), ['#1e3a8a','#1d4ed8','#2563eb','#3b82f6','#60a5fa'])}
-            </div>
-            <div>
-              ${cardLabel('Water Source')}
-              ${svgHorizBars((ext?.housing?.water_source||[]).slice(0,5), ['#1152d4','#1d4ed8','#2563eb','#3b82f6','#60a5fa'])}
-            </div>
-            <div>
-              ${cardLabel('Tenure Status')}
-              ${svgHorizBars((ext?.housing?.tenure||[]).slice(0,5), ['#1e3a8a','#1d4ed8','#1152d4','#2563eb','#3b82f6'])}
-            </div>
-          </div>
-          <div style="margin-top:8px;" class="two-col">
-            <div>
-              ${cardLabel('Electricity Source')}
-              ${svgHorizBars((ext?.housing?.electricity_source||[]).slice(0,4), ['#1152d4','#1d4ed8','#2563eb','#3b82f6'])}
-            </div>
-            <div>
-              <div class="pill4-grid-2" style="margin-top:18px;">
-                <div class="pill4" style="border-top:3px solid #1152d4;">
-                  <div class="pill4-val" style="color:#1152d4;">${(ext?.housing?.mod_total||0)>0?Math.round(((ext.housing.mod_yes||0)/(ext.housing.mod_total||1))*100)+'%':'—'}</div>
-                  <div class="pill4-label">Homes Modified</div>
-                  <div class="pill4-sub">for accessibility</div>
-                </div>
-                <div class="pill4" style="border-top:3px solid #2563eb;">
-                  <div class="pill4-val" style="color:#2563eb;">${(d?.top_cities||[]).length}</div>
-                  <div class="pill4-label">Cities / Munic.</div>
-                  <div class="pill4-sub">covered</div>
-                </div>
-              </div>
-            </div>
-          </div>`)}
-
-        ${sec('','Regional Coverage', `
-          <div class="two-col">
-            <div>
-              ${cardLabel('Assessments by Region')}
-              ${svgHorizBars((d?.regions||[]).slice(0,8), ['#1e3a8a','#1d4ed8','#1152d4','#2563eb','#3b82f6','#60a5fa','#93c5fd','#bfdbfe'])}
-            </div>
-            <div>
-              ${cardLabel('Service Gap by Region (Top 6)')}
-              ${tbl(['Region','Aware %','Availed %','Vacc %'],
-                (d?.regions||[]).slice(0,6).map(r=>{
-                  const sg=(ext?.service_gap||[]).find(x=>x.region===r.region)||{};
-                  const vr=(ext?.vaccination?.by_region||[]).find(x=>x.region===r.region)||{};
-                  return [r.region.replace(/\s*\(.*?\)\s*/g,'').trim(), sg.aware_pct!=null?sg.aware_pct+'%':'—', sg.availed_pct!=null?sg.availed_pct+'%':'—', vr.rate!=null?vr.rate+'%':'—'];
-                }))}
-            </div>
-          </div>`)}
-
-        ${sec('','Interviewer Performance', `
-          ${tbl(['Rank','Name','Code','Region','Completed','Avg/Day','Workload'],
-            (d?.interviewers||[]).map((iv,i)=>[i+1,iv.name,iv.code,iv.region,iv.completed,iv.avgDay,iv.workload]))}
-          <div style="margin-top:8px;" class="pill4-grid-3">
-            <div class="pill4" style="border-top:3px solid #1e3a8a;"><div class="pill4-val" style="color:#1e3a8a;">${overloaded}</div><div class="pill4-label">Overloaded</div></div>
-            <div class="pill4" style="border-top:3px solid #1152d4;"><div class="pill4-val" style="color:#1152d4;">${(d?.interviewers||[]).filter(iv=>iv.workload==='balanced').length}</div><div class="pill4-label">Balanced</div></div>
-            <div class="pill4" style="border-top:3px solid #3b82f6;"><div class="pill4-val" style="color:#3b82f6;">${(d?.interviewers||[]).filter(iv=>iv.workload==='underutilized').length}</div><div class="pill4-label">Underutilized</div></div>
-          </div>`)}
-
-        ${sec('','Data Quality', `
-          <div class="two-col">
-            <div>
-              ${svgProgressBar(q.completeness||0, (q.completeness||0)>=90?'#1152d4':(q.completeness||0)>=80?'#2563eb':'#1e3a8a', 'Data Completeness')}
-              <div class="pill4-grid-2" style="margin-top:8px;">
-                <div class="pill4" style="border-top:3px solid #1e3a8a;"><div class="pill4-val" style="color:#1e3a8a;">${q.flagged_count||0}</div><div class="pill4-label">Flagged Records</div></div>
-                <div class="pill4" style="border-top:3px solid #1152d4;"><div class="pill4-val" style="color:#1152d4;">${q.completeness||0}%</div><div class="pill4-label">Completeness</div></div>
-              </div>
-            </div>
-            <div>
-              ${cardLabel('Missing Fields')}
-              ${svgHorizBars((q.missing_fields||[]), ['#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd'])}
-            </div>
-          </div>`)}
-
-        </div><!-- end lh-content -->
       </body></html>`;
 
       const w = window.open('','_blank');
