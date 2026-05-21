@@ -706,6 +706,38 @@
         </div>
       </div>
 
+      <!-- Report Analysis -->
+      <div class="rpt-section" id="rpts-analysis">
+        <div class="rpt-section-header" onclick="rptToggle('analysis')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">auto_awesome</span>
+            <span class="rpt-section-title">Report Analysis</span>
+            <span class="rpt-section-badge" id="rpt-badge-analysis"></span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="rpt-chev-analysis">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="rpt-body-analysis" style="display:none;">
+          <div class="card" style="margin:0;">
+            <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div class="card-title">Report Analysis</div>
+                <div class="card-subtitle">Summary based on current report data</div>
+              </div>
+              <button class="btn btn-primary btn-sm" id="rpt-analysis-btn" onclick="rptGenerateAnalysis()" style="flex-shrink:0;">
+                <span class="material-symbols-outlined">auto_awesome</span>Generate
+              </button>
+            </div>
+            <div id="rpt-analysis-output" style="padding:0.75rem 0 0.25rem;">
+              <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div style="padding:1.25rem;background:#f8faff;border:1px solid #dbeafe;border-radius:0.625rem;text-align:center;color:var(--gray-400);font-size:0.8125rem;">
+                  Click <b>Generate</b> to create an automated analysis of the current report data.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /co-view-report -->
 
   </div>
@@ -2157,6 +2189,94 @@
     if (chev) chev.classList.toggle('open', opening);
     RPT_OPEN[key] = opening;
     if (opening) rptRenderSection(key);
+  }
+
+  async function rptGenerateAnalysis() {
+    const btn = document.getElementById('rpt-analysis-btn');
+    const out = document.getElementById('rpt-analysis-output');
+    const s   = AN_DATA?.summary || {};
+    const ext = AN_EXT || {};
+    const rd  = ext.readiness_dist || [];
+    const dis = AN_DATA?.disabilities || [];
+    const reg = AN_DATA?.regions || [];
+    const fa  = ext.financial_assist || {};
+    const sa  = ext.social_awareness || {};
+    const enr = ext.enrollment || {};
+    const vacc= ext.vaccination || {};
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation:spin 1s linear infinite;">progress_activity</span>Analyzing…';
+    out.innerHTML = '<div style="padding:1rem;text-align:center;color:var(--gray-400);font-size:0.8125rem;">Generating analysis…</div>';
+
+    await new Promise(r => setTimeout(r, 600));
+
+    const total      = s.total || 0;
+    const rate       = s.completion_rate || 0;
+    const avgDay     = s.avg_per_day || 0;
+    const topRegion  = reg[0]?.region || 'N/A';
+    const topRegionN = reg[0]?.count || 0;
+    const topDis     = dis[0]?.label || 'N/A';
+    const severeRd   = rd.find(r=>r.label==='Severe')?.val || 0;
+    const stableRd   = rd.find(r=>r.label==='Stable')?.val || 0;
+    const rdTotal    = rd.reduce((s,r)=>s+r.val,0);
+    const severePct  = rdTotal>0 ? Math.round((severeRd/rdTotal)*100) : 0;
+    const stablePct  = rdTotal>0 ? Math.round((stableRd/rdTotal)*100) : 0;
+    const faPct      = fa.total>0 ? Math.round((fa.yes/fa.total)*100) : 0;
+    const saPct      = sa.total>0 ? Math.round((sa.yes/sa.total)*100) : 0;
+    const enrPct     = (enr.enrolled||0)+(enr.not_enrolled||0)>0 ? Math.round(((enr.enrolled||0)/((enr.enrolled||0)+(enr.not_enrolled||0)))*100) : 0;
+    const vaccRate   = vacc.national_rate || 0;
+
+    const statusColor = rate >= 80 ? '#059669' : rate >= 60 ? '#1152d4' : '#dc2626';
+    const statusLabel = rate >= 80 ? 'Ahead of Target' : rate >= 60 ? 'On Track' : 'Behind Target';
+
+    const sections = [
+      {
+        icon: 'assignment_turned_in', color: '#1152d4', bg: '#eff6ff',
+        title: 'Program Completion Status',
+        body: `As of this report, <b>${total.toLocaleString()}</b> assessments have been recorded nationally with a completion rate of <b style="color:${statusColor}">${rate}%</b> — <b>${statusLabel}</b>. The program is averaging <b>${avgDay}</b> assessments per day. ${rate < 60 ? 'Immediate attention is needed to accelerate data collection across lagging regions.' : rate >= 80 ? 'The program is performing well and should maintain current momentum.' : 'The program is progressing steadily but should monitor pace closely to meet targets.'}`
+      },
+      {
+        icon: 'map', color: '#2563eb', bg: '#eff6ff',
+        title: 'Regional Coverage',
+        body: `<b>${topRegion}</b> leads regional coverage with <b>${topRegionN.toLocaleString()}</b> assessments. ${reg.length > 1 ? `The bottom region, <b>${reg[reg.length-1]?.region}</b>, has recorded only <b>${(reg[reg.length-1]?.count||0).toLocaleString()}</b> — a gap that may require targeted field support.` : ''} Regional equity in data collection should be a priority for the next phase.`
+      },
+      {
+        icon: 'insights', color: '#3b82f6', bg: '#eff6ff',
+        title: 'Child Readiness Profile',
+        body: rdTotal > 0
+          ? `Of <b>${rdTotal.toLocaleString()}</b> children assessed, <b style="color:#ef4444">${severePct}%</b> are classified as <b>Severe</b> and <b style="color:#22c55e">${stablePct}%</b> as <b>Stable</b>. ${severePct > 30 ? 'The high proportion of severe cases signals an urgent need for intervention planning and resource allocation.' : severePct > 15 ? 'A notable proportion of children require prioritized support and early intervention.' : 'Most children show manageable readiness levels, though continued monitoring is recommended.'}`
+          : 'Readiness score data is not yet available for analysis.'
+      },
+      {
+        icon: 'accessible', color: '#60a5fa', bg: '#eff6ff',
+        title: 'Disability Prevalence',
+        body: dis.length > 0
+          ? `The most prevalent disability type is <b>${topDis}</b>. Multi-disability cases are present and should factor into service planning. Programs targeting children with disabilities should ensure adequate specialist support and assistive resources.`
+          : 'No disability data recorded in the current period.'
+      },
+      {
+        icon: 'volunteer_activism', color: '#1d4ed8', bg: '#eff6ff',
+        title: 'Social Services Access',
+        body: `<b>${faPct}%</b> of assessed households currently receive financial assistance, while <b>${saPct}%</b> are aware of available social services. ${saPct < 60 ? 'Low awareness levels suggest a need for stronger information dissemination at the community level.' : 'Awareness levels are adequate but continued outreach is recommended to ensure no household is left behind.'} School enrollment stands at <b>${enrPct}%</b> and immunization coverage at <b>${vaccRate}%</b>.`
+      },
+    ];
+
+    out.innerHTML = `<div style="display:flex;flex-direction:column;gap:0.875rem;padding-top:0.25rem;">
+      ${sections.map(sec=>`
+        <div style="display:flex;gap:0.875rem;padding:1rem 1.125rem;background:${sec.bg};border:1px solid #dbeafe;border-radius:0.625rem;">
+          <div style="width:2.25rem;height:2.25rem;border-radius:50%;background:${sec.color};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:0.1rem;">
+            <span class="material-symbols-outlined" style="color:white;font-size:1.1rem;">${sec.icon}</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.8125rem;font-weight:800;color:var(--dark);margin-bottom:0.3rem;">${sec.title}</div>
+            <div style="font-size:0.8rem;color:var(--gray-600);line-height:1.6;">${sec.body}</div>
+          </div>
+        </div>`).join('')}
+      <div style="font-size:0.68rem;color:var(--gray-400);text-align:right;padding-top:0.25rem;">Generated ${new Date().toLocaleString('en-PH',{dateStyle:'medium',timeStyle:'short'})} · Based on current filter</div>
+    </div>`;
+
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined">refresh</span>Regenerate';
   }
 
   let rptLoaded = false;
