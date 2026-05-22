@@ -35,6 +35,26 @@ define('SUPABASE_URL', $supabaseUrl);
 define('SUPABASE_SERVICE_ROLE_KEY', $supabaseKey);
 
 // ================================================================
+// CORS — run immediately on every request
+// ================================================================
+
+define('CORS_ALLOWED_ORIGINS', [
+    'https://projectaruga.com',
+    'https://www.projectaruga.com',
+]);
+
+function applyCorsOrigin() {
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    if (in_array($origin, CORS_ALLOWED_ORIGINS, true)) {
+        header('Access-Control-Allow-Origin: ' . $origin);
+    }
+    // Always send Vary so caches don't serve the wrong origin's response
+    header('Vary: Origin');
+}
+
+applyCorsOrigin();
+
+// ================================================================
 // HELPER FUNCTIONS
 // ================================================================
 
@@ -272,7 +292,7 @@ function sendResponse($success, $message, $data = null, $httpCode = 200) {
     
     // Set headers
     header('Content-Type: application/json');
-    header('Access-Control-Allow-Origin: https://projectaruga.com');
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, Authorization');
     

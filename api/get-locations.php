@@ -1,5 +1,4 @@
 <?php
-header('Access-Control-Allow-Origin: https://projectaruga.com');
 header('Content-Type: application/json');
 
 $locations = [

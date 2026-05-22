@@ -7,6 +7,14 @@
       "runtime": "vercel-php@0.7.1"
     }
   },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" }
+      ]
+    }
+  ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/css/(.*)", "dest": "/public/css/$1" },
