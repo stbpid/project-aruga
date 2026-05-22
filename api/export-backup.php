@@ -6,23 +6,30 @@
 require_once __DIR__ . '/config.php';
 
 header('Access-Control-Allow-Origin: https://projectaruga.com');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Admin-Token');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
-// Simple token auth — must match env var ADMIN_EXPORT_TOKEN
-$token = $_SERVER['HTTP_X_ADMIN_TOKEN'] ?? ($_GET['token'] ?? '');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+    exit;
+}
+
+// Token must be sent via X-Admin-Token header only — never via URL parameter
+$token = $_SERVER['HTTP_X_ADMIN_TOKEN'] ?? '';
 $validToken = getenv('ADMIN_EXPORT_TOKEN') ?: ($_ENV['ADMIN_EXPORT_TOKEN'] ?? $_SERVER['ADMIN_EXPORT_TOKEN'] ?? '');
 
-if (empty($validToken) || $token !== $validToken) {
+if (empty($validToken) || empty($token) || !hash_equals($validToken, $token)) {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
 
-$format = strtolower($_GET['format'] ?? 'json'); // 'json' or 'csv'
-$table  = $_GET['table'] ?? 'all'; // specific table name or 'all'
+$body   = json_decode(file_get_contents('php://input'), true) ?? [];
+$format = strtolower($body['format'] ?? 'json'); // 'json' or 'csv'
+$table  = $body['table'] ?? 'all'; // specific table name or 'all'
 
 // All exportable tables (exclude nothing — admin has full access)
 $tables = [
