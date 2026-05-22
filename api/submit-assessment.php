@@ -20,6 +20,31 @@ function safe($arr, $key, $default = null) {
     return (isset($arr[$key]) && $arr[$key] !== '' && $arr[$key] !== null) ? $arr[$key] : $default;
 }
 
+const VALID_DISABILITIES = [
+    'None', 'Visual Disability', 'Hearing Disability',
+    'Speech and Language Impairment', 'Orthopedic / Physical Disability',
+    'Mental / Intellectual Disability', 'Learning Disability',
+    'Psychosocial Disability', 'Disability Resulting from a Chronic Illness',
+    'Multiple Disabilities', 'Other (specify)',
+];
+
+const VALID_ILLNESSES = [
+    'None', 'Cancer', 'Heart Disease', 'Kidney Disease', 'Diabetes',
+    'Respiratory Disease', 'Neurological Disorder', 'Blood Disorder',
+    'Chronic Illness', 'Others',
+];
+
+function sanitizeArray($value, array $allowedValues, int $maxItems = 20): array {
+    if (!is_array($value)) return [];
+    $result = [];
+    foreach (array_slice($value, 0, $maxItems) as $item) {
+        if (is_string($item) && in_array($item, $allowedValues, true)) {
+            $result[] = $item;
+        }
+    }
+    return $result;
+}
+
 function getRegionCode($region) {
     if (!$region) return 'XX';
     $map = [
@@ -143,8 +168,8 @@ supabaseRequest('POST', 'child_education_health', [
     'child_id'                => $childId,
     'highest_education'       => safe($ceh, 'highest_education'),
     'highest_education_other' => safe($ceh, 'highest_education_other'),
-    'disabilities'            => $ceh['disabilities'] ?? [],
-    'critical_illnesses'      => $ceh['critical_illnesses'] ?? [],
+    'disabilities'            => sanitizeArray($ceh['disabilities'] ?? [], VALID_DISABILITIES),
+    'critical_illnesses'      => sanitizeArray($ceh['critical_illnesses'] ?? [], VALID_ILLNESSES),
     'illness_other'           => safe($ceh, 'illness_other'),
 ]);
 
@@ -165,8 +190,8 @@ foreach ($members as $member) {
         'sex'                 => safe($member, 'sex'),
         'occupation'          => safe($member, 'occupation'),
         'occupation_class'    => safe($member, 'occupation_class'),
-        'disabilities'        => $member['disabilities'] ?? [],
-        'critical_illnesses'  => $member['critical_illnesses'] ?? [],
+        'disabilities'        => sanitizeArray($member['disabilities'] ?? [], VALID_DISABILITIES),
+        'critical_illnesses'  => sanitizeArray($member['critical_illnesses'] ?? [], VALID_ILLNESSES),
     ]);
 }
 
