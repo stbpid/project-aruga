@@ -5,7 +5,7 @@ const DASH_SESSION_KEYS = ['session_id', 'interviewer_id'];
 function dashCheckAuth() {
   const missing = DASH_SESSION_KEYS.some(k => !sessionStorage.getItem(k));
   if (missing) {
-    window.location.replace('/dashboard.html');
+    window.location.replace('/dashboard');
     return false;
   }
   return true;
@@ -30,7 +30,7 @@ function dashLogout() {
 
 function doLogout() {
   sessionStorage.clear();
-  window.location.replace('/dashboard.html');
+  window.location.replace('/dashboard');
 }
 
 function showLogoutModal() {
@@ -85,7 +85,7 @@ function dashPopulateUser() {
 function dashBlockBack() {
   window.addEventListener('popstate', () => {
     if (!sessionStorage.getItem('session_id')) {
-      window.location.replace('/dashboard.html');
+      window.location.replace('/dashboard');
     }
   });
 }
@@ -172,7 +172,7 @@ function _idleLogout() {
   const modal = document.getElementById('idle-warning-modal');
   if (modal) modal.remove();
   sessionStorage.clear();
-  window.location.replace('/dashboard.html?reason=idle');
+  window.location.replace('/dashboard?reason=idle');
 }
 
 function dashStartIdleTimer() {

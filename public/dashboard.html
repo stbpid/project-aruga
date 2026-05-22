@@ -18,9 +18,9 @@
         <h2 class="font-bold text-brand-dark text-lg sm:text-xl">Project Aruga</h2>
       </div>
       <nav class="hidden md:flex items-center gap-6">
-        <a href="/privacy.html" class="text-xs font-semibold text-gray-600 hover:text-brand-blue transition-colors">Privacy Policy</a>
-        <a href="/docs.html" class="text-xs font-semibold text-gray-600 hover:text-brand-blue transition-colors">Documentation</a>
-        <a href="/contact.html" class="text-xs font-semibold text-gray-600 hover:text-brand-blue transition-colors">Contact us</a>
+        <a href="/privacy" class="text-xs font-semibold text-gray-600 hover:text-brand-blue transition-colors">Privacy Policy</a>
+        <a href="/docs" class="text-xs font-semibold text-gray-600 hover:text-brand-blue transition-colors">Documentation</a>
+        <a href="/contact" class="text-xs font-semibold text-gray-600 hover:text-brand-blue transition-colors">Contact us</a>
         <a href="https://projectaruga.com" class="bg-brand-blue hover:bg-brand-blueHover text-white text-[10px] sm:text-xs font-semibold px-2 py-1.5 rounded transition-colors shadow-sm flex items-center gap-1">Profiling Tool</a>
       </nav>
       <button id="mobile-menu-btn" class="md:hidden text-gray-600 focus:outline-none p-1" onclick="toggleMobileMenu()">
@@ -29,9 +29,9 @@
       </button>
     </div>
     <div id="mobile-menu" class="hidden md:hidden border-t border-[#e0e4e0] bg-white px-4 py-3 space-y-1">
-      <a href="/privacy.html" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Privacy Policy</a>
-      <a href="/docs.html" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Documentation</a>
-      <a href="/contact.html" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Contact us</a>
+      <a href="/privacy" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Privacy Policy</a>
+      <a href="/docs" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Documentation</a>
+      <a href="/contact" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Contact us</a>
       <a href="https://projectaruga.com" class="block py-2.5 px-3 text-sm font-semibold text-white bg-brand-blue hover:bg-brand-blueHover rounded-lg transition-colors">Profiling Tool</a>
     </div>
   </header>
@@ -97,7 +97,7 @@
   <script>
     // Show idle logout message if redirected due to inactivity
     if (new URLSearchParams(window.location.search).get('reason') === 'idle') {
-      window.history.replaceState({}, '', '/dashboard.html');
+      window.history.replaceState({}, '', '/dashboard');
       document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => toast.error('You were logged out due to 30 minutes of inactivity.', 'Session Expired'), 300);
       });
@@ -128,10 +128,10 @@
     });
 
     const ROLE_REDIRECT = {
-      admin:          '/dashboard-admin.html',
-      central:        '/dashboard-central.html',
-      stu_head:       '/dashboard-stu-head.html',
-      field_officer:  '/dashboard-field-officer.html',
+      admin:          '/dashboard-admin',
+      central:        '/dashboard-central',
+      stu_head:       '/dashboard-stu-head',
+      field_officer:  '/dashboard-field-officer',
     };
 
     btnSubmit.addEventListener('click', async function() {
@@ -172,7 +172,7 @@
 
           const role = (d.role || '').trim().toLowerCase();
           console.log('Login role received:', JSON.stringify(role));
-          const redirect = ROLE_REDIRECT[role] || '/dashboard-admin.html';
+          const redirect = ROLE_REDIRECT[role] || '/dashboard-admin';
           console.log('Redirecting to:', redirect);
           setTimeout(() => { window.location.href = redirect; }, 1000);
         } else {

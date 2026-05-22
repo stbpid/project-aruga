@@ -8,57 +8,18 @@
     }
   },
   "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/css/(.*)", "dest": "/public/css/$1" },
+    { "src": "/js/(.*)", "dest": "/public/js/$1" },
+    { "src": "/images/(.*)", "dest": "/public/images/$1" },
+    { "src": "/", "dest": "/public/index.html" },
     {
-      "src": "/",
-      "dest": "/public/index.html"
+      "src": "/(.*)\\.html",
+      "headers": { "Location": "/$1" },
+      "status": 301,
+      "dest": "/$1"
     },
-    {
-      "src": "/profiling",
-      "dest": "/public/profiling.html"
-    },
-    {
-      "src": "/privacy",
-      "dest": "/public/privacy.html"
-    },
-    {
-      "src": "/contact",
-      "dest": "/public/contact.html"
-    },
-    {
-      "src": "/success",
-      "dest": "/public/success.html"
-    },
-    {
-      "src": "/profile",
-      "dest": "/public/profile.html"
-    },
-    {
-      "src": "/docs",
-      "dest": "/public/docs.html"
-    },
-    {
-      "src": "/user-manual",
-      "dest": "/public/user-manual.html"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/css/(.*)",
-      "dest": "/public/css/$1"
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "/public/js/$1"
-    },
-    {
-      "src": "/images/(.*)",
-      "dest": "/public/images/$1"
-    },
-    {
-      "src": "/(.*\\..+)",
-      "dest": "/public/$1"
-    }
+    { "src": "/login", "dest": "/public/login-dashboard.html" },
+    { "src": "/(.+)", "dest": "/public/$1.html" }
   ]
 }
