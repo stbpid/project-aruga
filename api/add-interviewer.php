@@ -62,7 +62,8 @@ if ($password) $payload['password_hash'] = password_hash($password, PASSWORD_DEF
 $res = supabaseRequest('POST', 'interviewers', $payload);
 
 if (!$res['success']) {
-    echo json_encode(['success' => false, 'message' => $res['error'] ?? 'Failed to add interviewer']); exit;
+    error_log('add-interviewer error: ' . ($res['error'] ?? 'Unknown'));
+    echo json_encode(['success' => false, 'message' => 'A server error occurred. Please try again.']); exit;
 }
 
 $newId = $res['data'][0]['id'] ?? null;

@@ -75,7 +75,8 @@ $res = supabaseRequest('PATCH',
 );
 
 if (!$res['success']) {
-    echo json_encode(['success' => false, 'message' => $res['error'] ?? 'Failed to update interviewer']); exit;
+    error_log('update-interviewer error: ' . ($res['error'] ?? 'Unknown'));
+    echo json_encode(['success' => false, 'message' => 'A server error occurred. Please try again.']); exit;
 }
 
 $logFields = $fields;

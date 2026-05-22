@@ -82,7 +82,8 @@ $assessmentData = [
 
 $result = supabaseRequest('POST', 'assessments', $assessmentData);
 if (!$result['success'] || empty($result['data'][0]['id'])) {
-    sendResponse(false, 'Failed to create assessment: ' . ($result['error'] ?? 'Unknown error'), null, 500);
+    error_log('submit-assessment error: ' . ($result['error'] ?? 'Unknown'));
+    sendResponse(false, 'A server error occurred. Please try again.', null, 500);
 }
 $assessmentId = $result['data'][0]['id'];
 

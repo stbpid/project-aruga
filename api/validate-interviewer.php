@@ -70,7 +70,8 @@ $endpoint = "interviewers?interviewer_code=eq.$interviewerCode&status=eq.active&
 $result = supabaseRequest('GET', $endpoint);
 
 if (!$result['success']) {
-    sendResponse(false, 'Database error: ' . ($result['error'] ?? 'Unknown error'), null, 500);
+    error_log('validate-interviewer error: ' . ($result['error'] ?? 'Unknown'));
+    sendResponse(false, 'A server error occurred. Please try again.', null, 500);
 }
 
 // Check if interviewer exists and is active
