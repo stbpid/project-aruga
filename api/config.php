@@ -24,8 +24,11 @@ ini_set('display_errors', 0);
 $supabaseUrl = getenv('SUPABASE_URL') ?: ($_ENV['SUPABASE_URL'] ?? $_SERVER['SUPABASE_URL'] ?? '');
 $supabaseKey = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: ($_ENV['SUPABASE_SERVICE_ROLE_KEY'] ?? $_SERVER['SUPABASE_SERVICE_ROLE_KEY'] ?? '');
 
-if (empty($supabaseUrl)) {
-    $supabaseUrl = 'https://kdwrhsprotihupursvre.supabase.co';
+if (empty($supabaseUrl) || empty($supabaseKey)) {
+    http_response_code(500);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Server configuration error.']);
+    exit;
 }
 
 define('SUPABASE_URL', $supabaseUrl);
@@ -373,10 +376,5 @@ function logError($message, $context = null) {
 // VERIFY CONFIGURATION
 // ================================================================
 
-// Check if credentials are set (only for debugging, remove in production)
-if (SUPABASE_URL === 'https://YOUR_PROJECT_ID.supabase.co') {
-    // Credentials not configured - log warning
-    error_log('WARNING: Supabase credentials not configured in api/config.php');
-}
 
 ?>
