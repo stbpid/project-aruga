@@ -12,14 +12,35 @@
     { "src": "/css/(.*)", "dest": "/public/css/$1" },
     { "src": "/js/(.*)", "dest": "/public/js/$1" },
     { "src": "/images/(.*)", "dest": "/public/images/$1" },
+
+    { "src": "/index\\.html", "headers": { "Location": "/" }, "status": 301, "dest": "/public/index.html" },
+    { "src": "/contact\\.html", "headers": { "Location": "/contact" }, "status": 301, "dest": "/public/contact.html" },
+    { "src": "/privacy\\.html", "headers": { "Location": "/privacy" }, "status": 301, "dest": "/public/privacy.html" },
+    { "src": "/profiling\\.html", "headers": { "Location": "/profiling" }, "status": 301, "dest": "/public/profiling.html" },
+    { "src": "/success\\.html", "headers": { "Location": "/success" }, "status": 301, "dest": "/public/success.html" },
+    { "src": "/profile\\.html", "headers": { "Location": "/profile" }, "status": 301, "dest": "/public/profile.html" },
+    { "src": "/docs\\.html", "headers": { "Location": "/docs" }, "status": 301, "dest": "/public/docs.html" },
+    { "src": "/user-manual\\.html", "headers": { "Location": "/user-manual" }, "status": 301, "dest": "/public/user-manual.html" },
+    { "src": "/dashboard\\.html", "headers": { "Location": "/dashboard" }, "status": 301, "dest": "/public/dashboard.html" },
+    { "src": "/login-dashboard\\.html", "headers": { "Location": "/login" }, "status": 301, "dest": "/public/login-dashboard.html" },
+    { "src": "/dashboard-admin\\.html", "headers": { "Location": "/dashboard-admin" }, "status": 301, "dest": "/public/dashboard-admin.html" },
+    { "src": "/dashboard-central\\.html", "headers": { "Location": "/dashboard-central" }, "status": 301, "dest": "/public/dashboard-central.html" },
+    { "src": "/dashboard-stu-head\\.html", "headers": { "Location": "/dashboard-stu-head" }, "status": 301, "dest": "/public/dashboard-stu-head.html" },
+    { "src": "/dashboard-field-officer\\.html", "headers": { "Location": "/dashboard-field-officer" }, "status": 301, "dest": "/public/dashboard-field-officer.html" },
+
     { "src": "/", "dest": "/public/index.html" },
-    {
-      "src": "/(.*)\\.html",
-      "headers": { "Location": "/$1" },
-      "status": 301,
-      "dest": "/$1"
-    },
     { "src": "/login", "dest": "/public/login-dashboard.html" },
-    { "src": "/(.+)", "dest": "/public/$1.html" }
+    { "src": "/contact", "dest": "/public/contact.html" },
+    { "src": "/privacy", "dest": "/public/privacy.html" },
+    { "src": "/profiling", "dest": "/public/profiling.html" },
+    { "src": "/success", "dest": "/public/success.html" },
+    { "src": "/profile", "dest": "/public/profile.html" },
+    { "src": "/docs", "dest": "/public/docs.html" },
+    { "src": "/user-manual", "dest": "/public/user-manual.html" },
+    { "src": "/dashboard", "dest": "/public/dashboard.html" },
+    { "src": "/dashboard-admin", "dest": "/public/dashboard-admin.html" },
+    { "src": "/dashboard-central", "dest": "/public/dashboard-central.html" },
+    { "src": "/dashboard-stu-head", "dest": "/public/dashboard-stu-head.html" },
+    { "src": "/dashboard-field-officer", "dest": "/public/dashboard-field-officer.html" }
   ]
 }
