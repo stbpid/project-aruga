@@ -130,9 +130,9 @@
       <!-- Tabs -->
       <div class="card" style="margin-bottom:1rem;">
         <div class="tabs">
-          <div class="tab-item active" onclick="switchTab(this,'tab-interviewers')">User Management</div>
+          <div class="tab-item active" onclick="switchTab(this,'tab-interviewers');stuLoadOverviewInterviewers();">User Management</div>
           <div class="tab-item" onclick="switchTab(this,'tab-pending');stuLoadPendingReviews();">Pending Reviews <span id="pending-reviews-badge" style="display:none;background:#dc2626;color:#fff;border-radius:999px;font-size:0.65rem;font-weight:700;padding:1px 6px;margin-left:4px;vertical-align:middle;"></span></div>
-          <div class="tab-item" onclick="switchTab(this,'tab-recent')">Recent Submissions</div>
+          <div class="tab-item" onclick="switchTab(this,'tab-recent');stuLoadRecentSubmissions();">Recent Submissions</div>
         </div>
 
         <div id="tab-interviewers">
@@ -162,7 +162,14 @@
         </div>
 
         <div id="tab-recent" style="display:none;">
-          <div style="text-align:center;color:#9ca3af;padding:2rem;font-size:13px;">No data available</div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead><tr><th>Beneficiary</th><th>Aruga ID</th><th>Interviewer</th><th>Date</th><th>Readiness</th></tr></thead>
+              <tbody id="recent-submissions-tbody">
+                <tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -1218,6 +1225,45 @@
         <td>${stuIntStatusBadge(r.status)}</td>
       </tr>`;
     }).join('');
+  }
+
+  async function stuLoadOverviewInterviewers() {
+    const region = sessionStorage.getItem('interviewer_region') || '';
+    await stuEnsureIntData(region);
+    stuRenderOverviewInterviewers();
+  }
+
+  let stuRecentLoaded = false;
+  async function stuLoadRecentSubmissions() {
+    if (stuRecentLoaded) return;
+    const tbody = document.getElementById('recent-submissions-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr>';
+    const region = sessionStorage.getItem('interviewer_region') || '';
+    try {
+      const res = await authFetch('/api/stu-head/beneficiaries.php?region=' + encodeURIComponent(region) + '&limit=20&offset=0');
+      const j = await res.json();
+      const rows = (j.success && Array.isArray(j.data)) ? j.data : [];
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:2rem;">No submissions found.</td></tr>';
+        return;
+      }
+      const READINESS_STYLE = { severe:'background:#fef2f2;color:#dc2626;', moderate:'background:#fff7ed;color:#ea580c;', low:'background:#fefce8;color:#ca8a04;', stable:'background:#f0fdf4;color:#16a34a;' };
+      tbody.innerHTML = rows.map(r => {
+        const rs = (r.readiness_score||'').toLowerCase();
+        const badge = rs ? `<span style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;${READINESS_STYLE[rs]||'background:#eff6ff;color:#1d4ed8;'}">${r.readiness_score}</span>` : '—';
+        return `<tr class="table-row-hover">
+          <td style="font-weight:600;color:#111811;">${r.name||'—'}</td>
+          <td><span style="font-family:monospace;font-size:0.8rem;font-weight:700;color:var(--blue);">${r.aruga_id||'—'}</span></td>
+          <td>${r.interviewer||'—'}</td>
+          <td>${r.date||'—'}</td>
+          <td>${badge}</td>
+        </tr>`;
+      }).join('');
+      stuRecentLoaded = true;
+    } catch(e) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:2rem;">Failed to load.</td></tr>';
+    }
   }
 
   function switchTab(el, tabId) {
@@ -2718,23 +2764,28 @@
   }
 
   async function stuLoadMyInterviewers() {
-    if (stuIntLoaded) { stuRenderMyInterviewers(); return; }
     const region = sessionStorage.getItem('interviewer_region') || '';
     document.getElementById('stu-int-subtitle').textContent = region ? 'Interviewers in ' + region : 'Interviewers in your region';
-    document.getElementById('stu-int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
-    try {
-      const json = await (await authFetch('/api/get-interviewers.php')).json();
-      const all = json.success ? json.data : [];
-      // Filter to same region only
-      const REGION_NORM = {'NCR':'NCR (National Capital Region)','NCR – Metro Manila':'NCR (National Capital Region)','NCR - Metro Manila':'NCR (National Capital Region)','National Capital Region':'NCR (National Capital Region)','CAR':'CAR (Cordillera Administrative Region)','CAR – Cordillera':'CAR (Cordillera Administrative Region)','CAR - Cordillera':'CAR (Cordillera Administrative Region)','Cordillera':'CAR (Cordillera Administrative Region)','BARMM':'BARMM (Bangsamoro)','Bangsamoro':'BARMM (Bangsamoro)','CALABARZON':'Region IV-A (CALABARZON)','MIMAROPA':'Region IV-B (MIMAROPA)','Bicol Region':'Region V (Bicol Region)','Caraga':'Region XIII (Caraga)'};
-      const normRegion = REGION_NORM[region] || region;
-      stuIntData = normRegion ? all.filter(r => r.region === normRegion) : all;
-      stuIntLoaded = true;
+
+    if (stuIntLoaded) {
       stuIntFiltered = [...stuIntData];
       stuIntPage = 0;
       stuRenderMyInterviewers();
-    } catch(e) {
-      document.getElementById('stu-int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+    } else {
+      document.getElementById('stu-int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+      try {
+        const json = await (await authFetch('/api/get-interviewers.php')).json();
+        const all = json.success ? json.data : [];
+        const REGION_NORM = {'NCR':'NCR (National Capital Region)','NCR – Metro Manila':'NCR (National Capital Region)','NCR - Metro Manila':'NCR (National Capital Region)','National Capital Region':'NCR (National Capital Region)','CAR':'CAR (Cordillera Administrative Region)','CAR – Cordillera':'CAR (Cordillera Administrative Region)','CAR - Cordillera':'CAR (Cordillera Administrative Region)','Cordillera':'CAR (Cordillera Administrative Region)','BARMM':'BARMM (Bangsamoro)','Bangsamoro':'BARMM (Bangsamoro)','CALABARZON':'Region IV-A (CALABARZON)','MIMAROPA':'Region IV-B (MIMAROPA)','Bicol Region':'Region V (Bicol Region)','Caraga':'Region XIII (Caraga)'};
+        const normRegion = REGION_NORM[region] || region;
+        stuIntData = normRegion ? all.filter(r => r.region === normRegion) : all;
+        stuIntLoaded = true;
+        stuIntFiltered = [...stuIntData];
+        stuIntPage = 0;
+        stuRenderMyInterviewers();
+      } catch(e) {
+        document.getElementById('stu-int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+      }
     }
 
     document.getElementById('stu-int-search').addEventListener('input', stuFilterMyInterviewers);
