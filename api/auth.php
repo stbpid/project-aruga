@@ -91,7 +91,15 @@ if (!function_exists('requireAuth')) {
         // admin sees all regions
         if ($role === 'admin') return;
         $userRegion = trim($authInterviewer['region'] ?? '');
-        if (empty($userRegion) || strcasecmp($userRegion, trim($requestedRegion)) !== 0) {
+        // Normalize both sides: strip HTML entities, collapse dash variants, trim
+        $normalize = function(string $r): string {
+            $r = html_entity_decode($r, ENT_QUOTES, 'UTF-8');
+            $r = trim($r);
+            // Treat en-dash, em-dash, and hyphen as equivalent separators
+            $r = preg_replace('/\s*[\x{2013}\x{2014}-]\s*/u', ' - ', $r);
+            return mb_strtolower($r);
+        };
+        if (empty($userRegion) || $normalize($userRegion) !== $normalize($requestedRegion)) {
             http_response_code(403);
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Access denied.']);
