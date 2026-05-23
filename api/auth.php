@@ -71,6 +71,47 @@ if (!function_exists('requireAuth')) {
 
         $authInterviewer = $intResult['data'][0];
     }
+
+    // Require one of the given roles — call after requireAuth()
+    function requireRole(array $allowedRoles) {
+        global $authInterviewer;
+        $role = $authInterviewer['dashboard_role'] ?? '';
+        if (!in_array($role, $allowedRoles, true)) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Access denied.']);
+            exit;
+        }
+    }
+
+    // Require that the user's assigned region matches the given region string
+    function requireRegion(string $requestedRegion) {
+        global $authInterviewer;
+        $role = $authInterviewer['dashboard_role'] ?? '';
+        // admin sees all regions
+        if ($role === 'admin') return;
+        $userRegion = trim($authInterviewer['region'] ?? '');
+        if (empty($userRegion) || strcasecmp($userRegion, trim($requestedRegion)) !== 0) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Access denied.']);
+            exit;
+        }
+    }
+
+    // Require that the interviewer_code param matches the logged-in user's own code
+    function requireOwnCode(string $requestedCode) {
+        global $authInterviewer;
+        $role = $authInterviewer['dashboard_role'] ?? '';
+        if ($role === 'admin') return;
+        $ownCode = $authInterviewer['interviewer_code'] ?? '';
+        if (empty($ownCode) || $ownCode !== $requestedCode) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Access denied.']);
+            exit;
+        }
+    }
 }
 
 requireAuth();

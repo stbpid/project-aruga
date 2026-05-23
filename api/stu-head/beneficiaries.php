@@ -9,7 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(['success' => false]); exit;
 }
 
+requireRole(['stu_head', 'admin']);
 $region  = getStr('region');
+requireRegion($region);
 $search  = trim($_GET['search']  ?? '');
 $status  = trim($_GET['status']  ?? '');
 $limit   = max(1, min(100, (int)($_GET['limit']  ?? 50)));

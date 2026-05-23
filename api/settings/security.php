@@ -7,6 +7,7 @@ header('Access-Control-Allow-Methods: GET, PUT, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+requireRole(['admin']);
 
 $DEFAULTS = [
     'idleTimeout'          => '30',

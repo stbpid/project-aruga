@@ -10,12 +10,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
+requireRole(['field_officer', 'admin']);
 $interviewerCode = getStr('interviewerCode');
 $limit = getInt('limit', 5, 1, 100);
 if (empty($interviewerCode)) {
     echo json_encode(['success' => false, 'message' => 'interviewerCode required']);
     exit;
 }
+requireOwnCode($interviewerCode);
 
 $code = urlencode($interviewerCode);
 

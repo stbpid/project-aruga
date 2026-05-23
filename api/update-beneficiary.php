@@ -6,6 +6,7 @@ header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { echo json_encode(['success'=>false]); exit; }
+requireRole(['admin', 'stu_head']);
 
 $body = json_decode(file_get_contents('php://input'), true);
 if (!$body) { echo json_encode(['success'=>false,'message'=>'Invalid JSON']); exit; }

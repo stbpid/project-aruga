@@ -10,11 +10,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
+requireRole(['field_officer', 'admin']);
 $interviewerCode = getStr('interviewerCode');
 if (empty($interviewerCode)) {
     echo json_encode(['success' => false, 'message' => 'interviewerCode required']);
     exit;
 }
+requireOwnCode($interviewerCode);
 
 $code       = urlencode($interviewerCode);
 $monthStart = date('Y-m-01') . 'T00:00:00';

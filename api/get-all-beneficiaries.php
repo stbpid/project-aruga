@@ -3,6 +3,7 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
 
 header('Content-Type: application/json');
+requireRole(['admin']);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(['success' => false]); exit;

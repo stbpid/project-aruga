@@ -7,7 +7,9 @@ header('Access-Control-Allow-Headers: Content-Type');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') { echo json_encode(['success'=>false]); exit; }
 
+requireRole(['stu_head', 'admin']);
 $region = getStr('region');
+requireRegion($region);
 $status = getStr('status', 'pending');   // pending | approved | for_update | declined | all
 $page   = getInt('page', 1, 1);
 $limit  = min(50, max(1, (int)($_GET['limit'] ?? 20)));

@@ -9,10 +9,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(['success' => false]); exit;
 }
 
+requireRole(['stu_head', 'admin']);
 $region = getStr('region');
 if (!$region) {
     echo json_encode(['success' => false, 'message' => 'region required']); exit;
 }
+requireRegion($region);
 
 function stuStatsNormalizeRegion($r) {
     $r = trim($r ?? '');
