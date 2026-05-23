@@ -111,6 +111,8 @@ $codes = array_filter(array_column($res['data'], 'interviewer_code'));
 
 $totalMap      = [];
 $completedMap  = [];
+$monthMap      = [];
+$completedMonthMap = [];
 $lastActiveMap = [];
 
 if (!empty($codes)) {
@@ -125,6 +127,10 @@ if (!empty($codes)) {
             $totalMap[$code] = ($totalMap[$code] ?? 0) + 1;
             if ($a['status'] === 'completed') $completedMap[$code] = ($completedMap[$code] ?? 0) + 1;
             $ca = $a['created_at'] ?? '';
+            if ($ca >= $monthStart && $ca <= $monthEnd) {
+                $monthMap[$code] = ($monthMap[$code] ?? 0) + 1;
+                if ($a['status'] === 'completed') $completedMonthMap[$code] = ($completedMonthMap[$code] ?? 0) + 1;
+            }
             if ($ca && (!isset($lastActiveMap[$code]) || $ca > $lastActiveMap[$code])) {
                 $lastActiveMap[$code] = $ca;
             }
@@ -151,20 +157,22 @@ $filtered = array_filter($res['data'], function($r) use ($normalizedRegion) {
     return normalizeRegion($r['region'] ?? '') === $normalizedRegion;
 });
 
-$rows = array_map(function($r) use ($totalMap, $completedMap, $lastActiveMap) {
+$rows = array_map(function($r) use ($totalMap, $completedMap, $monthMap, $completedMonthMap, $lastActiveMap) {
     $code  = $r['interviewer_code'] ?? '—';
     return [
-        'id'               => $r['id'] ?? null,
-        'name'             => $r['full_name'] ?? '—',
-        'code'             => $code,
-        'region'           => normalizeRegion($r['region'] ?? ''),
-        'province'         => $r['province'] ?? '—',
-        'position'         => $r['position'] ?? '—',
-        'office'           => $r['office'] ?? '—',
-        'status'           => $r['status'] ?? 'active',
-        'submissions_total'=> $totalMap[$code] ?? 0,
-        'completed_total'  => $completedMap[$code] ?? 0,
-        'last_active'      => $lastActiveMap[$code] ?? null,
+        'id'                => $r['id'] ?? null,
+        'name'              => $r['full_name'] ?? '—',
+        'code'              => $code,
+        'region'            => normalizeRegion($r['region'] ?? ''),
+        'province'          => $r['province'] ?? '—',
+        'position'          => $r['position'] ?? '—',
+        'office'            => $r['office'] ?? '—',
+        'status'            => $r['status'] ?? 'active',
+        'submissions_total' => $totalMap[$code] ?? 0,
+        'completed_total'   => $completedMap[$code] ?? 0,
+        'submissions_month' => $monthMap[$code] ?? 0,
+        'completed_month'   => $completedMonthMap[$code] ?? 0,
+        'last_active'       => $lastActiveMap[$code] ?? null,
     ];
 }, $filtered);
 

@@ -87,10 +87,6 @@
       <a href="#" class="nav-item" id="nav-qr" title="Scan QR Code" onclick="stuShowView('qr');return false;"><span class="material-symbols-outlined">qr_code_scanner</span><span class="nav-label">Scan QR Code</span></a>
       <a href="#" class="nav-item" id="nav-help" title="User Guide" onclick="stuShowView('help');return false;"><span class="material-symbols-outlined">help</span><span class="nav-label">User Guide</span></a>
 
-      <div class="nav-section-label">Switch View</div>
-      <a href="/dashboard-admin" class="nav-item" title="Admin"><span class="material-symbols-outlined">shield_person</span><span class="nav-label">Admin</span></a>
-      <a href="/dashboard-central" class="nav-item" title="Central Office"><span class="material-symbols-outlined">corporate_fare</span><span class="nav-label">Central Office</span></a>
-      <a href="/dashboard-field-officer" class="nav-item" title="Field Officer"><span class="material-symbols-outlined">person_pin_circle</span><span class="nav-label">Field Officer</span></a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user" onclick="openProfileSettings()" title="Account Settings">
@@ -1180,12 +1176,9 @@
 
   async function stuEnsureIntData(region) {
     if (stuIntLoaded) return;
-    const REGION_NORM = {'NCR':'NCR (National Capital Region)','NCR – Metro Manila':'NCR (National Capital Region)','NCR - Metro Manila':'NCR (National Capital Region)','National Capital Region':'NCR (National Capital Region)','CAR':'CAR (Cordillera Administrative Region)','CAR – Cordillera':'CAR (Cordillera Administrative Region)','CAR - Cordillera':'CAR (Cordillera Administrative Region)','Cordillera':'CAR (Cordillera Administrative Region)','BARMM':'BARMM (Bangsamoro)','Bangsamoro':'BARMM (Bangsamoro)','CALABARZON':'Region IV-A (CALABARZON)','MIMAROPA':'Region IV-B (MIMAROPA)','Bicol Region':'Region V (Bicol Region)','Caraga':'Region XIII (Caraga)'};
-    const normRegion = REGION_NORM[region] || region;
     try {
-      const json = await (await authFetch('/api/get-interviewers.php')).json();
-      const all = json.success ? json.data : [];
-      stuIntData = normRegion ? all.filter(r => r.region === normRegion) : all;
+      const json = await (await authFetch('/api/stu-head/interviewers.php?region=' + encodeURIComponent(region))).json();
+      stuIntData = json.success ? json.data : [];
       stuIntLoaded = true;
       stuIntFiltered = [...stuIntData];
       stuIntPage = 0;
@@ -2726,12 +2719,8 @@
     document.getElementById('stu-int-subtitle').textContent = region ? 'Interviewers in ' + region : 'Interviewers in your region';
     document.getElementById('stu-int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
-      const json = await (await authFetch('/api/get-interviewers.php')).json();
-      const all = json.success ? json.data : [];
-      // Filter to same region only
-      const REGION_NORM = {'NCR':'NCR (National Capital Region)','NCR – Metro Manila':'NCR (National Capital Region)','NCR - Metro Manila':'NCR (National Capital Region)','National Capital Region':'NCR (National Capital Region)','CAR':'CAR (Cordillera Administrative Region)','CAR – Cordillera':'CAR (Cordillera Administrative Region)','CAR - Cordillera':'CAR (Cordillera Administrative Region)','Cordillera':'CAR (Cordillera Administrative Region)','BARMM':'BARMM (Bangsamoro)','Bangsamoro':'BARMM (Bangsamoro)','CALABARZON':'Region IV-A (CALABARZON)','MIMAROPA':'Region IV-B (MIMAROPA)','Bicol Region':'Region V (Bicol Region)','Caraga':'Region XIII (Caraga)'};
-      const normRegion = REGION_NORM[region] || region;
-      stuIntData = normRegion ? all.filter(r => r.region === normRegion) : all;
+      const json = await (await authFetch('/api/stu-head/interviewers.php?region=' + encodeURIComponent(region))).json();
+      stuIntData = json.success ? json.data : [];
       stuIntLoaded = true;
       stuIntFiltered = [...stuIntData];
       stuIntPage = 0;
