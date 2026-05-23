@@ -1182,14 +1182,15 @@
     }, 50);
   }
 
+  function stuNormRegion(r) { return (r||'').toLowerCase().replace(/[\s\-()–—]+/g,' ').trim(); }
+
   async function stuEnsureIntData(region) {
     if (stuIntLoaded) return;
-    const REGION_NORM = {'NCR':'NCR (National Capital Region)','NCR – Metro Manila':'NCR (National Capital Region)','NCR - Metro Manila':'NCR (National Capital Region)','National Capital Region':'NCR (National Capital Region)','CAR':'CAR (Cordillera Administrative Region)','CAR – Cordillera':'CAR (Cordillera Administrative Region)','CAR - Cordillera':'CAR (Cordillera Administrative Region)','Cordillera':'CAR (Cordillera Administrative Region)','BARMM':'BARMM (Bangsamoro)','Bangsamoro':'BARMM (Bangsamoro)','CALABARZON':'Region IV-A (CALABARZON)','MIMAROPA':'Region IV-B (MIMAROPA)','Bicol Region':'Region V (Bicol Region)','Caraga':'Region XIII (Caraga)'};
-    const normRegion = REGION_NORM[region] || region;
+    const normRegion = stuNormRegion(region);
     try {
       const json = await (await authFetch('/api/get-interviewers.php')).json();
       const all = json.success ? json.data : [];
-      stuIntData = normRegion ? all.filter(r => r.region === normRegion) : all;
+      stuIntData = normRegion ? all.filter(r => stuNormRegion(r.region) === normRegion) : all;
       stuIntLoaded = true;
       stuIntFiltered = [...stuIntData];
       stuIntPage = 0;
@@ -2776,9 +2777,8 @@
       try {
         const json = await (await authFetch('/api/get-interviewers.php')).json();
         const all = json.success ? json.data : [];
-        const REGION_NORM = {'NCR':'NCR (National Capital Region)','NCR – Metro Manila':'NCR (National Capital Region)','NCR - Metro Manila':'NCR (National Capital Region)','National Capital Region':'NCR (National Capital Region)','CAR':'CAR (Cordillera Administrative Region)','CAR – Cordillera':'CAR (Cordillera Administrative Region)','CAR - Cordillera':'CAR (Cordillera Administrative Region)','Cordillera':'CAR (Cordillera Administrative Region)','BARMM':'BARMM (Bangsamoro)','Bangsamoro':'BARMM (Bangsamoro)','CALABARZON':'Region IV-A (CALABARZON)','MIMAROPA':'Region IV-B (MIMAROPA)','Bicol Region':'Region V (Bicol Region)','Caraga':'Region XIII (Caraga)'};
-        const normRegion = REGION_NORM[region] || region;
-        stuIntData = normRegion ? all.filter(r => r.region === normRegion) : all;
+        const normRegion = stuNormRegion(region);
+        stuIntData = normRegion ? all.filter(r => stuNormRegion(r.region) === normRegion) : all;
         stuIntLoaded = true;
         stuIntFiltered = [...stuIntData];
         stuIntPage = 0;
