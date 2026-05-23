@@ -868,8 +868,8 @@
     return `<span style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:999px;${style}">${score.charAt(0).toUpperCase()+score.slice(1)}</span>`;
   }
 
-  function coBuildPagination(currentPage, totalPages, onPageClick) {
-    const c = document.getElementById('co-ben-pagination');
+  function coBuildPagination(currentPage, totalPages, onPageClick, containerId) {
+    const c = document.getElementById(containerId || 'co-ben-pagination');
     if (!c) return;
     c.innerHTML = '';
     if (totalPages <= 1) return;
@@ -2020,7 +2020,7 @@
         }).join('')
       : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
     document.getElementById('int-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} interviewers` : 'No results';
-    coBuildPagination(intPage, totalPages, p => { intPage = p; renderInterviewers(); });
+    coBuildPagination(intPage, totalPages, p => { intPage = p; renderInterviewers(); }, 'int-pagination');
   }
 
   let editIntIndex = null;
