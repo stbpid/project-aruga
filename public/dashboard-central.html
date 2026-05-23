@@ -1045,7 +1045,7 @@
   }
 
   function coBenTextarea(id, label, val) {
-    const v = (val !== null && val !== undefined) ? val : '';
+    const v = (val !== null && val !== undefined) ? String(val).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : '';
     return `<div>
       <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
       <textarea id="co-ben-f-${id}" class="settings-input" rows="3" style="resize:vertical;">${v}</textarea>

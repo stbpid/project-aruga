@@ -34,13 +34,21 @@ const VALID_ILLNESSES = [
     'Chronic Illness', 'Others',
 ];
 
-function sanitizeArray($value, array $allowedValues, int $maxItems = 20): array {
+function sanitizeArray($value, array $allowedValues, int $maxItems = 20, string $fieldName = 'field'): array {
     if (!is_array($value)) return [];
+    if (count($value) > $maxItems) {
+        http_response_code(400);
+        echo json_encode(['error' => "Too many values for {$fieldName}."]);
+        exit;
+    }
     $result = [];
-    foreach (array_slice($value, 0, $maxItems) as $item) {
-        if (is_string($item) && in_array($item, $allowedValues, true)) {
-            $result[] = $item;
+    foreach ($value as $item) {
+        if (!is_string($item) || !in_array($item, $allowedValues, true)) {
+            http_response_code(400);
+            echo json_encode(['error' => "Invalid value for {$fieldName}: " . json_encode($item)]);
+            exit;
         }
+        $result[] = $item;
     }
     return $result;
 }
@@ -105,6 +113,14 @@ $assessmentData = [
     'submitted_at'        => date('c'),
 ];
 
+$sessionId = $assessmentData['session_id'];
+if ($sessionId) {
+    $dupCheck = supabaseRequest('GET', 'assessments?select=id&session_id=eq.' . urlencode($sessionId) . '&status=eq.completed&limit=1');
+    if (!empty($dupCheck['data'])) {
+        sendResponse(false, 'This session has already been submitted. Please start a new session.', null, 409);
+    }
+}
+
 $result = supabaseRequest('POST', 'assessments', $assessmentData);
 if (!$result['success'] || empty($result['data'][0]['id'])) {
     error_log('submit-assessment error: ' . ($result['error'] ?? 'Unknown'));
@@ -168,8 +184,8 @@ supabaseRequest('POST', 'child_education_health', [
     'child_id'                => $childId,
     'highest_education'       => safe($ceh, 'highest_education'),
     'highest_education_other' => safe($ceh, 'highest_education_other'),
-    'disabilities'            => sanitizeArray($ceh['disabilities'] ?? [], VALID_DISABILITIES),
-    'critical_illnesses'      => sanitizeArray($ceh['critical_illnesses'] ?? [], VALID_ILLNESSES),
+    'disabilities'            => sanitizeArray($ceh['disabilities'] ?? [], VALID_DISABILITIES, 20, 'disabilities'),
+    'critical_illnesses'      => sanitizeArray($ceh['critical_illnesses'] ?? [], VALID_ILLNESSES, 20, 'critical_illnesses'),
     'illness_other'           => safe($ceh, 'illness_other'),
 ]);
 
@@ -190,8 +206,8 @@ foreach ($members as $member) {
         'sex'                 => safe($member, 'sex'),
         'occupation'          => safe($member, 'occupation'),
         'occupation_class'    => safe($member, 'occupation_class'),
-        'disabilities'        => sanitizeArray($member['disabilities'] ?? [], VALID_DISABILITIES),
-        'critical_illnesses'  => sanitizeArray($member['critical_illnesses'] ?? [], VALID_ILLNESSES),
+        'disabilities'        => sanitizeArray($member['disabilities'] ?? [], VALID_DISABILITIES, 20, 'member disabilities'),
+        'critical_illnesses'  => sanitizeArray($member['critical_illnesses'] ?? [], VALID_ILLNESSES, 20, 'member critical_illnesses'),
     ]);
 }
 
