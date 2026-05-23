@@ -1178,10 +1178,12 @@
     if (stuIntLoaded) return;
     try {
       const json = await (await authFetch('/api/stu-head/interviewers.php?region=' + encodeURIComponent(region))).json();
-      stuIntData = json.success ? json.data : [];
-      stuIntLoaded = true;
-      stuIntFiltered = [...stuIntData];
-      stuIntPage = 0;
+      if (json.success) {
+        stuIntData = json.data;
+        stuIntLoaded = true;
+        stuIntFiltered = [...stuIntData];
+        stuIntPage = 0;
+      }
     } catch(e) {}
   }
 

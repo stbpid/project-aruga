@@ -176,4 +176,4 @@ $rows = array_map(function($r) use ($totalMap, $completedMap, $monthMap, $comple
     ];
 }, $filtered);
 
-echo json_encode(['success' => true, 'data' => $rows]);
+echo json_encode(['success' => true, 'data' => array_values($rows)]);
