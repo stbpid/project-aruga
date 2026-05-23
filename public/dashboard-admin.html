@@ -126,6 +126,11 @@
         <span class="material-symbols-outlined">history</span><span class="nav-label">Audit Logs</span>
       </a>
 
+      <div class="nav-section-label">Switch View</div>
+      <a href="/dashboard-central" class="nav-item" title="Central Office"><span class="material-symbols-outlined">corporate_fare</span><span class="nav-label">Central Office</span></a>
+      <a href="/dashboard-stu-head" class="nav-item" title="Region Head"><span class="material-symbols-outlined">manage_accounts</span><span class="nav-label">Region Head</span></a>
+      <a href="/dashboard-field-officer" class="nav-item" title="Field Officer"><span class="material-symbols-outlined">person_pin_circle</span><span class="nav-label">Field Officer</span></a>
+
     </nav>
 
     <div class="sidebar-footer">
@@ -2511,6 +2516,7 @@
 <script src="/js/dashboard-common.js"></script>
 <script>
   dashRequireAuth();
+  dashRequireRole(['admin']);
 
   // ── Global floating tooltip ───────────────────────────────────
   (function() {

@@ -127,10 +127,6 @@
       <a href="#" class="nav-item" id="nav-qr" title="Scan QR Code" onclick="showView('qr');return false;"><span class="material-symbols-outlined">qr_code_scanner</span><span class="nav-label">Scan QR Code</span></a>
       <a href="#" class="nav-item" id="nav-help" title="User Guide" onclick="showView('help');return false;"><span class="material-symbols-outlined">help</span><span class="nav-label">User Guide</span></a>
 
-      <div class="nav-section-label">Switch View</div>
-      <a href="/dashboard-admin" class="nav-item" title="Admin"><span class="material-symbols-outlined">shield_person</span><span class="nav-label">Admin</span></a>
-      <a href="/dashboard-central" class="nav-item" title="Central Office"><span class="material-symbols-outlined">corporate_fare</span><span class="nav-label">Central Office</span></a>
-      <a href="/dashboard-stu-head" class="nav-item" title="Region Head"><span class="material-symbols-outlined">manage_accounts</span><span class="nav-label">Region Head</span></a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user" onclick="openProfileSettings()" title="Account Settings">
@@ -827,6 +823,7 @@
 <script src="/js/dashboard-common.js"></script>
 <script>
   dashRequireAuth();
+  dashRequireRole(['field_officer', 'admin']);
 
   let currentView = 'overview';
   let benPage = 1;
