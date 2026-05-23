@@ -98,11 +98,13 @@ function dashRequireAuth() {
   document.addEventListener('DOMContentLoaded', dashStartIdleTimer);
 }
 
-// Call on role-restricted dashboards: dashRequireRole(['central_office'])
+// Call on role-restricted dashboards: dashRequireRole(['central'])
 function dashRequireRole(allowedRoles) {
   if (!dashCheckAuth()) return;
-  const role = sessionStorage.getItem('dashboard_role') || '';
-  if (!allowedRoles.includes(role)) {
+  const role = (sessionStorage.getItem('dashboard_role') || '').trim().toLowerCase();
+  if (!role) return; // no role stored — let dashCheckAuth handle it
+  const normalized = allowedRoles.map(r => r.trim().toLowerCase());
+  if (!normalized.includes(role)) {
     const ROLE_REDIRECT = {
       admin:          '/dashboard-admin',
       central:        '/dashboard-central',
