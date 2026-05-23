@@ -470,7 +470,7 @@ function contentQuickstart(r) {
       ${stepCard(1, 'Open the system website', 'Go to the main ARUGA link you were given by your office. You will see the login page for the Profiling Tool. Make sure you are using a stable internet connection before you begin, since the form needs to stay connected while you fill it out.')}
       ${stepCard(2, 'Enter your interviewer code', 'Type in your 8-character code (for example, DSWD0001). This code is unique to you and was assigned by your office. Enter it exactly as given, including capital letters and numbers. If you do not have a code yet, ask your STU Head or system administrator.')}
       ${stepCard(3, 'Agree to the privacy notice and proceed', 'Check the Data Privacy Agreement box to confirm you understand and will follow the rules for handling personal information under RA 10173. After checking the box, click <strong>Submit and Proceed</strong> to go to the registration form.')}
-      ${stepCard(4, 'Fill out the registration form', 'The form has 11 steps. Go through each one carefully. When you reach Step 10, review all the information before submitting. After submission, you will get the child\'s ARUGA ID and QR code.')}
+      ${stepCard(4, 'Fill out the registration form', 'The form has 10 steps. Go through each one carefully. When you reach Step 10, review all the information and the worker\'s assessment before submitting. After submission, you will get the child\'s ARUGA ID and QR code.')}
       ${tipBox('You have a separate login for your dashboard. Use your email and password to access that. The 8-digit code is only for the registration form.')}
       ${tipBox('Before heading out to the field, have ready: the child\'s full name, birthday, address down to the barangay, school information, and any health or disability records.', 'info')}
     `;
@@ -507,20 +507,19 @@ function contentQuickstart(r) {
 function contentProfiling() {
   return `<div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 fade-in">
     ${sectionHeader('How to Register a Child', 'assignment')}
-    <p class="doc-body mb-2">The registration form is where you record a child's information step by step. It has 11 sections. The system will guide you through each one.</p>
+    <p class="doc-body mb-2">The registration form is where you record a child's information step by step. It has 10 sections. The system will guide you through each one in order, and you cannot skip ahead.</p>
     ${tipBox('There is no time limit on the profiling form, so you can take your time. Just make sure you do not close the browser or navigate away before you finish, because unsaved progress may be lost.', 'info')}
-    <h3 class="doc-title mt-6 mb-3" style="font-size:16px">The 11 Steps</h3>
-    ${stepCard(1, 'Pre-Qualification Check', 'The system will ask if the child\'s family is part of the 4Ps program and their household ID. This helps determine whether the child qualifies for ARUGA services. If the family is a 4Ps member, have their household ID number ready. If they are not part of the program, you can still proceed.')}
-    ${stepCard(2, 'Respondent Information', 'Enter the details of the person answering the questions — usually a parent, guardian, or someone who takes care of the child. You will put their full name and their relationship to the child (for example, mother, father, grandmother, or legal guardian).')}
-    ${stepCard(3, "Child's Basic Information", 'Fill in the child\'s full name, birthday, sex, and complete address. The address fields work like a cascade: first pick the region, then the province, then the city or municipality, then the barangay. Make sure the birthday is correct because it cannot be easily changed after submission.')}
-    ${stepCard(4, 'Education Status', 'Record whether the child is currently enrolled in school, what grade level they are in, and what type of school they attend. If the child is not enrolled, select the appropriate reason.')}
-    ${stepCard(5, 'Health and Disabilities', 'Select the type (or types) of disability the child has, along with any other health conditions. You can choose more than one if the child has multiple disabilities. Be as accurate as possible — this information determines what kind of support the child may receive.')}
-    ${stepCard(6, 'Health Assessment', 'Answer a more detailed set of health screening questions about the child\'s medical history and current condition. If the respondent is unsure about certain medical details, note what they do know and encourage them to bring medical records if available.')}
-    ${stepCard(7, 'Functional Assessment', 'Rate the child\'s ability to do everyday tasks like eating, bathing, dressing, moving around, and communicating. Answer based on what you observe and what the respondent tells you.')}
-    ${stepCard(8, 'Psychosocial Assessment', 'Answer questions about the child\'s behavior, social skills, and emotional wellbeing. Be sensitive when asking these questions, as some topics may be difficult for the family.')}
-    ${stepCard(9, 'Intervention Readiness', 'This checks whether the child and family are ready and willing to receive help from DSWD programs. It looks at the family\'s awareness of available services and any barriers that might prevent them from accessing support.')}
-    ${stepCard(10, 'Review Everything', 'The system will show you a complete summary of everything you entered. Go through each section carefully. If you spot a mistake, go back to that step and fix it. This is your last chance to make changes before the record is saved.')}
-    ${stepCard(11, 'Submit', 'Once you are satisfied that everything is correct, click the submit button. The system will save the record, generate the child\'s unique ARUGA ID, and create a QR code. You will be taken to a success page where you can print the QR code or save a digital copy.')}
+    <h3 class="doc-title mt-6 mb-3" style="font-size:16px">The 10 Steps</h3>
+    ${stepCard(1, 'Pre-Qualification', 'The form starts by checking whether the child\'s family is a registered member of the 4Ps (Pantawid Pamilyang Pilipino Program) and asking for their household ID number. This helps the system determine whether the child is eligible for ARUGA services and links the record to the right household. Have the household ID ready before you begin. If the family is not part of 4Ps, you can still proceed. Simply indicate that they are not a member and continue to the next step.')}
+    ${stepCard(2, 'Respondent Info', 'Enter the details of the person you are interviewing, the one answering the questions on behalf of the child. This is usually a parent, guardian, grandparent, or any adult caregiver who lives with and knows the child well. You will record their full name and their relationship to the child. This is important for follow-up purposes, so make sure the name and contact details are accurate.')}
+    ${stepCard(3, 'Child Demographics', 'Fill in the child\'s complete personal information: full legal name, date of birth, sex, and home address. The address fields follow a geographic cascade. You first select the region, then the province, then the city or municipality, and finally the barangay. Take extra care with the birthday since it is used to calculate the child\'s age and cannot be easily corrected after the record is submitted.')}
+    ${stepCard(4, 'Disability', 'Select the type or types of disability the child has been identified with, along with any current education and health needs directly related to those disabilities. You may choose more than one disability type if applicable. Be as specific and accurate as possible. This section directly determines what kinds of programs and interventions the child may be referred to.')}
+    ${stepCard(5, 'Family Members', 'Record details about the other people living in the child\'s household. For each family member, enter their name, age, relationship to the child, and any relevant information about their situation. This section helps DSWD understand the child\'s home environment and family dynamics, which is important for planning appropriate support.')}
+    ${stepCard(6, 'Housing and Socio-Economic', 'Describe the household\'s living conditions and day-to-day setup. This includes the type of housing structure, ownership status, access to water and electricity, and the family\'s main sources of income or livelihood. This information gives a full picture of the socio-economic circumstances the child is growing up in, which affects what types of assistance the family may need.')}
+    ${stepCard(7, 'Health Information', 'Provide a medical background for the child, including any known diagnoses, past hospitalizations, medications currently being taken, immunization history, and general health status. Ask the respondent about the child\'s well-being as of the date of the interview. If the family has medical records or a health booklet available, refer to them to ensure accuracy.')}
+    ${stepCard(8, 'Education Information', 'Record the child\'s full schooling history and current enrollment status. Include the name and type of school the child attends, the current grade level, and whether the child has experienced any interruptions in schooling. If the child is not currently enrolled, select the reason that best applies. This section helps identify educational gaps and the appropriate level of support.')}
+    ${stepCard(9, 'Service Availment', 'List any other government assistance programs or services the child and family are already receiving. This may include health services, livelihood programs, housing assistance, educational subsidies, or other DSWD programs. Recording this prevents duplication of benefits and ensures that the child\'s needs are addressed comprehensively alongside existing support.')}
+    ${stepCard(10, 'Assessment', 'This is the final step before submission. The worker fills in an overall evaluation of the child\'s readiness to receive services, any urgent concerns that need immediate attention, and a summary of the child\'s general needs. Review every section carefully before clicking submit. Once submitted, the system will save the record, generate the child\'s unique ARUGA ID, and produce a QR code that can be printed and given to the family.')}
     ${tipBox('Do not press the browser\'s back button while filling out the form. Always use the form\'s own <strong>Next</strong> and <strong>Previous</strong> buttons to move between steps.', 'warning')}
     ${tipBox('After submitting, give the printed QR code to the family so they have proof of registration they can show to health workers, teachers, or other agencies.')}
     ${tipBox('If you realize you made a mistake after submitting, you can submit an edit request through your dashboard. Your STU Head will review and approve the change.', 'info')}
@@ -532,7 +531,7 @@ function contentDashboard(r) {
   let body = '';
   if (r === 'field_officer') {
     body = `
-      ${accordion('Your Performance Overview', 'The top of your dashboard shows your personal numbers — how many children you have registered this month, your completion rate, and how your progress compares to your monthly target. This helps you stay on track.', true)}
+      ${accordion('Your Performance Overview', 'The top of your dashboard shows your personal numbers: how many children you have registered this month, your completion rate, and how your progress compares to your monthly target. This helps you stay on track.', true)}
       ${accordion('Recently Registered Children', 'Below your stats, you will find a list of the children you recently registered. You can click on any name to see their full record.')}
       ${accordion('Action Items', 'This section shows anything that needs your attention, like follow-up tasks or records that need updates.')}
       ${accordion('QR Code Lookup', 'You can scan a QR code or type in an ARUGA ID to quickly pull up a child\'s profile and verify their status. This is useful when a family comes to your office and you need to confirm their registration, or when another agency asks you to verify a beneficiary.')}
@@ -546,14 +545,14 @@ function contentDashboard(r) {
     `;
   } else if (r === 'central') {
     body = `
-      ${accordion('National Overview', 'Your dashboard shows the big picture — the total number of children registered across the entire country, broken down by region. This helps you quickly identify which regions are ahead of their targets and which ones might need additional support.', true)}
+      ${accordion('National Overview', 'Your dashboard shows the big picture: the total number of children registered across the entire country, broken down by region. This helps you quickly identify which regions are ahead of their targets and which ones might need additional support.', true)}
       ${accordion('Trends Over Time', 'See monthly charts that show how many assessments were completed over time, how fast registration numbers are growing, and where completion rates are improving or declining. These trends are useful for planning and reporting to leadership.')}
       ${accordion('Regional Comparisons', 'A side-by-side view that lets you compare performance between different regions. You can see which regions have the most registrations, the highest completion rates, or the most active field officers.')}
       ${tipBox('Your access is read-only. You can view and export reports, but you cannot change any records. If you notice something that needs correction, reach out to the relevant STU Head or system administrator.', 'info')}
     `;
   } else if (r === 'admin') {
     body = `
-      ${accordion('Full System View', 'You see everything — all beneficiaries, all interviewers, all regions. The main dashboard gives you a high-level summary with the option to drill down into any area.', true)}
+      ${accordion('Full System View', 'You see everything: all beneficiaries, all interviewers, all regions. The main dashboard gives you a high-level summary with the option to drill down into any area.', true)}
       ${accordion('Managing Interviewer Accounts', 'You can add new field officers to the system, update their details, or deactivate accounts that are no longer in use. Each interviewer gets an 8-character code that they use to log into the Profiling Tool.')}
       ${accordion('Audit Logs', 'Every action taken in the system is recorded. You can see who logged in, who submitted a form, who edited a record, and when it happened. This is important for accountability and security.')}
       ${accordion('System Settings', 'Configure how the system behaves. This includes session rules, access permissions, and other settings that affect all users.')}
@@ -574,7 +573,7 @@ function contentQrcode() {
     <h3 class="doc-title mt-6 mb-2" style="font-size:15px">How the QR Code is Created</h3>
     <p class="doc-body mb-4">After a field officer finishes the registration form and submits it, the system automatically creates a QR code. This code is shown on the success page along with the child's ARUGA ID. The officer can print it immediately or save a digital copy.</p>
     <h3 class="doc-title mt-6 mb-2" style="font-size:15px">What Happens When Someone Scans It</h3>
-    <p class="doc-body mb-2">When anyone scans the QR code with a phone camera, it opens a web page that shows the child's basic profile. This page is public — no login is needed. It shows:</p>
+    <p class="doc-body mb-2">When anyone scans the QR code with a phone camera, it opens a web page that shows the child's basic profile. This page is public and no login is needed. It shows:</p>
     <ul class="list-disc pl-6 doc-body mb-4 space-y-1">
       <li>A badge confirming the child is a verified ARUGA beneficiary</li>
       <li>The child's full name</li>
@@ -584,7 +583,7 @@ function contentQrcode() {
       <li>DSWD contact details for anyone who needs more information</li>
     </ul>
     <h3 class="doc-title mt-6 mb-2" style="font-size:15px">Who Can Use It</h3>
-    <p class="doc-body mb-4">The QR code is meant to make verification easy for everyone involved in the child's care — health workers, school teachers, social workers from other agencies, and even the child's family. Nobody needs to log into ARUGA to see this page.</p>
+    <p class="doc-body mb-4">The QR code is meant to make verification easy for everyone involved in the child's care, including health workers, school teachers, social workers from other agencies, and even the child's family. Nobody needs to log into ARUGA to see this page.</p>
     ${tipBox('Give the printed QR code to the child\'s parent or guardian so they can use it whenever they need to prove the child is registered.')}
   </div>`;
 }
@@ -609,7 +608,7 @@ function contentArugaId() {
       <p class="doc-body"><strong>ARUGA</strong> is always at the beginning. It tells you this ID belongs to the ARUGA system.</p>
       <p class="doc-body"><strong>2026</strong> is the year the child was registered.</p>
       <p class="doc-body"><strong>R5</strong> is the region code. In this example, R5 means Bicol Region. Other examples include NCR for the National Capital Region or R11 for Davao.</p>
-      <p class="doc-body"><strong>0001</strong> is the sequence number — the order in which the child was registered within that region and year. The first child registered in Bicol in 2026 is 0001, the second is 0002, and so on.</p>
+      <p class="doc-body"><strong>0001</strong> is the sequence number, which is the order in which the child was registered within that region and year. The first child registered in Bicol in 2026 is 0001, the second is 0002, and so on.</p>
     </div>
 
     <!-- Interactive Decoder -->
@@ -674,13 +673,13 @@ function contentTroubleshoot() {
   return `<div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 fade-in">
     ${sectionHeader('Common Questions & Fixes', 'help')}
     <p class="doc-body mb-4">Here are the most common issues users run into, along with what to do about them.</p>
-    ${accordion('I accidentally closed the browser while filling out the form', 'If you close the browser tab or navigate away before submitting, your progress will not be saved and you will need to start the form over. There is no time limit on the form, so take your time. Just make sure to stay on the page until you have finished all 11 steps and clicked Submit.', true)}
+    ${accordion('I accidentally closed the browser while filling out the form', 'If you close the browser tab or navigate away before submitting, your progress will not be saved and you will need to start the form over. There is no time limit on the form, so take your time. Just make sure to stay on the page until you have finished all 10 steps and clicked Submit.', true)}
     ${accordion('I forgot my interviewer code', 'Your 8-character code was assigned to you by your office. Contact your STU Head or system administrator and they can look it up for you. Do not try to guess, because 5 wrong attempts will lock you out for 15 minutes.')}
     ${accordion('I forgot my dashboard password', 'If you forgot the email and password you use for the management dashboard, contact your system administrator. They can help you reset your password.')}
     ${accordion('I got locked out after too many attempts', 'Wait 15 minutes and then try again. The lockout is temporary and will lift on its own. When you try again, make sure you are typing your code or password exactly as it was given to you, including capital letters and numbers.')}
-    ${accordion('The QR code is not scanning', 'Make sure the printed QR code is clear and not crumpled, folded, or smudged. Try scanning in good lighting and hold your phone steady about 15–20 centimeters from the code. If print quality is poor, you can look up the child\'s record on your dashboard using their ARUGA ID.')}
+    ${accordion('The QR code is not scanning', 'Make sure the printed QR code is clear and not crumpled, folded, or smudged. Try scanning in good lighting and hold your phone steady about 15 to 20 centimeters from the code. If print quality is poor, you can look up the child\'s record on your dashboard using their ARUGA ID.')}
     ${accordion('I pressed the back button and got a logout popup', 'That is by design. The browser\'s back button is intentionally blocked during the form to prevent accidental data loss. If you see this popup, always choose to stay on the page. Use the <strong>Next</strong> and <strong>Previous</strong> buttons built into the form to move between steps.')}
-    ${accordion('I cannot find my dashboard', 'The dashboard login is at a different web address than the profiling form. Look for a link that ends in /dashboard or /login-dashboard. Also remember the dashboard login uses your <strong>email and password</strong>, not your 8-character interviewer code — those are two separate logins.')}
+    ${accordion('I cannot find my dashboard', 'The dashboard login is at a different web address than the profiling form. Look for a link that ends in /dashboard or /login-dashboard. Also remember the dashboard login uses your <strong>email and password</strong>, not your 8-character interviewer code. Those are two separate logins.')}
     ${accordion('I submitted a mistake and need to fix a record', 'As a field officer, you cannot directly edit a record that has already been submitted. Instead, go to your dashboard and submit an edit request. Describe what needs to be changed and why. Your STU Head will review and approve or reject the request.')}
     ${accordion('The page is loading very slowly or not at all', 'Check your internet connection first. Try refreshing the page. If the problem continues, try clearing your browser\'s cache or using a different browser (Chrome or Edge are recommended). Consider gathering all information offline first and entering it once you have a better connection.')}
     ${accordion('The address dropdown is not showing my barangay', 'The address fields depend on each other. Make sure you have selected the correct region, then province, then city or municipality. The barangay list will only appear after all previous fields are filled in. If your barangay is still not showing, contact your administrator to have it added.')}
@@ -712,7 +711,7 @@ function contentGlossary() {
     <div class="divide-y divide-gray-100">
       ${terms.map(t => `<div class="py-3">
         <span class="font-mono font-bold text-gray-800">${t.term}</span>
-        <span class="mx-2 text-gray-300">—</span>
+        <span class="mx-2 text-gray-300">|</span>
         <span class="doc-body">${t.def}</span>
       </div>`).join('')}
     </div>
