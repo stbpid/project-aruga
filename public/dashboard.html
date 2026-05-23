@@ -164,7 +164,7 @@
           sessionStorage.setItem('interviewer_province', d.province         || '');
           sessionStorage.setItem('interviewer_office',   d.office           || '');
           sessionStorage.setItem('session_started_at',   d.started_at       || '');
-          sessionStorage.setItem('dashboard_role',       (d.role || 'field_officer').trim().toLowerCase());
+          sessionStorage.setItem('dashboard_role',       d.role             || 'field_officer');
           sessionStorage.setItem('loginTime',            new Date().toISOString());
 
           toast.success(`Welcome, ${d.full_name}!`, 'Login Successful');

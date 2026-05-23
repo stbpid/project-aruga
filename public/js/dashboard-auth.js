@@ -98,24 +98,6 @@ function dashRequireAuth() {
   document.addEventListener('DOMContentLoaded', dashStartIdleTimer);
 }
 
-// Call on role-restricted dashboards: dashRequireRole(['central'])
-function dashRequireRole(allowedRoles) {
-  if (!dashCheckAuth()) return;
-  const role = (sessionStorage.getItem('dashboard_role') || '').trim().toLowerCase();
-  if (!role) return; // no role stored — let dashCheckAuth handle it
-  const normalized = allowedRoles.map(r => r.trim().toLowerCase());
-  if (!normalized.includes(role)) {
-    const ROLE_REDIRECT = {
-      admin:          '/dashboard-admin',
-      central:        '/dashboard-central',
-      central_office: '/dashboard-central',
-      stu_head:       '/dashboard-stu-head',
-      field_officer:  '/dashboard-field-officer',
-    };
-    window.location.replace(ROLE_REDIRECT[role] || '/dashboard');
-  }
-}
-
 // Authenticated fetch — attaches session headers to every API request
 function authFetch(url, options = {}) {
   const user = dashGetUser();

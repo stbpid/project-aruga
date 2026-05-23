@@ -769,7 +769,6 @@
 <script src="/js/dashboard-analytics.js"></script>
 <script>
   dashRequireAuth();
-  dashRequireRole(['central', 'central_office', 'admin']);
 
   // ── Global floating tooltip ───────────────────────────────────
   (function() {
@@ -786,7 +785,7 @@
   function coShowView(view) {
     ['overview','beneficiaries','assessments','interviewers','documents','report'].forEach(v => {
       const el = document.getElementById('co-view-' + v);
-      if (el) el.style.display = v === view ? '' : 'none';
+      if (el) el.style.display = v === view ? 'block' : 'none';
     });
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     const nav = document.getElementById('co-nav-' + view);
@@ -1958,7 +1957,7 @@
   }
 
   async function loadInterviewers() {
-    if (intLoaded) { intFiltered = [...intData]; intPage = 0; renderInterviewers(); return; }
+    if (intLoaded) return;
     document.getElementById('int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
       const json = await (await authFetch('/api/get-interviewers.php')).json();
