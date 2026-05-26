@@ -744,6 +744,46 @@
         </div>
       </div>
 
+      <!-- Export Reports -->
+      <div class="rpt-group-label">Export Reports</div>
+      <div class="rpt-section" id="stu-rpts-export">
+        <div class="rpt-section-header" onclick="stuRptToggle('export')">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--gray-500);">download</span>
+            <span class="rpt-section-title">Export Reports</span>
+          </div>
+          <span class="material-symbols-outlined rpt-chevron" id="stu-rpt-chev-export">expand_more</span>
+        </div>
+        <div class="rpt-section-body" id="stu-rpt-body-export" style="display:none;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-bottom:1rem;">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:var(--blue);font-size:1rem;">article</span></div><div class="card-title" style="margin:0;">Executive Summary</div></div></div>
+              <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Key metrics, completion rate, top provinces — regional overview.</div>
+              <div style="display:flex;gap:0.5rem;">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="stuDownloadReport('executive','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+                <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="stuDownloadReport('executive','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button>
+              </div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#ea580c;font-size:1rem;">accessible</span></div><div class="card-title" style="margin:0;">Disability Report</div></div></div>
+              <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Disability type distribution, age groups, and prevalence.</div>
+              <div style="display:flex;gap:0.5rem;">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="stuDownloadReport('disability','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+                <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="stuDownloadReport('disability','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button>
+              </div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div style="display:flex;align-items:center;gap:0.5rem;"><div style="width:2rem;height:2rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;"><span class="material-symbols-outlined" style="color:#7c3aed;font-size:1rem;">leaderboard</span></div><div class="card-title" style="margin:0;">Interviewer Performance</div></div></div>
+              <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:0.75rem;">Productivity rankings, avg per day, workload per interviewer.</div>
+              <div style="display:flex;gap:0.5rem;">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="stuDownloadReport('interviewer','csv')"><span class="material-symbols-outlined">download</span>CSV</button>
+                <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="stuDownloadReport('interviewer','pdf')"><span class="material-symbols-outlined">picture_as_pdf</span>PDF</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /stu-view-report -->
 
     <!-- ── QR SCANNER VIEW ───────────────────────────────────── -->
@@ -1698,7 +1738,7 @@
   }
 
   // ── Report View ───────────────────────────────────────────────
-  const STU_RPT_OPEN = {region:true,geo:true,beneficiaries:true,disabilities:true,housing:false,health:false,economic:false,education:false,religion:false,social:false,readiness:false,performance:false,quality:false,payout:false};
+  const STU_RPT_OPEN = {region:true,geo:true,beneficiaries:true,disabilities:true,housing:false,health:false,economic:false,education:false,religion:false,social:false,readiness:false,performance:false,quality:false,payout:false,export:false};
   let stuRptLoaded = false;
 
   function stuRptToggle(key) {
@@ -1798,6 +1838,140 @@
 
     btn.disabled = false;
     btn.innerHTML = '<span class="material-symbols-outlined">refresh</span>Regenerate';
+  }
+
+  function stuDownloadReport(type, format) {
+    const d = STU_AN_DATA;
+    const ext = STU_AN_EXT;
+    const filterLabel = stuAnFilters?.region || 'All Regions';
+    const date = new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'});
+    let headers, rows;
+
+    if (type === 'executive') {
+      const s = d?.summary || {};
+      const q = d?.quality || {};
+      const rd = ext?.readiness_dist || [];
+      const rdTotal = rd.reduce((a,r)=>a+r.val,0);
+      const rdRow = (label) => { const r = rd.find(x=>x.label===label); return r ? r.val+' ('+(rdTotal>0?Math.round((r.val/rdTotal)*100):0)+'%)' : '—'; };
+      const ps = ext?.fourps || {};
+      const vacc = ext?.vaccination || {};
+      const enr = ext?.enrollment || {};
+      const enrTotal = (enr.enrolled||0)+(enr.not_enrolled||0);
+      const fa = ext?.financial_assist || {};
+      const sa = ext?.social_awareness || {};
+      const mw = ext?.min_wage || {};
+      const mwTotal = (mw.below||0)+(mw.at||0)+(mw.above||0);
+      const hi = ext?.health_issues || {};
+      const fs = ext?.family_size || {};
+      const ages = d?.age_groups || [];
+      const gender = d?.gender || [];
+      const gTotal = gender.reduce((a,g)=>a+g.val,0);
+      const topDis = (d?.disabilities||[]).slice(0,5).map(x=>x.label+' ('+x.val+')').join('; ');
+      const topProv = (d?.top_provinces||[])[0];
+      const overloaded = (d?.interviewers||[]).filter(iv=>iv.workload==='overloaded').length;
+      headers = ['Category','Metric','Value'];
+      rows = [
+        ['Overview','Filter / Scope', filterLabel],
+        ['Overview','Total Assessments', s.total||0],
+        ['Overview','Completed', s.completed||0],
+        ['Overview','Completion Rate', (s.completion_rate||0)+'%'],
+        ['Overview','Active Interviewers', s.active_interviewers||0],
+        ['Overview','Avg Assessments/Day', s.avg_per_day||0],
+        ['Readiness Score','Severe', rdRow('Severe')],
+        ['Readiness Score','Moderate', rdRow('Moderate')],
+        ['Readiness Score','Low', rdRow('Low')],
+        ['Readiness Score','Stable', rdRow('Stable')],
+        ['Demographics','Age 0–5', (ages.find(a=>a.label==='0–5')?.val||0).toLocaleString()],
+        ['Demographics','Age 6–11', (ages.find(a=>a.label==='6–11')?.val||0).toLocaleString()],
+        ['Demographics','Age 12–17', (ages.find(a=>a.label==='12–17')?.val||0).toLocaleString()],
+        ['Demographics','Age 18+', (ages.find(a=>a.label==='18+')?.val||0).toLocaleString()],
+        ['Demographics','Male', (gender.find(g=>g.label==='Male')?.val||0).toLocaleString()+(gTotal>0?' ('+Math.round(((gender.find(g=>g.label==='Male')?.val||0)/gTotal)*100)+'%)':'')],
+        ['Demographics','Female', (gender.find(g=>g.label==='Female')?.val||0).toLocaleString()+(gTotal>0?' ('+Math.round(((gender.find(g=>g.label==='Female')?.val||0)/gTotal)*100)+'%)':'')],
+        ['Demographics','4Ps Members', ps.total>0?(ps.yes||0)+' ('+Math.round(((ps.yes||0)/(ps.total||1))*100)+'%)':'—'],
+        ['Demographics','Average Family Size', fs.avg||'—'],
+        ['Disability','Top Disability Types', topDis||'—'],
+        ['Health','National Vaccination Rate', vacc.national_rate!=null?vacc.national_rate+'%':'—'],
+        ['Health','With Ongoing Health Issues', hi.total>0?(hi.yes||0)+' ('+Math.round(((hi.yes||0)/(hi.total||1))*100)+'%)':'—'],
+        ['Health','Availed Health Services (6mo)', (ext?.health_availed?.total||0)>0?(ext.health_availed.yes||0)+' ('+Math.round(((ext.health_availed.yes||0)/(ext.health_availed.total||1))*100)+'%)':'—'],
+        ['Economic','Below Minimum Wage', mwTotal>0?(mw.below||0)+' ('+Math.round(((mw.below||0)/mwTotal)*100)+'%)':'—'],
+        ['Education','Currently Enrolled', enrTotal>0?(enr.enrolled||0)+' ('+Math.round(((enr.enrolled||0)/enrTotal)*100)+'%)':'—'],
+        ['Education','Not Enrolled', enrTotal>0?(enr.not_enrolled||0)+' ('+Math.round(((enr.not_enrolled||0)/enrTotal)*100)+'%)':'—'],
+        ['Social Services','Receiving Financial Assistance', fa.total>0?(fa.yes||0)+' ('+Math.round(((fa.yes||0)/(fa.total||1))*100)+'%)':'—'],
+        ['Social Services','Aware of Social Services', sa.total>0?(sa.yes||0)+' ('+Math.round(((sa.yes||0)/(sa.total||1))*100)+'%)':'—'],
+        ['Geographic','Leading Province', topProv?topProv.name+' ('+topProv.count+')':'—'],
+        ['Geographic','Provinces Covered', (d?.top_provinces||[]).length],
+        ['Geographic','Cities/Municipalities Covered', (d?.top_cities||[]).length],
+        ['Data Quality','Data Completeness', (q.completeness||0)+'%'],
+        ['Data Quality','Flagged Records', q.flagged_count||0],
+        ['Data Quality','Overloaded Interviewers', overloaded],
+      ];
+    } else if (type === 'disability') {
+      const disTotal = (d?.disabilities||[]).reduce((a,x)=>a+x.val,0);
+      headers = ['Rank','Disability Type','Count','% of Total','Age 0–5','Age 6–11','Age 12–17','Age 18+'];
+      rows = (d?.disabilities||[]).map((x,i) => {
+        const pct = disTotal>0?Math.round((x.val/disTotal)*100)+'%':'—';
+        const ageRow = d?.dis_age||[];
+        const get = (grp) => { const r = ageRow.find(a=>a.group===grp); return r?(r[x.label]||0):'—'; };
+        return [i+1, x.label, x.val, pct, get('0–5'), get('6–11'), get('12–17'), get('18+')];
+      });
+    } else {
+      headers = ['Rank','Name','Code','Region','Completed','Avg/Day','Workload'];
+      rows = (d?.interviewers||[]).map((iv,i)=>[i+1,iv.name,iv.code,iv.region,iv.completed,iv.avgDay,iv.workload]);
+    }
+
+    if (format === 'csv') {
+      const csv = [headers,...rows].map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+      a.download = `${type}-report-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      return;
+    }
+
+    // PDF
+    const arugaLogo = window.location.origin + '/images/logo.webp';
+    const titles = { executive:'Executive Summary', disability:'Disability Report', interviewer:'Interviewer Performance' };
+    const tableRows = rows.map((row,i)=>`<tr class="${i%2===1?'alt':''}">${row.map(v=>`<td>${v??'—'}</td>`).join('')}</tr>`).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${titles[type]||type}</title>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+      <style>
+      *{box-sizing:border-box;margin:0;padding:0;}
+      @page{size:A4 portrait;margin:0.75in;}
+      html,body{background:#fff;font-family:'Poppins',Arial,sans-serif;font-size:8.5pt;color:#000;}
+      .rpt-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid #5b9bd5;page-break-inside:avoid;}
+      .rpt-header img{height:48px;width:auto;object-fit:contain;}
+      .rpt-header-titles{text-align:left;}
+      .rpt-header-name{font-size:13pt;font-weight:800;color:#111;line-height:1.2;}
+      .rpt-header-sub{font-size:8pt;font-weight:600;color:#555;line-height:1.3;}
+      .rpt-title-block{margin-bottom:12px;page-break-inside:avoid;}
+      .rpt-title{font-size:11pt;font-weight:800;color:#5b9bd5;margin-bottom:2px;}
+      .rpt-meta{font-size:7.5pt;color:#64748b;font-weight:500;}
+      .rpt-scope{display:inline-block;background:#eef4ff;border:1px solid #c7d9ff;border-radius:999px;padding:2px 10px;font-size:7pt;font-weight:600;color:#5b9bd5;margin-top:4px;margin-bottom:12px;}
+      table{width:100%;border-collapse:collapse;font-size:8pt;margin-top:4px;}
+      th{background:#5b9bd5;color:#fff;padding:5px 8px;text-align:left;font-size:7.5pt;font-weight:600;}
+      td{padding:4px 8px;border-bottom:1px solid #e2e8f0;vertical-align:top;}
+      tr.alt td{background:#f5f8ff;}
+      </style></head><body>
+      <div class="rpt-header">
+        <img src="${arugaLogo}" alt="Project Aruga" onerror="this.style.display='none'">
+        <div class="rpt-header-titles">
+          <div class="rpt-header-name">Project Aruga</div>
+          <div class="rpt-header-sub">Support Management System</div>
+        </div>
+      </div>
+      <div class="rpt-title-block">
+        <div class="rpt-title">${titles[type]||type} &mdash; Project Aruga</div>
+        <div class="rpt-meta">Support Management System &nbsp;&middot;&nbsp; Generated: ${date}</div>
+        <div class="rpt-scope">Scope: ${filterLabel}</div>
+      </div>
+      <table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>
+    </body></html>`;
+    const w = window.open('','_blank');
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(()=>{ w.print(); }, 400);
   }
 
   async function stuLoadReportView() {
