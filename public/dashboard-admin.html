@@ -4854,51 +4854,66 @@
       if (rate<60) analysisItems.push(`The current completion rate of <b>${rate}%</b> is below the 60% threshold. Immediate deployment support and workload redistribution among interviewers is recommended.`);
       else if (rate>=80) analysisItems.push(`With a completion rate of <b>${rate}%</b>, the program is <b>ahead of target</b>. Maintaining current momentum while ensuring data quality will be critical.`);
 
+      const arugaLogoExec = window.location.origin + '/images/logo.webp';
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Executive Summary Report — Project Aruga</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <style>
         *{box-sizing:border-box;margin:0;padding:0;}
-        @page{size:A4 portrait;margin:0.75in;}
-        html,body{background:#fff;font-family:'Poppins',Arial,sans-serif;font-size:8.5pt;color:#000;}
-        .rpt-title-block{margin-bottom:12px;padding-bottom:10px;border-bottom:1.5px solid #000;page-break-inside:avoid;}
-        .rpt-title{font-size:13pt;font-weight:800;color:#000;margin-bottom:2px;}
-        .rpt-meta{font-size:7.5pt;color:#000;font-weight:500;}
-        .rpt-scope{display:inline-block;background:#eef4ff;border:1px solid #c7d9ff;border-radius:999px;padding:2px 10px;font-size:7pt;font-weight:600;color:#000;margin-top:4px;}
-        .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;page-break-inside:avoid;}
-        .kpi{background:#f0f5ff;border:1px solid #c7d9ff;border-radius:8px;padding:10px 12px;border-top:3px solid #1152d4;}
-        .kpi-val{font-size:16pt;font-weight:800;color:#1152d4;line-height:1.1;margin-bottom:2px;}
-        .kpi-label{font-size:6.5pt;color:#000;font-weight:600;}
-        .insights-box{background:#eef4ff;border:1px solid #c7d9ff;border-radius:8px;padding:9px 12px;margin-bottom:14px;page-break-inside:avoid;}
-        .insights-title{font-size:7pt;font-weight:700;color:#000;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.08em;}
-        .insight-item{display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;font-size:7pt;line-height:1.5;color:#000;}
-        .insight-dot{width:5px;height:5px;border-radius:50%;background:#1152d4;margin-top:4px;flex-shrink:0;}
-        .section{margin-bottom:16px;page-break-inside:avoid;}
-        .section-title{font-size:8pt;font-weight:700;color:#000;border-bottom:1.5px solid #000;padding-bottom:4px;margin-bottom:9px;display:flex;align-items:center;text-transform:uppercase;letter-spacing:0.07em;page-break-after:avoid;}
-        .sec-line{display:inline-block;width:3px;height:12px;background:#1152d4;border-radius:2px;margin-right:7px;flex-shrink:0;}
-        .card-item-label{font-size:6pt;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;}
-        .pill4-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px;page-break-inside:avoid;}
-        .pill4{background:#f0f5ff;border:1px solid #c7d9ff;border-radius:7px;padding:8px;text-align:center;}
-        .pill4-val{font-size:13pt;font-weight:800;color:#1152d4;line-height:1.1;margin-bottom:2px;}
-        .pill4-label{font-size:6pt;color:#000;font-weight:600;}
-        .pill4-sub{font-size:5.5pt;color:#555;margin-top:1px;}
-        .pill4-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:6px;page-break-inside:avoid;}
-        table{width:100%;border-collapse:collapse;font-size:7.5pt;margin-top:4px;page-break-inside:auto;}
+        @page{size:A4 portrait;margin:0.5in;}
+        html,body{background:#fff;font-family:'Poppins',Arial,sans-serif;font-size:7.5pt;color:#000;}
+        .rpt-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;padding-bottom:6px;border-bottom:2px solid #5b9bd5;page-break-inside:avoid;}
+        .rpt-header img{height:38px;width:auto;object-fit:contain;}
+        .rpt-header-titles{text-align:left;}
+        .rpt-header-name{font-size:11pt;font-weight:800;color:#111;line-height:1.15;}
+        .rpt-header-sub{font-size:7pt;font-weight:600;color:#555;line-height:1.2;}
+        .rpt-title-block{margin-bottom:6px;page-break-inside:avoid;}
+        .rpt-title{font-size:9.5pt;font-weight:800;color:#5b9bd5;margin-bottom:1px;}
+        .rpt-meta{font-size:6.5pt;color:#64748b;font-weight:500;}
+        .rpt-scope{display:inline-block;background:#eef4ff;border:1px solid #c7d9ff;border-radius:999px;padding:1px 8px;font-size:6pt;font-weight:600;color:#5b9bd5;margin-top:3px;}
+        .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:7px;page-break-inside:avoid;}
+        .kpi{background:#f0f5ff;border:1px solid #c7d9ff;border-radius:6px;padding:6px 8px;border-top:2px solid #5b9bd5;}
+        .kpi-val{font-size:13pt;font-weight:800;color:#5b9bd5;line-height:1.05;margin-bottom:1px;}
+        .kpi-label{font-size:6pt;color:#000;font-weight:600;}
+        .insights-box{background:#eef4ff;border:1px solid #c7d9ff;border-radius:6px;padding:5px 8px;margin-bottom:7px;page-break-inside:avoid;}
+        .insights-title{font-size:6pt;font-weight:700;color:#000;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.08em;}
+        .insight-item{display:flex;align-items:flex-start;gap:5px;margin-bottom:2px;font-size:6.5pt;line-height:1.4;color:#000;}
+        .insight-dot{width:4px;height:4px;border-radius:50%;background:#5b9bd5;margin-top:3px;flex-shrink:0;}
+        .section{margin-bottom:8px;page-break-inside:avoid;}
+        .section-title{font-size:7pt;font-weight:700;color:#000;border-bottom:1px solid #000;padding-bottom:3px;margin-bottom:5px;display:flex;align-items:center;text-transform:uppercase;letter-spacing:0.07em;page-break-after:avoid;}
+        .sec-line{display:inline-block;width:3px;height:10px;background:#5b9bd5;border-radius:2px;margin-right:5px;flex-shrink:0;}
+        .card-item-label{font-size:5.5pt;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;}
+        .pill4-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:4px;page-break-inside:avoid;}
+        .pill4{background:#f0f5ff;border:1px solid #c7d9ff;border-radius:5px;padding:5px;text-align:center;}
+        .pill4-val{font-size:11pt;font-weight:800;color:#5b9bd5;line-height:1.05;margin-bottom:1px;}
+        .pill4-label{font-size:5.5pt;color:#000;font-weight:600;}
+        .pill4-sub{font-size:5pt;color:#555;margin-top:1px;}
+        .pill4-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:4px;page-break-inside:avoid;}
+        table{width:100%;border-collapse:collapse;font-size:6.5pt;margin-top:3px;page-break-inside:auto;}
         thead{display:table-header-group;}
         tr{page-break-inside:avoid;}
-        th{background:#1152d4;color:#fff;padding:5px 8px;text-align:left;font-size:7pt;font-weight:600;}
-        td{padding:4px 8px;border-bottom:1px solid #e2e8f0;vertical-align:top;color:#000;}
-        tr.alt td{background:#f0f5ff;}
-        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;page-break-inside:avoid;}
-        .page-break{page-break-before:always;}
-        .analysis-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:8pt;line-height:1.7;color:#000;page-break-inside:avoid;}
-        .analysis-num{font-size:7pt;font-weight:800;color:#fff;background:#1152d4;border-radius:50%;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+        th{background:#5b9bd5;color:#fff;padding:3px 6px;text-align:left;font-size:6.5pt;font-weight:600;}
+        td{padding:2px 6px;border-bottom:1px solid #e2e8f0;vertical-align:top;color:#000;}
+        tr.alt td{background:#f5f8ff;}
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;page-break-inside:avoid;}
+        .page-break{page-break-before:avoid;}
+        .analysis-item{display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;font-size:7pt;line-height:1.5;color:#000;page-break-inside:avoid;}
+        .analysis-num{font-size:6pt;font-weight:800;color:#fff;background:#5b9bd5;border-radius:50%;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
         </style></head><body>
+
+        <!-- Header -->
+        <div class="rpt-header">
+          <img src="${arugaLogoExec}" alt="Project Aruga" onerror="this.style.display='none'">
+          <div class="rpt-header-titles">
+            <div class="rpt-header-name">Project Aruga</div>
+            <div class="rpt-header-sub">Support Management System</div>
+          </div>
+        </div>
 
         <!-- Report Title -->
         <div class="rpt-title-block">
           <div class="rpt-title">Executive Summary Report &mdash; Project Aruga</div>
-          <div class="rpt-meta">DSWD Child Assessment Profiling System &nbsp;&middot;&nbsp; Generated: ${date}</div>
+          <div class="rpt-meta">Support Management System &nbsp;&middot;&nbsp; Generated: ${date}</div>
           <div class="rpt-scope">Scope: ${filterLabel}</div>
         </div>
 
@@ -4943,7 +4958,7 @@
         </div>
 
         <!-- Beneficiaries -->
-        <div class="section page-break">
+        <div class="section">
           <div class="section-title"><span class="sec-line"></span>Beneficiaries</div>
           <div class="two-col">
             <div>
@@ -4969,7 +4984,7 @@
         </div>
 
         <!-- Disabilities -->
-        <div class="section page-break">
+        <div class="section">
           <div class="section-title"><span class="sec-line"></span>Disabilities</div>
           <div class="two-col">
             <div>
@@ -4988,7 +5003,7 @@
         </div>
 
         <!-- Readiness Score -->
-        <div class="section page-break">
+        <div class="section">
           <div class="section-title"><span class="sec-line"></span>Readiness Score</div>
           <div class="pill4-grid">
             ${rd.map(r=>`<div class="pill4">
@@ -5003,7 +5018,7 @@
         </div>
 
         <!-- Report Analysis -->
-        <div class="section page-break">
+        <div class="section">
           <div class="section-title"><span class="sec-line"></span>Report Analysis</div>
           ${analysisItems.map((item,i)=>`<div class="analysis-item"><div class="analysis-num">${i+1}</div><div>${item}</div></div>`).join('')}
         </div>
@@ -5021,57 +5036,41 @@
     // ── PDF — other report types (DSWD letterhead) ───────────────
     const titles = { regional:'Regional Breakdown', disability:'Disability Report', interviewer:'Interviewer Performance' };
     const tableRows = rows.map((row,i)=>`<tr class="${i%2===1?'alt':''}">${row.map(v=>`<td>${v??'—'}</td>`).join('')}</tr>`).join('');
-    const dswdLogo2 = window.location.origin + '/images/form-logo.webp';
+    const arugaLogo = window.location.origin + '/images/logo.webp';
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${titles[type]||type}</title>
-      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
       <style>
       *{box-sizing:border-box;margin:0;padding:0;}
-      @page{size:A4 portrait;margin:1in;}
-      html,body{background:#fff;font-family:'Poppins',Arial,sans-serif;font-size:9pt;color:#0f172a;}
-      #lh-header{position:fixed;top:0;left:0;right:0;padding:0.3in 1in 0;background:#fff;z-index:9999;}
-      .lh-header-inner{display:flex;align-items:center;gap:16px;padding-bottom:8px;}
-      .lh-logo img{height:58px;width:auto;object-fit:contain;}
-      .lh-titles{flex:1;text-align:center;}
-      .lh-bureau{font-family:Arial,sans-serif;font-size:11pt;font-weight:700;color:#111;line-height:1.2;}
-      .lh-sub{font-family:Arial,sans-serif;font-size:9pt;font-weight:700;color:#111;line-height:1.3;}
-      .lh-rule{height:3px;background:#111;}
-      .lh-rule2{height:1px;background:#111;margin-top:2px;}
-      #lh-footer{position:fixed;bottom:0;left:0;right:0;padding:0 1in 0.25in;background:#fff;z-index:9999;}
-      .lh-footer-rule{height:1.5px;background:#111;margin-bottom:4px;}
-      .lh-footer-pagenum{font-family:Arial,sans-serif;text-align:center;font-size:8pt;font-weight:700;color:#111;margin-bottom:2px;}
-      .lh-footer-pagenum::before{content:'PAGE ' counter(page) ' of ' counter(pages);}
-      .lh-footer-addr{font-family:Arial,sans-serif;text-align:center;font-size:6.5pt;color:#111;line-height:1.5;}
-      #lh-content{margin-top:1.35in;margin-bottom:0.9in;}
-      .rpt-title{font-size:11pt;font-weight:800;color:#1152d4;margin-bottom:2px;}
-      .rpt-meta{font-size:7.5pt;color:#64748b;font-weight:500;margin-bottom:4px;}
-      .rpt-scope{display:inline-block;background:#eef4ff;border:1px solid #c7d9ff;border-radius:999px;padding:2px 10px;font-size:7pt;font-weight:600;color:#1152d4;margin-bottom:12px;}
+      @page{size:A4 portrait;margin:0.75in;}
+      html,body{background:#fff;font-family:'Poppins',Arial,sans-serif;font-size:8.5pt;color:#000;}
+      .rpt-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid #5b9bd5;page-break-inside:avoid;}
+      .rpt-header img{height:48px;width:auto;object-fit:contain;}
+      .rpt-header-titles{text-align:left;}
+      .rpt-header-name{font-size:13pt;font-weight:800;color:#111;line-height:1.2;}
+      .rpt-header-sub{font-size:8pt;font-weight:600;color:#555;line-height:1.3;}
+      .rpt-title-block{margin-bottom:12px;page-break-inside:avoid;}
+      .rpt-title{font-size:11pt;font-weight:800;color:#5b9bd5;margin-bottom:2px;}
+      .rpt-meta{font-size:7.5pt;color:#64748b;font-weight:500;}
+      .rpt-scope{display:inline-block;background:#eef4ff;border:1px solid #c7d9ff;border-radius:999px;padding:2px 10px;font-size:7pt;font-weight:600;color:#5b9bd5;margin-top:4px;margin-bottom:12px;}
       table{width:100%;border-collapse:collapse;font-size:8pt;margin-top:4px;}
-      th{background:#1152d4;color:#fff;padding:5px 8px;text-align:left;font-size:7.5pt;font-weight:600;}
+      th{background:#5b9bd5;color:#fff;padding:5px 8px;text-align:left;font-size:7.5pt;font-weight:600;}
       td{padding:4px 8px;border-bottom:1px solid #e2e8f0;vertical-align:top;}
-      tr.alt td{background:#f0f5ff;}
+      tr.alt td{background:#f5f8ff;}
     </style></head><body>
-      <div id="lh-header">
-        <div class="lh-header-inner">
-          <div class="lh-logo"><img src="${dswdLogo2}" alt="DSWD" onerror="this.style.display='none'"></div>
-          <div class="lh-titles">
-            <div class="lh-bureau">SOCIAL TECHNOLOGY BUREAU</div>
-            <div class="lh-sub">INNOVATIONS AND PROGRAM DEVELOPMENT GROUP</div>
-          </div>
+      <div class="rpt-header">
+        <img src="${arugaLogo}" alt="Project Aruga" onerror="this.style.display='none'">
+        <div class="rpt-header-titles">
+          <div class="rpt-header-name">Project Aruga</div>
+          <div class="rpt-header-sub">Support Management System</div>
         </div>
-        <div class="lh-rule"></div>
-        <div class="lh-rule2"></div>
       </div>
-      <div id="lh-footer">
-        <div class="lh-footer-rule"></div>
-        <div class="lh-footer-pagenum"></div>
-        <div class="lh-footer-addr">DSWD Central Office, IBP Road, Batasan Pambansa Complex, Constitution Hills, Quezon City, Philippines 1126<br>Website: http://www.dswd.gov.ph &nbsp; Tel Nos.: (632)8 931-8101 to 07 &nbsp; Telefax: (632) 8 931-8191</div>
-      </div>
-      <div id="lh-content">
+      <div class="rpt-title-block">
         <div class="rpt-title">${titles[type]||type} &mdash; Project Aruga</div>
-        <div class="rpt-meta">DSWD Child Assessment Profiling System &nbsp;&middot;&nbsp; Generated: ${date}</div>
+        <div class="rpt-meta">Support Management System &nbsp;&middot;&nbsp; Generated: ${date}</div>
         <div class="rpt-scope">Scope: ${filterLabel}</div>
-        <table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>
       </div>
+      <table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>
     </body></html>`;
     const w = window.open('','_blank');
     w.document.write(html);
