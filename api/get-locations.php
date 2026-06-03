@@ -158,6 +158,7 @@ $locations = [
                 'Nanaguan',
                 'Osmeña',
                 'Paliueg',
+                'Pilar',
                 'Pasa',
                 'Piñares',
                 'Quimalabasa',
