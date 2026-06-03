@@ -320,7 +320,7 @@ function getStep1HTML() {
           <label for="household-id" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Household ID <span class="text-red-500">*</span></label>
           <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-1.5 h-9 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
             <span class="material-symbols-outlined text-[16px] text-gray-400">badge</span>
-            <input id="household-id" name="household-id" type="text" maxlength="13" oninput="this.value=this.value.slice(0,13)" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" placeholder="Enter 13-character ID">
+            <input id="household-id" name="household-id" type="text" maxlength="18" oninput="this.value=this.value.slice(0,18)" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" placeholder="Enter 13-18 character ID">
           </div>
           <p class="text-[10px] sm:text-xs text-brand-blue mt-1">Found on your 4Ps ID card.</p>
         </div>
@@ -2530,7 +2530,7 @@ function validateStep1() {
   if (getRadioVal('membership') !== 'Yes') return true;
   const v = (document.getElementById('household-id')?.value || '').trim();
   if (!v)               { showFieldError('household-id', 'Household ID is required for 4Ps members'); return false; }
-  if (!/^[A-Za-z0-9]{13}$/.test(v)) { showFieldError('household-id', 'Household ID must be exactly 13 characters'); return false; }
+  if (!/^[A-Za-z0-9]{13,18}$/.test(v)) { showFieldError('household-id', 'Household ID must be 13 to 18 characters'); return false; }
   return true;
 }
 
