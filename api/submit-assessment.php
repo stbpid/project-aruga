@@ -86,7 +86,7 @@ function generateArugaId($regionCode) {
     $year = date('Y');
     $yearStart = urlencode($year . '-01-01T00:00:00.000Z');
     $yearEnd   = urlencode(($year + 1) . '-01-01T00:00:00.000Z');
-    $countResult = supabaseRequest('GET', "assessments?select=id&created_at=gte.{$yearStart}&created_at=lt.{$yearEnd}");
+    $countResult = supabaseRequest('GET', "assessments?select=id&created_at=gte.{$yearStart}&created_at=lt.{$yearEnd}&limit=100000");
     $count = is_array($countResult['data']) ? count($countResult['data']) + 1 : 1;
     return sprintf('ARUGA-%s-%s-%04d', $year, $regionCode, $count);
 }
