@@ -180,6 +180,7 @@ $locations = [
                 'Santa Catalina',
                 'Santa Isabel Norte',
                 'Santa Isabel Sur',
+                'Santa Victoria',
                 'Santo Tomas',
                 'Siffu',
                 'Sindon Bayabo',
