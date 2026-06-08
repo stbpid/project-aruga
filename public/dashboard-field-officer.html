@@ -997,7 +997,7 @@
       }
       tbody.innerHTML = rows.map(r => `
         <tr>
-          <td><div style="font-weight:600;color:#111811;">${esc(r.name)}</div></td>
+          <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${esc(r.name)}</div></td>
           <td>${readinessBadge(r.readiness)}</td>
           <td>${esc(r.date)}</td>
           <td>${statusBadge(r.status)}</td>
@@ -1146,7 +1146,7 @@
                ${rest > 0 ? `<span style="font-size:0.7rem;font-weight:700;background:var(--gray-200);color:var(--gray-700);padding:0.1rem 0.4rem;border-radius:999px;">+${rest}</span>` : ''}
              </div>`;
         return `<tr class="table-row-hover">
-          <td><div style="font-weight:600;color:#111811;">${esc(r.name)}</div><div style="font-size:0.65rem;color:#9ca3af;">${esc(r.arugaId)}</div></td>
+          <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${esc(r.name)}</div><div style="font-size:0.65rem;color:#9ca3af;">${esc(r.arugaId)}</div></td>
           <td>${esc(String(r.age))}</td>
           <td>${disCell}</td>
           <td>${esc(r.region || '—')}</td>

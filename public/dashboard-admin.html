@@ -2827,7 +2827,7 @@
       return;
     }
     tbody.innerHTML = data.map(r => `<tr class="table-row-hover">
-      <td><div style="font-weight:600;color:#111811;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
+      <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
       <td>${r.age}</td>
       <td>${disabilityCell(r.disability, r.disabilities)}</td>
       <td>${r.region}</td>
@@ -2939,7 +2939,7 @@
       ? `<span style="background:#eff6ff;color:#1d4ed8;font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:999px;">4Ps</span>`
       : `<span style="color:var(--gray-400);font-size:0.75rem;">—</span>`;
     return `<tr class="table-row-hover">
-      <td><div style="font-weight:600;color:#111811;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
+      <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
       <td>${r.age}</td>
       <td>${disabilityCell(r.disability, r.disabilities)}</td>
       <td>${r.region}</td>
