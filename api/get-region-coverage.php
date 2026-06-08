@@ -11,12 +11,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-// Fetch all children rows with just region column (up to 10000)
-$res = supabaseRequest('GET', 'children?select=region&limit=10000');
+// Fetch non-deleted assessment IDs, then count children by region for those assessments only
+$assRes = supabaseRequest('GET', 'assessments?select=id&deleted_at=is.null&limit=100000');
+$validIds = ($assRes['success'] && is_array($assRes['data'])) ? array_flip(array_column($assRes['data'], 'id')) : [];
+
+$res = supabaseRequest('GET', 'children?select=region,assessment_id&limit=10000');
 
 $counts = [];
 if ($res['success'] && is_array($res['data'])) {
     foreach ($res['data'] as $row) {
+        if (!isset($validIds[$row['assessment_id'] ?? ''])) continue;
         $r = trim($row['region'] ?? '');
         if ($r === '') continue;
         $counts[$r] = ($counts[$r] ?? 0) + 1;
