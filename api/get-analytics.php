@@ -23,7 +23,7 @@ if ($range !== 'all') {
 }
 
 // ── Fetch core data ──────────────────────────────────────────
-$assRes = supabaseRequest('GET', 'assessments?select=id,status,readiness_score,created_at,interviewer_id,interviewer_code&limit=100000' . $dateFilter);
+$assRes = supabaseRequest('GET', 'assessments?select=id,status,readiness_score,created_at,interviewer_id,interviewer_code&deleted_at=is.null&limit=100000' . $dateFilter);
 $childRes = supabaseRequest('GET', 'children?select=assessment_id,region,province,city_municipality,date_of_birth,sex&limit=100000');
 $disRes   = supabaseRequest('GET', 'child_education_health?select=assessment_id,disabilities&limit=100000');
 $intRes   = supabaseRequest('GET', 'interviewers?select=id,full_name,interviewer_code,region,status&limit=10000');

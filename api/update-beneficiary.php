@@ -14,7 +14,7 @@ if (!$body) { echo json_encode(['success'=>false,'message'=>'Invalid JSON']); ex
 $arugaId = trim($body['aruga_id'] ?? '');
 if (!$arugaId) { echo json_encode(['success'=>false,'message'=>'aruga_id required']); exit; }
 
-$aRes = supabaseRequest('GET', 'assessments?select=id&aruga_id=eq.'.urlencode($arugaId).'&limit=1');
+$aRes = supabaseRequest('GET', 'assessments?select=id&aruga_id=eq.'.urlencode($arugaId).'&deleted_at=is.null&limit=1');
 if (!$aRes['success'] || empty($aRes['data'])) { echo json_encode(['success'=>false,'message'=>'Assessment not found']); exit; }
 $assessmentId = $aRes['data'][0]['id'];
 

@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $year = isset($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
 
 // Fetch all assessments for the given year — just created_at
-$res = supabaseRequest('GET', 'assessments?select=created_at&created_at=gte.' . $year . '-01-01T00:00:00&created_at=lt.' . ($year + 1) . '-01-01T00:00:00&limit=10000');
+$res = supabaseRequest('GET', 'assessments?select=created_at&deleted_at=is.null&created_at=gte.' . $year . '-01-01T00:00:00&created_at=lt.' . ($year + 1) . '-01-01T00:00:00&limit=10000');
 
 $months = array_fill(1, 12, 0);
 

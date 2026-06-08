@@ -23,7 +23,7 @@ if ($range !== 'all') {
 }
 
 // ── Fetch all needed tables ──────────────────────────────────
-$assRes    = supabaseRequest('GET', 'assessments?select=id,readiness_score,created_at&limit=100000' . $dateFilter);
+$assRes    = supabaseRequest('GET', 'assessments?select=id,readiness_score,created_at&deleted_at=is.null&limit=100000' . $dateFilter);
 $childRes  = supabaseRequest('GET', 'children?select=assessment_id,region,sex,religion,religion_other,ip_membership&limit=100000');
 $preqRes   = supabaseRequest('GET', 'pre_qualification?select=assessment_id,is_4ps_member&limit=100000');
 $famRes    = supabaseRequest('GET', 'family_members?select=assessment_id&limit=100000');

@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $region = getStr('region');
 
 // Fetch assessments with child data
-$endpoint = 'assessments?select=id,aruga_id,status,children(first_name,last_name,middle_name,region)&order=created_at.asc&limit=10000';
+$endpoint = 'assessments?select=id,aruga_id,status,children(first_name,last_name,middle_name,region)&deleted_at=is.null&order=created_at.asc&limit=10000';
 if ($region) {
     $endpoint .= '&children.region=eq.' . urlencode($region);
 }

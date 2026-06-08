@@ -37,10 +37,10 @@ function supabaseCount($endpoint) {
 }
 
 // Total beneficiaries = total rows in assessments table
-$totalBeneficiaries = supabaseCount('assessments?select=id');
+$totalBeneficiaries = supabaseCount('assessments?select=id&deleted_at=is.null');
 
 // Completed assessments
-$completedCount = supabaseCount('assessments?select=id&status=eq.completed');
+$completedCount = supabaseCount('assessments?select=id&deleted_at=is.null&status=eq.completed');
 
 // Active interviewers — no status filter first, count all, then try with active
 $activeInterviewers = supabaseCount('interviewers?select=id&status=eq.active');

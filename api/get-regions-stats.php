@@ -22,7 +22,7 @@ $childRes = supabaseRequest('GET',
 
 // Pull assessments for status
 $assRes = supabaseRequest('GET',
-    'assessments?select=id,status,readiness_score,created_at,interviewer_code&limit=100000'
+    'assessments?select=id,status,readiness_score,created_at,interviewer_code&deleted_at=is.null&limit=100000'
 );
 
 // Pull interviewers count per region

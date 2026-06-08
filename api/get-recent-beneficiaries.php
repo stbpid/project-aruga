@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 // Fetch 5 most recent assessments with joined children and child_education_health
 $res = supabaseRequest('GET',
-    'assessments?select=id,aruga_id,interviewer_code,created_at,children(first_name,last_name,date_of_birth,region),child_education_health(disabilities)&order=created_at.desc&limit=5'
+    'assessments?select=id,aruga_id,interviewer_code,created_at,children(first_name,last_name,date_of_birth,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc&limit=5'
 );
 
 if (!$res['success']) {

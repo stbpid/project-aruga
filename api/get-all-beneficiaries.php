@@ -78,7 +78,7 @@ $only4ps        = isset($_GET['is_4ps_member'])  && $_GET['is_4ps_member'] === '
 
 // Fetch assessments with readiness_score
 $res = supabaseRequest('GET',
-    'assessments?select=id,aruga_id,interviewer_code,created_at,readiness_score,children(first_name,last_name,date_of_birth,region),child_education_health(disabilities)&order=created_at.desc&limit=10000'
+    'assessments?select=id,aruga_id,interviewer_code,created_at,readiness_score,children(first_name,last_name,date_of_birth,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc&limit=10000'
 );
 
 if (!$res['success']) {

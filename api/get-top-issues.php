@@ -16,7 +16,7 @@ $monthEnd   = date('Y-m-t') . 'T23:59:59';
 
 // Assessments this month
 $assRes = supabaseRequest('GET',
-    'assessments?select=id,readiness_score,created_at&created_at=gte.' . urlencode($monthStart) . '&created_at=lte.' . urlencode($monthEnd) . '&limit=100000'
+    'assessments?select=id,readiness_score,created_at&deleted_at=is.null&created_at=gte.' . urlencode($monthStart) . '&created_at=lte.' . urlencode($monthEnd) . '&limit=100000'
 );
 
 // Health info this month — has_barriers, has_ongoing_health_conditions

@@ -34,10 +34,10 @@ function supabaseCount($endpoint) {
     return 0;
 }
 
-$severe   = supabaseCount('assessments?select=id&readiness_score=eq.severe');
-$moderate = supabaseCount('assessments?select=id&readiness_score=eq.moderate');
-$low      = supabaseCount('assessments?select=id&readiness_score=eq.low');
-$stable   = supabaseCount('assessments?select=id&readiness_score=eq.stable');
+$severe   = supabaseCount('assessments?select=id&deleted_at=is.null&readiness_score=eq.severe');
+$moderate = supabaseCount('assessments?select=id&deleted_at=is.null&readiness_score=eq.moderate');
+$low      = supabaseCount('assessments?select=id&deleted_at=is.null&readiness_score=eq.low');
+$stable   = supabaseCount('assessments?select=id&deleted_at=is.null&readiness_score=eq.stable');
 
 echo json_encode([
     'success' => true,
