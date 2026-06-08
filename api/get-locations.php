@@ -364,6 +364,7 @@ $locations = [
                 'Bucalbucalan',
                 'Buenavista (Bacon District)',
                 'Buenavista (Sorsogon East District)',
+                'Buenavista (West District)',
                 'Buhatan',
                 'Bulabog',
                 'Burabod',
