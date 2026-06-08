@@ -7273,7 +7273,14 @@
       const monthYear = now.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
       const regionLabel = region || 'All Regions';
 
-      const rows = allBenFiltered.map((r, i) => {
+      const seenArugaIds = new Set();
+      const uniqueBen = allBenFiltered.filter(r => {
+        if (!r.aruga_id || seenArugaIds.has(r.aruga_id)) return false;
+        seenArugaIds.add(r.aruga_id);
+        return true;
+      });
+
+      const rows = uniqueBen.map((r, i) => {
         const pd = payoutMap[r.aruga_id] || {};
         const beneficiaryName = (pd.beneficiary_name || r.name || '').toUpperCase();
         const claimantName = (pd.claimant_name || '').toUpperCase();
