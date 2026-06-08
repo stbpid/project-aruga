@@ -96,7 +96,7 @@ $normalizedTarget = stuStatsNormalizeRegion($region);
 
 // Fetch all assessments with child region
 $res = supabaseRequest('GET',
-    'assessments?select=id,status,children(region)&limit=100000'
+    'assessments?select=id,status,children(region)&deleted_at=is.null&limit=100000'
 );
 
 $totalBeneficiaries = 0;
