@@ -43,10 +43,10 @@ function foCount($endpoint) {
     return 0;
 }
 
-$total       = foCount("assessments?select=id&interviewer_code=eq.$code");
-$accepted    = foCount("assessments?select=id&interviewer_code=eq.$code&status=eq.accepted");
-$underReview = foCount("assessments?select=id&interviewer_code=eq.$code&status=eq.pending");
-$needsCorr   = foCount("assessments?select=id&interviewer_code=eq.$code&status=eq.correction");
+$total       = foCount("assessments?select=id&interviewer_code=eq.$code&deleted_at=is.null");
+$accepted    = foCount("assessments?select=id&interviewer_code=eq.$code&status=eq.accepted&deleted_at=is.null");
+$underReview = foCount("assessments?select=id&interviewer_code=eq.$code&status=eq.pending&deleted_at=is.null");
+$needsCorr   = foCount("assessments?select=id&interviewer_code=eq.$code&status=eq.correction&deleted_at=is.null");
 
 echo json_encode([
     'success' => true,

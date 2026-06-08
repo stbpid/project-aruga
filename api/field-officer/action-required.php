@@ -21,7 +21,7 @@ requireOwnCode($interviewerCode);
 $code = urlencode($interviewerCode);
 
 $res = supabaseRequest('GET',
-    "assessments?select=id,aruga_id,status,updated_at,children(first_name,last_name)&interviewer_code=eq.$code&status=eq.correction&order=updated_at.desc"
+    "assessments?select=id,aruga_id,status,updated_at,children(first_name,last_name)&interviewer_code=eq.$code&status=eq.correction&deleted_at=is.null&order=updated_at.desc"
 );
 
 if (!$res['success']) {

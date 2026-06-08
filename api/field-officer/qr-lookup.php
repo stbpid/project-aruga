@@ -19,7 +19,7 @@ if (empty($arugaId)) {
 $encoded = urlencode($arugaId);
 
 $res = supabaseRequest('GET',
-    "assessments?select=id,aruga_id,status,created_at,readiness_score,children(first_name,last_name,date_of_birth,barangay)&aruga_id=eq.$encoded&limit=1"
+    "assessments?select=id,aruga_id,status,created_at,readiness_score,children(first_name,last_name,date_of_birth,barangay)&aruga_id=eq.$encoded&deleted_at=is.null&limit=1"
 );
 
 if (!$res['success'] || empty($res['data'])) {

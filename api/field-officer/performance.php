@@ -43,15 +43,15 @@ function foCnt($endpoint) {
     return 0;
 }
 
-$total    = foCnt("assessments?select=id&interviewer_code=eq.$code");
-$accepted = foCnt("assessments?select=id&interviewer_code=eq.$code&status=eq.accepted");
+$total    = foCnt("assessments?select=id&interviewer_code=eq.$code&deleted_at=is.null");
+$accepted = foCnt("assessments?select=id&interviewer_code=eq.$code&status=eq.accepted&deleted_at=is.null");
 
 $approvalRate = $total > 0 ? round(($accepted / $total) * 100, 1) : 0;
 
 $monthStart = date('Y-m-01') . 'T00:00:00';
 $monthEnd   = date('Y-m-t') . 'T23:59:59';
 $datesRes   = supabaseRequest('GET',
-    "assessments?select=created_at&interviewer_code=eq.$code&created_at=gte." . urlencode($monthStart) . "&created_at=lte." . urlencode($monthEnd)
+    "assessments?select=created_at&interviewer_code=eq.$code&deleted_at=is.null&created_at=gte." . urlencode($monthStart) . "&created_at=lte." . urlencode($monthEnd)
 );
 
 $activeDays    = 0;

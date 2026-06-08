@@ -75,7 +75,7 @@ $normalizedTarget = stuNormalizeRegion($region);
 
 // Fetch all assessments with child region — filter by children.region match
 $res = supabaseRequest('GET',
-    'assessments?select=id,aruga_id,interviewer_code,status,created_at,readiness_score,children(first_name,last_name,date_of_birth,sex,barangay,region),child_education_health(disabilities)&order=created_at.desc&limit=100000'
+    'assessments?select=id,aruga_id,interviewer_code,status,created_at,readiness_score,children(first_name,last_name,date_of_birth,sex,barangay,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc&limit=100000'
 );
 
 if (!$res['success']) {

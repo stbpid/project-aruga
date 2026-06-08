@@ -23,6 +23,7 @@ $monthStart = date('Y-m-01') . 'T00:00:00';
 $monthEnd   = date('Y-m-t') . 'T23:59:59';
 
 $url = SUPABASE_URL . '/rest/v1/assessments?select=id&interviewer_code=eq.' . $code
+    . '&deleted_at=is.null'
     . '&created_at=gte.' . urlencode($monthStart)
     . '&created_at=lte.' . urlencode($monthEnd);
 
