@@ -153,7 +153,9 @@ foreach ($childRes['data'] as $row) {
     if ($filterRegion  !== '' && $region   !== normalizeRegion($filterRegion))  continue;
     if ($filterProvince !== '' && $province !== $filterProvince) continue;
 
-    $ass    = $assMap[$aid]    ?? ['status'=>'in_progress','readiness_score'=>null,'created_at'=>null];
+    if (!isset($assMap[$aid])) continue; // skip children of soft-deleted assessments
+
+    $ass    = $assMap[$aid];
     $disArr = $disMap[$aid]    ?? [];
     $status = $ass['status'];
     $month  = $ass['created_at'] ? substr($ass['created_at'],0,7) : null;
