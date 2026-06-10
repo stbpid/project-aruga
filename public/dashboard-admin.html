@@ -5127,14 +5127,6 @@
     }
   }
 
-  function benField(label, val) {
-    const v = (val !== null && val !== undefined && val !== '') ? val : '—';
-    return `<div>
-      <div style="font-size:0.65rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.3rem;">${label}</div>
-      <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">${v}</div>
-    </div>`;
-  }
-
   function benInput(id, label, val, type='text', required=false) {
     const v = (val !== null && val !== undefined) ? val : '';
     return `<div>
@@ -5155,6 +5147,50 @@
         <span class="material-symbols-outlined" style="position:absolute;right:0.5rem;font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
       </div>
     </div>`;
+  }
+
+  let benFamCounter = 0;
+
+  function benFamCard(i, m) {
+    m = m || {};
+    const yesNo = () => [{value:'true',label:'Yes'},{value:'false',label:'No'}];
+    const yesNoBool = (v) => v === true || v === 'true' ? 'true' : 'false';
+    const toOpts = (arr) => [{value:'',label:'—'},...arr.map(v=>({value:v,label:v}))];
+    const OPT_FAM_REL    = toOpts(['Head','Spouse','Child','Parent','Sibling','Grandparent','Grandchild','Other Relative']);
+    const OPT_CIVIL      = toOpts(['Single','Married','Widowed','Separated','Live-in']);
+    const OPT_OCCUPATION = toOpts(['Unemployed','Employed (Private Sector)','Employed (Government)','Self-employed','Farmer','Fisherman','Laborer','Vendor','Driver','Housewife/Househusband','Student','OFW (Overseas Filipino Worker)','Retired','Others']);
+    const OPT_OCC_CLASS  = toOpts(['Professional','Technical','Clerical','Sales','Service Worker','Agricultural Worker','Production/Laborer','Elementary Occupation','Not Applicable']);
+    const OPT_SEX        = toOpts(['Male','Female']);
+    return `<div class="ben-fam-card" data-fam-idx="${i}" style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:0.625rem;padding:0.875rem;margin-bottom:0.625rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.625rem;">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--blue);">Member ${m.member_number || (i+1)}</div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="benRemoveFamMember(this)" title="Remove"><span class="material-symbols-outlined" style="font-size:0.875rem;color:#dc2626;">delete</span></button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;">
+        ${benInput(`fam-${i}-name`, 'Name', m.full_name)}
+        ${benSelect(`fam-${i}-rel`, 'Relationship to Head', m.relationship_to_head, OPT_FAM_REL)}
+        ${benInput(`fam-${i}-age`, 'Age', m.age, 'number')}
+        ${benSelect(`fam-${i}-sex`, 'Sex', m.sex, OPT_SEX)}
+        ${benSelect(`fam-${i}-civil`, 'Civil Status', m.civil_status, OPT_CIVIL)}
+        ${benSelect(`fam-${i}-solo`, 'Solo Parent', yesNoBool(m.is_solo_parent), yesNo())}
+        ${benSelect(`fam-${i}-occ`, 'Occupation', m.occupation, OPT_OCCUPATION)}
+        ${benSelect(`fam-${i}-occclass`, 'Occupation Class', m.occupation_class, OPT_OCC_CLASS)}
+        <div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Disabilities</label>
+        <input type="text" id="ben-f-fam-${i}-disabilities" class="settings-input" value="${(m.disabilities||[]).join(', ')}" placeholder="Comma-separated"></div>
+        <div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Critical Illnesses</label>
+        <input type="text" id="ben-f-fam-${i}-illnesses" class="settings-input" value="${(m.critical_illnesses||[]).join(', ')}" placeholder="Comma-separated"></div>
+      </div>
+    </div>`;
+  }
+
+  function benAddFamMember() {
+    const container = document.getElementById('ben-fam-members');
+    const idx = container.querySelectorAll('.ben-fam-card').length;
+    container.insertAdjacentHTML('beforeend', benFamCard(idx, {}));
+  }
+
+  function benRemoveFamMember(btn) {
+    btn.closest('.ben-fam-card').remove();
   }
 
   function benSelectOther(id, label, val, otherVal, options) {
@@ -5228,12 +5264,13 @@
     const OPT_RELIGION    = toOpts(['No Religion','Roman Catholic','Islam','Iglesia ni Cristo','Protestant','Born Again Christian','Buddhism','Hinduism','Others']);
     const OPT_IP          = toOpts(['Not a member','Aeta','Igorot','Lumad','Mangyan','Tagbanua','Badjao','T\'boli','Manobo','Others']);
     const OPT_EDUC        = toOpts(['No formal education','Elementary Undergraduate','Elementary Graduate','High School Undergraduate','High School Graduate','Senior High School Graduate','College Undergraduate','College Graduate','Vocational/Technical','Post Graduate','Others']);
-    const OPT_GRADE       = toOpts(['Kinder','Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12','College 1st Year','College 2nd Year','College 3rd Year','College 4th Year']);
     const OPT_RELATIONSHIP= toOpts(['Parent','Guardian','Grandparent','Sibling','Aunt/Uncle','Relative','Social Worker','Foster Parent']);
-    const OPT_INCOME_SRC  = toOpts(['Employed (Private Sector)','Employed (Government)','Self-employed','Farmer','Fisherman','Laborer','Vendor','Driver','Housewife/Househusband','OFW (Overseas Filipino Worker)','Retired','Others']);
-    const OPT_INCOME_CLASS= toOpts(['Below Poverty Line','Low Income','Lower Middle','Middle','Upper Middle','High Income']);
     const OPT_READINESS   = [{value:'',label:'—'},{value:'severe',label:'Severe'},{value:'moderate',label:'Moderate'},{value:'low',label:'Low'},{value:'stable',label:'Stable'}];
     const OPT_SEX         = toOpts(['Male','Female']);
+    const OPT_FAM_REL     = toOpts(['Head','Spouse','Child','Parent','Sibling','Grandparent','Grandchild','Other Relative']);
+    const OPT_CIVIL       = toOpts(['Single','Married','Widowed','Separated','Live-in']);
+    const OPT_OCCUPATION  = toOpts(['Unemployed','Employed (Private Sector)','Employed (Government)','Self-employed','Farmer','Fisherman','Laborer','Vendor','Driver','Housewife/Househusband','Student','OFW (Overseas Filipino Worker)','Retired','Others']);
+    const OPT_OCC_CLASS   = toOpts(['Professional','Technical','Clerical','Sales','Service Worker','Agricultural Worker','Production/Laborer','Elementary Occupation','Not Applicable']);
 
     const BANNER_BG = { severe:'linear-gradient(135deg,#dc2626,#991b1b)', moderate:'linear-gradient(135deg,#ea580c,#9a3412)', low:'linear-gradient(135deg,#ca8a04,#854d0e)', stable:'linear-gradient(135deg,#16a34a,#14532d)' };
     const bannerBg = BANNER_BG[readiness] || 'linear-gradient(135deg,#1152d4,#3730a3)';
@@ -5288,22 +5325,16 @@
       )}
 
       <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
-        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
-          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">people</span></div>
-          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">5. Family Members</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.625rem;margin-bottom:1rem;">
+          <div style="display:flex;align-items:center;gap:0.625rem;">
+            <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">people</span></div>
+            <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">5. Family Members</div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="benAddFamMember()"><span class="material-symbols-outlined" style="font-size:0.875rem;">add</span>Add Member</button>
         </div>
-        ${fm.length ? fm.map((m,i) => `
-          <div style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:0.625rem;padding:0.875rem;margin-bottom:0.625rem;">
-            <div style="font-size:0.72rem;font-weight:700;color:var(--blue);margin-bottom:0.625rem;">Member ${m.member_number||i+1}</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;">
-              ${benField('Name', m.full_name)}
-              ${benField('Relationship', m.relationship_to_head)}
-              ${benField('Age', m.age)}
-              ${benField('Sex', m.sex)}
-              ${benField('Civil Status', m.civil_status)}
-              ${benField('Occupation', m.occupation)}
-            </div>
-          </div>`).join('') : '<div style="color:var(--gray-400);font-size:0.8rem;padding:0.5rem 0;">No family members recorded.</div>'}
+        <div id="ben-fam-members">
+          ${fm.length ? fm.map((m,i) => benFamCard(i, m)).join('') : ''}
+        </div>
       </div>
 
       ${benSection('home', '6. Housing & Socio-Economic',
@@ -5336,7 +5367,7 @@
 
       ${benSection('menu_book', '8. Education Information',
         benSelect('ei-enrolled', 'Currently Enrolled', yesNoBool(ei.is_currently_enrolled), yesNo()) +
-        benSelect('ei-grade', 'Grade / Year Level', ei.grade_year_level, OPT_GRADE) +
+        benInput('ei-grade', 'Grade / Year Level', ei.grade_year_level) +
         benInput('ei-reason', 'Reason Not Enrolled', ei.not_enrolled_reason) +
         benSelect('ei-access', 'Has Accessibility Features', yesNoBool(ei.has_accessibility_features), yesNo()) +
         benInput('ei-access-details', 'Accessibility Features Details', ei.accessibility_features_details) +
@@ -5347,9 +5378,9 @@
       )}
 
       ${benSection('savings', '9. Economic Capacity',
-        benSelect('ec-income-source', 'Primary Income Source', ec.primary_income_source, OPT_INCOME_SRC) +
+        benInput('ec-income-source', 'Primary Income Source', ec.primary_income_source) +
         benInput('ec-income', 'Monthly Income (₱)', ec.monthly_income, 'number') +
-        benSelect('ec-class', 'Income Classification', ec.income_classification, OPT_INCOME_CLASS) +
+        benInput('ec-class', 'Income Classification', ec.income_classification) +
         benSelect('ec-employed', 'Parents Employed', yesNoBool(ec.are_parents_employed), yesNo()) +
         `<div style="grid-column:1/-1;">${benTextarea('ec-employment-details', 'Employment Details', ec.employment_details)}</div>`
       )}
@@ -5394,7 +5425,25 @@
 
     const splitArr = (id) => gv(id).split(',').map(s=>s.trim()).filter(Boolean);
 
+    const familyMembers = Array.from(document.querySelectorAll('#ben-fam-members .ben-fam-card')).map((card, idx) => {
+      const fi = card.getAttribute('data-fam-idx');
+      return {
+        member_number: idx + 1,
+        full_name: gv(`fam-${fi}-name`),
+        relationship_to_head: gv(`fam-${fi}-rel`),
+        age: gv(`fam-${fi}-age`),
+        sex: gv(`fam-${fi}-sex`),
+        civil_status: gv(`fam-${fi}-civil`),
+        is_solo_parent: gvb(`fam-${fi}-solo`),
+        occupation: gv(`fam-${fi}-occ`),
+        occupation_class: gv(`fam-${fi}-occclass`),
+        disabilities: splitArr(`fam-${fi}-disabilities`),
+        critical_illnesses: splitArr(`fam-${fi}-illnesses`),
+      };
+    });
+
     const payload = {
+      family_members: familyMembers,
       aruga_id: benModalData.assessment.aruga_id,
       pre_qualification: { is_4ps_member: gvb('pq-4ps'), household_id: gv('pq-household') },
       respondent: { full_name: gv('resp-name'), relationship_to_child: gv('resp-rel'), email: gv('resp-email'), contact_number: gv('resp-contact') },

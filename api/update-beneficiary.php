@@ -171,6 +171,28 @@ if (isset($body['service_availment'])) {
     ]);
 }
 
+// Family Members - replace all rows for this assessment
+if (isset($body['family_members']) && is_array($body['family_members'])) {
+    supabaseRequest('DELETE', 'family_members?assessment_id=eq.'.urlencode($assessmentId));
+    foreach ($body['family_members'] as $i => $m) {
+        $row = [
+            'assessment_id'       => $assessmentId,
+            'member_number'       => $m['member_number'] ?? ($i + 1),
+            'full_name'           => safe($m, 'full_name'),
+            'relationship_to_head'=> safe($m, 'relationship_to_head'),
+            'age'                 => is_numeric($m['age'] ?? null) ? (int)$m['age'] : null,
+            'sex'                 => safe($m, 'sex'),
+            'civil_status'        => safe($m, 'civil_status'),
+            'is_solo_parent'      => (bool)($m['is_solo_parent'] ?? false),
+            'occupation'          => safe($m, 'occupation'),
+            'occupation_class'    => safe($m, 'occupation_class'),
+            'disabilities'        => $m['disabilities'] ?? [],
+            'critical_illnesses'  => $m['critical_illnesses'] ?? [],
+        ];
+        supabaseRequest('POST', 'family_members', $row);
+    }
+}
+
 // Assessment Notes + readiness
 if (isset($body['assessment_notes'])) {
     $an = $body['assessment_notes'];
