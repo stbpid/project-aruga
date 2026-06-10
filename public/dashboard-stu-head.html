@@ -1433,14 +1433,6 @@
     }
   }
 
-  function stuBenField(label, val) {
-    const v = (val !== null && val !== undefined && val !== '') ? val : '—';
-    return `<div>
-      <div style="font-size:0.65rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.3rem;">${label}</div>
-      <div style="font-size:0.8125rem;font-weight:600;color:var(--dark);">${v}</div>
-    </div>`;
-  }
-
   function stuBenInput(id, label, val, type='text', required=false) {
     const v = (val !== null && val !== undefined) ? val : '';
     return `<div>
@@ -1483,6 +1475,137 @@
     </div>`;
   }
 
+  function stuBenSelectOther(id, label, val, otherVal, options) {
+    const isOther = val === 'Others';
+    const selectHtml = stuBenSelect(id, label, val, options)
+      .replace(`id="stu-bf-${id}"`, `id="stu-bf-${id}" onchange="stuBenOtherToggle('${id}')"`);
+    return selectHtml +
+      `<div id="stu-bf-${id}-other-wrap" style="display:${isOther?'':'none'};">
+        <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}: Specify Other</label>
+        <input type="text" id="stu-bf-${id}-other" class="settings-input" value="${(otherVal||'').toString().replace(/"/g,'&quot;')}">
+      </div>`;
+  }
+
+  function stuBenOtherToggle(id) {
+    const sel = document.getElementById('stu-bf-' + id);
+    const wrap = document.getElementById('stu-bf-' + id + '-other-wrap');
+    if (sel && wrap) wrap.style.display = sel.value === 'Others' ? '' : 'none';
+  }
+
+  const STU_OPT_DISABILITY_LIST = ['None','Visual Disability','Hearing Disability','Speech and Language Impairment','Orthopedic / Physical Disability','Mental / Intellectual Disability','Learning Disability','Psychosocial Disability','Disability Resulting from a Chronic Illness','Multiple Disabilities','Other (specify)'];
+  const STU_OPT_ILLNESS_LIST    = ['None','Cancer','Heart Disease','Kidney Disease','Diabetes','Respiratory Disease','Neurological Disorder','Blood Disorder','Chronic Illness','Others'];
+
+  function stuBenCheckDropdown(id, label, items, selected, otherVal, otherKey) {
+    selected = selected || [];
+    const hasOtherOpt = items.some(x => /^other/i.test(x));
+    const selectedLabel = selected.length ? selected.join(', ') : 'Select...';
+    const showOther = hasOtherOpt && selected.some(v => /^other/i.test(v));
+    const dataItems = encodeURIComponent(JSON.stringify(items));
+    return `<div style="position:relative;">
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
+      <button type="button" data-items="${dataItems}" onclick="stuToggleCheckDropdown('${id}', this)" class="settings-input" style="text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+        <span id="stu-bf-${id}-label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${selectedLabel}</span>
+        <span class="material-symbols-outlined" style="font-size:1rem;color:var(--gray-400);">expand_more</span>
+      </button>
+      <input type="hidden" id="stu-bf-${id}-vals" value="${selected.map(s=>s.replace(/"/g,'&quot;')).join('|||')}">
+      <div id="stu-bf-${id}-other-wrap" style="display:${showOther?'':'none'};margin-top:0.5rem;">
+        <input type="text" id="stu-bf-${otherKey}" class="settings-input" placeholder="Specify other" value="${(otherVal||'').toString().replace(/"/g,'&quot;')}">
+      </div>
+    </div>`;
+  }
+
+  let stuCheckDropdownOpenId = null;
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#stu-checkdropdown-menu') || e.target.closest('button[onclick^="stuToggleCheckDropdown"]')) return;
+    stuCloseCheckDropdown();
+  });
+
+  function stuCloseCheckDropdown() {
+    const menu = document.getElementById('stu-checkdropdown-menu');
+    if (menu) menu.remove();
+    stuCheckDropdownOpenId = null;
+  }
+
+  function stuToggleCheckDropdown(id, btn) {
+    if (stuCheckDropdownOpenId === id) { stuCloseCheckDropdown(); return; }
+    stuCloseCheckDropdown();
+    stuCheckDropdownOpenId = id;
+    const items = JSON.parse(decodeURIComponent(btn.getAttribute('data-items')));
+    const selected = (document.getElementById(`stu-bf-${id}-vals`).value || '').split('|||').filter(Boolean);
+    const opts = items.map(it => {
+      const checked = selected.includes(it) ? 'checked' : '';
+      return `<label style="display:flex;align-items:center;gap:0.4rem;padding:0.3rem 0.5rem;font-size:0.8rem;cursor:pointer;">
+        <input type="checkbox" value="${it.replace(/"/g,'&quot;')}" ${checked} onchange="stuCheckDropdownUpdate('${id}')">${it}
+      </label>`;
+    }).join('');
+    const menu = document.createElement('div');
+    menu.id = 'stu-checkdropdown-menu';
+    menu.style.cssText = 'position:fixed;z-index:9999;background:white;border:1px solid var(--gray-100);border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-height:12rem;overflow-y:auto;';
+    menu.innerHTML = opts;
+    document.body.appendChild(menu);
+    const rect = btn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 2) + 'px';
+    menu.style.left = rect.left + 'px';
+    menu.style.width = rect.width + 'px';
+  }
+
+  function stuCheckDropdownUpdate(id) {
+    const menu = document.getElementById('stu-checkdropdown-menu');
+    const label = document.getElementById(`stu-bf-${id}-label`);
+    const otherWrap = document.getElementById(`stu-bf-${id}-other-wrap`);
+    const valsInput = document.getElementById(`stu-bf-${id}-vals`);
+    const checked = Array.from(menu.querySelectorAll('input:checked')).map(cb => cb.value);
+    label.textContent = checked.length ? checked.join(', ') : 'Select...';
+    valsInput.value = checked.join('|||');
+    if (otherWrap) otherWrap.style.display = checked.some(v => /^other/i.test(v)) ? '' : 'none';
+  }
+
+  function stuCheckDropdownVals(id) {
+    const valsInput = document.getElementById(`stu-bf-${id}-vals`);
+    return valsInput ? (valsInput.value || '').split('|||').filter(Boolean) : [];
+  }
+
+  function stuBenFamCard(i, m) {
+    m = m || {};
+    const yesNo = () => [{value:'true',label:'Yes'},{value:'false',label:'No'}];
+    const yesNoBool = (v) => v === true || v === 'true' ? 'true' : 'false';
+    const toOpts = (arr) => [{value:'',label:'—'},...arr.map(v=>({value:v,label:v}))];
+    const OPT_FAM_REL    = toOpts(['Head','Spouse','Child','Parent','Sibling','Grandparent','Grandchild','Other Relative']);
+    const OPT_CIVIL      = toOpts(['Single','Married','Widowed','Separated','Live-in']);
+    const OPT_OCCUPATION = toOpts(['Unemployed','Employed (Private Sector)','Employed (Government)','Self-employed','Farmer','Fisherman','Laborer','Vendor','Driver','Housewife/Househusband','Student','OFW (Overseas Filipino Worker)','Retired','Others']);
+    const OPT_OCC_CLASS  = toOpts(['Professional','Technical','Clerical','Sales','Service Worker','Agricultural Worker','Production/Laborer','Elementary Occupation','Not Applicable']);
+    const OPT_SEX        = toOpts(['Male','Female']);
+    return `<div class="stu-ben-fam-card" data-fam-idx="${i}" style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:0.625rem;padding:0.875rem;margin-bottom:0.625rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.625rem;">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--blue);">Member ${m.member_number || (i+1)}</div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="stuRemoveFamMember(this)" title="Remove"><span class="material-symbols-outlined" style="font-size:0.875rem;color:#dc2626;">delete</span></button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;">
+        ${stuBenInput(`fam-${i}-name`, 'Name', m.full_name)}
+        ${stuBenSelect(`fam-${i}-rel`, 'Relationship to Head', m.relationship_to_head, OPT_FAM_REL)}
+        ${stuBenInput(`fam-${i}-age`, 'Age', m.age, 'number')}
+        ${stuBenSelect(`fam-${i}-sex`, 'Sex', m.sex, OPT_SEX)}
+        ${stuBenSelect(`fam-${i}-civil`, 'Civil Status', m.civil_status, OPT_CIVIL)}
+        ${stuBenSelect(`fam-${i}-solo`, 'Solo Parent', yesNoBool(m.is_solo_parent), yesNo())}
+        ${stuBenSelect(`fam-${i}-occ`, 'Occupation', m.occupation, OPT_OCCUPATION)}
+        ${stuBenSelect(`fam-${i}-occclass`, 'Occupation Class', m.occupation_class, OPT_OCC_CLASS)}
+        <div style="grid-column:1/-1;">${stuBenCheckDropdown(`fam-${i}-disabilities`, 'Disabilities', STU_OPT_DISABILITY_LIST, m.disabilities, null, null)}</div>
+        <div style="grid-column:1/-1;">${stuBenCheckDropdown(`fam-${i}-illnesses`, 'Critical Illnesses', STU_OPT_ILLNESS_LIST, m.critical_illnesses, null, null)}</div>
+      </div>
+    </div>`;
+  }
+
+  function stuAddFamMember() {
+    const container = document.getElementById('stu-ben-fam-members');
+    const idx = container.querySelectorAll('.stu-ben-fam-card').length;
+    container.insertAdjacentHTML('beforeend', stuBenFamCard(idx, {}));
+  }
+
+  function stuRemoveFamMember(btn) {
+    btn.closest('.stu-ben-fam-card').remove();
+  }
+
   function stuRenderBeneDetail(d) {
     const a   = d.assessment || {};
     const pq  = d.pre_qualification || {};
@@ -1518,10 +1641,7 @@
     const OPT_RELIGION    = toOpts(['No Religion','Roman Catholic','Islam','Iglesia ni Cristo','Protestant','Born Again Christian','Buddhism','Hinduism','Others']);
     const OPT_IP          = toOpts(['Not a member','Aeta','Igorot','Lumad','Mangyan','Tagbanua','Badjao','T\'boli','Manobo','Others']);
     const OPT_EDUC        = toOpts(['No formal education','Elementary Undergraduate','Elementary Graduate','High School Undergraduate','High School Graduate','Senior High School Graduate','College Undergraduate','College Graduate','Vocational/Technical','Post Graduate','Others']);
-    const OPT_GRADE       = toOpts(['Kinder','Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12','College 1st Year','College 2nd Year','College 3rd Year','College 4th Year']);
     const OPT_RELATIONSHIP= toOpts(['Parent','Guardian','Grandparent','Sibling','Aunt/Uncle','Relative','Social Worker','Foster Parent']);
-    const OPT_INCOME_SRC  = toOpts(['Employed (Private Sector)','Employed (Government)','Self-employed','Farmer','Fisherman','Laborer','Vendor','Driver','Housewife/Househusband','OFW (Overseas Filipino Worker)','Retired','Others']);
-    const OPT_INCOME_CLASS= toOpts(['Below Poverty Line','Low Income','Lower Middle','Middle','Upper Middle','High Income']);
     const OPT_READINESS   = [{value:'',label:'—'},{value:'severe',label:'Severe'},{value:'moderate',label:'Moderate'},{value:'low',label:'Low'},{value:'stable',label:'Stable'}];
     const OPT_SEX         = toOpts(['Male','Female']);
 
@@ -1559,46 +1679,39 @@
         stuBenInput('child-barangay', 'Barangay', c.barangay) +
         stuBenInput('child-street', 'Street Address', c.street_address) +
         stuBenInput('child-contact', 'Contact Number', c.contact_number) +
-        stuBenSelect('child-religion', 'Religion', c.religion, OPT_RELIGION) +
-        stuBenSelect('child-ip', 'IP Membership', c.ip_membership, OPT_IP)
+        stuBenSelectOther('child-religion', 'Religion', c.religion, c.religion_other, OPT_RELIGION) +
+        stuBenSelectOther('child-ip', 'IP Membership', c.ip_membership, c.ip_membership_other, OPT_IP)
       )}
 
       ${stuBenSection('school', '4. Education & Disability',
-        stuBenSelect('ceh-edu', 'Highest Education', ceh.highest_education, OPT_EDUC) +
-        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Disabilities</label>
-        <input type="text" id="stu-bf-ceh-disabilities" class="settings-input" value="${(ceh.disabilities||[]).join(', ')}" placeholder="Comma-separated"></div>` +
-        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Critical Illnesses</label>
-        <input type="text" id="stu-bf-ceh-illnesses" class="settings-input" value="${(ceh.critical_illnesses||[]).join(', ')}" placeholder="Comma-separated"></div>`
+        stuBenSelectOther('ceh-edu', 'Highest Education', ceh.highest_education, ceh.highest_education_other, OPT_EDUC) +
+        `<div style="grid-column:1/-1;">${stuBenCheckDropdown('ceh-disabilities', 'Disabilities', STU_OPT_DISABILITY_LIST, ceh.disabilities, null, null)}</div>` +
+        `<div style="grid-column:1/-1;">${stuBenCheckDropdown('ceh-illnesses', 'Critical Illnesses', STU_OPT_ILLNESS_LIST, ceh.critical_illnesses, ceh.illness_other, 'ceh-illness-other')}</div>`
       )}
 
       <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
-        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
-          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">people</span></div>
-          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">5. Family Members</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.625rem;margin-bottom:1rem;">
+          <div style="display:flex;align-items:center;gap:0.625rem;">
+            <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">people</span></div>
+            <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">5. Family Members</div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="stuAddFamMember()"><span class="material-symbols-outlined" style="font-size:0.875rem;">add</span>Add Member</button>
         </div>
-        ${fm.length ? fm.map((m,i) => `
-          <div style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:0.625rem;padding:0.875rem;margin-bottom:0.625rem;">
-            <div style="font-size:0.72rem;font-weight:700;color:var(--blue);margin-bottom:0.625rem;">Member ${m.member_number||i+1}</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.625rem;">
-              ${stuBenField('Name', m.full_name)}
-              ${stuBenField('Relationship', m.relationship_to_head)}
-              ${stuBenField('Age', m.age)}
-              ${stuBenField('Sex', m.sex)}
-              ${stuBenField('Civil Status', m.civil_status)}
-              ${stuBenField('Occupation', m.occupation)}
-            </div>
-          </div>`).join('') : '<div style="color:var(--gray-400);font-size:0.8rem;padding:0.5rem 0;">No family members recorded.</div>'}
+        <div id="stu-ben-fam-members">
+          ${fm.length ? fm.map((m,i) => stuBenFamCard(i, m)).join('') : ''}
+        </div>
       </div>
 
       ${stuBenSection('home', '6. Housing & Socio-Economic',
-        stuBenSelect('se-materials', 'Housing Materials', se.housing_materials, OPT_MATERIALS) +
-        stuBenSelect('se-tenure', 'Tenure Status', se.tenure_status, OPT_TENURE) +
+        stuBenSelectOther('se-materials', 'Housing Materials', se.housing_materials, se.housing_materials_other, OPT_MATERIALS) +
+        stuBenSelectOther('se-tenure', 'Tenure Status', se.tenure_status, se.tenure_status_other, OPT_TENURE) +
         stuBenSelect('se-mod', 'Has Accessibility Modifications', yesNoBool(se.has_accessibility_modifications), yesNo()) +
         stuBenInput('se-mod-details', 'Modification Details', se.modification_details) +
-        stuBenSelect('se-water', 'Water Source', se.water_source, OPT_WATER) +
-        stuBenSelect('se-electricity', 'Electricity Source', se.electricity_source, OPT_ELECTRICITY) +
-        stuBenSelect('se-toilet', 'Toilet Type', se.toilet_type, OPT_TOILET) +
-        stuBenSelect('se-garbage', 'Garbage Disposal', se.garbage_disposal, OPT_GARBAGE)
+        stuBenSelectOther('se-water', 'Water Source', se.water_source, se.water_source_other, OPT_WATER) +
+        stuBenSelectOther('se-electricity', 'Electricity Source', se.electricity_source, se.electricity_source_other, OPT_ELECTRICITY) +
+        stuBenSelectOther('se-toilet', 'Toilet Type', se.toilet_type, se.toilet_type_other, OPT_TOILET) +
+        stuBenSelect('se-toilet-access', 'Toilet Accessible', yesNoBool(se.is_toilet_accessible), yesNo()) +
+        stuBenSelectOther('se-garbage', 'Garbage Disposal', se.garbage_disposal, se.garbage_disposal_other, OPT_GARBAGE)
       )}
 
       ${stuBenSection('health_and_safety', '7. Health Information',
@@ -1606,27 +1719,33 @@
         stuBenSelect('hi-conditions', 'Has Ongoing Health Conditions', yesNoBool(hi.has_ongoing_health_conditions), yesNo()) +
         `<div style="grid-column:1/-1;">${stuBenTextarea('hi-conditions-details', 'Health Conditions Details', hi.health_conditions_details)}</div>` +
         stuBenSelect('hi-availed', 'Availed Services (last 6 months)', yesNoBool(hi.availed_services_6months), yesNo()) +
+        `<div style="grid-column:1/-1;">${stuBenTextarea('hi-availed-details', 'Availed Services Details', hi.availed_services_details)}</div>` +
         stuBenInput('hi-expense-food', 'Expense: Food (₱)', hi.expense_food, 'number') +
         stuBenInput('hi-expense-medication', 'Expense: Medication (₱)', hi.expense_medication, 'number') +
         stuBenInput('hi-expense-therapy', 'Expense: Therapy (₱)', hi.expense_therapy, 'number') +
+        stuBenInput('hi-expense-hygiene', 'Expense: Hygiene (₱)', hi.expense_hygiene, 'number') +
         stuBenInput('hi-expense-device', 'Expense: Assistive Device (₱)', hi.expense_assistive_device, 'number') +
+        stuBenInput('hi-expense-other', 'Expense: Other (₱)', hi.expense_other, 'number') +
         stuBenSelect('hi-barriers', 'Has Barriers to Healthcare', yesNoBool(hi.has_barriers_to_healthcare), yesNo()) +
         `<div style="grid-column:1/-1;">${stuBenTextarea('hi-barriers-details', 'Barrier Details', hi.healthcare_barriers_details)}</div>`
       )}
 
       ${stuBenSection('menu_book', '8. Education Information',
         stuBenSelect('ei-enrolled', 'Currently Enrolled', yesNoBool(ei.is_currently_enrolled), yesNo()) +
-        stuBenSelect('ei-grade', 'Grade / Year Level', ei.grade_year_level, OPT_GRADE) +
+        stuBenInput('ei-grade', 'Grade / Year Level', ei.grade_year_level) +
         stuBenInput('ei-reason', 'Reason Not Enrolled', ei.not_enrolled_reason) +
+        stuBenSelect('ei-access', 'Has Accessibility Features', yesNoBool(ei.has_accessibility_features), yesNo()) +
+        stuBenInput('ei-access-details', 'Accessibility Features Details', ei.accessibility_features_details) +
         stuBenSelect('ei-sped', 'Has SPED Programs', yesNoBool(ei.has_sped_programs), yesNo()) +
+        stuBenInput('ei-sped-details', 'SPED Programs Details', ei.sped_programs_details) +
         stuBenSelect('ei-support', 'Receives Learning Support', yesNoBool(ei.receives_learning_support), yesNo()) +
         stuBenInput('ei-support-details', 'Support Details', ei.learning_support_details)
       )}
 
       ${stuBenSection('savings', '9. Economic Capacity',
-        stuBenSelect('ec-income-source', 'Primary Income Source', ec.primary_income_source, OPT_INCOME_SRC) +
+        stuBenInput('ec-income-source', 'Primary Income Source', ec.primary_income_source) +
         stuBenInput('ec-income', 'Monthly Income (₱)', ec.monthly_income, 'number') +
-        stuBenSelect('ec-class', 'Income Classification', ec.income_classification, OPT_INCOME_CLASS) +
+        stuBenInput('ec-class', 'Income Classification', ec.income_classification) +
         stuBenSelect('ec-employed', 'Parents Employed', yesNoBool(ec.are_parents_employed), yesNo()) +
         `<div style="grid-column:1/-1;">${stuBenTextarea('ec-employment-details', 'Employment Details', ec.employment_details)}</div>`
       )}
@@ -1635,8 +1754,10 @@
         stuBenSelect('sa-financial', 'Receives Financial Assistance', yesNoBool(sa.receives_financial_assistance), yesNo()) +
         stuBenInput('sa-financial-details', 'Financial Assistance Details', sa.financial_assistance_details) +
         stuBenSelect('sa-aware', 'Aware of Social Services', yesNoBool(sa.is_aware_of_social_services), yesNo()) +
+        `<div style="grid-column:1/-1;">${stuBenTextarea('sa-aware-details', 'Awareness Details', sa.awareness_details)}</div>` +
         stuBenSelect('sa-availed', 'Has Availed Services', yesNoBool(sa.has_availed_services), yesNo()) +
-        `<div style="grid-column:1/-1;">${stuBenTextarea('sa-challenges', 'Service Challenges', sa.service_challenges)}</div>`
+        `<div style="grid-column:1/-1;">${stuBenTextarea('sa-challenges', 'Service Challenges', sa.service_challenges)}</div>` +
+        `<div style="grid-column:1/-1;">${stuBenTextarea('sa-challenges-other', 'Service Challenges: Specify Other', sa.service_challenges_other)}</div>`
       )}
 
       <div style="margin-bottom:0.5rem;">
@@ -1670,9 +1791,25 @@
     const errEl = document.getElementById('stu-bene-save-err');
     btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">hourglass_empty</span>Saving...'; errEl.textContent = '';
 
-    const splitArr = (id) => stubgv(id).split(',').map(s=>s.trim()).filter(Boolean);
+    const familyMembers = Array.from(document.querySelectorAll('#stu-ben-fam-members .stu-ben-fam-card')).map((card, idx) => {
+      const fi = card.getAttribute('data-fam-idx');
+      return {
+        member_number: idx + 1,
+        full_name: stubgv(`fam-${fi}-name`),
+        relationship_to_head: stubgv(`fam-${fi}-rel`),
+        age: stubgv(`fam-${fi}-age`),
+        sex: stubgv(`fam-${fi}-sex`),
+        civil_status: stubgv(`fam-${fi}-civil`),
+        is_solo_parent: stubgvb(`fam-${fi}-solo`),
+        occupation: stubgv(`fam-${fi}-occ`),
+        occupation_class: stubgv(`fam-${fi}-occclass`),
+        disabilities: stuCheckDropdownVals(`fam-${fi}-disabilities`),
+        critical_illnesses: stuCheckDropdownVals(`fam-${fi}-illnesses`),
+      };
+    });
 
     const payload = {
+      family_members: familyMembers,
       aruga_id: arugaId,
       pre_qualification: { is_4ps_member: stubgvb('pq-4ps'), household_id: stubgv('pq-household') },
       respondent: { full_name: stubgv('resp-name'), relationship_to_child: stubgv('resp-rel'), email: stubgv('resp-email'), contact_number: stubgv('resp-contact') },
@@ -1681,29 +1818,39 @@
         name_extension: stubgv('child-ext'), date_of_birth: stubgv('child-dob'), sex: stubgv('child-sex'),
         region: stubgv('child-region'), province: stubgv('child-province'), city_municipality: stubgv('child-city'),
         barangay: stubgv('child-barangay'), street_address: stubgv('child-street'), contact_number: stubgv('child-contact'),
-        religion: stubgv('child-religion'), ip_membership: stubgv('child-ip'),
+        religion: stubgv('child-religion'), religion_other: stubgv('child-religion-other'),
+        ip_membership: stubgv('child-ip'), ip_membership_other: stubgv('child-ip-other'),
       },
       child_education_health: {
-        highest_education: stubgv('ceh-edu'),
-        disabilities: splitArr('ceh-disabilities'),
-        critical_illnesses: splitArr('ceh-illnesses'),
+        highest_education: stubgv('ceh-edu'), highest_education_other: stubgv('ceh-edu-other'),
+        disabilities: stuCheckDropdownVals('ceh-disabilities'),
+        critical_illnesses: stuCheckDropdownVals('ceh-illnesses'),
+        illness_other: stubgv('ceh-illness-other'),
       },
       socio_economic: {
-        housing_materials: stubgv('se-materials'), tenure_status: stubgv('se-tenure'),
+        housing_materials: stubgv('se-materials'), housing_materials_other: stubgv('se-materials-other'),
+        tenure_status: stubgv('se-tenure'), tenure_status_other: stubgv('se-tenure-other'),
         has_accessibility_modifications: stubgvb('se-mod'), modification_details: stubgv('se-mod-details'),
-        water_source: stubgv('se-water'), electricity_source: stubgv('se-electricity'),
-        toilet_type: stubgv('se-toilet'), garbage_disposal: stubgv('se-garbage'),
+        water_source: stubgv('se-water'), water_source_other: stubgv('se-water-other'),
+        electricity_source: stubgv('se-electricity'), electricity_source_other: stubgv('se-electricity-other'),
+        toilet_type: stubgv('se-toilet'), toilet_type_other: stubgv('se-toilet-other'),
+        is_toilet_accessible: stubgvb('se-toilet-access'),
+        garbage_disposal: stubgv('se-garbage'), garbage_disposal_other: stubgv('se-garbage-other'),
       },
       health_info: {
         has_all_vaccinations: stubgvb('hi-vacc'), has_ongoing_health_conditions: stubgvb('hi-conditions'),
         health_conditions_details: stubgv('hi-conditions-details'), availed_services_6months: stubgvb('hi-availed'),
+        availed_services_details: stubgv('hi-availed-details'),
         expense_food: stubgv('hi-expense-food'), expense_medication: stubgv('hi-expense-medication'),
-        expense_therapy: stubgv('hi-expense-therapy'), expense_assistive_device: stubgv('hi-expense-device'),
+        expense_therapy: stubgv('hi-expense-therapy'), expense_hygiene: stubgv('hi-expense-hygiene'),
+        expense_assistive_device: stubgv('hi-expense-device'), expense_other: stubgv('hi-expense-other'),
         has_barriers_to_healthcare: stubgvb('hi-barriers'), healthcare_barriers_details: stubgv('hi-barriers-details'),
       },
       education_info: {
         is_currently_enrolled: stubgvb('ei-enrolled'), grade_year_level: stubgv('ei-grade'),
-        not_enrolled_reason: stubgv('ei-reason'), has_sped_programs: stubgvb('ei-sped'),
+        not_enrolled_reason: stubgv('ei-reason'),
+        has_accessibility_features: stubgvb('ei-access'), accessibility_features_details: stubgv('ei-access-details'),
+        has_sped_programs: stubgvb('ei-sped'), sped_programs_details: stubgv('ei-sped-details'),
         receives_learning_support: stubgvb('ei-support'), learning_support_details: stubgv('ei-support-details'),
       },
       economic_capacity: {
@@ -1713,8 +1860,9 @@
       },
       service_availment: {
         receives_financial_assistance: stubgvb('sa-financial'), financial_assistance_details: stubgv('sa-financial-details'),
-        is_aware_of_social_services: stubgvb('sa-aware'), has_availed_services: stubgvb('sa-availed'),
-        service_challenges: stubgv('sa-challenges'),
+        is_aware_of_social_services: stubgvb('sa-aware'), awareness_details: stubgv('sa-aware-details'),
+        has_availed_services: stubgvb('sa-availed'),
+        service_challenges: stubgv('sa-challenges'), service_challenges_other: stubgv('sa-challenges-other'),
       },
       assessment_notes: {
         readiness_score: stubgv('an-readiness'), strengths: stubgv('an-strengths'),
