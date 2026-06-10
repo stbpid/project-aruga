@@ -5205,43 +5205,70 @@
     }).join('');
     const selectedLabel = selected.length ? selected.join(', ') : 'Select...';
     const showOther = hasOtherOpt && selected.some(v => /^other/i.test(v));
+    const dataItems = encodeURIComponent(JSON.stringify(items));
     return `<div style="position:relative;">
       <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
-      <button type="button" onclick="benToggleCheckDropdown('${id}')" class="settings-input" style="text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+      <button type="button" data-items="${dataItems}" onclick="benToggleCheckDropdown('${id}', this)" class="settings-input" style="text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
         <span id="ben-f-${id}-label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${selectedLabel}</span>
         <span class="material-symbols-outlined" style="font-size:1rem;color:var(--gray-400);">expand_more</span>
       </button>
-      <div id="ben-f-${id}-menu" class="hidden" style="position:absolute;z-index:50;top:100%;left:0;right:0;background:white;border:1px solid var(--gray-100);border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.1);max-height:12rem;overflow-y:auto;margin-top:0.25rem;">${opts}</div>
+      <input type="hidden" id="ben-f-${id}-vals" value="${selected.map(s=>s.replace(/"/g,'&quot;')).join('|||')}">
       <div id="ben-f-${id}-other-wrap" style="display:${showOther?'':'none'};margin-top:0.5rem;">
         <input type="text" id="ben-f-${otherKey}" class="settings-input" placeholder="Specify other" value="${(otherVal||'').toString().replace(/"/g,'&quot;')}">
       </div>
     </div>`;
   }
 
+  let benCheckDropdownOpenId = null;
+
   document.addEventListener('click', (e) => {
-    if (e.target.closest('[id^="ben-f-"][id$="-menu"]') || e.target.closest('button[onclick^="benToggleCheckDropdown"]')) return;
-    document.querySelectorAll('[id^="ben-f-"][id$="-menu"]').forEach(m => m.classList.add('hidden'));
+    if (e.target.closest('#ben-checkdropdown-menu') || e.target.closest('button[onclick^="benToggleCheckDropdown"]')) return;
+    benCloseCheckDropdown();
   });
 
-  function benToggleCheckDropdown(id) {
-    const menu = document.getElementById(`ben-f-${id}-menu`);
-    if (!menu) return;
-    document.querySelectorAll('[id^="ben-f-"][id$="-menu"]').forEach(m => { if (m !== menu) m.classList.add('hidden'); });
-    menu.classList.toggle('hidden');
+  function benCloseCheckDropdown() {
+    const menu = document.getElementById('ben-checkdropdown-menu');
+    if (menu) menu.remove();
+    benCheckDropdownOpenId = null;
+  }
+
+  function benToggleCheckDropdown(id, btn) {
+    if (benCheckDropdownOpenId === id) { benCloseCheckDropdown(); return; }
+    benCloseCheckDropdown();
+    benCheckDropdownOpenId = id;
+    const items = JSON.parse(decodeURIComponent(btn.getAttribute('data-items')));
+    const selected = (document.getElementById(`ben-f-${id}-vals`).value || '').split('|||').filter(Boolean);
+    const opts = items.map(it => {
+      const checked = selected.includes(it) ? 'checked' : '';
+      return `<label style="display:flex;align-items:center;gap:0.4rem;padding:0.3rem 0.5rem;font-size:0.8rem;cursor:pointer;">
+        <input type="checkbox" value="${it.replace(/"/g,'&quot;')}" ${checked} onchange="benCheckDropdownUpdate('${id}')">${it}
+      </label>`;
+    }).join('');
+    const menu = document.createElement('div');
+    menu.id = 'ben-checkdropdown-menu';
+    menu.style.cssText = 'position:fixed;z-index:9999;background:white;border:1px solid var(--gray-100);border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-height:12rem;overflow-y:auto;';
+    menu.innerHTML = opts;
+    document.body.appendChild(menu);
+    const rect = btn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 2) + 'px';
+    menu.style.left = rect.left + 'px';
+    menu.style.width = rect.width + 'px';
   }
 
   function benCheckDropdownUpdate(id) {
-    const menu = document.getElementById(`ben-f-${id}-menu`);
+    const menu = document.getElementById('ben-checkdropdown-menu');
     const label = document.getElementById(`ben-f-${id}-label`);
     const otherWrap = document.getElementById(`ben-f-${id}-other-wrap`);
+    const valsInput = document.getElementById(`ben-f-${id}-vals`);
     const checked = Array.from(menu.querySelectorAll('input:checked')).map(cb => cb.value);
     label.textContent = checked.length ? checked.join(', ') : 'Select...';
+    valsInput.value = checked.join('|||');
     if (otherWrap) otherWrap.style.display = checked.some(v => /^other/i.test(v)) ? '' : 'none';
   }
 
   function benCheckDropdownVals(id) {
-    const menu = document.getElementById(`ben-f-${id}-menu`);
-    return menu ? Array.from(menu.querySelectorAll('input:checked')).map(cb => cb.value) : [];
+    const valsInput = document.getElementById(`ben-f-${id}-vals`);
+    return valsInput ? (valsInput.value || '').split('|||').filter(Boolean) : [];
   }
 
   function benSelectOther(id, label, val, otherVal, options) {
