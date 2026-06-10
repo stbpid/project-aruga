@@ -69,7 +69,9 @@ if (isset($body['child'])) {
         'date_of_birth'     => safe($c, 'date_of_birth'),
         'sex'               => safe($c, 'sex'),
         'religion'          => safe($c, 'religion'),
+        'religion_other'    => safe($c, 'religion_other'),
         'ip_membership'     => safe($c, 'ip_membership'),
+        'ip_membership_other' => safe($c, 'ip_membership_other'),
     ]);
 }
 
@@ -77,9 +79,11 @@ if (isset($body['child'])) {
 if (isset($body['child_education_health'])) {
     $ceh = $body['child_education_health'];
     patchTable('child_education_health', $assessmentId, [
-        'highest_education' => safe($ceh, 'highest_education'),
+        'highest_education'       => safe($ceh, 'highest_education'),
+        'highest_education_other' => safe($ceh, 'highest_education_other'),
         'disabilities'      => $ceh['disabilities'] ?? [],
         'critical_illnesses'=> $ceh['critical_illnesses'] ?? [],
+        'illness_other'     => safe($ceh, 'illness_other'),
     ]);
 }
 
@@ -88,14 +92,20 @@ if (isset($body['socio_economic'])) {
     $se = $body['socio_economic'];
     patchTable('socio_economic', $assessmentId, [
         'housing_materials'               => safe($se, 'housing_materials'),
+        'housing_materials_other'         => safe($se, 'housing_materials_other'),
         'tenure_status'                   => safe($se, 'tenure_status'),
+        'tenure_status_other'             => safe($se, 'tenure_status_other'),
         'has_accessibility_modifications' => (bool)($se['has_accessibility_modifications'] ?? false),
         'modification_details'            => safe($se, 'modification_details'),
         'water_source'                    => safe($se, 'water_source'),
+        'water_source_other'              => safe($se, 'water_source_other'),
         'electricity_source'              => safe($se, 'electricity_source'),
+        'electricity_source_other'        => safe($se, 'electricity_source_other'),
         'toilet_type'                     => safe($se, 'toilet_type'),
+        'toilet_type_other'               => safe($se, 'toilet_type_other'),
         'is_toilet_accessible'            => (bool)($se['is_toilet_accessible'] ?? false),
         'garbage_disposal'                => safe($se, 'garbage_disposal'),
+        'garbage_disposal_other'          => safe($se, 'garbage_disposal_other'),
     ]);
 }
 
@@ -127,8 +137,11 @@ if (isset($body['education_info'])) {
         'grade_year_level'           => safe($ei, 'grade_year_level'),
         'not_enrolled_reason'        => safe($ei, 'not_enrolled_reason'),
         'has_accessibility_features' => (bool)($ei['has_accessibility_features'] ?? false),
+        'accessibility_features_details' => safe($ei, 'accessibility_features_details'),
         'has_sped_programs'          => (bool)($ei['has_sped_programs'] ?? false),
+        'sped_programs_details'      => safe($ei, 'sped_programs_details'),
         'receives_learning_support'  => (bool)($ei['receives_learning_support'] ?? false),
+        'learning_support_details'   => safe($ei, 'learning_support_details'),
     ]);
 }
 
@@ -151,8 +164,10 @@ if (isset($body['service_availment'])) {
         'receives_financial_assistance' => (bool)($sa['receives_financial_assistance'] ?? false),
         'financial_assistance_details'  => safe($sa, 'financial_assistance_details'),
         'is_aware_of_social_services'   => (bool)($sa['is_aware_of_social_services'] ?? false),
+        'awareness_details'             => safe($sa, 'awareness_details'),
         'has_availed_services'          => (bool)($sa['has_availed_services'] ?? false),
         'service_challenges'            => safe($sa, 'service_challenges'),
+        'service_challenges_other'      => safe($sa, 'service_challenges_other'),
     ]);
 }
 

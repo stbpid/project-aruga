@@ -5157,6 +5157,23 @@
     </div>`;
   }
 
+  function benSelectOther(id, label, val, otherVal, options) {
+    const isOther = val === 'Others';
+    const selectHtml = benSelect(id, label, val, options)
+      .replace(`id="ben-f-${id}"`, `id="ben-f-${id}" onchange="benOtherToggle('${id}')"`);
+    return selectHtml +
+      `<div id="ben-f-${id}-other-wrap" style="display:${isOther?'':'none'};">
+        <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}: Specify Other</label>
+        <input type="text" id="ben-f-${id}-other" class="settings-input" value="${(otherVal||'').toString().replace(/"/g,'&quot;')}">
+      </div>`;
+  }
+
+  function benOtherToggle(id) {
+    const sel = document.getElementById('ben-f-' + id);
+    const wrap = document.getElementById('ben-f-' + id + '-other-wrap');
+    if (sel && wrap) wrap.style.display = sel.value === 'Others' ? '' : 'none';
+  }
+
   function benTextarea(id, label, val) {
     const v = (val !== null && val !== undefined) ? String(val).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : '';
     return `<div>
@@ -5256,16 +5273,18 @@
         benInput('child-barangay', 'Barangay', c.barangay) +
         benInput('child-street', 'Street Address', c.street_address) +
         benInput('child-contact', 'Contact Number', c.contact_number) +
-        benSelect('child-religion', 'Religion', c.religion, OPT_RELIGION) +
-        benSelect('child-ip', 'IP Membership', c.ip_membership, OPT_IP)
+        benSelectOther('child-religion', 'Religion', c.religion, c.religion_other, OPT_RELIGION) +
+        benSelectOther('child-ip', 'IP Membership', c.ip_membership, c.ip_membership_other, OPT_IP)
       )}
 
       ${benSection('school', '4. Education & Disability',
-        benSelect('ceh-edu', 'Highest Education', ceh.highest_education, OPT_EDUC) +
+        benSelectOther('ceh-edu', 'Highest Education', ceh.highest_education, ceh.highest_education_other, OPT_EDUC) +
         `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Disabilities</label>
         <input type="text" id="ben-f-ceh-disabilities" class="settings-input" value="${(ceh.disabilities||[]).join(', ')}" placeholder="Comma-separated"></div>` +
         `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Critical Illnesses</label>
-        <input type="text" id="ben-f-ceh-illnesses" class="settings-input" value="${(ceh.critical_illnesses||[]).join(', ')}" placeholder="Comma-separated"></div>`
+        <input type="text" id="ben-f-ceh-illnesses" class="settings-input" value="${(ceh.critical_illnesses||[]).join(', ')}" placeholder="Comma-separated"></div>` +
+        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Illness: Specify Other</label>
+        <input type="text" id="ben-f-ceh-illness-other" class="settings-input" value="${(ceh.illness_other||'').toString().replace(/"/g,'&quot;')}"></div>`
       )}
 
       <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
@@ -5288,14 +5307,15 @@
       </div>
 
       ${benSection('home', '6. Housing & Socio-Economic',
-        benSelect('se-materials', 'Housing Materials', se.housing_materials, OPT_MATERIALS) +
-        benSelect('se-tenure', 'Tenure Status', se.tenure_status, OPT_TENURE) +
+        benSelectOther('se-materials', 'Housing Materials', se.housing_materials, se.housing_materials_other, OPT_MATERIALS) +
+        benSelectOther('se-tenure', 'Tenure Status', se.tenure_status, se.tenure_status_other, OPT_TENURE) +
         benSelect('se-mod', 'Has Accessibility Modifications', yesNoBool(se.has_accessibility_modifications), yesNo()) +
         benInput('se-mod-details', 'Modification Details', se.modification_details) +
-        benSelect('se-water', 'Water Source', se.water_source, OPT_WATER) +
-        benSelect('se-electricity', 'Electricity Source', se.electricity_source, OPT_ELECTRICITY) +
-        benSelect('se-toilet', 'Toilet Type', se.toilet_type, OPT_TOILET) +
-        benSelect('se-garbage', 'Garbage Disposal', se.garbage_disposal, OPT_GARBAGE)
+        benSelectOther('se-water', 'Water Source', se.water_source, se.water_source_other, OPT_WATER) +
+        benSelectOther('se-electricity', 'Electricity Source', se.electricity_source, se.electricity_source_other, OPT_ELECTRICITY) +
+        benSelectOther('se-toilet', 'Toilet Type', se.toilet_type, se.toilet_type_other, OPT_TOILET) +
+        benSelect('se-toilet-access', 'Toilet Accessible', yesNoBool(se.is_toilet_accessible), yesNo()) +
+        benSelectOther('se-garbage', 'Garbage Disposal', se.garbage_disposal, se.garbage_disposal_other, OPT_GARBAGE)
       )}
 
       ${benSection('health_and_safety', '7. Health Information',
@@ -5303,10 +5323,13 @@
         benSelect('hi-conditions', 'Has Ongoing Health Conditions', yesNoBool(hi.has_ongoing_health_conditions), yesNo()) +
         `<div style="grid-column:1/-1;">${benTextarea('hi-conditions-details', 'Health Conditions Details', hi.health_conditions_details)}</div>` +
         benSelect('hi-availed', 'Availed Services (last 6 months)', yesNoBool(hi.availed_services_6months), yesNo()) +
+        `<div style="grid-column:1/-1;">${benTextarea('hi-availed-details', 'Availed Services Details', hi.availed_services_details)}</div>` +
         benInput('hi-expense-food', 'Expense: Food (₱)', hi.expense_food, 'number') +
         benInput('hi-expense-medication', 'Expense: Medication (₱)', hi.expense_medication, 'number') +
         benInput('hi-expense-therapy', 'Expense: Therapy (₱)', hi.expense_therapy, 'number') +
+        benInput('hi-expense-hygiene', 'Expense: Hygiene (₱)', hi.expense_hygiene, 'number') +
         benInput('hi-expense-device', 'Expense: Assistive Device (₱)', hi.expense_assistive_device, 'number') +
+        benInput('hi-expense-other', 'Expense: Other (₱)', hi.expense_other, 'number') +
         benSelect('hi-barriers', 'Has Barriers to Healthcare', yesNoBool(hi.has_barriers_to_healthcare), yesNo()) +
         `<div style="grid-column:1/-1;">${benTextarea('hi-barriers-details', 'Barrier Details', hi.healthcare_barriers_details)}</div>`
       )}
@@ -5315,7 +5338,10 @@
         benSelect('ei-enrolled', 'Currently Enrolled', yesNoBool(ei.is_currently_enrolled), yesNo()) +
         benSelect('ei-grade', 'Grade / Year Level', ei.grade_year_level, OPT_GRADE) +
         benInput('ei-reason', 'Reason Not Enrolled', ei.not_enrolled_reason) +
+        benSelect('ei-access', 'Has Accessibility Features', yesNoBool(ei.has_accessibility_features), yesNo()) +
+        benInput('ei-access-details', 'Accessibility Features Details', ei.accessibility_features_details) +
         benSelect('ei-sped', 'Has SPED Programs', yesNoBool(ei.has_sped_programs), yesNo()) +
+        benInput('ei-sped-details', 'SPED Programs Details', ei.sped_programs_details) +
         benSelect('ei-support', 'Receives Learning Support', yesNoBool(ei.receives_learning_support), yesNo()) +
         benInput('ei-support-details', 'Support Details', ei.learning_support_details)
       )}
@@ -5332,8 +5358,10 @@
         benSelect('sa-financial', 'Receives Financial Assistance', yesNoBool(sa.receives_financial_assistance), yesNo()) +
         benInput('sa-financial-details', 'Financial Assistance Details', sa.financial_assistance_details) +
         benSelect('sa-aware', 'Aware of Social Services', yesNoBool(sa.is_aware_of_social_services), yesNo()) +
+        `<div style="grid-column:1/-1;">${benTextarea('sa-aware-details', 'Awareness Details', sa.awareness_details)}</div>` +
         benSelect('sa-availed', 'Has Availed Services', yesNoBool(sa.has_availed_services), yesNo()) +
-        `<div style="grid-column:1/-1;">${benTextarea('sa-challenges', 'Service Challenges', sa.service_challenges)}</div>`
+        `<div style="grid-column:1/-1;">${benTextarea('sa-challenges', 'Service Challenges', sa.service_challenges)}</div>` +
+        `<div style="grid-column:1/-1;">${benTextarea('sa-challenges-other', 'Service Challenges: Specify Other', sa.service_challenges_other)}</div>`
       )}
 
       <div style="margin-bottom:0.5rem;">
@@ -5375,29 +5403,39 @@
         name_extension: gv('child-ext'), date_of_birth: gv('child-dob'), sex: gv('child-sex'),
         region: gv('child-region'), province: gv('child-province'), city_municipality: gv('child-city'),
         barangay: gv('child-barangay'), street_address: gv('child-street'), contact_number: gv('child-contact'),
-        religion: gv('child-religion'), ip_membership: gv('child-ip'),
+        religion: gv('child-religion'), religion_other: gv('child-religion-other'),
+        ip_membership: gv('child-ip'), ip_membership_other: gv('child-ip-other'),
       },
       child_education_health: {
-        highest_education: gv('ceh-edu'),
+        highest_education: gv('ceh-edu'), highest_education_other: gv('ceh-edu-other'),
         disabilities: splitArr('ceh-disabilities'),
         critical_illnesses: splitArr('ceh-illnesses'),
+        illness_other: gv('ceh-illness-other'),
       },
       socio_economic: {
-        housing_materials: gv('se-materials'), tenure_status: gv('se-tenure'),
+        housing_materials: gv('se-materials'), housing_materials_other: gv('se-materials-other'),
+        tenure_status: gv('se-tenure'), tenure_status_other: gv('se-tenure-other'),
         has_accessibility_modifications: gvb('se-mod'), modification_details: gv('se-mod-details'),
-        water_source: gv('se-water'), electricity_source: gv('se-electricity'),
-        toilet_type: gv('se-toilet'), garbage_disposal: gv('se-garbage'),
+        water_source: gv('se-water'), water_source_other: gv('se-water-other'),
+        electricity_source: gv('se-electricity'), electricity_source_other: gv('se-electricity-other'),
+        toilet_type: gv('se-toilet'), toilet_type_other: gv('se-toilet-other'),
+        is_toilet_accessible: gvb('se-toilet-access'),
+        garbage_disposal: gv('se-garbage'), garbage_disposal_other: gv('se-garbage-other'),
       },
       health_info: {
         has_all_vaccinations: gvb('hi-vacc'), has_ongoing_health_conditions: gvb('hi-conditions'),
         health_conditions_details: gv('hi-conditions-details'), availed_services_6months: gvb('hi-availed'),
+        availed_services_details: gv('hi-availed-details'),
         expense_food: gv('hi-expense-food'), expense_medication: gv('hi-expense-medication'),
-        expense_therapy: gv('hi-expense-therapy'), expense_assistive_device: gv('hi-expense-device'),
+        expense_therapy: gv('hi-expense-therapy'), expense_hygiene: gv('hi-expense-hygiene'),
+        expense_assistive_device: gv('hi-expense-device'), expense_other: gv('hi-expense-other'),
         has_barriers_to_healthcare: gvb('hi-barriers'), healthcare_barriers_details: gv('hi-barriers-details'),
       },
       education_info: {
         is_currently_enrolled: gvb('ei-enrolled'), grade_year_level: gv('ei-grade'),
-        not_enrolled_reason: gv('ei-reason'), has_sped_programs: gvb('ei-sped'),
+        not_enrolled_reason: gv('ei-reason'),
+        has_accessibility_features: gvb('ei-access'), accessibility_features_details: gv('ei-access-details'),
+        has_sped_programs: gvb('ei-sped'), sped_programs_details: gv('ei-sped-details'),
         receives_learning_support: gvb('ei-support'), learning_support_details: gv('ei-support-details'),
       },
       economic_capacity: {
@@ -5407,8 +5445,9 @@
       },
       service_availment: {
         receives_financial_assistance: gvb('sa-financial'), financial_assistance_details: gv('sa-financial-details'),
-        is_aware_of_social_services: gvb('sa-aware'), has_availed_services: gvb('sa-availed'),
-        service_challenges: gv('sa-challenges'),
+        is_aware_of_social_services: gvb('sa-aware'), awareness_details: gv('sa-aware-details'),
+        has_availed_services: gvb('sa-availed'),
+        service_challenges: gv('sa-challenges'), service_challenges_other: gv('sa-challenges-other'),
       },
       assessment_notes: {
         readiness_score: gv('an-readiness'), strengths: gv('an-strengths'),
