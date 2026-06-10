@@ -29,7 +29,12 @@ function patchTable($table, $assessmentId, $data) {
         if (is_bool($v) || is_array($v) || is_numeric($v)) $clean[$k] = $v;
     }
     if (empty($clean)) return;
-    supabaseRequest('PATCH', $table.'?assessment_id=eq.'.urlencode($assessmentId), $clean);
+    $res = supabaseRequest('PATCH', $table.'?assessment_id=eq.'.urlencode($assessmentId), $clean);
+    // If no row exists for this assessment yet, PATCH affects 0 rows but still "succeeds" - insert instead
+    if ($res['success'] && is_array($res['data']) && empty($res['data'])) {
+        $clean['assessment_id'] = $assessmentId;
+        supabaseRequest('POST', $table, $clean);
+    }
 }
 
 // Pre-qualification

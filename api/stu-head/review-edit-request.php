@@ -73,7 +73,11 @@ if ($action === 'approved') {
             if (is_bool($v) || is_array($v) || is_numeric($v)) $clean[$k] = $v;
         }
         if (empty($clean)) return;
-        supabaseRequest('PATCH', $table.'?assessment_id=eq.'.urlencode($assessmentId), $clean);
+        $res = supabaseRequest('PATCH', $table.'?assessment_id=eq.'.urlencode($assessmentId), $clean);
+        if ($res['success'] && is_array($res['data']) && empty($res['data'])) {
+            $clean['assessment_id'] = $assessmentId;
+            supabaseRequest('POST', $table, $clean);
+        }
     }
 
     if (isset($payload['pre_qualification'])) {

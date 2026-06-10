@@ -5175,10 +5175,8 @@
         ${benSelect(`fam-${i}-solo`, 'Solo Parent', yesNoBool(m.is_solo_parent), yesNo())}
         ${benSelect(`fam-${i}-occ`, 'Occupation', m.occupation, OPT_OCCUPATION)}
         ${benSelect(`fam-${i}-occclass`, 'Occupation Class', m.occupation_class, OPT_OCC_CLASS)}
-        <div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Disabilities</label>
-        <input type="text" id="ben-f-fam-${i}-disabilities" class="settings-input" value="${(m.disabilities||[]).join(', ')}" placeholder="Comma-separated"></div>
-        <div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Critical Illnesses</label>
-        <input type="text" id="ben-f-fam-${i}-illnesses" class="settings-input" value="${(m.critical_illnesses||[]).join(', ')}" placeholder="Comma-separated"></div>
+        <div style="grid-column:1/-1;">${benCheckDropdown(`fam-${i}-disabilities`, 'Disabilities', OPT_DISABILITY_LIST, m.disabilities, null, null)}</div>
+        <div style="grid-column:1/-1;">${benCheckDropdown(`fam-${i}-illnesses`, 'Critical Illnesses', OPT_ILLNESS_LIST, m.critical_illnesses, null, null)}</div>
       </div>
     </div>`;
   }
@@ -5191,6 +5189,59 @@
 
   function benRemoveFamMember(btn) {
     btn.closest('.ben-fam-card').remove();
+  }
+
+  const OPT_DISABILITY_LIST = ['None','Visual Disability','Hearing Disability','Speech and Language Impairment','Orthopedic / Physical Disability','Mental / Intellectual Disability','Learning Disability','Psychosocial Disability','Disability Resulting from a Chronic Illness','Multiple Disabilities','Other (specify)'];
+  const OPT_ILLNESS_LIST    = ['None','Cancer','Heart Disease','Kidney Disease','Diabetes','Respiratory Disease','Neurological Disorder','Blood Disorder','Chronic Illness','Others'];
+
+  function benCheckDropdown(id, label, items, selected, otherVal, otherKey) {
+    selected = selected || [];
+    const hasOtherOpt = items.some(x => /^other/i.test(x));
+    const opts = items.map(it => {
+      const checked = selected.includes(it) ? 'checked' : '';
+      return `<label style="display:flex;align-items:center;gap:0.4rem;padding:0.3rem 0.5rem;font-size:0.8rem;cursor:pointer;">
+        <input type="checkbox" value="${it.replace(/"/g,'&quot;')}" ${checked} onchange="benCheckDropdownUpdate('${id}')">${it}
+      </label>`;
+    }).join('');
+    const selectedLabel = selected.length ? selected.join(', ') : 'Select...';
+    const showOther = hasOtherOpt && selected.some(v => /^other/i.test(v));
+    return `<div style="position:relative;">
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
+      <button type="button" onclick="benToggleCheckDropdown('${id}')" class="settings-input" style="text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+        <span id="ben-f-${id}-label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${selectedLabel}</span>
+        <span class="material-symbols-outlined" style="font-size:1rem;color:var(--gray-400);">expand_more</span>
+      </button>
+      <div id="ben-f-${id}-menu" class="hidden" style="position:absolute;z-index:50;top:100%;left:0;right:0;background:white;border:1px solid var(--gray-100);border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.1);max-height:12rem;overflow-y:auto;margin-top:0.25rem;">${opts}</div>
+      <div id="ben-f-${id}-other-wrap" style="display:${showOther?'':'none'};margin-top:0.5rem;">
+        <input type="text" id="ben-f-${otherKey}" class="settings-input" placeholder="Specify other" value="${(otherVal||'').toString().replace(/"/g,'&quot;')}">
+      </div>
+    </div>`;
+  }
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[id^="ben-f-"][id$="-menu"]') || e.target.closest('button[onclick^="benToggleCheckDropdown"]')) return;
+    document.querySelectorAll('[id^="ben-f-"][id$="-menu"]').forEach(m => m.classList.add('hidden'));
+  });
+
+  function benToggleCheckDropdown(id) {
+    const menu = document.getElementById(`ben-f-${id}-menu`);
+    if (!menu) return;
+    document.querySelectorAll('[id^="ben-f-"][id$="-menu"]').forEach(m => { if (m !== menu) m.classList.add('hidden'); });
+    menu.classList.toggle('hidden');
+  }
+
+  function benCheckDropdownUpdate(id) {
+    const menu = document.getElementById(`ben-f-${id}-menu`);
+    const label = document.getElementById(`ben-f-${id}-label`);
+    const otherWrap = document.getElementById(`ben-f-${id}-other-wrap`);
+    const checked = Array.from(menu.querySelectorAll('input:checked')).map(cb => cb.value);
+    label.textContent = checked.length ? checked.join(', ') : 'Select...';
+    if (otherWrap) otherWrap.style.display = checked.some(v => /^other/i.test(v)) ? '' : 'none';
+  }
+
+  function benCheckDropdownVals(id) {
+    const menu = document.getElementById(`ben-f-${id}-menu`);
+    return menu ? Array.from(menu.querySelectorAll('input:checked')).map(cb => cb.value) : [];
   }
 
   function benSelectOther(id, label, val, otherVal, options) {
@@ -5316,12 +5367,8 @@
 
       ${benSection('school', '4. Education & Disability',
         benSelectOther('ceh-edu', 'Highest Education', ceh.highest_education, ceh.highest_education_other, OPT_EDUC) +
-        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Disabilities</label>
-        <input type="text" id="ben-f-ceh-disabilities" class="settings-input" value="${(ceh.disabilities||[]).join(', ')}" placeholder="Comma-separated"></div>` +
-        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Critical Illnesses</label>
-        <input type="text" id="ben-f-ceh-illnesses" class="settings-input" value="${(ceh.critical_illnesses||[]).join(', ')}" placeholder="Comma-separated"></div>` +
-        `<div style="grid-column:1/-1;"><label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">Illness: Specify Other</label>
-        <input type="text" id="ben-f-ceh-illness-other" class="settings-input" value="${(ceh.illness_other||'').toString().replace(/"/g,'&quot;')}"></div>`
+        `<div style="grid-column:1/-1;">${benCheckDropdown('ceh-disabilities', 'Disabilities', OPT_DISABILITY_LIST, ceh.disabilities, null, null)}</div>` +
+        `<div style="grid-column:1/-1;">${benCheckDropdown('ceh-illnesses', 'Critical Illnesses', OPT_ILLNESS_LIST, ceh.critical_illnesses, ceh.illness_other, 'ceh-illness-other')}</div>`
       )}
 
       <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
@@ -5423,8 +5470,6 @@
     const btn = document.getElementById('ben-submit-btn');
     btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">hourglass_empty</span>Saving...';
 
-    const splitArr = (id) => gv(id).split(',').map(s=>s.trim()).filter(Boolean);
-
     const familyMembers = Array.from(document.querySelectorAll('#ben-fam-members .ben-fam-card')).map((card, idx) => {
       const fi = card.getAttribute('data-fam-idx');
       return {
@@ -5437,8 +5482,8 @@
         is_solo_parent: gvb(`fam-${fi}-solo`),
         occupation: gv(`fam-${fi}-occ`),
         occupation_class: gv(`fam-${fi}-occclass`),
-        disabilities: splitArr(`fam-${fi}-disabilities`),
-        critical_illnesses: splitArr(`fam-${fi}-illnesses`),
+        disabilities: benCheckDropdownVals(`fam-${fi}-disabilities`),
+        critical_illnesses: benCheckDropdownVals(`fam-${fi}-illnesses`),
       };
     });
 
@@ -5457,8 +5502,8 @@
       },
       child_education_health: {
         highest_education: gv('ceh-edu'), highest_education_other: gv('ceh-edu-other'),
-        disabilities: splitArr('ceh-disabilities'),
-        critical_illnesses: splitArr('ceh-illnesses'),
+        disabilities: benCheckDropdownVals('ceh-disabilities'),
+        critical_illnesses: benCheckDropdownVals('ceh-illnesses'),
         illness_other: gv('ceh-illness-other'),
       },
       socio_economic: {
@@ -5514,7 +5559,7 @@
       const firstName = gv('child-fname');
       const lastName  = gv('child-lname');
       const newName   = [firstName, gv('child-mname'), lastName].filter(Boolean).join(' ');
-      const newDisabs = splitArr('ceh-disabilities');
+      const newDisabs = benCheckDropdownVals('ceh-disabilities');
       const newReadiness = gv('an-readiness');
       const newRegion = gv('child-region');
 
