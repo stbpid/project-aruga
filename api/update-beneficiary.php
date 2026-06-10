@@ -21,6 +21,8 @@ $assessmentId = $aRes['data'][0]['id'];
 function safe($arr, $key, $default = null) {
     return (isset($arr[$key]) && $arr[$key] !== '' && $arr[$key] !== null) ? $arr[$key] : $default;
 }
+$GLOBALS['updateWarnings'] = [];
+
 function patchTable($table, $assessmentId, $data) {
     // Remove null/empty values to avoid overwriting with blanks unintentionally
     $clean = array_filter($data, fn($v) => $v !== null && $v !== '');
@@ -30,10 +32,19 @@ function patchTable($table, $assessmentId, $data) {
     }
     if (empty($clean)) return;
     $res = supabaseRequest('PATCH', $table.'?assessment_id=eq.'.urlencode($assessmentId), $clean);
+    if (!$res['success']) {
+        $detail = is_array($res['data']) ? json_encode($res['data']) : ($res['error'] ?? 'unknown error');
+        $GLOBALS['updateWarnings'][] = "$table: $detail";
+        return;
+    }
     // If no row exists for this assessment yet, PATCH affects 0 rows but still "succeeds" - insert instead
-    if ($res['success'] && is_array($res['data']) && empty($res['data'])) {
+    if (is_array($res['data']) && empty($res['data'])) {
         $clean['assessment_id'] = $assessmentId;
-        supabaseRequest('POST', $table, $clean);
+        $insRes = supabaseRequest('POST', $table, $clean);
+        if (!$insRes['success']) {
+            $detail = is_array($insRes['data']) ? json_encode($insRes['data']) : ($insRes['error'] ?? 'unknown error');
+            $GLOBALS['updateWarnings'][] = "$table: $detail";
+        }
     }
 }
 
@@ -207,10 +218,20 @@ if (isset($body['assessment_notes'])) {
         'recommended_actions' => safe($an, 'recommended_actions'),
         'readiness_score'     => safe($an, 'readiness_score'),
     ]);
-    if (isset($an['readiness_score'])) {
-        supabaseRequest('PATCH', 'assessments?id=eq.'.urlencode($assessmentId), ['readiness_score' => $an['readiness_score']]);
+    if (!empty($an['readiness_score'])) {
+        $rsRes = supabaseRequest('PATCH', 'assessments?id=eq.'.urlencode($assessmentId), ['readiness_score' => $an['readiness_score']]);
+        if (!$rsRes['success']) {
+            $detail = is_array($rsRes['data']) ? json_encode($rsRes['data']) : ($rsRes['error'] ?? 'unknown error');
+            $GLOBALS['updateWarnings'][] = "assessments.readiness_score: $detail";
+        }
     }
 }
 
 logAudit('update', 'assessments', $assessmentId, null, ['aruga_id'=>$arugaId], null, $assessmentId);
+
+if (!empty($GLOBALS['updateWarnings'])) {
+    echo json_encode(['success'=>false,'message'=>'Some sections failed to save: '.implode('; ', $GLOBALS['updateWarnings'])]);
+    exit;
+}
+
 echo json_encode(['success'=>true,'message'=>'Beneficiary updated successfully']);
