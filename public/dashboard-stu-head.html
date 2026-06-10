@@ -3350,7 +3350,7 @@
     }
   }
 
-  function stuOpenReviewModal(row) {
+  async function stuOpenReviewModal(row) {
     stuEditRequestCurrent = row;
     const modal = document.getElementById('edit-request-modal-overlay');
     const interviewer = row.interviewers || {};
@@ -3360,13 +3360,21 @@
     document.getElementById('erm-action-err').textContent = '';
     document.getElementById('erm-note-required').style.display = 'none';
     document.getElementById('erm-note-hint').style.display = 'none';
-    document.getElementById('erm-change-summary').textContent = stuSummarizePayload(row.payload || {});
+    document.getElementById('erm-change-summary').textContent = 'Loading changes...';
     // Reset button states
     ['erm-btn-approved','erm-btn-for_update','erm-btn-declined'].forEach(id => {
       const b = document.getElementById(id); if (b) { b.disabled = false; b.style.opacity = '1'; }
     });
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+
+    try {
+      const res = await authFetch('/api/get-beneficiary-detail.php?aruga_id=' + encodeURIComponent(row.aruga_id));
+      const original = await res.json();
+      document.getElementById('erm-change-summary').textContent = stuSummarizePayloadDiff(row.payload || {}, original.success ? original : {});
+    } catch(e) {
+      document.getElementById('erm-change-summary').textContent = stuSummarizePayload(row.payload || {});
+    }
   }
 
   function closeEditRequestModal() {
@@ -3374,6 +3382,114 @@
     modal.style.display = 'none';
     document.body.style.overflow = '';
     stuEditRequestCurrent = null;
+  }
+
+  // Human-readable labels for fields that may appear in an edit request payload
+  const STU_FIELD_LABELS = {
+    first_name:'First Name', middle_name:'Middle Name', last_name:'Last Name', name_extension:'Name Extension',
+    date_of_birth:'Date of Birth', sex:'Sex', region:'Region', province:'Province', city_municipality:'City/Municipality',
+    barangay:'Barangay', street_address:'Street Address', contact_number:'Contact Number',
+    religion:'Religion', religion_other:'Religion (Other)', ip_membership:'IP Membership', ip_membership_other:'IP Membership (Other)',
+    full_name:'Full Name', relationship_to_child:'Relationship to Child', email:'Email',
+    is_4ps_member:'4Ps Member', household_id:'Household ID',
+    highest_education:'Highest Education', highest_education_other:'Highest Education (Other)',
+    disabilities:'Disabilities', critical_illnesses:'Critical Illnesses', illness_other:'Illness (Other)',
+    housing_materials:'Housing Materials', housing_materials_other:'Housing Materials (Other)',
+    tenure_status:'Tenure Status', tenure_status_other:'Tenure Status (Other)',
+    has_accessibility_modifications:'Has Accessibility Modifications', modification_details:'Modification Details',
+    water_source:'Water Source', water_source_other:'Water Source (Other)',
+    electricity_source:'Electricity Source', electricity_source_other:'Electricity Source (Other)',
+    toilet_type:'Toilet Type', toilet_type_other:'Toilet Type (Other)', is_toilet_accessible:'Toilet Accessible',
+    garbage_disposal:'Garbage Disposal', garbage_disposal_other:'Garbage Disposal (Other)',
+    has_all_vaccinations:'Has All Vaccinations', has_ongoing_health_conditions:'Has Ongoing Health Conditions',
+    health_conditions_details:'Health Conditions Details', availed_services_6months:'Availed Services (6mo)',
+    availed_services_details:'Availed Services Details',
+    expense_food:'Expense - Food', expense_medication:'Expense - Medication', expense_therapy:'Expense - Therapy',
+    expense_hygiene:'Expense - Hygiene', expense_assistive_device:'Expense - Assistive Device', expense_other:'Expense - Other',
+    has_barriers_to_healthcare:'Has Barriers to Healthcare', healthcare_barriers_details:'Healthcare Barriers Details',
+    is_currently_enrolled:'Currently Enrolled', grade_year_level:'Grade/Year Level', not_enrolled_reason:'Not Enrolled Reason',
+    has_accessibility_features:'Has Accessibility Features', accessibility_features_details:'Accessibility Features Details',
+    has_sped_programs:'Has SPED Programs', sped_programs_details:'SPED Programs Details',
+    receives_learning_support:'Receives Learning Support', learning_support_details:'Learning Support Details',
+    primary_income_source:'Primary Income Source', monthly_income:'Monthly Income', income_classification:'Income Classification',
+    are_parents_employed:'Parents Employed', employment_details:'Employment Details',
+    receives_financial_assistance:'Receives Financial Assistance', financial_assistance_details:'Financial Assistance Details',
+    is_aware_of_social_services:'Aware of Social Services', awareness_details:'Awareness Details',
+    has_availed_services:'Has Availed Services', service_challenges:'Service Challenges', service_challenges_other:'Service Challenges (Other)',
+    readiness_score:'Readiness Score', strengths:'Strengths', assessment_details:'Assessment Details', recommended_actions:'Recommended Actions',
+  };
+  const STU_SECTION_LABELS = {
+    child:'Child Info', respondent:'Respondent', pre_qualification:'Pre-Qualification',
+    child_education_health:'Child Education & Health', socio_economic:'Socio-Economic',
+    health_info:'Health Info', education_info:'Education Info', economic_capacity:'Economic Capacity',
+    service_availment:'Service Availment', assessment_notes:'Assessment Notes',
+  };
+
+  function stuFormatVal(v) {
+    if (v === null || v === undefined || v === '') return '(empty)';
+    if (Array.isArray(v)) return v.length ? v.join(', ') : '(empty)';
+    if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+    return String(v);
+  }
+  function stuValsEqual(a, b) {
+    const an = (a === null || a === undefined) ? '' : a;
+    const bn = (b === null || b === undefined) ? '' : b;
+    if (Array.isArray(an) || Array.isArray(bn)) {
+      return JSON.stringify([...(an||[])].sort()) === JSON.stringify([...(bn||[])].sort());
+    }
+    if (typeof an === 'boolean' || typeof bn === 'boolean') return !!an === !!bn;
+    return String(an) === String(bn);
+  }
+
+  // Compares the submitted payload against the beneficiary's current saved data
+  // and lists only the fields whose values actually changed.
+  function stuSummarizePayloadDiff(payload, original) {
+    const lines = [];
+
+    Object.keys(STU_SECTION_LABELS).forEach(section => {
+      const newSec = payload[section];
+      if (!newSec || typeof newSec !== 'object') return;
+      const origSec = original[section] || {};
+      const fieldChanges = [];
+      Object.keys(newSec).forEach(field => {
+        if (!stuValsEqual(newSec[field], origSec[field])) {
+          const label = STU_FIELD_LABELS[field] || field;
+          fieldChanges.push(label + ': ' + stuFormatVal(origSec[field]) + ' → ' + stuFormatVal(newSec[field]));
+        }
+      });
+      if (fieldChanges.length) {
+        lines.push(STU_SECTION_LABELS[section] + ':');
+        fieldChanges.forEach(c => lines.push('  ' + c));
+      }
+    });
+
+    // Family members: compare member-by-member
+    if (Array.isArray(payload.family_members)) {
+      const origMembers = Array.isArray(original.family_members) ? original.family_members : [];
+      const memberFieldLabels = {
+        full_name:'Name', relationship_to_head:'Relationship', age:'Age', sex:'Sex', civil_status:'Civil Status',
+        is_solo_parent:'Solo Parent', occupation:'Occupation', occupation_class:'Occupation Class',
+        disabilities:'Disabilities', critical_illnesses:'Critical Illnesses',
+      };
+      payload.family_members.forEach((m, idx) => {
+        const orig = origMembers[idx] || {};
+        const fieldChanges = [];
+        Object.keys(memberFieldLabels).forEach(field => {
+          if (!stuValsEqual(m[field], orig[field])) {
+            fieldChanges.push(memberFieldLabels[field] + ': ' + stuFormatVal(orig[field]) + ' → ' + stuFormatVal(m[field]));
+          }
+        });
+        if (fieldChanges.length) {
+          lines.push('Family Member ' + (idx + 1) + ':');
+          fieldChanges.forEach(c => lines.push('  ' + c));
+        }
+      });
+      if (origMembers.length > payload.family_members.length) {
+        lines.push('Family Members: ' + origMembers.length + ' → ' + payload.family_members.length + ' (members removed)');
+      }
+    }
+
+    return lines.length ? lines.join('\n') : 'No changes detected.';
   }
 
   function stuSummarizePayload(payload) {
