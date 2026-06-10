@@ -397,6 +397,7 @@ $locations = [
                 'Sampaloc',
                 'San Isidro (Bacon District)',
                 'San Isidro (Sorsogon East District)',
+                'San Isidro (West District)',
                 'San Juan (Bacon District)',
                 'San Juan (Roro)',
                 'San Pascual',
