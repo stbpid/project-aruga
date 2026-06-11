@@ -201,6 +201,7 @@ foreach ($members as $member) {
         'full_name'           => $member['full_name'] ?? '',
         'relationship_to_head'=> safe($member, 'relationship_to_head'),
         'is_solo_parent'      => (bool)($member['is_solo_parent'] ?? false),
+        'is_authorized_claimant' => (bool)($member['is_authorized_claimant'] ?? false),
         'civil_status'        => safe($member, 'civil_status'),
         'age'                 => $ageVal,
         'sex'                 => safe($member, 'sex'),

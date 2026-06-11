@@ -2281,8 +2281,22 @@ function getFamilyMemberCardHTML(num, isHead) {
               </label>
             </div>
           </div>
+          <div>
+            <label for="claimant-${num}-yes" class="block text-xs font-bold text-brand-dark mb-1">Authorized Claimant</label>
+            <div class="slide-toggle-container h-9 w-full">
+              <div class="slide-toggle-slider"></div>
+              <label for="claimant-${num}-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                <input type="radio" name="claimant-${num}" id="claimant-${num}-yes" value="Yes" data-field="is_authorized_claimant" class="hidden">
+                <span>Yes</span>
+              </label>
+              <label for="claimant-${num}-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                <input type="radio" name="claimant-${num}" id="claimant-${num}-no" value="No" data-field="is_authorized_claimant" class="hidden" checked>
+                <span>No</span>
+              </label>
+            </div>
+          </div>
         </div>
-        
+
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
             <label for="fam-civil-${num}" class="block text-xs font-bold text-brand-dark mb-1">Civil Status <span class="text-red-500">*</span></label>
@@ -3297,6 +3311,7 @@ function collectFormData() {
     const civilEl   = card.querySelector('[data-field="civil_status"]');
     const ageEl     = card.querySelector('[data-field="age"]');
     const soloInput = card.querySelector('input[data-field="is_solo_parent"]:checked');
+    const claimantInput = card.querySelector('input[data-field="is_authorized_claimant"]:checked');
     const sexInput  = card.querySelector('input[data-field="member_sex"]:checked');
     const occEl     = document.getElementById(`dd-fam-occ-${origNum}`);
     const classEl   = document.getElementById(`dd-fam-class-${origNum}`);
@@ -3308,6 +3323,7 @@ function collectFormData() {
       full_name:            nameEl  ? nameEl.value.trim()  : '',
       relationship_to_head: relEl   ? (relEl.value   || null) : null,
       is_solo_parent:       soloInput ? soloInput.value === 'Yes' : false,
+      is_authorized_claimant: claimantInput ? claimantInput.value === 'Yes' : false,
       civil_status:         civilEl ? (civilEl.value || null) : null,
       age:                  ageEl && ageEl.value ? (parseInt(ageEl.value) || null) : null,
       sex:                  sexInput ? sexInput.value : null,
