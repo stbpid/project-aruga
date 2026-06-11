@@ -1367,6 +1367,7 @@
         ${foBenSelect(`fam-${i}-sex`, 'Sex', m.sex, OPT_SEX)}
         ${foBenSelect(`fam-${i}-civil`, 'Civil Status', m.civil_status, OPT_CIVIL)}
         ${foBenSelect(`fam-${i}-solo`, 'Solo Parent', yesNoBool(m.is_solo_parent), yesNo())}
+        ${foBenSelect(`fam-${i}-claimant`, 'Authorized Claimant', yesNoBool(m.is_authorized_claimant), yesNo())}
         ${foBenSelect(`fam-${i}-occ`, 'Occupation', m.occupation, OPT_OCCUPATION)}
         ${foBenSelect(`fam-${i}-occclass`, 'Occupation Class', m.occupation_class, OPT_OCC_CLASS)}
         <div style="grid-column:1/-1;">${foBenCheckDropdown(`fam-${i}-disabilities`, 'Disabilities', FO_OPT_DISABILITY_LIST, m.disabilities, null, null)}</div>
@@ -1581,6 +1582,7 @@
         sex: fobgv(`fam-${fi}-sex`),
         civil_status: fobgv(`fam-${fi}-civil`),
         is_solo_parent: fobgvb(`fam-${fi}-solo`),
+        is_authorized_claimant: fobgvb(`fam-${fi}-claimant`),
         occupation: fobgv(`fam-${fi}-occ`),
         occupation_class: fobgv(`fam-${fi}-occclass`),
         disabilities: foCheckDropdownVals(`fam-${fi}-disabilities`),

@@ -1588,6 +1588,7 @@
         ${stuBenSelect(`fam-${i}-sex`, 'Sex', m.sex, OPT_SEX)}
         ${stuBenSelect(`fam-${i}-civil`, 'Civil Status', m.civil_status, OPT_CIVIL)}
         ${stuBenSelect(`fam-${i}-solo`, 'Solo Parent', yesNoBool(m.is_solo_parent), yesNo())}
+        ${stuBenSelect(`fam-${i}-claimant`, 'Authorized Claimant', yesNoBool(m.is_authorized_claimant), yesNo())}
         ${stuBenSelect(`fam-${i}-occ`, 'Occupation', m.occupation, OPT_OCCUPATION)}
         ${stuBenSelect(`fam-${i}-occclass`, 'Occupation Class', m.occupation_class, OPT_OCC_CLASS)}
         <div style="grid-column:1/-1;">${stuBenCheckDropdown(`fam-${i}-disabilities`, 'Disabilities', STU_OPT_DISABILITY_LIST, m.disabilities, null, null)}</div>
@@ -1801,6 +1802,7 @@
         sex: stubgv(`fam-${fi}-sex`),
         civil_status: stubgv(`fam-${fi}-civil`),
         is_solo_parent: stubgvb(`fam-${fi}-solo`),
+        is_authorized_claimant: stubgvb(`fam-${fi}-claimant`),
         occupation: stubgv(`fam-${fi}-occ`),
         occupation_class: stubgv(`fam-${fi}-occclass`),
         disabilities: stuCheckDropdownVals(`fam-${fi}-disabilities`),

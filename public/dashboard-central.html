@@ -1108,6 +1108,7 @@
         ${coBenSelect(`fam-${i}-sex`, 'Sex', m.sex, OPT_SEX)}
         ${coBenSelect(`fam-${i}-civil`, 'Civil Status', m.civil_status, OPT_CIVIL)}
         ${coBenSelect(`fam-${i}-solo`, 'Solo Parent', yesNoBool(m.is_solo_parent), yesNo())}
+        ${coBenSelect(`fam-${i}-claimant`, 'Authorized Claimant', yesNoBool(m.is_authorized_claimant), yesNo())}
         ${coBenSelect(`fam-${i}-occ`, 'Occupation', m.occupation, OPT_OCCUPATION)}
         ${coBenSelect(`fam-${i}-occclass`, 'Occupation Class', m.occupation_class, OPT_OCC_CLASS)}
         <div style="grid-column:1/-1;">${coBenCheckDropdown(`fam-${i}-disabilities`, 'Disabilities', CO_OPT_DISABILITY_LIST, m.disabilities, null, null)}</div>
@@ -1377,6 +1378,7 @@
         sex: cogv(`fam-${fi}-sex`),
         civil_status: cogv(`fam-${fi}-civil`),
         is_solo_parent: cogvb(`fam-${fi}-solo`),
+        is_authorized_claimant: cogvb(`fam-${fi}-claimant`),
         occupation: cogv(`fam-${fi}-occ`),
         occupation_class: cogv(`fam-${fi}-occclass`),
         disabilities: coCheckDropdownVals(`fam-${fi}-disabilities`),
