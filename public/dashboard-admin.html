@@ -7478,9 +7478,9 @@
       background: #fff;
     }
     .hdr-inner { display: flex; align-items: center; gap: 10px; }
+    .hdr-logo { display: flex; align-items: center; gap: 10px; }
     .hdr-logo img { height: 50px; width: auto; object-fit: contain; }
-    .hdr-text-wrap { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; }
-    .hdr-text-wrap img { height: 50px; width: auto; object-fit: contain; }
+    .hdr-text-wrap { flex: 1; display: flex; align-items: center; justify-content: center; }
     .hdr-text { text-align: right; font-size: 9pt; line-height: 1.4; }
     .hdr-rule { border: none; border-top: 2px solid #000; margin-top: 3px; }
     .hdr-subtitle { text-align: center; font-weight: bold; font-size: 10pt; margin-top: 3px; line-height: 1.4; }
@@ -7517,6 +7517,7 @@
     <div class="hdr-inner">
       <div class="hdr-logo">
         <img src="${dswdLogoUrl}" alt="DSWD" onerror="this.style.display='none'">
+        <img src="${bpLogoUrl}" alt="Bagong Pilipinas" onerror="this.style.display='none'">
       </div>
       <div class="hdr-text-wrap">
         <div class="hdr-text">
@@ -7524,7 +7525,6 @@
           <div>Department of Social Welfare and Development</div>
           <div>Field Office - ${regionLabel}</div>
         </div>
-        <img src="${bpLogoUrl}" alt="Bagong Pilipinas" onerror="this.style.display='none'">
       </div>
     </div>
     <hr class="hdr-rule">
