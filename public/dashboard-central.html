@@ -247,7 +247,7 @@
               4Ps Only
             </label>
             <button class="btn btn-secondary btn-sm" id="co-ben-reset">Reset</button>
-            <button class="btn btn-primary btn-sm" id="co-ben-payout-btn" onclick="coBenGeneratePayoutList()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payout List</button>
+            <button class="btn btn-primary btn-sm" id="co-ben-payout-btn" onclick="coBenGeneratePayoutList()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll</button>
             <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="co-ben-count">—</span>
           </div>
         </div>
@@ -2804,7 +2804,7 @@
       showGlobalToast('Error generating payout list.', 'error');
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payout List';
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
     }
   }
 
