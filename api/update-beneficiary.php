@@ -200,6 +200,7 @@ if (isset($body['family_members']) && is_array($body['family_members'])) {
             'sex'                 => safe($m, 'sex'),
             'civil_status'        => safe($m, 'civil_status'),
             'is_solo_parent'      => (bool)($m['is_solo_parent'] ?? false),
+            'is_authorized_claimant' => (bool)($m['is_authorized_claimant'] ?? false),
             'occupation'          => safe($m, 'occupation'),
             'occupation_class'    => safe($m, 'occupation_class'),
             'disabilities'        => $m['disabilities'] ?? [],

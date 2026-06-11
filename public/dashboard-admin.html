@@ -5173,6 +5173,7 @@
         ${benSelect(`fam-${i}-sex`, 'Sex', m.sex, OPT_SEX)}
         ${benSelect(`fam-${i}-civil`, 'Civil Status', m.civil_status, OPT_CIVIL)}
         ${benSelect(`fam-${i}-solo`, 'Solo Parent', yesNoBool(m.is_solo_parent), yesNo())}
+        ${benSelect(`fam-${i}-claimant`, 'Authorized Claimant', yesNoBool(m.is_authorized_claimant), yesNo())}
         ${benSelect(`fam-${i}-occ`, 'Occupation', m.occupation, OPT_OCCUPATION)}
         ${benSelect(`fam-${i}-occclass`, 'Occupation Class', m.occupation_class, OPT_OCC_CLASS)}
         <div style="grid-column:1/-1;">${benCheckDropdown(`fam-${i}-disabilities`, 'Disabilities', OPT_DISABILITY_LIST, m.disabilities, null, null)}</div>
@@ -5507,6 +5508,7 @@
         sex: gv(`fam-${fi}-sex`),
         civil_status: gv(`fam-${fi}-civil`),
         is_solo_parent: gvb(`fam-${fi}-solo`),
+        is_authorized_claimant: gvb(`fam-${fi}-claimant`),
         occupation: gv(`fam-${fi}-occ`),
         occupation_class: gv(`fam-${fi}-occclass`),
         disabilities: benCheckDropdownVals(`fam-${fi}-disabilities`),
