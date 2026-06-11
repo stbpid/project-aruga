@@ -443,6 +443,7 @@ table.dash-table {
 
 .badge-green { background: rgba(16,185,129,0.1); color: #059669; }
 .badge-yellow { background: rgba(245,158,11,0.1); color: #d97706; }
+.badge-orange { background: rgba(234,88,12,0.1); color: #ea580c; }
 .badge-red { background: rgba(239,68,68,0.1); color: #dc2626; }
 .badge-blue { background: rgba(17,82,212,0.1); color: var(--blue); }
 .badge-gray { background: var(--gray-100); color: var(--gray-600); }
