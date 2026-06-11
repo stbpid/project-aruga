@@ -7460,6 +7460,7 @@
       const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
       const dswdLogoUrl = window.location.origin + '/images/form-logo.webp';
+      const bpLogoUrl = window.location.origin + '/images/bagong-pilipinas.webp';
       const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -7478,7 +7479,9 @@
     }
     .hdr-inner { display: flex; align-items: center; gap: 10px; }
     .hdr-logo img { height: 50px; width: auto; object-fit: contain; }
-    .hdr-text { flex: 1; text-align: right; font-size: 9pt; line-height: 1.4; }
+    .hdr-text-wrap { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .hdr-text-wrap img { height: 50px; width: auto; object-fit: contain; }
+    .hdr-text { text-align: right; font-size: 9pt; line-height: 1.4; }
     .hdr-rule { border: none; border-top: 2px solid #000; margin-top: 3px; }
     .hdr-subtitle { text-align: center; font-weight: bold; font-size: 10pt; margin-top: 3px; line-height: 1.4; }
 
@@ -7515,10 +7518,13 @@
       <div class="hdr-logo">
         <img src="${dswdLogoUrl}" alt="DSWD" onerror="this.style.display='none'">
       </div>
-      <div class="hdr-text">
-        <div>Republic of the Philippines</div>
-        <div>Department of Social Welfare and Development</div>
-        <div>Field Office - ${regionLabel}</div>
+      <div class="hdr-text-wrap">
+        <div class="hdr-text">
+          <div>Republic of the Philippines</div>
+          <div>Department of Social Welfare and Development</div>
+          <div>Field Office - ${regionLabel}</div>
+        </div>
+        <img src="${bpLogoUrl}" alt="Bagong Pilipinas" onerror="this.style.display='none'">
       </div>
     </div>
     <hr class="hdr-rule">
