@@ -7442,7 +7442,8 @@
         return true;
       });
 
-      const rows = uniqueBen.map((r, i) => {
+      const ROWS_PER_PAGE = 25;
+      const allRows = uniqueBen.map((r, i) => {
         const pd = payoutMap[r.aruga_id] || {};
         const beneficiaryName = (pd.beneficiary_name || r.name || '').toUpperCase();
         const claimantName = (pd.claimant_name || '').toUpperCase();
@@ -7455,7 +7456,44 @@
           <td></td>
           <td></td>
         </tr>`;
-      }).join('');
+      });
+
+      const tableHead = `
+        <thead>
+          <tr>
+            <th style="width:5%;">NO.</th>
+            <th style="width:16%;">PROJECT ARUGA<br>ID NO.</th>
+            <th style="width:20%;">BENEFICIARY'S NAME</th>
+            <th style="width:20%;">AUTHORIZED CLAIMANT</th>
+            <th style="width:11%;">AMOUNT<br>RECEIVED</th>
+            <th style="width:14%;">DATE<br>RECEIVED</th>
+            <th style="width:14%;">CLAIMANT'S<br>SIGNATURE</th>
+          </tr>
+        </thead>`;
+
+      const pages = [];
+      for (let p = 0; p < allRows.length; p += ROWS_PER_PAGE) {
+        const pageRows = allRows.slice(p, p + ROWS_PER_PAGE).join('');
+        pages.push(`
+    <div class="page-content">
+      <table>
+        ${tableHead}
+        <tbody>
+          ${pageRows}
+        </tbody>
+      </table>
+    </div>`);
+      }
+      if (!pages.length) {
+        pages.push(`
+    <div class="page-content">
+      <table>
+        ${tableHead}
+        <tbody></tbody>
+      </table>
+    </div>`);
+      }
+      const pagesHtml = pages.join('\n    <div class="page-break"></div>\n');
 
       const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
@@ -7494,8 +7532,8 @@
     .ftr-rule { border: none; border-top: 1px solid #ccc; margin-bottom: 2px; }
     .ftr-text { text-align: center; font-size: 7.5pt; color: #555; }
 
-    #page-content {
-      margin-top: 52mm;
+    .page-content {
+      margin-top: 38mm;
       margin-bottom: 12mm;
       padding: 0 12mm;
     }
@@ -7505,8 +7543,10 @@
     th { font-weight: bold; text-align: center; background: #fff; }
     tr { height: 22px; }
 
+    .page-break { break-after: page; page-break-after: always; }
+
     @media print {
-      #page-content { margin-top: 52mm; margin-bottom: 12mm; }
+      .page-content { margin-top: 38mm; margin-bottom: 12mm; }
     }
   </style>
 </head>
@@ -7541,24 +7581,7 @@
   </div>
 
   <!-- Content -->
-  <div id="page-content">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:5%;">NO.</th>
-          <th style="width:16%;">PROJECT ARUGA<br>ID NO.</th>
-          <th style="width:20%;">BENEFICIARY'S NAME</th>
-          <th style="width:20%;">AUTHORIZED CLAIMANT</th>
-          <th style="width:11%;">AMOUNT<br>RECEIVED</th>
-          <th style="width:14%;">DATE<br>RECEIVED</th>
-          <th style="width:14%;">CLAIMANT'S<br>SIGNATURE</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows}
-      </tbody>
-    </table>
-  </div>
+  ${pagesHtml}
 
 </body>
 </html>`;
