@@ -41,19 +41,22 @@ if (empty($assessments)) {
 // Get all assessment IDs
 $ids = array_column($assessments, 'id');
 
-// Fetch member_number = 1 for each assessment (head of household)
+// Fetch family members marked as authorized claimant for each assessment
 $familyResult = supabaseRequest('GET',
-    'family_members?select=assessment_id,full_name,relationship_to_head&member_number=eq.1&limit=100000'
+    'family_members?select=assessment_id,full_name,is_authorized_claimant&is_authorized_claimant=eq.true&limit=100000'
 );
 
-// Build family member map (assessment_id => member #1)
+// Build family member map (assessment_id => list of authorized claimant names)
 $familyMap = [];
 if ($familyResult['success'] && !empty($familyResult['data'])) {
     foreach ($familyResult['data'] as $fm) {
         $aid = $fm['assessment_id'];
+        $name = trim($fm['full_name'] ?? '');
+        if ($name === '') continue;
         if (!isset($familyMap[$aid])) {
-            $familyMap[$aid] = $fm;
+            $familyMap[$aid] = [];
         }
+        $familyMap[$aid][] = $name;
     }
 }
 
@@ -70,9 +73,9 @@ foreach ($assessments as $a) {
     if ($firstName) $beneficiaryName .= ', ' . $firstName;
     if ($middleName) $beneficiaryName .= ' ' . $middleName;
 
-    // Authorized claimant = family member #1 (head of household)
-    $fm = $familyMap[$a['id']] ?? null;
-    $claimantName = trim($fm['full_name'] ?? '');
+    // Authorized claimant(s)
+    $claimantNames = $familyMap[$a['id']] ?? [];
+    $claimantName = implode(', ', $claimantNames);
 
     $rows[] = [
         'aruga_id'         => $a['aruga_id']   ?? '—',
