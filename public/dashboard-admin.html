@@ -5134,8 +5134,9 @@
   function downloadBenQR() {
     if (!benModalData || !benModalData.assessment) return;
     const arugaId = benModalData.assessment.aruga_id;
+    const profileUrl = window.location.origin + '/profile?id=' + encodeURIComponent(arugaId);
     const qr = qrcode(0, 'M');
-    qr.addData(arugaId);
+    qr.addData(profileUrl);
     qr.make();
 
     const cellSize = 8, margin = 2;
