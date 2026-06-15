@@ -367,6 +367,7 @@
             <div class="page-title" style="margin:0;" id="ben-modal-title">Beneficiary Details</div>
           </div>
           <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;">
+            <button class="btn btn-secondary btn-sm" id="ben-qr-btn" onclick="downloadBenQR()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">qr_code_2</span>Download QR</button>
             <button class="btn btn-primary btn-sm" id="ben-submit-btn" onclick="submitBenUpdate()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save Changes</button>
           </div>
         </div>
@@ -2521,6 +2522,7 @@
 
 <script src="/js/dashboard-auth.js"></script>
 <script src="/js/dashboard-common.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
   dashRequireAuth();
 
@@ -5127,6 +5129,19 @@
     } catch(e) {
       body.innerHTML = `<div style="text-align:center;padding:3rem;color:#dc2626;font-size:0.875rem;">Failed to load: ${e.message}</div>`;
     }
+  }
+
+  function downloadBenQR() {
+    if (!benModalData || !benModalData.assessment) return;
+    const arugaId = benModalData.assessment.aruga_id;
+    const name = benModalData.assessment.name || arugaId;
+    QRCode.toDataURL(arugaId, { width: 400, margin: 2 }, (err, url) => {
+      if (err) { showGlobalToast('Failed to generate QR code', 'error'); return; }
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `QR-${arugaId}.png`;
+      a.click();
+    });
   }
 
   function benInput(id, label, val, type='text', required=false) {
