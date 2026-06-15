@@ -286,6 +286,7 @@
             <div class="page-title" style="margin:0;" id="co-ben-modal-title">Beneficiary Details</div>
           </div>
           <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;">
+            <button class="btn btn-secondary btn-sm" id="co-ben-qr-btn" onclick="coDownloadBenQR()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">qr_code_2</span>Download QR</button>
             <button class="btn btn-primary btn-sm" id="co-ben-submit-btn" onclick="coSubmitBenUpdate()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save Changes</button>
           </div>
         </div>
@@ -766,6 +767,7 @@
 
 <script src="/js/dashboard-auth.js"></script>
 <script src="/js/dashboard-common.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="/js/dashboard-analytics.js"></script>
 <script>
   dashRequireAuth();
@@ -986,6 +988,38 @@
 
   // ── Beneficiary Detail / Edit View ────────────────────────────
   let coBenModalData = {};
+
+  function coDownloadBenQR() {
+    if (!coBenModalData || !coBenModalData.assessment) return;
+    const arugaId = coBenModalData.assessment.aruga_id;
+    const profileUrl = window.location.origin + '/profile?id=' + encodeURIComponent(arugaId);
+    const qr = qrcode(0, 'M');
+    qr.addData(profileUrl);
+    qr.make();
+
+    const cellSize = 8, margin = 2;
+    const count = qr.getModuleCount();
+    const size = (count + margin * 2) * cellSize;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = '#000000';
+    for (let row = 0; row < count; row++) {
+      for (let col = 0; col < count; col++) {
+        if (qr.isDark(row, col)) {
+          ctx.fillRect((col + margin) * cellSize, (row + margin) * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `QR-${arugaId}.png`;
+    a.click();
+  }
 
   function coCloseBenModal() {
     document.getElementById('co-ben-list-view').style.display = '';
