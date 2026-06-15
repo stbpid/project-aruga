@@ -366,6 +366,7 @@
           </div>
           <div style="margin-left:auto;display:flex;gap:0.5rem;">
             <span id="fo-bene-save-err" style="font-size:0.75rem;color:#dc2626;align-self:center;"></span>
+            <button class="btn btn-secondary btn-sm" id="fo-bene-qr-btn" onclick="foDownloadBenQR()"><span class="material-symbols-outlined" style="font-size:0.875rem;">qr_code_2</span>Download QR</button>
             <button class="btn btn-primary btn-sm" id="fo-bene-save-btn" onclick="foSaveBeneficiary()"><span class="material-symbols-outlined" style="font-size:0.875rem;">send</span>Submit for Approval</button>
           </div>
         </div>
@@ -822,6 +823,7 @@
 
 <script src="/js/dashboard-auth.js"></script>
 <script src="/js/dashboard-common.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script>
   dashRequireAuth();
 
@@ -1188,6 +1190,38 @@
 
   // ── Beneficiary Detail / Edit ────────────────────────────────
   let foBeneDetailData = null;
+
+  function foDownloadBenQR() {
+    if (!foBeneDetailData || !foBeneDetailData.assessment) return;
+    const arugaId = foBeneDetailData.assessment.aruga_id;
+    const profileUrl = window.location.origin + '/profile?id=' + encodeURIComponent(arugaId);
+    const qr = qrcode(0, 'M');
+    qr.addData(profileUrl);
+    qr.make();
+
+    const cellSize = 8, margin = 2;
+    const count = qr.getModuleCount();
+    const size = (count + margin * 2) * cellSize;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = '#000000';
+    for (let row = 0; row < count; row++) {
+      for (let col = 0; col < count; col++) {
+        if (qr.isDark(row, col)) {
+          ctx.fillRect((col + margin) * cellSize, (row + margin) * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `QR-${arugaId}.png`;
+    a.click();
+  }
 
   function foBeneBack() {
     document.getElementById('fo-bene-list-view').style.display = '';
