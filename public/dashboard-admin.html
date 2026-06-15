@@ -2522,7 +2522,7 @@
 
 <script src="/js/dashboard-auth.js"></script>
 <script src="/js/dashboard-common.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/lib/browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script>
   dashRequireAuth();
 
@@ -5134,14 +5134,32 @@
   function downloadBenQR() {
     if (!benModalData || !benModalData.assessment) return;
     const arugaId = benModalData.assessment.aruga_id;
-    const name = benModalData.assessment.name || arugaId;
-    QRCode.toDataURL(arugaId, { width: 400, margin: 2 }, (err, url) => {
-      if (err) { showGlobalToast('Failed to generate QR code', 'error'); return; }
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `QR-${arugaId}.png`;
-      a.click();
-    });
+    const qr = qrcode(0, 'M');
+    qr.addData(arugaId);
+    qr.make();
+
+    const cellSize = 8, margin = 2;
+    const count = qr.getModuleCount();
+    const size = (count + margin * 2) * cellSize;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = '#000000';
+    for (let row = 0; row < count; row++) {
+      for (let col = 0; col < count; col++) {
+        if (qr.isDark(row, col)) {
+          ctx.fillRect((col + margin) * cellSize, (row + margin) * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `QR-${arugaId}.png`;
+    a.click();
   }
 
   function benInput(id, label, val, type='text', required=false) {
