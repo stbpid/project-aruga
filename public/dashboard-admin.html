@@ -7644,5 +7644,32 @@
   }
 
 </script>
+
+<!-- System Update Modal -->
+<div id="system-update-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(2px);align-items:center;justify-content:center;">
+  <div style="position:relative;max-width:560px;width:calc(100% - 2rem);background:#fff;border-radius:1rem;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <button onclick="closeSystemUpdateModal()" style="position:absolute;top:0.75rem;right:0.75rem;z-index:1;width:2rem;height:2rem;border-radius:50%;border:none;background:rgba(0,0,0,0.45);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;line-height:1;" title="Close">&#x2715;</button>
+    <img src="/system-update.png" alt="System Update" style="width:100%;display:block;border-radius:1rem;">
+  </div>
+</div>
+
+<script>
+  (function() {
+    const KEY = 'aruga_system_update_seen_admin';
+    if (!localStorage.getItem(KEY)) {
+      const modal = document.getElementById('system-update-modal');
+      modal.style.display = 'flex';
+    }
+  })();
+
+  function closeSystemUpdateModal() {
+    document.getElementById('system-update-modal').style.display = 'none';
+    localStorage.setItem('aruga_system_update_seen_admin', '1');
+  }
+
+  document.getElementById('system-update-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeSystemUpdateModal();
+  });
+</script>
 </body>
 </html>
