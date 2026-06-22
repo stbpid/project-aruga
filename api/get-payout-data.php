@@ -12,19 +12,30 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 $region = getStr('region');
 
-// Fetch assessments with child data
-$endpoint = 'assessments?select=id,aruga_id,status,children(first_name,last_name,middle_name,region)&deleted_at=is.null&order=created_at.asc&limit=10000';
-if ($region) {
-    $endpoint .= '&children.region=eq.' . urlencode($region);
+// Fetch assessments with child data, paginating since PostgREST caps rows per request
+// regardless of the `limit` query param (project max-rows setting).
+$pageSize = 1000;
+$offset = 0;
+$assessments = [];
+while (true) {
+    $endpoint = 'assessments?select=id,aruga_id,status,children(first_name,last_name,middle_name,region)'
+        . '&deleted_at=is.null&order=created_at.asc&limit=' . $pageSize . '&offset=' . $offset;
+    if ($region) {
+        $endpoint .= '&children.region=eq.' . urlencode($region);
+    }
+
+    $result = supabaseRequest('GET', $endpoint);
+
+    if (!$result['success']) {
+        echo json_encode(['success' => false, 'message' => 'Failed to fetch data']); exit;
+    }
+
+    $page = $result['data'] ?? [];
+    $assessments = array_merge($assessments, $page);
+
+    if (count($page) < $pageSize) break;
+    $offset += $pageSize;
 }
-
-$result = supabaseRequest('GET', $endpoint);
-
-if (!$result['success']) {
-    echo json_encode(['success' => false, 'message' => 'Failed to fetch data']); exit;
-}
-
-$assessments = $result['data'] ?? [];
 
 // Filter by region on PHP side (Supabase embedded filter may not work as expected)
 if ($region) {
@@ -41,15 +52,19 @@ if (empty($assessments)) {
 // Get all assessment IDs
 $ids = array_column($assessments, 'id');
 
-// Fetch family members marked as authorized claimant for each assessment
-$familyResult = supabaseRequest('GET',
-    'family_members?select=assessment_id,full_name,is_authorized_claimant&is_authorized_claimant=eq.true&limit=100000'
-);
-
-// Build family member map (assessment_id => list of authorized claimant names)
+// Fetch family members marked as authorized claimant for each assessment (paginated)
 $familyMap = [];
-if ($familyResult['success'] && !empty($familyResult['data'])) {
-    foreach ($familyResult['data'] as $fm) {
+$famOffset = 0;
+while (true) {
+    $familyResult = supabaseRequest('GET',
+        'family_members?select=assessment_id,full_name,is_authorized_claimant&is_authorized_claimant=eq.true'
+        . '&limit=' . $pageSize . '&offset=' . $famOffset
+    );
+
+    if (!$familyResult['success']) break;
+
+    $famPage = $familyResult['data'] ?? [];
+    foreach ($famPage as $fm) {
         $aid = $fm['assessment_id'];
         $name = trim($fm['full_name'] ?? '');
         if ($name === '') continue;
@@ -58,6 +73,9 @@ if ($familyResult['success'] && !empty($familyResult['data'])) {
         }
         $familyMap[$aid][] = $name;
     }
+
+    if (count($famPage) < $pageSize) break;
+    $famOffset += $pageSize;
 }
 
 // Build final payout rows
