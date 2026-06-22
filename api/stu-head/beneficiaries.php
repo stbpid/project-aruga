@@ -14,7 +14,7 @@ $region  = getStr('region');
 requireRegion($region);
 $search  = trim($_GET['search']  ?? '');
 $status  = trim($_GET['status']  ?? '');
-$limit   = max(1, min(100, (int)($_GET['limit']  ?? 50)));
+$limit   = max(1, min(10000, (int)($_GET['limit']  ?? 50)));
 $offset  = getInt('offset', 0, 0);
 
 if (!$region) {
