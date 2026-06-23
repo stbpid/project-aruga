@@ -81,38 +81,41 @@ function fetchAllRows($tableName) {
     return $rows;
 }
 
-$exportData = [];
-$totalRows  = 0;
-
-foreach ($tables as $t) {
-    $rows             = fetchAllRows($t);
-    $exportData[$t]   = $rows;
-    $totalRows       += count($rows);
-}
-
 $timestamp = date('Y-m-d_His');
 
 // ── JSON export ──────────────────────────────────────────────────────────────
+// Streamed table-by-table so memory never holds more than one table at a time
+// (holding all 15 tables, especially audit_logs, in memory at once caused 500s).
 if ($format === 'json') {
     $filename = 'aruga-backup-' . ($table === 'all' ? 'all-tables' : $table) . '-' . $timestamp . '.json';
     header('Content-Type: application/json');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
-    echo json_encode([
-        'exported_at'  => date('c'),
-        'total_tables' => count($tables),
-        'total_rows'   => $totalRows,
-        'tables'       => $exportData,
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+    echo '{"exported_at":' . json_encode(date('c')) . ',"total_tables":' . count($tables) . ',"tables":{';
+    $totalRows = 0;
+    $first = true;
+    foreach ($tables as $t) {
+        $rows = fetchAllRows($t);
+        $totalRows += count($rows);
+        if (!$first) echo ',';
+        $first = false;
+        echo json_encode($t, JSON_UNESCAPED_UNICODE) . ':' . json_encode($rows, JSON_UNESCAPED_UNICODE);
+        unset($rows);
+        flush();
+    }
+    echo '},"total_rows":' . $totalRows . '}';
     exit;
 }
 
 // ── CSV export (one file per table, delivered as a single CSV if one table,
 //    or as a JSON manifest listing per-table CSVs if multiple — browser-friendly) ─
+// Tables are fetched one at a time (not prefetched all at once) to avoid
+// holding every table in memory simultaneously, which caused 500s on "all tables".
 if ($format === 'csv') {
     if (count($tables) === 1) {
         // Single table → return raw CSV
         $t    = $tables[0];
-        $rows = $exportData[$t];
+        $rows = fetchAllRows($t);
         $filename = 'aruga-' . $t . '-' . $timestamp . '.csv';
 
         header('Content-Type: text/csv; charset=UTF-8');
@@ -141,7 +144,7 @@ if ($format === 'csv') {
     header('Content-Type: application/json');
     $bundle = [];
     foreach ($tables as $t) {
-        $rows = $exportData[$t];
+        $rows = fetchAllRows($t);
         ob_start();
         $out = fopen('php://output', 'w');
         fwrite($out, "\xEF\xBB\xBF");
