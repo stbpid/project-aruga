@@ -29,23 +29,10 @@ if (empty($validToken) || empty($token) || !hash_equals($validToken, $token)) {
 $body   = json_decode(file_get_contents('php://input'), true) ?? [];
 $format = strtolower($body['format'] ?? 'json'); // 'json' or 'csv'
 $table  = $body['table'] ?? 'all'; // specific table name or 'all'
-$debug  = !empty($body['debug']); // TEMP: when true, report fatal errors as JSON instead of a bare 500
 
-if ($debug) {
-    ini_set('display_errors', 0);
-    register_shutdown_function(function () {
-        $e = error_get_last();
-        if ($e && in_array($e['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
-            if (!headers_sent()) {
-                http_response_code(500);
-                header('Content-Type: application/json');
-            }
-            echo json_encode(['success' => false, 'debug_fatal' => $e]);
-        }
-    });
-}
-
-// All exportable tables (exclude nothing — admin has full access)
+// Exportable tables. audit_logs is excluded — it grows unbounded and was
+// causing the "all tables" backup to time out / 500 on Vercel. Export it
+// separately (table=audit_logs) or via the Supabase SQL editor if needed.
 $tables = [
     'interviewers',
     'sessions',
@@ -61,12 +48,12 @@ $tables = [
     'economic_capacity',
     'service_availment',
     'assessment_notes',
-    'audit_logs',
 ];
 
-// If a specific table is requested, validate it
+// If a specific table is requested, validate it (audit_logs is only
+// exportable this way, not as part of "all", since it's excluded above)
 if ($table !== 'all') {
-    if (!in_array($table, $tables, true)) {
+    if ($table !== 'audit_logs' && !in_array($table, $tables, true)) {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'Unknown table: ' . $table]);
         exit;
@@ -105,27 +92,6 @@ if ($format === 'json') {
     $filename = 'aruga-backup-' . ($table === 'all' ? 'all-tables' : $table) . '-' . $timestamp . '.json';
     header('Content-Type: application/json');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
-
-    if ($debug) {
-        // TEMP: report per-table timing/row counts as plain JSON, no file download,
-        // so we can see exactly where "all tables" is failing.
-        header('Content-Type: application/json');
-        $report = [];
-        $start = microtime(true);
-        foreach ($tables as $t) {
-            $tStart = microtime(true);
-            $rows = fetchAllRows($t);
-            $report[] = [
-                'table'        => $t,
-                'rows'         => count($rows),
-                'seconds'      => round(microtime(true) - $tStart, 2),
-                'elapsed_total'=> round(microtime(true) - $start, 2),
-            ];
-            unset($rows);
-        }
-        echo json_encode(['success' => true, 'debug_report' => $report], JSON_PRETTY_PRINT);
-        exit;
-    }
 
     echo '{"exported_at":' . json_encode(date('c')) . ',"total_tables":' . count($tables) . ',"tables":{';
     $totalRows = 0;
