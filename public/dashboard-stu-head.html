@@ -2424,6 +2424,8 @@
     try {
       const region = sessionStorage.getItem('interviewer_region') || '';
       if (!region) { showGlobalToast('Region not found. Please re-login.', 'error'); return; }
+      const ROMAN_TO_NUM = { I:'1', II:'2', III:'3', IV:'4', 'IV-A':'4-A', 'IV-B':'4-B', V:'5', VI:'6', VII:'7', VIII:'8', IX:'9', X:'10', XI:'11', XII:'12', XIII:'13' };
+      const regionLabel = region.replace(/^Region (IV-A|IV-B|[IVX]+)\b/, (m, roman) => 'Region ' + (ROMAN_TO_NUM[roman] || roman));
 
       const search    = document.getElementById('stu-bene-search')?.value.trim() || '';
       const status    = document.getElementById('stu-bene-status')?.value || '';
@@ -2583,7 +2585,7 @@
         <div class="hdr-text">
           <div>Republic of the Philippines</div>
           <div>Department of Social Welfare and Development</div>
-          <div>Field Office - ${region}</div>
+          <div>Field Office - ${regionLabel}</div>
         </div>
       </div>
     </div>

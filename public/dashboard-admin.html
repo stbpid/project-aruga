@@ -7780,6 +7780,11 @@
         json.data.forEach(r => { payoutMap[r.aruga_id] = r; });
       }
 
+      const sigRes = await authFetch('/api/get-signatories.php');
+      const sigJson = await sigRes.json();
+      const matchedSignatories = (sigJson.success && sigJson.data ? sigJson.data : [])
+        .filter(s => s.signatory_status === 'active' && (!region || s.signatory_region === region));
+
       const now = new Date();
       const monthYear = now.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
       const ROMAN_TO_NUM = { I:'1', II:'2', III:'3', IV:'4', 'IV-A':'4-A', 'IV-B':'4-B', V:'5', VI:'6', VII:'7', VIII:'8', IX:'9', X:'10', XI:'11', XII:'12', XIII:'13' };
@@ -7821,6 +7826,17 @@
           </tr>
         </thead>`;
 
+      const signatureBlockHtml = matchedSignatories.length ? `
+      <div class="sig-block" style="margin-top: 2in; display: flex; justify-content: space-around;">
+        ${matchedSignatories.map(s => `
+        <div class="sig-col" style="text-align: center; width: ${100 / matchedSignatories.length}%; padding: 0 10px;">
+          <div class="sig-line" style="border-top: 1px solid #000; margin-bottom: 4px;"></div>
+          <div style="font-weight: bold; text-transform: uppercase;">${s.signatory_fullname}</div>
+          <div>${s.signatory_position}</div>
+          <div>${s.signatory_office}</div>
+        </div>`).join('')}
+      </div>` : '';
+
       const pages = [];
       for (let p = 0; p < allRows.length; p += ROWS_PER_PAGE) {
         const pageRows = allRows.slice(p, p + ROWS_PER_PAGE).join('');
@@ -7843,6 +7859,7 @@
       </table>
     </div>`);
       }
+      pages[pages.length - 1] = pages[pages.length - 1].replace('</table>\n    </div>', `</table>${signatureBlockHtml}\n    </div>`);
       const pagesHtml = pages.join('\n    <div class="page-break"></div>\n');
 
       const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
