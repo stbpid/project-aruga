@@ -7827,16 +7827,20 @@
           </tr>
         </thead>`;
 
-      const signatureBlockHtml = matchedSignatories.length ? `
-      <div class="sig-block" style="margin-top: 2in; display: flex; justify-content: space-around;">
-        ${matchedSignatories.map(s => `
-        <div class="sig-col" style="text-align: center; width: ${100 / matchedSignatories.length}%; padding: 0 10px;">
-          <div class="sig-line" style="border-top: 1px solid #000; margin-bottom: 4px;"></div>
-          <div style="font-weight: bold; text-transform: uppercase;">${s.signatory_fullname}</div>
-          <div>${s.signatory_position}</div>
-          <div>${s.signatory_office}</div>
-        </div>`).join('')}
-      </div>` : '';
+      const signatureRowHtml = matchedSignatories.length ? `
+        <tr style="height:auto;border:none;">
+          <td colspan="7" style="border:none;padding-top:2in;">
+            <div class="sig-block" style="display:flex;justify-content:space-around;">
+              ${matchedSignatories.map(s => `
+              <div class="sig-col" style="text-align:center;width:${100 / matchedSignatories.length}%;padding:0 10px;">
+                <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
+                <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
+                <div>${s.signatory_position}</div>
+                <div>${s.signatory_office}</div>
+              </div>`).join('')}
+            </div>
+          </td>
+        </tr>` : '';
 
       const pages = [];
       for (let p = 0; p < allRows.length; p += ROWS_PER_PAGE) {
@@ -7860,7 +7864,7 @@
       </table>
     </div>`);
       }
-      pages[pages.length - 1] = pages[pages.length - 1].replace('</table>\n    </div>', `</table>${signatureBlockHtml}\n    </div>`);
+      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${signatureRowHtml}\n        </tbody>`);
       const pagesHtml = pages.join('\n    <div class="page-break"></div>\n');
 
       const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
