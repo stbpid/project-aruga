@@ -2421,9 +2421,18 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;animation:spin 1s linear infinite;">progress_activity</span>Generating...';
 
+    const win = window.open('', '_blank');
+    if (!win) {
+      showGlobalToast('Pop-up blocked. Please allow pop-ups for this site and try again.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
+      return;
+    }
+    win.document.write('<p style="font-family:sans-serif;padding:2rem;">Generating payroll, please wait...</p>');
+
     try {
       const region = sessionStorage.getItem('interviewer_region') || '';
-      if (!region) { showGlobalToast('Region not found. Please re-login.', 'error'); return; }
+      if (!region) { showGlobalToast('Region not found. Please re-login.', 'error'); win.close(); return; }
       const ROMAN_TO_NUM = { I:'1', II:'2', III:'3', IV:'4', 'IV-A':'4-A', 'IV-B':'4-B', V:'5', VI:'6', VII:'7', VIII:'8', IX:'9', X:'10', XI:'11', XII:'12', XIII:'13' };
       const regionLabel = region.replace(/^Region (IV-A|IV-B|[IVX]+)\b/, (m, roman) => 'Region ' + (ROMAN_TO_NUM[roman] || roman));
 
@@ -2442,7 +2451,7 @@
       const json = await res.json();
 
       if (!json.success || !json.data?.length) {
-        showGlobalToast('No beneficiaries found for the current filter.', 'error'); return;
+        showGlobalToast('No beneficiaries found for the current filter.', 'error'); win.close(); return;
       }
 
       const allData = json.data;
@@ -2631,7 +2640,7 @@
 </body>
 </html>`;
 
-      const win = window.open('', '_blank');
+      win.document.open();
       win.document.write(html);
       win.document.close();
       win.focus();
@@ -2639,6 +2648,7 @@
     } catch(e) {
       console.error('Generate Payroll error:', e);
       showGlobalToast('Error generating payout list: ' + (e?.message || e), 'error');
+      if (win && !win.closed) win.close();
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
