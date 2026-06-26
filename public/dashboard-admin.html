@@ -7782,8 +7782,9 @@
 
       const sigRes = await authFetch('/api/get-signatories.php');
       const sigJson = await sigRes.json();
+      const normRegion = s => (s || '').trim().toLowerCase();
       const matchedSignatories = (sigJson.success && sigJson.data ? sigJson.data : [])
-        .filter(s => s.signatory_status === 'active' && (!region || s.signatory_region === region));
+        .filter(s => s.signatory_status === 'active' && (!region || normRegion(s.signatory_region) === normRegion(region)));
 
       const now = new Date();
       const monthYear = now.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
