@@ -7782,7 +7782,8 @@
 
       const now = new Date();
       const monthYear = now.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
-      const regionLabel = region || 'All Regions';
+      const ROMAN_TO_NUM = { I:'1', II:'2', III:'3', IV:'4', 'IV-A':'4-A', 'IV-B':'4-B', V:'5', VI:'6', VII:'7', VIII:'8', IX:'9', X:'10', XI:'11', XII:'12', XIII:'13' };
+      const regionLabel = (region || 'All Regions').replace(/^Region (IV-A|IV-B|[IVX]+)\b/, (m, roman) => 'Region ' + (ROMAN_TO_NUM[roman] || roman));
 
       const seenArugaIds = new Set();
       const uniqueBen = allBenFiltered.filter(r => {
