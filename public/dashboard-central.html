@@ -2663,6 +2663,15 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;animation:spin 1s linear infinite;">progress_activity</span>Generating...';
 
+    const win = window.open('', '_blank');
+    if (!win) {
+      showGlobalToast('Pop-up blocked. Please allow pop-ups for this site and try again.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
+      return;
+    }
+    win.document.write('<p style="font-family:sans-serif;padding:2rem;">Generating payroll, please wait...</p>');
+
     try {
       const region = document.getElementById('co-ben-region').value;
       const params = new URLSearchParams();
@@ -2853,13 +2862,15 @@
 </body>
 </html>`;
 
-      const win = window.open('', '_blank');
+      win.document.open();
       win.document.write(html);
       win.document.close();
       win.focus();
       setTimeout(() => { win.print(); }, 500);
     } catch(e) {
-      showGlobalToast('Error generating payout list.', 'error');
+      console.error('Generate Payroll error:', e);
+      showGlobalToast('Error generating payout list: ' + (e?.message || e), 'error');
+      if (win && !win.closed) win.close();
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
