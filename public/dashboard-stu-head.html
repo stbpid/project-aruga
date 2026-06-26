@@ -2455,6 +2455,12 @@
         payoutJson.data.forEach(r => { payoutMap[r.aruga_id] = r; });
       }
 
+      const sigRes = await authFetch('/api/get-signatories.php');
+      const sigJson = await sigRes.json();
+      const normRegion = s => (s || '').trim().toLowerCase();
+      const matchedSignatories = (sigJson.success && sigJson.data ? sigJson.data : [])
+        .filter(s => s.signatory_status === 'active' && normRegion(s.signatory_region) === normRegion(region));
+
       const now = new Date();
       const monthYear  = now.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
       const printedOn  = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -2495,6 +2501,21 @@
           </tr>
         </thead>`;
 
+      const signatureRowHtml = matchedSignatories.length ? `
+        <tr style="height:auto;border:none;">
+          <td colspan="7" style="border:none;padding-top:0.5in;">
+            <div class="sig-block" style="display:flex;justify-content:space-around;">
+              ${matchedSignatories.map(s => `
+              <div class="sig-col" style="text-align:center;width:${matchedSignatories.length === 1 ? 40 : 100 / matchedSignatories.length}%;padding:0 10px;">
+                <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
+                <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
+                <div>${s.signatory_position}</div>
+                <div>${s.signatory_office}</div>
+              </div>`).join('')}
+            </div>
+          </td>
+        </tr>` : '';
+
       const pages = [];
       for (let p = 0; p < allRows.length; p += ROWS_PER_PAGE) {
         const pageRows = allRows.slice(p, p + ROWS_PER_PAGE).join('');
@@ -2517,6 +2538,7 @@
       </table>
     </div>`);
       }
+      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${signatureRowHtml}\n        </tbody>`);
       const pagesHtml = pages.join('\n    <div class="page-break"></div>\n');
 
       const dswdLogoUrl = window.location.origin + '/images/form-logo.webp';
@@ -2597,10 +2619,11 @@
   </div>
 
   <!-- Footer: repeated on every page -->
+  ${matchedSignatories.length ? '' : `
   <div id="page-footer">
     <hr class="ftr-rule">
     <div class="ftr-text">This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</div>
-  </div>
+  </div>`}
 
   <!-- Content -->
   ${pagesHtml}
