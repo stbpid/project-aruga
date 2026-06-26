@@ -7832,7 +7832,7 @@
           <td colspan="7" style="border:none;padding-top:0.5in;">
             <div class="sig-block" style="display:flex;justify-content:space-around;">
               ${matchedSignatories.map(s => `
-              <div class="sig-col" style="text-align:center;width:${100 / matchedSignatories.length}%;padding:0 10px;">
+              <div class="sig-col" style="text-align:center;width:${matchedSignatories.length === 1 ? 40 : 100 / matchedSignatories.length}%;padding:0 10px;">
                 <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
                 <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
                 <div>${s.signatory_position}</div>
