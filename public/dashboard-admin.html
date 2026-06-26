@@ -2160,35 +2160,65 @@
 
       <!-- ── Tab: Signatory ── -->
       <div class="settings-panel" id="stab-signatories" style="display:none;">
-        <div class="card" style="margin:0;">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Registered Signatories</div>
-              <div class="card-subtitle" id="sig-list-subtitle">All authorized signatories in the system</div>
+        <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
+            <div class="search-bar" style="flex:1;min-width:140px;max-width:220px;">
+              <span class="material-symbols-outlined">search</span>
+              <input type="text" id="sig-search" placeholder="Search name, position..." aria-label="Search signatories" oninput="filterSignatories()">
             </div>
-            <div style="display:flex;gap:0.5rem;">
-              <div class="search-bar" style="width:180px;">
-                <span class="material-symbols-outlined">search</span>
-                <input type="text" id="sig-search" placeholder="Search..." oninput="renderSignatories()" aria-label="Search signatories">
-              </div>
-              <button class="btn btn-secondary btn-sm" onclick="loadSignatories(true)" title="Refresh">
-                <span class="material-symbols-outlined">refresh</span>
-              </button>
-              <button class="btn btn-primary btn-sm" onclick="openAddSignatoryModal()">
-                <span class="material-symbols-outlined">add</span>Add Signatory
-              </button>
-            </div>
+            <select id="sig-region-filter" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;" onchange="filterSignatories()">
+              <option value="">All Regions</option>
+              <option value="Central Office">Central Office</option>
+              <option value="NCR (National Capital Region)">NCR (National Capital Region)</option>
+              <option value="Region I (Ilocos Region)">Region I (Ilocos Region)</option>
+              <option value="Region II (Cagayan Valley)">Region II (Cagayan Valley)</option>
+              <option value="Region III (Central Luzon)">Region III (Central Luzon)</option>
+              <option value="Region IV-A (CALABARZON)">Region IV-A (CALABARZON)</option>
+              <option value="Region IV-B (MIMAROPA)">Region IV-B (MIMAROPA)</option>
+              <option value="Region V (Bicol Region)">Region V (Bicol Region)</option>
+              <option value="Region VI (Western Visayas)">Region VI (Western Visayas)</option>
+              <option value="Region VII (Central Visayas)">Region VII (Central Visayas)</option>
+              <option value="Region VIII (Eastern Visayas)">Region VIII (Eastern Visayas)</option>
+              <option value="Region IX (Zamboanga Peninsula)">Region IX (Zamboanga Peninsula)</option>
+              <option value="Region X (Northern Mindanao)">Region X (Northern Mindanao)</option>
+              <option value="Region XI (Davao Region)">Region XI (Davao Region)</option>
+              <option value="Region XII (SOCCSKSARGEN)">Region XII (SOCCSKSARGEN)</option>
+              <option value="Region XIII (Caraga)">Region XIII (Caraga)</option>
+              <option value="CAR (Cordillera Administrative Region)">CAR (Cordillera Administrative Region)</option>
+              <option value="BARMM (Bangsamoro)">BARMM (Bangsamoro)</option>
+            </select>
+            <select id="sig-status-filter" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;" onchange="filterSignatories()">
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" id="sig-reset" onclick="resetSignatoryFilters()">Reset</button>
+            <button class="btn btn-primary btn-sm" onclick="openAddSignatoryModal()" style="white-space:nowrap;margin-left:auto;">
+              <span class="material-symbols-outlined">add</span>Add Signatory
+            </button>
           </div>
-
-          <!-- Status filter -->
-          <div style="display:flex;gap:0.375rem;margin-bottom:0.75rem;flex-wrap:wrap;">
-            <button class="reg-filter-btn active" data-filter="all" onclick="sigSetFilter('all',this)">All</button>
-            <button class="reg-filter-btn" data-filter="active" onclick="sigSetFilter('active',this)">Active</button>
-            <button class="reg-filter-btn" data-filter="inactive" onclick="sigSetFilter('inactive',this)">Inactive</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th onclick="sortSignatories('signatory_fullname')" style="cursor:pointer;user-select:none;white-space:nowrap;">Full Name <span id="sig-sort-icon-signatory_fullname" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                  <th onclick="sortSignatories('signatory_position')" style="cursor:pointer;user-select:none;white-space:nowrap;">Position <span id="sig-sort-icon-signatory_position" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                  <th onclick="sortSignatories('signatory_office')" style="cursor:pointer;user-select:none;white-space:nowrap;">Office <span id="sig-sort-icon-signatory_office" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                  <th onclick="sortSignatories('signatory_region')" style="cursor:pointer;user-select:none;white-space:nowrap;">Region <span id="sig-sort-icon-signatory_region" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                  <th onclick="sortSignatories('signatory_status')" style="cursor:pointer;user-select:none;white-space:nowrap;">Status <span id="sig-sort-icon-signatory_status" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="sig-tbody">
+                <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              </tbody>
+            </table>
           </div>
-
-          <div id="signatories-list" style="max-height:480px;overflow-y:auto;">
-            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading signatories...</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+            <span style="font-size:0.75rem;color:#6b7280;" id="sig-page-info"></span>
+            <div class="pagination" id="sig-pagination"></div>
           </div>
         </div>
 
@@ -6670,57 +6700,87 @@
   }
 
   // ── Signatories ────────────────────────────────────────────────
-  let signatoriesData = [];
-  let sigLoaded = false;
-  let sigFilterStatus = 'all';
+  let signatoriesData = [], signatoriesFiltered = [], sigPage = 0, sigLoaded = false;
+  let sigSortKey = 'signatory_fullname', sigSortDir = -1;
+  const SIG_SORT_COLS = ['signatory_fullname','signatory_position','signatory_office','signatory_region','signatory_status'];
 
-  function loadSignatories(force) {
-    if (sigLoaded && !force) { renderSignatories(); return; }
-    const list = document.getElementById('signatories-list');
-    list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:1rem;">Loading...</div>';
-    authFetch('/api/get-signatories.php')
-      .then(r => r.json())
-      .then(json => {
-        signatoriesData = json.success ? json.data : [];
-        sigLoaded = true;
-        renderSignatories();
-      })
-      .catch(() => {
-        list.innerHTML = '<div style="text-align:center;color:#dc2626;font-size:0.75rem;padding:2rem;">Failed to load signatories.</div>';
-      });
+  async function loadSignatories(force) {
+    if (sigLoaded && !force) return;
+    document.getElementById('sig-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    try {
+      const json = await (await authFetch('/api/get-signatories.php')).json();
+      signatoriesData = json.success ? json.data : [];
+      sigLoaded = true;
+      signatoriesFiltered = [...signatoriesData]; sigPage = 0; renderSignatories();
+    } catch (e) {
+      document.getElementById('sig-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Failed to load.</td></tr>';
+    }
   }
 
-  function sigSetFilter(val, btn) {
-    sigFilterStatus = val;
-    document.querySelectorAll('#stab-signatories .reg-filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderSignatories();
+  function filterSignatories() {
+    const q      = document.getElementById('sig-search').value.toLowerCase();
+    const region = document.getElementById('sig-region-filter').value;
+    const status = document.getElementById('sig-status-filter').value;
+    signatoriesFiltered = signatoriesData.filter(r => {
+      const matchQ = !q || (r.signatory_fullname + r.signatory_position + r.signatory_office + r.signatory_region).toLowerCase().includes(q);
+      return matchQ && (!region || r.signatory_region === region) && (!status || r.signatory_status === status);
+    });
+    sigSortKey = null; sigSortDir = -1;
+    SIG_SORT_COLS.forEach(c => {
+      const el = document.getElementById('sig-sort-icon-' + c);
+      if (el) { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
+    });
+    sigPage = 0; renderSignatories();
+  }
+
+  function resetSignatoryFilters() {
+    document.getElementById('sig-search').value = '';
+    document.getElementById('sig-region-filter').value = '';
+    document.getElementById('sig-status-filter').value = '';
+    filterSignatories();
+  }
+
+  function sortSignatories(key) {
+    if (sigSortKey === key) { sigSortDir *= -1; } else { sigSortKey = key; sigSortDir = -1; }
+    SIG_SORT_COLS.forEach(c => {
+      const el = document.getElementById('sig-sort-icon-' + c);
+      if (!el) return;
+      if (c === key) { el.textContent = sigSortDir === -1 ? 'arrow_downward' : 'arrow_upward'; el.style.color = '#1152d4'; }
+      else { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
+    });
+    signatoriesFiltered = [...signatoriesFiltered].sort((a, b) => {
+      const va = (a[key]||'').toLowerCase(), vb = (b[key]||'').toLowerCase();
+      if (va < vb) return sigSortDir;
+      if (va > vb) return -sigSortDir;
+      return 0;
+    });
+    sigPage = 0; renderSignatories();
   }
 
   function renderSignatories() {
-    const list = document.getElementById('signatories-list');
-    const q = document.getElementById('sig-search').value.toLowerCase();
-    let rows = signatoriesData;
-    if (sigFilterStatus !== 'all') rows = rows.filter(r => r.signatory_status === sigFilterStatus);
-    if (q) rows = rows.filter(r => (r.signatory_fullname + r.signatory_position + r.signatory_office + r.signatory_region).toLowerCase().includes(q));
-
-    list.innerHTML = rows.length
-      ? rows.map(r => {
+    const total = signatoriesFiltered.length;
+    const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+    const start = sigPage * PER_PAGE;
+    const end   = Math.min(start + PER_PAGE, total);
+    const page  = signatoriesFiltered.slice(start, end);
+    document.getElementById('sig-tbody').innerHTML = page.length
+      ? page.map((r) => {
           const idx = signatoriesData.indexOf(r);
-          return `<div class="code-row">
-            <div>
-              <div class="code-row-code">${r.signatory_fullname}</div>
-              <div class="code-row-name">${r.signatory_position} · ${r.signatory_office}</div>
-              <div class="code-row-region">${r.signatory_region}</div>
-            </div>
-            <div style="display:flex;gap:0.375rem;align-items:center;">
-              <span class="badge ${r.signatory_status === 'active' ? 'badge-green' : 'badge-orange'}" style="font-size:0.65rem;">${r.signatory_status === 'active' ? 'Active' : 'Inactive'}</span>
+          return `<tr class="table-row-hover">
+            <td><div style="font-weight:600;color:#111811;">${r.signatory_fullname}</div></td>
+            <td>${r.signatory_position}</td>
+            <td>${r.signatory_office}</td>
+            <td>${r.signatory_region}</td>
+            <td><span class="badge ${r.signatory_status === 'active' ? 'badge-green' : 'badge-orange'}" style="font-size:0.65rem;">${r.signatory_status === 'active' ? 'Active' : 'Inactive'}</span></td>
+            <td style="display:flex;gap:0.25rem;">
               <button class="btn btn-ghost btn-sm table-action-btn" onclick="sigStartEdit(${idx})" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button>
               <button class="btn btn-ghost btn-sm table-action-btn" onclick="sigToggleStatus(${idx})" title="${r.signatory_status === 'active' ? 'Deactivate' : 'Activate'}"><span class="material-symbols-outlined" style="font-size:0.875rem;">${r.signatory_status === 'active' ? 'person_off' : 'person_check'}</span></button>
-            </div>
-          </div>`;
+            </td>
+          </tr>`;
         }).join('')
-      : '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No signatories found.</div>';
+      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
+    document.getElementById('sig-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} signatories` : 'No results';
+    buildPagination('sig-pagination', sigPage, totalPages, p => { sigPage = p; renderSignatories(); });
   }
 
   function openAddSignatoryModal() {
