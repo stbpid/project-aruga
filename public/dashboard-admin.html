@@ -1934,6 +1934,9 @@
         <button class="settings-tab" data-tab="export" onclick="showSettingsTab('export')">
           <span class="material-symbols-outlined">download</span>Data Export
         </button>
+        <button class="settings-tab" data-tab="signatories" onclick="showSettingsTab('signatories')">
+          <span class="material-symbols-outlined">draw</span>Signatory
+        </button>
       </div>
 
       <!-- ── Tab: Dropdown Options ── -->
@@ -2072,6 +2075,89 @@
         </div>
 
         <div id="regions-toast" class="settings-toast" style="display:none;"></div>
+      </div>
+
+      <!-- ── Tab: Signatory ── -->
+      <div class="settings-panel" id="stab-signatories" style="display:none;">
+        <div style="display:grid;grid-template-columns:340px 1fr;gap:1rem;align-items:start;">
+
+          <!-- Add / Edit Form -->
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title" id="sig-form-title">Add Signatory</div>
+                <div class="card-subtitle">Fill in the fields below and click Save.</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+              <input type="hidden" id="sig-edit-id" value="">
+              <div>
+                <label class="settings-label">Full Name <span style="color:#dc2626;">*</span></label>
+                <input type="text" id="sig-fullname" class="settings-input" placeholder="e.g. Juan Dela Cruz">
+              </div>
+              <div>
+                <label class="settings-label">Position <span style="color:#dc2626;">*</span></label>
+                <input type="text" id="sig-position" class="settings-input" placeholder="e.g. Regional Director">
+              </div>
+              <div>
+                <label class="settings-label">Office <span style="color:#dc2626;">*</span></label>
+                <input type="text" id="sig-office" class="settings-input" placeholder="e.g. DSWD Field Office">
+              </div>
+              <div>
+                <label class="settings-label">Region <span style="color:#dc2626;">*</span></label>
+                <input type="text" id="sig-region" class="settings-input" placeholder="e.g. Region XIV – BARMM">
+              </div>
+              <div>
+                <label class="settings-label">Status</label>
+                <select id="sig-status" class="settings-input">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="saveSignatory()">
+                  <span class="material-symbols-outlined" id="sig-save-icon">add</span>
+                  <span id="sig-save-label">Add Signatory</span>
+                </button>
+                <button class="btn btn-secondary btn-sm" id="sig-cancel-btn" style="display:none;" onclick="sigCancelEdit()">
+                  <span class="material-symbols-outlined">close</span>Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Signatories List -->
+          <div class="card" style="margin:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Registered Signatories</div>
+                <div class="card-subtitle" id="sig-list-subtitle">All authorized signatories in the system</div>
+              </div>
+              <div style="display:flex;gap:0.5rem;">
+                <div class="search-bar" style="width:180px;">
+                  <span class="material-symbols-outlined">search</span>
+                  <input type="text" id="sig-search" placeholder="Search..." oninput="renderSignatories()" aria-label="Search signatories">
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="loadSignatories(true)" title="Refresh">
+                  <span class="material-symbols-outlined">refresh</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Status filter -->
+            <div style="display:flex;gap:0.375rem;margin-bottom:0.75rem;flex-wrap:wrap;">
+              <button class="reg-filter-btn active" data-filter="all" onclick="sigSetFilter('all',this)">All</button>
+              <button class="reg-filter-btn" data-filter="active" onclick="sigSetFilter('active',this)">Active</button>
+              <button class="reg-filter-btn" data-filter="inactive" onclick="sigSetFilter('inactive',this)">Inactive</button>
+            </div>
+
+            <div id="signatories-list" style="max-height:400px;overflow-y:auto;">
+              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading signatories...</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="signatories-toast" class="settings-toast" style="display:none;"></div>
       </div>
 
       <!-- ── Tab: Data Export ── -->
@@ -6198,6 +6284,7 @@
     if (panel) panel.style.display = '';
     if (tab === 'dropdowns') loadDropdownOptions();
     if (tab === 'regions') loadRegionSettings();
+    if (tab === 'signatories') loadSignatories();
     if (tab === 'export') populateExportRegions();
     if (tab === 'security') secLoad();
   }
@@ -6545,6 +6632,128 @@
     document.getElementById('reg-delete-modal').style.display = 'none';
     renderRegionSettings();
     showToast('regions-toast', `"${name}" removed.`, 'success');
+  }
+
+  // ── Signatories ────────────────────────────────────────────────
+  let signatoriesData = [];
+  let sigLoaded = false;
+  let sigFilterStatus = 'all';
+
+  function loadSignatories(force) {
+    if (sigLoaded && !force) { renderSignatories(); return; }
+    const list = document.getElementById('signatories-list');
+    list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:1rem;">Loading...</div>';
+    authFetch('/api/get-signatories.php')
+      .then(r => r.json())
+      .then(json => {
+        signatoriesData = json.success ? json.data : [];
+        sigLoaded = true;
+        renderSignatories();
+      })
+      .catch(() => {
+        list.innerHTML = '<div style="text-align:center;color:#dc2626;font-size:0.75rem;padding:2rem;">Failed to load signatories.</div>';
+      });
+  }
+
+  function sigSetFilter(val, btn) {
+    sigFilterStatus = val;
+    document.querySelectorAll('#stab-signatories .reg-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderSignatories();
+  }
+
+  function renderSignatories() {
+    const list = document.getElementById('signatories-list');
+    const q = document.getElementById('sig-search').value.toLowerCase();
+    let rows = signatoriesData;
+    if (sigFilterStatus !== 'all') rows = rows.filter(r => r.signatory_status === sigFilterStatus);
+    if (q) rows = rows.filter(r => (r.signatory_fullname + r.signatory_position + r.signatory_office + r.signatory_region).toLowerCase().includes(q));
+
+    list.innerHTML = rows.length
+      ? rows.map(r => {
+          const idx = signatoriesData.indexOf(r);
+          return `<div class="code-row">
+            <div>
+              <div class="code-row-code">${r.signatory_fullname}</div>
+              <div class="code-row-name">${r.signatory_position} · ${r.signatory_office}</div>
+              <div class="code-row-region">${r.signatory_region}</div>
+            </div>
+            <div style="display:flex;gap:0.375rem;align-items:center;">
+              <span class="badge ${r.signatory_status === 'active' ? 'badge-green' : 'badge-orange'}" style="font-size:0.65rem;">${r.signatory_status === 'active' ? 'Active' : 'Inactive'}</span>
+              <button class="btn btn-ghost btn-sm table-action-btn" onclick="sigStartEdit(${idx})" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button>
+              <button class="btn btn-ghost btn-sm table-action-btn" onclick="sigToggleStatus(${idx})" title="${r.signatory_status === 'active' ? 'Deactivate' : 'Activate'}"><span class="material-symbols-outlined" style="font-size:0.875rem;">${r.signatory_status === 'active' ? 'person_off' : 'person_check'}</span></button>
+            </div>
+          </div>`;
+        }).join('')
+      : '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No signatories found.</div>';
+  }
+
+  function sigStartEdit(idx) {
+    const r = signatoriesData[idx];
+    if (!r) return;
+    document.getElementById('sig-edit-id').value = r.id;
+    document.getElementById('sig-fullname').value = r.signatory_fullname;
+    document.getElementById('sig-position').value = r.signatory_position;
+    document.getElementById('sig-office').value   = r.signatory_office;
+    document.getElementById('sig-region').value   = r.signatory_region;
+    document.getElementById('sig-status').value   = r.signatory_status;
+    document.getElementById('sig-form-title').textContent = 'Edit Signatory';
+    document.getElementById('sig-save-icon').textContent = 'save';
+    document.getElementById('sig-save-label').textContent = 'Update Signatory';
+    document.getElementById('sig-cancel-btn').style.display = '';
+  }
+
+  function sigCancelEdit() {
+    document.getElementById('sig-edit-id').value = '';
+    document.getElementById('sig-fullname').value = '';
+    document.getElementById('sig-position').value = '';
+    document.getElementById('sig-office').value = '';
+    document.getElementById('sig-region').value = '';
+    document.getElementById('sig-status').value = 'active';
+    document.getElementById('sig-form-title').textContent = 'Add Signatory';
+    document.getElementById('sig-save-icon').textContent = 'add';
+    document.getElementById('sig-save-label').textContent = 'Add Signatory';
+    document.getElementById('sig-cancel-btn').style.display = 'none';
+  }
+
+  async function saveSignatory() {
+    const id       = document.getElementById('sig-edit-id').value;
+    const fullname = document.getElementById('sig-fullname').value.trim();
+    const position = document.getElementById('sig-position').value.trim();
+    const office    = document.getElementById('sig-office').value.trim();
+    const region    = document.getElementById('sig-region').value.trim();
+    const status     = document.getElementById('sig-status').value;
+
+    if (!fullname || !position || !office || !region) { showToast('signatories-toast', 'Full Name, Position, Office, and Region are required.', 'error'); return; }
+
+    const payload = { signatory_fullname: fullname, signatory_position: position, signatory_office: office, signatory_region: region, signatory_status: status };
+    const endpoint = id ? '/api/update-signatory.php' : '/api/add-signatory.php';
+    if (id) payload.id = id;
+
+    try {
+      const res  = await authFetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const json = await res.json();
+      if (!json.success) { showToast('signatories-toast', json.message || 'Failed to save signatory.', 'error'); return; }
+    } catch (e) { showToast('signatories-toast', 'Network error. Please try again.', 'error'); return; }
+
+    showToast('signatories-toast', `"${fullname}" ${id ? 'updated' : 'added'}.`, 'success');
+    sigCancelEdit();
+    loadSignatories(true);
+  }
+
+  async function sigToggleStatus(idx) {
+    const r = signatoriesData[idx];
+    if (!r) return;
+    const newStatus = r.signatory_status === 'active' ? 'inactive' : 'active';
+    try {
+      const res  = await authFetch('/api/update-signatory.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: r.id, signatory_status: newStatus }) });
+      const json = await res.json();
+      if (!json.success) { showToast('signatories-toast', json.message || 'Failed to update status.', 'error'); return; }
+    } catch (e) { showToast('signatories-toast', 'Network error. Please try again.', 'error'); return; }
+
+    r.signatory_status = newStatus;
+    renderSignatories();
+    showToast('signatories-toast', `"${r.signatory_fullname}" is now ${newStatus}.`, 'success');
   }
 
   // ── Data Export ────────────────────────────────────────────────
