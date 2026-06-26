@@ -7829,7 +7829,7 @@
 
       const signatureRowHtml = matchedSignatories.length ? `
         <tr style="height:auto;border:none;">
-          <td colspan="7" style="border:none;padding-top:1in;">
+          <td colspan="7" style="border:none;padding-top:0.5in;">
             <div class="sig-block" style="display:flex;justify-content:space-around;">
               ${matchedSignatories.map(s => `
               <div class="sig-col" style="text-align:center;width:${100 / matchedSignatories.length}%;padding:0 10px;">
@@ -7947,10 +7947,11 @@
   </div>
 
   <!-- Footer: repeated on every page -->
+  ${matchedSignatories.length ? '' : `
   <div id="page-footer">
     <hr class="ftr-rule">
     <div class="ftr-text">This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</div>
-  </div>
+  </div>`}
 
   <!-- Content -->
   ${pagesHtml}
