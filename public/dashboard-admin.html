@@ -725,6 +725,87 @@
       </div>
     </div>
 
+    <!-- Add/Edit Signatory Modal -->
+    <div id="sig-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
+      <div style="background:white;border-radius:1.25rem;width:100%;max-width:440px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden;">
+
+        <!-- Fixed Header -->
+        <div style="padding:1.5rem 1.75rem 1rem;border-bottom:1px solid var(--gray-100);flex-shrink:0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:1rem;font-weight:800;color:var(--dark);" id="sig-modal-title">Add Signatory</div>
+              <div style="font-size:0.75rem;color:var(--gray-400);margin-top:0.1rem;">Register an authorized signatory</div>
+            </div>
+            <button onclick="closeSignatoryModal()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;padding:0.25rem;border-radius:0.375rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='none'"><span class="material-symbols-outlined">close</span></button>
+          </div>
+        </div>
+
+        <!-- Scrollable Body -->
+        <div style="flex:1;overflow-y:auto;padding:1.25rem 1.75rem;scrollbar-width:thin;scrollbar-color:var(--gray-200) transparent;">
+          <input type="hidden" id="sig-edit-id" value="">
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div>
+              <label class="settings-label">Full Name <span style="color:#dc2626;">*</span></label>
+              <input type="text" id="sig-fullname" class="settings-input" placeholder="e.g. Juan Dela Cruz">
+            </div>
+            <div>
+              <label class="settings-label">Position <span style="color:#dc2626;">*</span></label>
+              <input type="text" id="sig-position" class="settings-input" placeholder="e.g. Regional Director">
+            </div>
+            <div>
+              <label class="settings-label">Office <span style="color:#dc2626;">*</span></label>
+              <input type="text" id="sig-office" class="settings-input" placeholder="e.g. DSWD FO VII">
+            </div>
+            <div>
+              <label class="settings-label">Region <span style="color:#dc2626;">*</span></label>
+              <div style="position:relative;">
+                <select id="sig-region" class="settings-input" style="appearance:none;-webkit-appearance:none;padding-right:2.25rem;">
+                  <option value="">Select region...</option>
+                  <option value="Central Office">Central Office</option>
+                  <option value="NCR (National Capital Region)">NCR (National Capital Region)</option>
+                  <option value="Region I (Ilocos Region)">Region I (Ilocos Region)</option>
+                  <option value="Region II (Cagayan Valley)">Region II (Cagayan Valley)</option>
+                  <option value="Region III (Central Luzon)">Region III (Central Luzon)</option>
+                  <option value="Region IV-A (CALABARZON)">Region IV-A (CALABARZON)</option>
+                  <option value="Region IV-B (MIMAROPA)">Region IV-B (MIMAROPA)</option>
+                  <option value="Region V (Bicol Region)">Region V (Bicol Region)</option>
+                  <option value="Region VI (Western Visayas)">Region VI (Western Visayas)</option>
+                  <option value="Region VII (Central Visayas)">Region VII (Central Visayas)</option>
+                  <option value="Region VIII (Eastern Visayas)">Region VIII (Eastern Visayas)</option>
+                  <option value="Region IX (Zamboanga Peninsula)">Region IX (Zamboanga Peninsula)</option>
+                  <option value="Region X (Northern Mindanao)">Region X (Northern Mindanao)</option>
+                  <option value="Region XI (Davao Region)">Region XI (Davao Region)</option>
+                  <option value="Region XII (SOCCSKSARGEN)">Region XII (SOCCSKSARGEN)</option>
+                  <option value="Region XIII (Caraga)">Region XIII (Caraga)</option>
+                  <option value="CAR (Cordillera Administrative Region)">CAR (Cordillera Administrative Region)</option>
+                  <option value="BARMM (Bangsamoro)">BARMM (Bangsamoro)</option>
+                </select>
+                <span class="material-symbols-outlined" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
+              </div>
+            </div>
+            <div>
+              <label class="settings-label">Status</label>
+              <div style="position:relative;">
+                <select id="sig-status" class="settings-input" style="appearance:none;-webkit-appearance:none;padding-right:2.25rem;">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+                <span class="material-symbols-outlined" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="sig-modal-err" style="display:none;font-size:0.75rem;color:#dc2626;font-weight:600;padding-top:0.75rem;"></div>
+        </div>
+
+        <!-- Fixed Footer -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);flex-shrink:0;">
+          <button onclick="closeSignatoryModal()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
+          <button onclick="saveSignatory()" id="sig-modal-submit-btn" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'"><span id="sig-modal-submit-label">Add Signatory</span></button>
+        </div>
+      </div>
+    </div>
+
     <!-- Beneficiary Detail Modal -->
 
 
@@ -2079,81 +2160,35 @@
 
       <!-- ── Tab: Signatory ── -->
       <div class="settings-panel" id="stab-signatories" style="display:none;">
-        <div style="display:grid;grid-template-columns:340px 1fr;gap:1rem;align-items:start;">
-
-          <!-- Add / Edit Form -->
-          <div class="card" style="margin:0;">
-            <div class="card-header">
-              <div>
-                <div class="card-title" id="sig-form-title">Add Signatory</div>
-                <div class="card-subtitle">Fill in the fields below and click Save.</div>
-              </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Registered Signatories</div>
+              <div class="card-subtitle" id="sig-list-subtitle">All authorized signatories in the system</div>
             </div>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;">
-              <input type="hidden" id="sig-edit-id" value="">
-              <div>
-                <label class="settings-label">Full Name <span style="color:#dc2626;">*</span></label>
-                <input type="text" id="sig-fullname" class="settings-input" placeholder="e.g. Juan Dela Cruz">
+            <div style="display:flex;gap:0.5rem;">
+              <div class="search-bar" style="width:180px;">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" id="sig-search" placeholder="Search..." oninput="renderSignatories()" aria-label="Search signatories">
               </div>
-              <div>
-                <label class="settings-label">Position <span style="color:#dc2626;">*</span></label>
-                <input type="text" id="sig-position" class="settings-input" placeholder="e.g. Regional Director">
-              </div>
-              <div>
-                <label class="settings-label">Office <span style="color:#dc2626;">*</span></label>
-                <input type="text" id="sig-office" class="settings-input" placeholder="e.g. DSWD Field Office">
-              </div>
-              <div>
-                <label class="settings-label">Region <span style="color:#dc2626;">*</span></label>
-                <input type="text" id="sig-region" class="settings-input" placeholder="e.g. Region XIV – BARMM">
-              </div>
-              <div>
-                <label class="settings-label">Status</label>
-                <select id="sig-status" class="settings-input">
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-              <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
-                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="saveSignatory()">
-                  <span class="material-symbols-outlined" id="sig-save-icon">add</span>
-                  <span id="sig-save-label">Add Signatory</span>
-                </button>
-                <button class="btn btn-secondary btn-sm" id="sig-cancel-btn" style="display:none;" onclick="sigCancelEdit()">
-                  <span class="material-symbols-outlined">close</span>Cancel
-                </button>
-              </div>
+              <button class="btn btn-secondary btn-sm" onclick="loadSignatories(true)" title="Refresh">
+                <span class="material-symbols-outlined">refresh</span>
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="openAddSignatoryModal()">
+                <span class="material-symbols-outlined">add</span>Add Signatory
+              </button>
             </div>
           </div>
 
-          <!-- Signatories List -->
-          <div class="card" style="margin:0;">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Registered Signatories</div>
-                <div class="card-subtitle" id="sig-list-subtitle">All authorized signatories in the system</div>
-              </div>
-              <div style="display:flex;gap:0.5rem;">
-                <div class="search-bar" style="width:180px;">
-                  <span class="material-symbols-outlined">search</span>
-                  <input type="text" id="sig-search" placeholder="Search..." oninput="renderSignatories()" aria-label="Search signatories">
-                </div>
-                <button class="btn btn-secondary btn-sm" onclick="loadSignatories(true)" title="Refresh">
-                  <span class="material-symbols-outlined">refresh</span>
-                </button>
-              </div>
-            </div>
+          <!-- Status filter -->
+          <div style="display:flex;gap:0.375rem;margin-bottom:0.75rem;flex-wrap:wrap;">
+            <button class="reg-filter-btn active" data-filter="all" onclick="sigSetFilter('all',this)">All</button>
+            <button class="reg-filter-btn" data-filter="active" onclick="sigSetFilter('active',this)">Active</button>
+            <button class="reg-filter-btn" data-filter="inactive" onclick="sigSetFilter('inactive',this)">Inactive</button>
+          </div>
 
-            <!-- Status filter -->
-            <div style="display:flex;gap:0.375rem;margin-bottom:0.75rem;flex-wrap:wrap;">
-              <button class="reg-filter-btn active" data-filter="all" onclick="sigSetFilter('all',this)">All</button>
-              <button class="reg-filter-btn" data-filter="active" onclick="sigSetFilter('active',this)">Active</button>
-              <button class="reg-filter-btn" data-filter="inactive" onclick="sigSetFilter('inactive',this)">Inactive</button>
-            </div>
-
-            <div id="signatories-list" style="max-height:400px;overflow-y:auto;">
-              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading signatories...</div>
-            </div>
+          <div id="signatories-list" style="max-height:480px;overflow-y:auto;">
+            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading signatories...</div>
           </div>
         </div>
 
@@ -6688,6 +6723,19 @@
       : '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No signatories found.</div>';
   }
 
+  function openAddSignatoryModal() {
+    document.getElementById('sig-edit-id').value = '';
+    document.getElementById('sig-fullname').value = '';
+    document.getElementById('sig-position').value = '';
+    document.getElementById('sig-office').value = '';
+    document.getElementById('sig-region').value = '';
+    document.getElementById('sig-status').value = 'active';
+    document.getElementById('sig-modal-title').textContent = 'Add Signatory';
+    document.getElementById('sig-modal-submit-label').textContent = 'Add Signatory';
+    document.getElementById('sig-modal-err').style.display = 'none';
+    document.getElementById('sig-modal').style.display = 'flex';
+  }
+
   function sigStartEdit(idx) {
     const r = signatoriesData[idx];
     if (!r) return;
@@ -6697,23 +6745,14 @@
     document.getElementById('sig-office').value   = r.signatory_office;
     document.getElementById('sig-region').value   = r.signatory_region;
     document.getElementById('sig-status').value   = r.signatory_status;
-    document.getElementById('sig-form-title').textContent = 'Edit Signatory';
-    document.getElementById('sig-save-icon').textContent = 'save';
-    document.getElementById('sig-save-label').textContent = 'Update Signatory';
-    document.getElementById('sig-cancel-btn').style.display = '';
+    document.getElementById('sig-modal-title').textContent = 'Edit Signatory';
+    document.getElementById('sig-modal-submit-label').textContent = 'Update Signatory';
+    document.getElementById('sig-modal-err').style.display = 'none';
+    document.getElementById('sig-modal').style.display = 'flex';
   }
 
-  function sigCancelEdit() {
-    document.getElementById('sig-edit-id').value = '';
-    document.getElementById('sig-fullname').value = '';
-    document.getElementById('sig-position').value = '';
-    document.getElementById('sig-office').value = '';
-    document.getElementById('sig-region').value = '';
-    document.getElementById('sig-status').value = 'active';
-    document.getElementById('sig-form-title').textContent = 'Add Signatory';
-    document.getElementById('sig-save-icon').textContent = 'add';
-    document.getElementById('sig-save-label').textContent = 'Add Signatory';
-    document.getElementById('sig-cancel-btn').style.display = 'none';
+  function closeSignatoryModal() {
+    document.getElementById('sig-modal').style.display = 'none';
   }
 
   async function saveSignatory() {
@@ -6721,10 +6760,14 @@
     const fullname = document.getElementById('sig-fullname').value.trim();
     const position = document.getElementById('sig-position').value.trim();
     const office    = document.getElementById('sig-office').value.trim();
-    const region    = document.getElementById('sig-region').value.trim();
+    const region    = document.getElementById('sig-region').value;
     const status     = document.getElementById('sig-status').value;
+    const errEl    = document.getElementById('sig-modal-err');
+    const btn      = document.getElementById('sig-modal-submit-btn');
 
-    if (!fullname || !position || !office || !region) { showToast('signatories-toast', 'Full Name, Position, Office, and Region are required.', 'error'); return; }
+    if (!fullname || !position || !office || !region) { errEl.textContent = 'Full Name, Position, Office, and Region are required.'; errEl.style.display = ''; return; }
+    errEl.style.display = 'none';
+    btn.disabled = true;
 
     const payload = { signatory_fullname: fullname, signatory_position: position, signatory_office: office, signatory_region: region, signatory_status: status };
     const endpoint = id ? '/api/update-signatory.php' : '/api/add-signatory.php';
@@ -6733,11 +6776,12 @@
     try {
       const res  = await authFetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const json = await res.json();
-      if (!json.success) { showToast('signatories-toast', json.message || 'Failed to save signatory.', 'error'); return; }
-    } catch (e) { showToast('signatories-toast', 'Network error. Please try again.', 'error'); return; }
+      if (!json.success) { errEl.textContent = json.message || 'Failed to save signatory.'; errEl.style.display = ''; btn.disabled = false; return; }
+    } catch (e) { errEl.textContent = 'Network error. Please try again.'; errEl.style.display = ''; btn.disabled = false; return; }
 
+    btn.disabled = false;
+    closeSignatoryModal();
     showToast('signatories-toast', `"${fullname}" ${id ? 'updated' : 'added'}.`, 'success');
-    sigCancelEdit();
     loadSignatories(true);
   }
 
