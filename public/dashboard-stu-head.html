@@ -2637,7 +2637,8 @@
       win.focus();
       setTimeout(() => { win.print(); }, 500);
     } catch(e) {
-      showGlobalToast('Error generating payout list.', 'error');
+      console.error('Generate Payroll error:', e);
+      showGlobalToast('Error generating payout list: ' + (e?.message || e), 'error');
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
