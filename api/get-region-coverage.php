@@ -27,12 +27,25 @@ if ($res['success'] && is_array($res['data'])) {
     }
 }
 
+$regionTargets = [
+    'Region I (Ilocos Region)'    => 150,
+    'Region II (Cagayan Valley)'  => 100,
+    'Region III (Central Luzon)'  => 100,
+    'Region IV-A (CALABARZON)'    => 100,
+    'Region IV-B (MIMAROPA)'      => 150,
+    'Region V (Bicol Region)'     => 100,
+    'Region VI (Western Visayas)' => 150,
+    'Region XI (Davao)'           => 150,
+    'National Capital Region'     => 140,
+];
+
 // Sort descending by count
 arsort($counts);
 
 $data = [];
 foreach ($counts as $region => $count) {
-    $data[] = ['region' => $region, 'count' => $count];
+    $target = $regionTargets[$region] ?? null;
+    $data[] = ['region' => $region, 'count' => $count, 'target' => $target];
 }
 
 echo json_encode(['success' => true, 'data' => $data]);
