@@ -105,8 +105,8 @@ $regionTargets = [
     'Region IV-B (MIMAROPA)'      => 150,
     'Region V (Bicol Region)'     => 100,
     'Region VI (Western Visayas)' => 150,
-    'Region XI (Davao)'           => 150,
-    'National Capital Region'     => 140,
+    'Region XI (Davao Region)'      => 150,
+    'NCR (National Capital Region)' => 140,
 ];
 $nationalTarget = array_sum($regionTargets);
 $rate = $nationalTarget > 0 ? round(($completed / $nationalTarget) * 100, 1) : ($total > 0 ? round(($completed / $total) * 100, 1) : 0);
