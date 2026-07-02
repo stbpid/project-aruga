@@ -124,7 +124,8 @@ if ($sessionId) {
 $result = supabaseRequest('POST', 'assessments', $assessmentData);
 if (!$result['success'] || empty($result['data'][0]['id'])) {
     error_log('submit-assessment error: ' . ($result['error'] ?? 'Unknown'));
-    sendResponse(false, 'A server error occurred. Please try again.', null, 500);
+    // TEMPORARY DEBUG — remove after diagnosing
+    sendResponse(false, 'DEBUG: ' . json_encode($result), null, 500);
 }
 $assessmentId = $result['data'][0]['id'];
 
