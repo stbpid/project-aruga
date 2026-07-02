@@ -84,11 +84,10 @@ function getRegionCode($region) {
 
 function generateArugaId($regionCode) {
     $year = date('Y');
-    $yearStart = urlencode($year . '-01-01T00:00:00.000Z');
-    $yearEnd   = urlencode(($year + 1) . '-01-01T00:00:00.000Z');
-    $countResult = supabaseRequest('GET', "assessments?select=id&created_at=gte.{$yearStart}&created_at=lt.{$yearEnd}&limit=100000");
+    $prefix = "ARUGA-{$year}-{$regionCode}-";
+    $countResult = supabaseRequest('GET', 'assessments?select=id&aruga_id=like.' . urlencode($prefix . '*') . '&limit=100000');
     $count = is_array($countResult['data']) ? count($countResult['data']) + 1 : 1;
-    return sprintf('ARUGA-%s-%s-%04d', $year, $regionCode, $count);
+    return sprintf('%s%04d', $prefix, $count);
 }
 
 // ----------------------------------------------------------------
@@ -121,11 +120,21 @@ if ($sessionId) {
     }
 }
 
-$result = supabaseRequest('POST', 'assessments', $assessmentData);
-if (!$result['success'] || empty($result['data'][0]['id'])) {
+$maxAttempts = 5;
+for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+    $result = supabaseRequest('POST', 'assessments', $assessmentData);
+    if ($result['success'] && !empty($result['data'][0]['id'])) {
+        break;
+    }
+    $isDuplicateArugaId = ($result['data']['code'] ?? '') === '23505'
+        && strpos($result['data']['message'] ?? '', 'aruga_id') !== false;
+    if ($isDuplicateArugaId && $attempt < $maxAttempts) {
+        $arugaId = generateArugaId($regionCode);
+        $assessmentData['aruga_id'] = $arugaId;
+        continue;
+    }
     error_log('submit-assessment error: ' . ($result['error'] ?? 'Unknown'));
-    // TEMPORARY DEBUG — remove after diagnosing
-    sendResponse(false, 'DEBUG: ' . json_encode($result), null, 500);
+    sendResponse(false, 'Failed to submit assessment. Please try again.', null, 500);
 }
 $assessmentId = $result['data'][0]['id'];
 
