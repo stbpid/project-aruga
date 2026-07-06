@@ -91,9 +91,9 @@ foreach ($assessments as $a) {
     if ($firstName) $beneficiaryName .= ', ' . $firstName;
     if ($middleName) $beneficiaryName .= ' ' . $middleName;
 
-    // Authorized claimant(s)
+    // Authorized claimant (only one allowed)
     $claimantNames = $familyMap[$a['id']] ?? [];
-    $claimantName = implode(', ', $claimantNames);
+    $claimantName = $claimantNames[0] ?? '';
 
     $rows[] = [
         'aruga_id'         => $a['aruga_id']   ?? '—',
