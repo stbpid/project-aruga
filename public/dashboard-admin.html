@@ -462,32 +462,43 @@
     </div><!-- /view-interviewers -->
 
     <!-- Payroll Type Modal -->
-    <div id="payroll-type-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
-      <div style="background:white;border-radius:1.25rem;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,0.22);animation:modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden;">
+    <div id="payroll-type-modal" class="payroll-type-modal">
+      <div class="payroll-type-modal-backdrop" onclick="closePayrollTypeModal()"></div>
+      <div class="payroll-type-modal-box">
+        <div class="payroll-type-modal-top">
+          <div class="payroll-type-modal-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+        </div>
+        <div class="payroll-type-modal-body">
+          <div class="payroll-type-modal-title">Generate Payroll</div>
+          <div class="payroll-type-modal-msg">Choose which payroll you want to generate.<br><strong>This will prepare a printable PDF document.</strong></div>
+        </div>
+        <div class="payroll-type-modal-actions">
+          <button id="payroll-complete-btn" onclick="closePayrollTypeModal(); generateBenPayoutList();">Complete Beneficiary</button>
+          <button id="payroll-special-btn" onclick="closePayrollTypeModal(); openSpecialPayrollModal();">Special Payroll</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Special Payroll Modal -->
+    <div id="special-payroll-modal" class="payroll-type-modal">
+      <div class="payroll-type-modal-backdrop" onclick="closeSpecialPayrollModal()"></div>
+      <div class="payroll-type-modal-box" style="max-width:420px;text-align:left;">
         <div style="padding:1.5rem 1.75rem 1rem;border-bottom:1px solid var(--gray-100);">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
-              <div style="font-size:1rem;font-weight:800;color:var(--dark);">Generate Payroll</div>
-              <div style="font-size:0.75rem;color:var(--gray-400);margin-top:0.1rem;">Choose which payroll you want to generate</div>
+              <div style="font-size:1rem;font-weight:800;color:var(--dark);">Special Payroll</div>
+              <div style="font-size:0.75rem;color:var(--gray-400);margin-top:0.1rem;">Enter Aruga IDs to include, one at a time</div>
             </div>
-            <button onclick="closePayrollTypeModal()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;padding:0.25rem;border-radius:0.375rem;"><span class="material-symbols-outlined">close</span></button>
+            <button onclick="closeSpecialPayrollModal()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;padding:0.25rem;border-radius:0.375rem;"><span class="material-symbols-outlined">close</span></button>
           </div>
         </div>
-        <div style="padding:1.25rem 1.75rem;display:flex;flex-direction:column;gap:0.75rem;">
-          <button class="btn btn-secondary" onclick="closePayrollTypeModal(); generateBenPayoutList();" style="display:flex;align-items:center;gap:0.6rem;justify-content:flex-start;padding:0.9rem 1rem;">
-            <span class="material-symbols-outlined" style="font-size:1.25rem;color:var(--blue);">groups</span>
-            <div style="text-align:left;">
-              <div style="font-weight:700;font-size:0.85rem;color:var(--dark);">Complete Beneficiary</div>
-              <div style="font-size:0.72rem;color:var(--gray-400);">Generate payroll for all matching beneficiaries</div>
-            </div>
-          </button>
-          <button class="btn btn-secondary" onclick="closePayrollTypeModal(); showGlobalToast('Special payroll not yet available.', 'error');" style="display:flex;align-items:center;gap:0.6rem;justify-content:flex-start;padding:0.9rem 1rem;">
-            <span class="material-symbols-outlined" style="font-size:1.25rem;color:var(--gray-400);">star</span>
-            <div style="text-align:left;">
-              <div style="font-weight:700;font-size:0.85rem;color:var(--dark);">Special Payroll</div>
-              <div style="font-size:0.72rem;color:var(--gray-400);">Generate payroll for a special/custom selection</div>
-            </div>
-          </button>
+        <div style="padding:1.25rem 1.75rem;">
+          <div id="special-payroll-chips" style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.6rem;min-height:0;"></div>
+          <input type="text" id="special-payroll-input" class="settings-input" placeholder="Type an Aruga ID and press Enter" onkeydown="handleSpecialPayrollKeydown(event)">
+          <div style="font-size:0.7rem;color:var(--gray-400);margin-top:0.5rem;" id="special-payroll-count">No Aruga IDs added yet.</div>
+        </div>
+        <div style="padding:0 1.75rem 1.5rem;">
+          <button id="special-payroll-generate-btn" class="btn btn-primary" style="width:100%;justify-content:center;" onclick="generateSpecialPayroll()">Generate Payroll</button>
         </div>
       </div>
     </div>
@@ -7805,14 +7816,74 @@
 
   function openPayrollTypeModal() {
     if (!allBenFiltered.length) { showGlobalToast('No beneficiaries match the current filter.', 'error'); return; }
-    document.getElementById('payroll-type-modal').style.display = 'flex';
+    document.getElementById('payroll-type-modal').classList.add('open');
   }
 
   function closePayrollTypeModal() {
-    document.getElementById('payroll-type-modal').style.display = 'none';
+    document.getElementById('payroll-type-modal').classList.remove('open');
   }
 
-  async function generateBenPayoutList() {
+  let specialPayrollIds = [];
+
+  function openSpecialPayrollModal() {
+    specialPayrollIds = [];
+    renderSpecialPayrollChips();
+    document.getElementById('special-payroll-input').value = '';
+    document.getElementById('special-payroll-modal').classList.add('open');
+    setTimeout(() => document.getElementById('special-payroll-input').focus(), 50);
+  }
+
+  function closeSpecialPayrollModal() {
+    document.getElementById('special-payroll-modal').classList.remove('open');
+  }
+
+  function handleSpecialPayrollKeydown(e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const input = e.target;
+    const value = input.value.trim();
+    if (!value) return;
+    if (!specialPayrollIds.some(id => id.toUpperCase() === value.toUpperCase())) {
+      specialPayrollIds.push(value);
+      renderSpecialPayrollChips();
+    }
+    input.value = '';
+  }
+
+  function removeSpecialPayrollId(index) {
+    specialPayrollIds.splice(index, 1);
+    renderSpecialPayrollChips();
+  }
+
+  function renderSpecialPayrollChips() {
+    const wrap = document.getElementById('special-payroll-chips');
+    wrap.innerHTML = specialPayrollIds.map((id, i) => `
+      <span style="display:flex;align-items:center;gap:0.3rem;background:var(--blue-light);color:var(--blue);font-size:0.75rem;font-weight:700;padding:0.3rem 0.5rem;border-radius:0.4rem;">
+        ${id}
+        <span class="material-symbols-outlined" style="font-size:0.9rem;cursor:pointer;" onclick="removeSpecialPayrollId(${i})">close</span>
+      </span>`).join('');
+    const count = document.getElementById('special-payroll-count');
+    count.textContent = specialPayrollIds.length
+      ? `${specialPayrollIds.length} Aruga ID${specialPayrollIds.length > 1 ? 's' : ''} added.`
+      : 'No Aruga IDs added yet.';
+  }
+
+  function generateSpecialPayroll() {
+    const input = document.getElementById('special-payroll-input');
+    const pending = input.value.trim();
+    if (pending && !specialPayrollIds.some(id => id.toUpperCase() === pending.toUpperCase())) {
+      specialPayrollIds.push(pending);
+      input.value = '';
+    }
+    if (!specialPayrollIds.length) {
+      showGlobalToast('Add at least one Aruga ID.', 'error');
+      return;
+    }
+    closeSpecialPayrollModal();
+    generateBenPayoutList(specialPayrollIds);
+  }
+
+  async function generateBenPayoutList(arugaIdFilter) {
     if (!allBenFiltered.length) { showGlobalToast('No beneficiaries match the current filter.', 'error'); return; }
     const btn = document.getElementById('all-ben-payout-btn');
     btn.disabled = true;
@@ -7850,11 +7921,23 @@
       const regionLabel = (region || 'All Regions').replace(/^Region (IV-A|IV-B|[IVX]+)\b/, (m, roman) => 'Region ' + (ROMAN_TO_NUM[roman] || roman));
 
       const seenArugaIds = new Set();
-      const uniqueBen = allBenFiltered.filter(r => {
+      let uniqueBen = allBenFiltered.filter(r => {
         if (!r.aruga_id || seenArugaIds.has(r.aruga_id)) return false;
         seenArugaIds.add(r.aruga_id);
         return true;
       });
+
+      if (arugaIdFilter && arugaIdFilter.length) {
+        const wanted = new Set(arugaIdFilter.map(id => id.trim().toUpperCase()));
+        uniqueBen = uniqueBen.filter(r => wanted.has((r.aruga_id || '').trim().toUpperCase()));
+        if (!uniqueBen.length) {
+          showGlobalToast('None of the entered Aruga IDs match a beneficiary.', 'error');
+          win.close();
+          btn.disabled = false;
+          btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
+          return;
+        }
+      }
 
       const ROWS_PER_PAGE = 20;
       const allRows = uniqueBen.map((r, i) => {
