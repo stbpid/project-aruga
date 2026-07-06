@@ -1307,23 +1307,27 @@ table.dash-table {
 }
 
 #payroll-complete-btn,
-#co-payroll-complete-btn {
+#co-payroll-complete-btn,
+#stu-payroll-complete-btn {
   background: var(--blue);
   color: white;
   border-radius: 0 0 0 1.25rem;
 }
 #payroll-complete-btn:hover,
-#co-payroll-complete-btn:hover { background: #0e45b8; }
+#co-payroll-complete-btn:hover,
+#stu-payroll-complete-btn:hover { background: #0e45b8; }
 
 #payroll-special-btn,
-#co-payroll-special-btn {
+#co-payroll-special-btn,
+#stu-payroll-special-btn {
   background: white;
   color: var(--gray-600);
   border-left: 1px solid var(--gray-100);
   border-radius: 0 0 1.25rem 0;
 }
 #payroll-special-btn:hover,
-#co-payroll-special-btn:hover { background: var(--gray-50); }
+#co-payroll-special-btn:hover,
+#stu-payroll-special-btn:hover { background: var(--gray-50); }
 .btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
 
 /* ── Region Bar Chart Hover ──────────────── */
