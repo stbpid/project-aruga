@@ -2701,7 +2701,7 @@
         return true;
       });
 
-      const ROWS_PER_PAGE = 25;
+      const ROWS_PER_PAGE = 20;
       const allRows = uniqueBen.map((r, i) => {
         const pd = payoutMap[r.aruga_id] || {};
         const beneficiaryName = (pd.beneficiary_name || r.name || '').toUpperCase();
@@ -2781,7 +2781,7 @@
   <title>Project Aruga Payroll</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    @page { size: A4 portrait; margin: 0; }
+    @page { size: A4 landscape; margin: 0; }
     body { font-family: Arial, sans-serif; font-size: 9pt; }
 
     #page-header {
