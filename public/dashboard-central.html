@@ -2883,7 +2883,6 @@
       const totalPageCount = Math.max(1, Math.ceil(allRows.length / ROWS_PER_PAGE));
       const makeFooterHtml = (pageNum) => matchedSignatories.length ? '' : `
       <div id="page-footer">
-        <hr class="ftr-rule">
         <div class="ftr-text">
           <span>This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</span>
           <span>Page ${pageNum} of ${totalPageCount}</span>
@@ -2948,7 +2947,6 @@
       padding: 1mm 0 5mm 0;
       background: #fff;
     }
-    .ftr-rule { border: none; border-top: 1px solid #ccc; margin-bottom: 2px; }
     .ftr-text { display: flex; justify-content: space-between; font-size: 7.5pt; color: #555; }
 
     .page-content {
