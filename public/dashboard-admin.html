@@ -8055,7 +8055,10 @@
     .hdr-subtitle { text-align: center; font-weight: bold; font-size: 10pt; margin-top: 3px; line-height: 1.4; }
 
     .page-footer-inline {
-      margin-top: 6mm;
+      position: absolute;
+      bottom: 50px;
+      left: 0;
+      right: 0;
       padding: 1mm 0 0 0;
     }
     .ftr-rule { border: none; border-top: 1px solid #ccc; margin-bottom: 2px; }
@@ -8064,6 +8067,8 @@
     .ftr-page { text-align: right; font-size: 7.5pt; color: #555; white-space: nowrap; }
 
     .page-content {
+      position: relative;
+      min-height: calc(210mm - 38mm - 12mm);
       margin-top: 38mm;
       margin-bottom: 12mm;
       padding: 0 12mm;
