@@ -475,7 +475,7 @@
         <div class="payroll-type-modal-actions">
           <button id="payroll-complete-btn" onclick="closePayrollTypeModal(); generateBenPayoutList();">Complete Beneficiary</button>
           <button id="payroll-special-btn" onclick="closePayrollTypeModal(); openSpecialPayrollModal();">Special Payroll</button>
-          <button id="payroll-test-btn" onclick="closePayrollTypeModal(); generateBenPayoutList(null, true);">Test Payroll</button>
+          <button id="payroll-test-btn" onclick="closePayrollTypeModal(); generateBenPayoutList(null, false, true);">Test Payroll</button>
         </div>
       </div>
     </div>
@@ -7885,7 +7885,7 @@
     generateBenPayoutList(specialPayrollIds);
   }
 
-  async function generateBenPayoutList(arugaIdFilter, asDocx) {
+  async function generateBenPayoutList(arugaIdFilter, asDocx, testMode) {
     if (!allBenFiltered.length) { showGlobalToast('No beneficiaries match the current filter.', 'error'); return; }
     const btn = document.getElementById('all-ben-payout-btn');
     btn.disabled = true;
@@ -7944,7 +7944,8 @@
         }
       }
 
-      const ROWS_PER_PAGE = 20;
+      const ROWS_PER_PAGE = testMode ? 15 : 20;
+      const rowHeightPx = testMode ? 35 : 22;
       const allRows = uniqueBen.map((r, i) => {
         const pd = payoutMap[r.aruga_id] || {};
         const beneficiaryName = (pd.beneficiary_name || r.name || '').toUpperCase();
@@ -8059,7 +8060,7 @@
     table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     th, td { border: 1px solid #000; padding: 3px 5px; font-size: 8pt; vertical-align: middle; }
     th { font-weight: bold; text-align: center; background: #fff; }
-    tr { height: 22px; }
+    tr { height: ${rowHeightPx}px; }
 
     .page-break { break-after: page; page-break-after: always; }
 
