@@ -7944,8 +7944,8 @@
         }
       }
 
-      const ROWS_PER_PAGE = testMode ? 15 : 20;
-      const rowHeightPx = testMode ? 35 : 22;
+      const ROWS_PER_PAGE = testMode ? 12 : 20;
+      const rowHeightPx = testMode ? 40 : 22;
       const allRows = uniqueBen.map((r, i) => {
         const pd = payoutMap[r.aruga_id] || {};
         const beneficiaryName = (pd.beneficiary_name || r.name || '').toUpperCase();
