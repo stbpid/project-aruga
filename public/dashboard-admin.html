@@ -827,6 +827,20 @@
               </div>
             </div>
             <div>
+              <label class="settings-label">Function <span style="color:#dc2626;">*</span></label>
+              <div style="position:relative;">
+                <select id="sig-function" class="settings-input" style="appearance:none;-webkit-appearance:none;padding-right:2.25rem;">
+                  <option value="">Select function...</option>
+                  <option value="Prepared by">Prepared by</option>
+                  <option value="Reviewed by">Reviewed by</option>
+                  <option value="Recommending Approval">Recommending Approval</option>
+                  <option value="Approved By">Approved By</option>
+                  <option value="Special Disbursing Officer">Special Disbursing Officer</option>
+                </select>
+                <span class="material-symbols-outlined" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
+              </div>
+            </div>
+            <div>
               <label class="settings-label">Status</label>
               <div style="position:relative;">
                 <select id="sig-status" class="settings-input" style="appearance:none;-webkit-appearance:none;padding-right:2.25rem;">
@@ -6842,6 +6856,7 @@
     document.getElementById('sig-position').value = '';
     document.getElementById('sig-office').value = '';
     document.getElementById('sig-region').value = '';
+    document.getElementById('sig-function').value = '';
     document.getElementById('sig-status').value = 'active';
     document.getElementById('sig-modal-title').textContent = 'Add Signatory';
     document.getElementById('sig-modal-submit-label').textContent = 'Add Signatory';
@@ -6857,6 +6872,7 @@
     document.getElementById('sig-position').value = r.signatory_position;
     document.getElementById('sig-office').value   = r.signatory_office;
     document.getElementById('sig-region').value   = r.signatory_region;
+    document.getElementById('sig-function').value = r.signatory_function;
     document.getElementById('sig-status').value   = r.signatory_status;
     document.getElementById('sig-modal-title').textContent = 'Edit Signatory';
     document.getElementById('sig-modal-submit-label').textContent = 'Update Signatory';
@@ -6874,15 +6890,16 @@
     const position = document.getElementById('sig-position').value.trim();
     const office    = document.getElementById('sig-office').value.trim();
     const region    = document.getElementById('sig-region').value;
+    const func      = document.getElementById('sig-function').value;
     const status     = document.getElementById('sig-status').value;
     const errEl    = document.getElementById('sig-modal-err');
     const btn      = document.getElementById('sig-modal-submit-btn');
 
-    if (!fullname || !position || !office || !region) { errEl.textContent = 'Full Name, Position, Office, and Region are required.'; errEl.style.display = ''; return; }
+    if (!fullname || !position || !office || !region || !func) { errEl.textContent = 'Full Name, Position, Office, Region, and Function are required.'; errEl.style.display = ''; return; }
     errEl.style.display = 'none';
     btn.disabled = true;
 
-    const payload = { signatory_fullname: fullname, signatory_position: position, signatory_office: office, signatory_region: region, signatory_status: status };
+    const payload = { signatory_fullname: fullname, signatory_position: position, signatory_office: office, signatory_region: region, signatory_function: func, signatory_status: status };
     const endpoint = id ? '/api/update-signatory.php' : '/api/add-signatory.php';
     if (id) payload.id = id;
 

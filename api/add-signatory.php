@@ -19,10 +19,11 @@ $fullname = trim($body['signatory_fullname'] ?? '');
 $position = trim($body['signatory_position'] ?? '');
 $office   = trim($body['signatory_office']   ?? '');
 $region   = trim($body['signatory_region']   ?? '');
+$function = trim($body['signatory_function'] ?? '');
 $status   = trim($body['signatory_status']   ?? 'active');
 
-if (!$fullname || !$position || !$office || !$region) {
-    echo json_encode(['success' => false, 'message' => 'Full Name, Position, Office, and Region are required.']); exit;
+if (!$fullname || !$position || !$office || !$region || !$function) {
+    echo json_encode(['success' => false, 'message' => 'Full Name, Position, Office, Region, and Function are required.']); exit;
 }
 
 if (!in_array($status, ['active', 'inactive'], true)) {
@@ -34,6 +35,7 @@ $payload = [
     'signatory_position' => $position,
     'signatory_office'   => $office,
     'signatory_region'   => $region,
+    'signatory_function' => $function,
     'signatory_status'   => $status,
 ];
 

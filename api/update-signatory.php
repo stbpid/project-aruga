@@ -23,6 +23,7 @@ if (!empty($body['signatory_fullname'])) $fields['signatory_fullname'] = trim($b
 if (!empty($body['signatory_position'])) $fields['signatory_position'] = trim($body['signatory_position']);
 if (!empty($body['signatory_office']))   $fields['signatory_office']   = trim($body['signatory_office']);
 if (!empty($body['signatory_region']))   $fields['signatory_region']   = trim($body['signatory_region']);
+if (!empty($body['signatory_function'])) $fields['signatory_function'] = trim($body['signatory_function']);
 if (isset($body['signatory_status']) && in_array($body['signatory_status'], ['active', 'inactive'], true)) {
     $fields['signatory_status'] = $body['signatory_status'];
 }
@@ -31,7 +32,7 @@ if (empty($fields)) {
     echo json_encode(['success' => false, 'message' => 'No fields to update']); exit;
 }
 
-$oldRes = supabaseRequest('GET', 'signatories?select=id,signatory_fullname,signatory_position,signatory_office,signatory_region,signatory_status&id=eq.' . urlencode($id) . '&limit=1');
+$oldRes = supabaseRequest('GET', 'signatories?select=id,signatory_fullname,signatory_position,signatory_office,signatory_region,signatory_function,signatory_status&id=eq.' . urlencode($id) . '&limit=1');
 $old    = ($oldRes['success'] && !empty($oldRes['data'])) ? $oldRes['data'][0] : null;
 
 $res = supabaseRequest('PATCH', 'signatories?id=eq.' . urlencode($id), $fields);
