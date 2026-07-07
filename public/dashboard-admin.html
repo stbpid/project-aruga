@@ -475,6 +475,7 @@
         <div class="payroll-type-modal-actions">
           <button id="payroll-complete-btn" onclick="closePayrollTypeModal(); generateBenPayoutList();">Complete Beneficiary</button>
           <button id="payroll-special-btn" onclick="closePayrollTypeModal(); openSpecialPayrollModal();">Special Payroll</button>
+          <button id="payroll-test-btn" onclick="closePayrollTypeModal(); generateBenPayoutList(null, true);">Test Payroll</button>
         </div>
       </div>
     </div>
@@ -2716,6 +2717,7 @@
 <script src="/js/dashboard-auth.js"></script>
 <script src="/js/dashboard-common.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.js"></script>
 <script>
   dashRequireAuth();
 
@@ -7883,20 +7885,23 @@
     generateBenPayoutList(specialPayrollIds);
   }
 
-  async function generateBenPayoutList(arugaIdFilter) {
+  async function generateBenPayoutList(arugaIdFilter, asDocx) {
     if (!allBenFiltered.length) { showGlobalToast('No beneficiaries match the current filter.', 'error'); return; }
     const btn = document.getElementById('all-ben-payout-btn');
     btn.disabled = true;
     btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;animation:spin 1s linear infinite;">progress_activity</span>Generating...';
 
-    const win = window.open('', '_blank');
-    if (!win) {
-      showGlobalToast('Pop-up blocked. Please allow pop-ups for this site and try again.', 'error');
-      btn.disabled = false;
-      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
-      return;
+    let win = null;
+    if (!asDocx) {
+      win = window.open('', '_blank');
+      if (!win) {
+        showGlobalToast('Pop-up blocked. Please allow pop-ups for this site and try again.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
+        return;
+      }
+      win.document.write('<p style="font-family:sans-serif;padding:2rem;">Generating payroll, please wait...</p>');
     }
-    win.document.write('<p style="font-family:sans-serif;padding:2rem;">Generating payroll, please wait...</p>');
 
     try {
       const region = document.getElementById('all-ben-region').value;
@@ -8100,11 +8105,23 @@
 </body>
 </html>`;
 
-      win.document.open();
-      win.document.write(html);
-      win.document.close();
-      win.focus();
-      setTimeout(() => { win.print(); }, 500);
+      if (asDocx) {
+        const converted = window.htmlDocx.asBlob(html, { orientation: 'landscape' });
+        const dlUrl = URL.createObjectURL(converted);
+        const a = document.createElement('a');
+        a.href = dlUrl;
+        a.download = `Test-Payroll-${monthYear.replace(/\s+/g, '-')}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(dlUrl);
+      } else {
+        win.document.open();
+        win.document.write(html);
+        win.document.close();
+        win.focus();
+        setTimeout(() => { win.print(); }, 500);
+      }
     } catch(e) {
       console.error('Generate Payroll error:', e);
       showGlobalToast('Error generating payout list: ' + (e?.message || e), 'error');
