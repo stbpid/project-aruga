@@ -7969,6 +7969,12 @@
         </tr>`;
       });
 
+      const totalAmount = uniqueBen.length * 2000;
+      const totalRowHtml = testMode ? `<tr>
+          <td colspan="4" style="font-weight:bold;text-align:right;">TOTAL</td>
+          <td colspan="3" style="font-weight:bold;">${totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+        </tr>` : '';
+
       const tableHead = `
         <thead>
           <tr>
@@ -8029,7 +8035,7 @@
       </table>
     </div>`);
       }
-      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${signatureRowHtml}\n        </tbody>`);
+      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${totalRowHtml}${signatureRowHtml}\n        </tbody>`);
       for (let i = 0; i < pages.length - 1; i++) {
         pages[i] = pages[i].replace('</div>', `${buildFooterHtml(i + 1, pages.length)}\n    </div>`);
       }
