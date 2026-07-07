@@ -2577,8 +2577,17 @@
       const sigRes = await authFetch('/api/get-signatories.php');
       const sigJson = await sigRes.json();
       const normRegion = s => (s || '').trim().toLowerCase();
+      const SIGNATORY_FUNCTION_ORDER = ['prepared by', 'reviewed by', 'recommending approval', 'approved by'];
+      const normFunction = s => (s || '').trim().toLowerCase();
       const matchedSignatories = (sigJson.success && sigJson.data ? sigJson.data : [])
-        .filter(s => s.signatory_status === 'active' && normRegion(s.signatory_region) === normRegion(region));
+        .filter(s => s.signatory_status === 'active' && normRegion(s.signatory_region) === normRegion(region))
+        .filter(s => SIGNATORY_FUNCTION_ORDER.includes(normFunction(s.signatory_function)))
+        .reduce((acc, s) => {
+          const fn = normFunction(s.signatory_function);
+          if (!acc.some(x => normFunction(x.signatory_function) === fn)) acc.push(s);
+          return acc;
+        }, [])
+        .sort((a, b) => SIGNATORY_FUNCTION_ORDER.indexOf(normFunction(a.signatory_function)) - SIGNATORY_FUNCTION_ORDER.indexOf(normFunction(b.signatory_function)));
 
       const now = new Date();
       const monthYear  = now.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
@@ -2638,6 +2647,7 @@
             <div class="sig-block" style="display:flex;justify-content:space-around;">
               ${matchedSignatories.map(s => `
               <div class="sig-col" style="text-align:center;width:${matchedSignatories.length === 1 ? 40 : 100 / matchedSignatories.length}%;padding:0 10px;">
+                <div style="text-transform:uppercase;font-size:0.85em;margin-bottom:4px;">${s.signatory_function}:</div>
                 <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
                 <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
                 <div>${s.signatory_position}</div>
