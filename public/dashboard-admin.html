@@ -7989,6 +7989,8 @@
           </td>
         </tr>` : '';
 
+      const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
       const buildFooterHtml = (pageNum, totalPages) => `
       <div class="page-footer-inline">
         <hr class="ftr-rule">
@@ -8025,8 +8027,6 @@
         pages[i] = pages[i].replace('</div>', `${buildFooterHtml(i + 1, pages.length)}\n    </div>`);
       }
       const pagesHtml = pages.join('\n    <div class="page-break"></div>\n');
-
-      const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
       const dswdLogoUrl = window.location.origin + '/images/form-logo.webp';
       const bpLogoUrl = window.location.origin + '/images/bagong-pilipinas.webp';
