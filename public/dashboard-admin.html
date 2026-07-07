@@ -7991,7 +7991,7 @@
 
       const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-      const buildFooterHtml = (pageNum, totalPages) => matchedSignatories.length ? '' : `
+      const buildFooterHtml = (pageNum, totalPages) => (matchedSignatories.length && pageNum === totalPages) ? '' : `
       <div class="page-footer-inline">
         <div class="ftr-row">
           <div class="ftr-text">This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</div>
