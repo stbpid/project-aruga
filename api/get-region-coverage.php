@@ -67,7 +67,13 @@ function normalizeRegion($r) {
         'BARMM'                        => 'BARMM (Bangsamoro)',
         'Bangsamoro'                   => 'BARMM (Bangsamoro)',
     ];
-    return $map[$r] ?? ($r ?: '');
+    if (isset($map[$r])) return $map[$r];
+    // case-insensitive fallback so values like "region v (bicol region)" still match
+    $rLower = mb_strtolower($r);
+    foreach ($map as $key => $val) {
+        if (mb_strtolower($key) === $rLower) return $val;
+    }
+    return $r ?: '';
 }
 
 // Fetch non-deleted assessment IDs, then count children by region for those assessments only
