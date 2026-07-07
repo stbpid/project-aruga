@@ -2879,6 +2879,17 @@
           </td>
         </tr>` : '';
 
+      const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const totalPageCount = Math.max(1, Math.ceil(allRows.length / ROWS_PER_PAGE));
+      const makeFooterHtml = (pageNum) => matchedSignatories.length ? '' : `
+      <div id="page-footer">
+        <hr class="ftr-rule">
+        <div class="ftr-text">
+          <span>This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</span>
+          <span>Page ${pageNum} of ${totalPageCount}</span>
+        </div>
+      </div>`;
+
       const pages = [];
       for (let p = 0; p < allRows.length; p += ROWS_PER_PAGE) {
         const pageRows = allRows.slice(p, p + ROWS_PER_PAGE).join('');
@@ -2890,6 +2901,7 @@
           ${pageRows}
         </tbody>
       </table>
+      ${makeFooterHtml(pages.length + 1)}
     </div>`);
       }
       if (!pages.length) {
@@ -2899,12 +2911,11 @@
         ${tableHead}
         <tbody></tbody>
       </table>
+      ${makeFooterHtml(1)}
     </div>`);
       }
       pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${signatureRowHtml}\n        </tbody>`);
       const pagesHtml = pages.join('\n    <div class="page-break"></div>\n');
-
-      const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
       const dswdLogoUrl = window.location.origin + '/images/form-logo.webp';
       const bpLogoUrl = window.location.origin + '/images/bagong-pilipinas.webp';
@@ -2933,13 +2944,12 @@
     .hdr-subtitle { text-align: center; font-weight: bold; font-size: 10pt; margin-top: 3px; line-height: 1.4; }
 
     #page-footer {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
+      margin-top: 6mm;
       padding: 1mm 12mm 5mm 12mm;
       background: #fff;
     }
     .ftr-rule { border: none; border-top: 1px solid #ccc; margin-bottom: 2px; }
-    .ftr-text { text-align: center; font-size: 7.5pt; color: #555; }
+    .ftr-text { display: flex; justify-content: space-between; font-size: 7.5pt; color: #555; }
 
     .page-content {
       margin-top: 38mm;
@@ -2982,13 +2992,6 @@
       <div>${monthYear}</div>
     </div>
   </div>
-
-  <!-- Footer: repeated on every page -->
-  ${matchedSignatories.length ? '' : `
-  <div id="page-footer">
-    <hr class="ftr-rule">
-    <div class="ftr-text">This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</div>
-  </div>`}
 
   <!-- Content -->
   ${pagesHtml}
