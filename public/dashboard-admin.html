@@ -7946,6 +7946,9 @@
         }, [])
         .sort((a, b) => SIGNATORY_FUNCTION_ORDER.indexOf(normFunction(a.signatory_function)) - SIGNATORY_FUNCTION_ORDER.indexOf(normFunction(b.signatory_function)));
 
+      const specialDisbursingOfficer = (sigJson.success && sigJson.data ? sigJson.data : [])
+        .find(s => s.signatory_status === 'active' && (!region || normRegion(s.signatory_region) === normRegion(region)) && normFunction(s.signatory_function) === 'special disbursing officer');
+
       const now = new Date();
       const monthYear = now.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
       const ROMAN_TO_NUM = { I:'1', II:'2', III:'3', IV:'4', 'IV-A':'4-A', 'IV-B':'4-B', V:'5', VI:'6', VII:'7', VIII:'8', IX:'9', X:'10', XI:'11', XII:'12', XIII:'13' };
@@ -8030,6 +8033,21 @@
           </td>
         </tr>` : '';
 
+      const specialDisbursingOfficerRowHtml = specialDisbursingOfficer ? `
+        <tr style="height:auto;border:none;">
+          <td colspan="7" style="border:none;padding-top:0.5in;">
+            <div class="sig-block" style="display:flex;justify-content:space-around;">
+              <div class="sig-col" style="text-align:center;width:40%;padding:0 10px;">
+                <div style="text-transform:uppercase;font-size:0.85em;margin-bottom:0.4in;text-align:left;">Certified True and Correct By:</div>
+                <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
+                <div style="font-weight:bold;text-transform:uppercase;">${specialDisbursingOfficer.signatory_fullname}</div>
+                <div>${specialDisbursingOfficer.signatory_position}</div>
+                <div>${specialDisbursingOfficer.signatory_office}</div>
+              </div>
+            </div>
+          </td>
+        </tr>` : '';
+
       const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
       const buildFooterHtml = (pageNum, totalPages) => (matchedSignatories.length && pageNum === totalPages) ? '' : `
@@ -8062,7 +8080,7 @@
       </table>
     </div>`);
       }
-      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${totalRowHtml}${signatureRowHtml}\n        </tbody>`);
+      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${totalRowHtml}${signatureRowHtml}${specialDisbursingOfficerRowHtml}\n        </tbody>`);
       for (let i = 0; i < pages.length - 1; i++) {
         pages[i] = pages[i].replace('</div>', `${buildFooterHtml(i + 1, pages.length)}\n    </div>`);
       }
