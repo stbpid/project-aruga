@@ -7991,9 +7991,8 @@
 
       const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-      const buildFooterHtml = (pageNum, totalPages) => `
+      const buildFooterHtml = (pageNum, totalPages) => matchedSignatories.length ? '' : `
       <div class="page-footer-inline">
-        <hr class="ftr-rule">
         <div class="ftr-row">
           <div class="ftr-text">This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</div>
           <div class="ftr-page">Page <strong>${pageNum}</strong> of <strong>${totalPages}</strong></div>
@@ -8059,9 +8058,8 @@
       bottom: 50px;
       left: 0;
       right: 0;
-      padding: 1mm 0 0 0;
+      padding: 1mm 12mm 0 12mm;
     }
-    .ftr-rule { border: none; border-top: 1px solid #ccc; margin-bottom: 2px; }
     .ftr-row { display: flex; justify-content: space-between; align-items: center; }
     .ftr-text { text-align: left; font-size: 7.5pt; color: #555; }
     .ftr-page { text-align: right; font-size: 7.5pt; color: #555; white-space: nowrap; }
