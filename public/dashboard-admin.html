@@ -8048,6 +8048,15 @@
           </td>
         </tr>` : '';
 
+      const certificationRowHtml = matchedSignatories.length ? `
+        <tr style="height:auto;border:none;">
+          <td colspan="7" style="border:none;padding-top:0.5in;">
+            <div style="font-size:0.85em;text-align:justify;width:70%;">
+              I hereby certify on my official oath that this Report of Cash Disbursements in ____ page(s) is a full, true and correct statement of all cash disbursements during the period of ________ actually made by me in payment for obligations shown in pertinent disbursement payroll.
+            </div>
+          </td>
+        </tr>` : '';
+
       const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
       const buildFooterHtml = (pageNum, totalPages) => (matchedSignatories.length && pageNum === totalPages) ? '' : `
@@ -8080,7 +8089,7 @@
       </table>
     </div>`);
       }
-      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${totalRowHtml}${signatureRowHtml}${specialDisbursingOfficerRowHtml}\n        </tbody>`);
+      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${totalRowHtml}${signatureRowHtml}${specialDisbursingOfficerRowHtml}${certificationRowHtml}\n        </tbody>`);
       for (let i = 0; i < pages.length - 1; i++) {
         pages[i] = pages[i].replace('</div>', `${buildFooterHtml(i + 1, pages.length)}\n    </div>`);
       }
