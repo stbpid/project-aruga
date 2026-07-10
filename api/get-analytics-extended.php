@@ -23,17 +23,29 @@ if ($range !== 'all') {
     $dateFilter = '&created_at=gte.' . urlencode($since);
 }
 
-// ── Fetch all needed tables (paginated — Supabase caps each response at 1000 rows) ──
-$rawAss    = supabaseFetchAll('assessments?select=id,readiness_score,created_at&deleted_at=is.null' . $dateFilter);
-$rawChild  = supabaseFetchAll('children?select=assessment_id,region,sex,religion,religion_other,ip_membership');
-$rawPreq   = supabaseFetchAll('pre_qualification?select=assessment_id,is_4ps_member');
-$rawFam    = supabaseFetchAll('family_members?select=assessment_id');
-$rawEdus   = supabaseFetchAll('education_info?select=assessment_id,is_currently_enrolled,not_enrolled_reason');
-$rawCedu   = supabaseFetchAll('child_education_health?select=assessment_id,highest_education,disabilities');
-$rawEcons  = supabaseFetchAll('economic_capacity?select=assessment_id,income_classification,monthly_income,primary_income_source');
-$rawHealth = supabaseFetchAll('health_info?select=assessment_id,has_all_vaccinations,has_ongoing_health_conditions,availed_services_6months,has_barriers_to_healthcare,healthcare_barriers_details,expense_food,expense_medication,expense_therapy,expense_hygiene,expense_assistive_device,expense_other');
-$rawSvcs   = supabaseFetchAll('service_availment?select=assessment_id,is_aware_of_social_services,has_availed_services,receives_financial_assistance');
-$rawSocio  = supabaseFetchAll('socio_economic?select=assessment_id,housing_materials,tenure_status,has_accessibility_modifications,water_source,electricity_source,toilet_type,garbage_disposal');
+// ── Fetch all needed tables in parallel (paginated — Supabase caps each response at 1000 rows) ──
+$fetched = supabaseFetchAllMulti([
+    'assessments' => 'assessments?select=id,readiness_score,created_at&deleted_at=is.null' . $dateFilter,
+    'children'    => 'children?select=assessment_id,region,sex,religion,religion_other,ip_membership',
+    'preq'        => 'pre_qualification?select=assessment_id,is_4ps_member',
+    'family'      => 'family_members?select=assessment_id',
+    'education'   => 'education_info?select=assessment_id,is_currently_enrolled,not_enrolled_reason',
+    'cedu'        => 'child_education_health?select=assessment_id,highest_education,disabilities',
+    'economic'    => 'economic_capacity?select=assessment_id,income_classification,monthly_income,primary_income_source',
+    'health'      => 'health_info?select=assessment_id,has_all_vaccinations,has_ongoing_health_conditions,availed_services_6months,has_barriers_to_healthcare,healthcare_barriers_details,expense_food,expense_medication,expense_therapy,expense_hygiene,expense_assistive_device,expense_other',
+    'services'    => 'service_availment?select=assessment_id,is_aware_of_social_services,has_availed_services,receives_financial_assistance',
+    'socio'       => 'socio_economic?select=assessment_id,housing_materials,tenure_status,has_accessibility_modifications,water_source,electricity_source,toilet_type,garbage_disposal',
+]);
+$rawAss    = $fetched['assessments'];
+$rawChild  = $fetched['children'];
+$rawPreq   = $fetched['preq'];
+$rawFam    = $fetched['family'];
+$rawEdus   = $fetched['education'];
+$rawCedu   = $fetched['cedu'];
+$rawEcons  = $fetched['economic'];
+$rawHealth = $fetched['health'];
+$rawSvcs   = $fetched['services'];
+$rawSocio  = $fetched['socio'];
 
 function extNormalizeRegion($r) {
     return normalizeRegion($r) ?: '—';

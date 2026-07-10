@@ -23,11 +23,17 @@ if ($range !== 'all') {
     $dateFilter = '&created_at=gte.' . urlencode($since);
 }
 
-// ── Fetch core data (paginated — Supabase caps each response at 1000 rows) ──
-$assessments  = supabaseFetchAll('assessments?select=id,status,readiness_score,created_at,interviewer_id,interviewer_code&deleted_at=is.null' . $dateFilter);
-$children     = supabaseFetchAll('children?select=assessment_id,region,province,city_municipality,date_of_birth,sex');
-$disData      = supabaseFetchAll('child_education_health?select=assessment_id,disabilities');
-$interviewers = supabaseFetchAll('interviewers?select=id,full_name,interviewer_code,region,status');
+// ── Fetch core data in parallel (paginated — Supabase caps each response at 1000 rows) ──
+$fetched = supabaseFetchAllMulti([
+    'assessments'   => 'assessments?select=id,status,readiness_score,created_at,interviewer_id,interviewer_code&deleted_at=is.null' . $dateFilter,
+    'children'      => 'children?select=assessment_id,region,province,city_municipality,date_of_birth,sex',
+    'disabilities'  => 'child_education_health?select=assessment_id,disabilities',
+    'interviewers'  => 'interviewers?select=id,full_name,interviewer_code,region,status',
+]);
+$assessments  = $fetched['assessments'];
+$children     = $fetched['children'];
+$disData      = $fetched['disabilities'];
+$interviewers = $fetched['interviewers'];
 
 // Build lookup maps
 $childMap = [];

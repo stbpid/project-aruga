@@ -139,6 +139,59 @@ function supabaseRequest($method, $endpoint, $data = null) {
 }
 
 /**
+ * Run multiple Supabase GET requests concurrently instead of one-by-one.
+ * @param array $endpoints Map of key => endpoint string (e.g. ['ass' => 'assessments?select=id&limit=1000&offset=0'])
+ * @return array Map of key => same shape as supabaseRequest()'s return value
+ */
+function supabaseRequestMultiGet($endpoints) {
+    $mh = curl_multi_init();
+    $handles = [];
+
+    foreach ($endpoints as $key => $endpoint) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, SUPABASE_URL . '/rest/v1/' . $endpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, getSupabaseHeaders());
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_multi_add_handle($mh, $ch);
+        $handles[$key] = $ch;
+    }
+
+    $running = null;
+    do {
+        curl_multi_exec($mh, $running);
+        curl_multi_select($mh);
+    } while ($running > 0);
+
+    $results = [];
+    foreach ($handles as $key => $ch) {
+        $response = curl_multi_getcontent($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $decoded  = json_decode($response, true);
+
+        if (curl_errno($ch)) {
+            $results[$key] = ['success' => false, 'error' => 'cURL Error: ' . curl_error($ch), 'data' => null, 'httpCode' => 0];
+        } elseif (json_last_error() !== JSON_ERROR_NONE) {
+            $results[$key] = ['success' => false, 'error' => 'JSON Decode Error: ' . json_last_error_msg(), 'data' => $response, 'httpCode' => $httpCode];
+        } else {
+            $results[$key] = [
+                'success'  => $httpCode >= 200 && $httpCode < 300,
+                'data'     => $decoded,
+                'error'    => ($httpCode >= 400) ? ($decoded['message'] ?? 'Unknown error') : null,
+                'httpCode' => $httpCode,
+            ];
+        }
+        curl_multi_remove_handle($mh, $ch);
+        curl_close($ch);
+    }
+    curl_multi_close($mh);
+
+    return $results;
+}
+
+/**
  * Debug version — returns response body and HTTP code for troubleshooting
  */
 function logAuditDebug($action, $tableName, $recordId = null, $oldValues = null, $newValues = null, $interviewerId = null, $assessmentId = null) {

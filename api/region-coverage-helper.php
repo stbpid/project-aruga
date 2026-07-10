@@ -84,6 +84,42 @@ function supabaseFetchAll($endpoint, $pageSize = 1000) {
     return $all;
 }
 
+/**
+ * Fetch multiple endpoints in parallel, each paginated (Supabase caps a single
+ * response at 1000 rows). First round fetches page 0 of every endpoint at once;
+ * any endpoint that came back full (1000 rows) gets its next page fetched in the
+ * next round, also in parallel, until every endpoint is exhausted.
+ *
+ * @param array $endpoints Map of key => base endpoint (no limit/offset params)
+ * @return array Map of key => full row list for that endpoint
+ */
+function supabaseFetchAllMulti($endpoints, $pageSize = 1000) {
+    $all = array_fill_keys(array_keys($endpoints), []);
+    $offsets = array_fill_keys(array_keys($endpoints), 0);
+    $pending = $endpoints;
+
+    while (!empty($pending)) {
+        $batch = [];
+        foreach ($pending as $key => $endpoint) {
+            $sep = (strpos($endpoint, '?') === false) ? '?' : '&';
+            $batch[$key] = $endpoint . $sep . "limit={$pageSize}&offset={$offsets[$key]}";
+        }
+        $results = supabaseRequestMultiGet($batch);
+
+        $pending = [];
+        foreach ($results as $key => $page) {
+            if (!$page['success'] || !is_array($page['data']) || empty($page['data'])) continue;
+            $all[$key] = array_merge($all[$key], $page['data']);
+            if (count($page['data']) >= $pageSize) {
+                $offsets[$key] += $pageSize;
+                $pending[$key] = $endpoints[$key];
+            }
+        }
+    }
+
+    return $all;
+}
+
 function getRegionTargets() {
     return [
         'Region I (Ilocos Region)'    => 150,
