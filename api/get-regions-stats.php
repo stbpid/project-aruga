@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/region-coverage-helper.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
@@ -15,121 +16,47 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $filterRegion = isset($_GET['region']) ? trim($_GET['region']) : '';
 $filterProvince = isset($_GET['province']) ? trim($_GET['province']) : '';
 
-// Pull all children with location + assessment status + disability
-$childRes = supabaseRequest('GET',
-    'children?select=assessment_id,region,province,city_municipality,barangay,sex,date_of_birth&limit=100000'
-);
+// Pull all needed tables in parallel (paginated — Supabase caps each response at 1000 rows)
+$fetched = supabaseFetchAllMulti([
+    'children'     => 'children?select=assessment_id,region,province,city_municipality,barangay,sex,date_of_birth',
+    'assessments'  => 'assessments?select=id,status,readiness_score,created_at,interviewer_code&deleted_at=is.null',
+    'interviewers' => 'interviewers?select=region,status',
+    'disabilities' => 'child_education_health?select=assessment_id,disabilities',
+]);
+$childRows = $fetched['children'];
+$assRows   = $fetched['assessments'];
+$intRows2  = $fetched['interviewers'];
+$disRows   = $fetched['disabilities'];
 
-// Pull assessments for status
-$assRes = supabaseRequest('GET',
-    'assessments?select=id,status,readiness_score,created_at,interviewer_code&deleted_at=is.null&limit=100000'
-);
-
-// Pull interviewers count per region
-$intRes = supabaseRequest('GET',
-    'interviewers?select=region,status&limit=100000'
-);
-
-// Pull disabilities
-$disRes = supabaseRequest('GET',
-    'child_education_health?select=assessment_id,disabilities&limit=100000'
-);
-
-if (!$childRes['success']) {
+if (empty($childRows)) {
     echo json_encode(['success' => false, 'data' => [], 'regions' => [], 'provinces' => [], 'summary' => []]); exit;
 }
 
 // Build assessment lookup
 $assMap = [];
-if ($assRes['success'] && is_array($assRes['data'])) {
-    foreach ($assRes['data'] as $a) {
-        $assMap[$a['id']] = [
-            'status'         => $a['status'] ?? 'in_progress',
-            'readiness_score'=> $a['readiness_score'] ?? null,
-            'created_at'     => $a['created_at'] ?? null,
-            'interviewer_code'=> $a['interviewer_code'] ?? null,
-        ];
-    }
+foreach ($assRows as $a) {
+    $assMap[$a['id']] = [
+        'status'         => $a['status'] ?? 'in_progress',
+        'readiness_score'=> $a['readiness_score'] ?? null,
+        'created_at'     => $a['created_at'] ?? null,
+        'interviewer_code'=> $a['interviewer_code'] ?? null,
+    ];
 }
 
 // Build disability lookup
 $disMap = [];
-if ($disRes['success'] && is_array($disRes['data'])) {
-    foreach ($disRes['data'] as $d) {
-        $dis = $d['disabilities'] ?? [];
-        if (is_string($dis)) $dis = json_decode($dis, true) ?? [];
-        $disMap[$d['assessment_id']] = $dis;
-    }
-}
-
-// Normalize legacy region strings to canonical format
-function normalizeRegion($r) {
-    $r = trim($r);
-    $map = [
-        'NCR'                         => 'NCR (National Capital Region)',
-        'NCR – Metro Manila'          => 'NCR (National Capital Region)',
-        'NCR - Metro Manila'          => 'NCR (National Capital Region)',
-        'National Capital Region'     => 'NCR (National Capital Region)',
-        'Region I – Ilocos Region'    => 'Region I (Ilocos Region)',
-        'Region I - Ilocos Region'    => 'Region I (Ilocos Region)',
-        'Region II – Cagayan Valley'  => 'Region II (Cagayan Valley)',
-        'Region II - Cagayan Valley'  => 'Region II (Cagayan Valley)',
-        'Region III – Central Luzon'  => 'Region III (Central Luzon)',
-        'Region III - Central Luzon'  => 'Region III (Central Luzon)',
-        'Region IV-A – CALABARZON'    => 'Region IV-A (CALABARZON)',
-        'Region IV-A - CALABARZON'    => 'Region IV-A (CALABARZON)',
-        'CALABARZON'                  => 'Region IV-A (CALABARZON)',
-        'Region IV-B – MIMAROPA'      => 'Region IV-B (MIMAROPA)',
-        'Region IV-B - MIMAROPA'      => 'Region IV-B (MIMAROPA)',
-        'MIMAROPA'                    => 'Region IV-B (MIMAROPA)',
-        'Region V – Bicol Region'     => 'Region V (Bicol Region)',
-        'Region V - Bicol Region'     => 'Region V (Bicol Region)',
-        'Bicol Region'                => 'Region V (Bicol Region)',
-        'Region V'                    => 'Region V (Bicol Region)',
-        'Region V (Bicol)'            => 'Region V (Bicol Region)',
-        'Region VI – Western Visayas' => 'Region VI (Western Visayas)',
-        'Region VI - Western Visayas' => 'Region VI (Western Visayas)',
-        'Region VI'                   => 'Region VI (Western Visayas)',
-        'Region VII – Central Visayas'=> 'Region VII (Central Visayas)',
-        'Region VII - Central Visayas'=> 'Region VII (Central Visayas)',
-        'Region VII'                  => 'Region VII (Central Visayas)',
-        'Region VIII – Eastern Visayas'=> 'Region VIII (Eastern Visayas)',
-        'Region VIII - Eastern Visayas'=> 'Region VIII (Eastern Visayas)',
-        'Region VIII'                 => 'Region VIII (Eastern Visayas)',
-        'Region IX – Zamboanga Peninsula'=> 'Region IX (Zamboanga Peninsula)',
-        'Region IX - Zamboanga Peninsula'=> 'Region IX (Zamboanga Peninsula)',
-        'Region IX'                   => 'Region IX (Zamboanga Peninsula)',
-        'Region X – Northern Mindanao'=> 'Region X (Northern Mindanao)',
-        'Region X - Northern Mindanao'=> 'Region X (Northern Mindanao)',
-        'Region X'                    => 'Region X (Northern Mindanao)',
-        'Region XI – Davao Region'    => 'Region XI (Davao Region)',
-        'Region XI - Davao Region'    => 'Region XI (Davao Region)',
-        'Region XI'                   => 'Region XI (Davao Region)',
-        'Region XII – SOCCSKSARGEN'   => 'Region XII (SOCCSKSARGEN)',
-        'Region XII - SOCCSKSARGEN'   => 'Region XII (SOCCSKSARGEN)',
-        'Region XII'                  => 'Region XII (SOCCSKSARGEN)',
-        'Region XIII – Caraga'        => 'Region XIII (Caraga)',
-        'Region XIII - Caraga'        => 'Region XIII (Caraga)',
-        'Caraga'                      => 'Region XIII (Caraga)',
-        'Region XIII'                 => 'Region XIII (Caraga)',
-        'CAR – Cordillera'            => 'CAR (Cordillera Administrative Region)',
-        'CAR - Cordillera'            => 'CAR (Cordillera Administrative Region)',
-        'CAR'                         => 'CAR (Cordillera Administrative Region)',
-        'Cordillera'                  => 'CAR (Cordillera Administrative Region)',
-        'BARMM'                       => 'BARMM (Bangsamoro)',
-        'Bangsamoro'                  => 'BARMM (Bangsamoro)',
-    ];
-    return $map[$r] ?? $r;
+foreach ($disRows as $d) {
+    $dis = $d['disabilities'] ?? [];
+    if (is_string($dis)) $dis = json_decode($dis, true) ?? [];
+    $disMap[$d['assessment_id']] = $dis;
 }
 
 // Build interviewer counts per region
 $intRegionCount = [];
-if ($intRes['success'] && is_array($intRes['data'])) {
-    foreach ($intRes['data'] as $iv) {
-        $r = normalizeRegion($iv['region'] ?? '');
-        if ($r === '') continue;
-        $intRegionCount[$r] = ($intRegionCount[$r] ?? 0) + 1;
-    }
+foreach ($intRows2 as $iv) {
+    $r = normalizeRegion($iv['region'] ?? '');
+    if ($r === '') continue;
+    $intRegionCount[$r] = ($intRegionCount[$r] ?? 0) + 1;
 }
 
 // --- Aggregate ---
@@ -140,7 +67,7 @@ $disCount    = [];
 $monthlyMap  = [];
 $totalProfiled = 0;
 
-foreach ($childRes['data'] as $row) {
+foreach ($childRows as $row) {
     $region   = normalizeRegion(trim($row['region']   ?? ''));
     $province = trim($row['province']          ?? '');
     $city     = trim($row['city_municipality'] ?? '');
