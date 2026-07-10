@@ -76,20 +76,34 @@ function normalizeRegion($r) {
     return $r ?: '';
 }
 
-// Fetch non-deleted assessment IDs, then count children by region for those assessments only
-$assRes = supabaseRequest('GET', 'assessments?select=id&deleted_at=is.null&limit=100000');
-$validIds = ($assRes['success'] && is_array($assRes['data'])) ? array_flip(array_column($assRes['data'], 'id')) : [];
+// Supabase REST caps each response at 1000 rows regardless of ?limit=,
+// so fetch in pages until a page comes back short.
+function supabaseFetchAll($endpoint, $pageSize = 1000) {
+    $all = [];
+    $offset = 0;
+    while (true) {
+        $sep = (strpos($endpoint, '?') === false) ? '?' : '&';
+        $page = supabaseRequest('GET', $endpoint . $sep . "limit={$pageSize}&offset={$offset}");
+        if (!$page['success'] || !is_array($page['data']) || empty($page['data'])) break;
+        $all = array_merge($all, $page['data']);
+        if (count($page['data']) < $pageSize) break;
+        $offset += $pageSize;
+    }
+    return $all;
+}
 
-$res = supabaseRequest('GET', 'children?select=region,assessment_id&limit=10000');
+// Fetch non-deleted assessment IDs, then count children by region for those assessments only
+$assData = supabaseFetchAll('assessments?select=id&deleted_at=is.null');
+$validIds = array_flip(array_column($assData, 'id'));
+
+$childData = supabaseFetchAll('children?select=region,assessment_id');
 
 $counts = [];
-if ($res['success'] && is_array($res['data'])) {
-    foreach ($res['data'] as $row) {
-        if (!isset($validIds[$row['assessment_id'] ?? ''])) continue;
-        $r = normalizeRegion($row['region'] ?? '');
-        if ($r === '') continue;
-        $counts[$r] = ($counts[$r] ?? 0) + 1;
-    }
+foreach ($childData as $row) {
+    if (!isset($validIds[$row['assessment_id'] ?? ''])) continue;
+    $r = normalizeRegion($row['region'] ?? '');
+    if ($r === '') continue;
+    $counts[$r] = ($counts[$r] ?? 0) + 1;
 }
 
 $regionTargets = [
