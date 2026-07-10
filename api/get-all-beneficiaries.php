@@ -1,71 +1,13 @@
 <?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/region-coverage-helper.php';
 
 header('Content-Type: application/json');
 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(['success' => false]); exit;
-}
-
-function normalizeRegion($r) {
-    $r = trim($r ?? '');
-    $map = [
-        'NCR'                          => 'NCR (National Capital Region)',
-        'NCR – Metro Manila'           => 'NCR (National Capital Region)',
-        'NCR - Metro Manila'           => 'NCR (National Capital Region)',
-        'National Capital Region'      => 'NCR (National Capital Region)',
-        'Region I – Ilocos Region'     => 'Region I (Ilocos Region)',
-        'Region I - Ilocos Region'     => 'Region I (Ilocos Region)',
-        'Region II – Cagayan Valley'   => 'Region II (Cagayan Valley)',
-        'Region II - Cagayan Valley'   => 'Region II (Cagayan Valley)',
-        'Region III – Central Luzon'   => 'Region III (Central Luzon)',
-        'Region III - Central Luzon'   => 'Region III (Central Luzon)',
-        'Region IV-A – CALABARZON'     => 'Region IV-A (CALABARZON)',
-        'Region IV-A - CALABARZON'     => 'Region IV-A (CALABARZON)',
-        'CALABARZON'                   => 'Region IV-A (CALABARZON)',
-        'Region IV-B – MIMAROPA'       => 'Region IV-B (MIMAROPA)',
-        'Region IV-B - MIMAROPA'       => 'Region IV-B (MIMAROPA)',
-        'MIMAROPA'                     => 'Region IV-B (MIMAROPA)',
-        'Region V – Bicol Region'      => 'Region V (Bicol Region)',
-        'Region V - Bicol Region'      => 'Region V (Bicol Region)',
-        'Bicol Region'                 => 'Region V (Bicol Region)',
-        'Region V'                     => 'Region V (Bicol Region)',
-        'Region V (Bicol)'             => 'Region V (Bicol Region)',
-        'Region VI – Western Visayas'  => 'Region VI (Western Visayas)',
-        'Region VI - Western Visayas'  => 'Region VI (Western Visayas)',
-        'Region VI'                    => 'Region VI (Western Visayas)',
-        'Region VII – Central Visayas' => 'Region VII (Central Visayas)',
-        'Region VII - Central Visayas' => 'Region VII (Central Visayas)',
-        'Region VII'                   => 'Region VII (Central Visayas)',
-        'Region VIII – Eastern Visayas'=> 'Region VIII (Eastern Visayas)',
-        'Region VIII - Eastern Visayas'=> 'Region VIII (Eastern Visayas)',
-        'Region VIII'                  => 'Region VIII (Eastern Visayas)',
-        'Region IX – Zamboanga Peninsula'=> 'Region IX (Zamboanga Peninsula)',
-        'Region IX - Zamboanga Peninsula'=> 'Region IX (Zamboanga Peninsula)',
-        'Region IX'                    => 'Region IX (Zamboanga Peninsula)',
-        'Region X – Northern Mindanao' => 'Region X (Northern Mindanao)',
-        'Region X - Northern Mindanao' => 'Region X (Northern Mindanao)',
-        'Region X'                     => 'Region X (Northern Mindanao)',
-        'Region XI – Davao Region'     => 'Region XI (Davao Region)',
-        'Region XI - Davao Region'     => 'Region XI (Davao Region)',
-        'Region XI'                    => 'Region XI (Davao Region)',
-        'Region XII – SOCCSKSARGEN'    => 'Region XII (SOCCSKSARGEN)',
-        'Region XII - SOCCSKSARGEN'    => 'Region XII (SOCCSKSARGEN)',
-        'Region XII'                   => 'Region XII (SOCCSKSARGEN)',
-        'Region XIII – Caraga'         => 'Region XIII (Caraga)',
-        'Region XIII - Caraga'         => 'Region XIII (Caraga)',
-        'Caraga'                       => 'Region XIII (Caraga)',
-        'Region XIII'                  => 'Region XIII (Caraga)',
-        'CAR – Cordillera'             => 'CAR (Cordillera Administrative Region)',
-        'CAR - Cordillera'             => 'CAR (Cordillera Administrative Region)',
-        'CAR'                          => 'CAR (Cordillera Administrative Region)',
-        'Cordillera'                   => 'CAR (Cordillera Administrative Region)',
-        'BARMM'                        => 'BARMM (Bangsamoro)',
-        'Bangsamoro'                   => 'BARMM (Bangsamoro)',
-    ];
-    return $map[$r] ?? ($r ?: '—');
 }
 
 $limit          = isset($_GET['limit'])          ? (int)$_GET['limit']              : 50;
@@ -76,26 +18,20 @@ $readinessScore = isset($_GET['readiness_score'])? trim($_GET['readiness_score']
 $disabilityType = isset($_GET['disability_type'])? trim($_GET['disability_type'])   : '';
 $only4ps        = isset($_GET['is_4ps_member'])  && $_GET['is_4ps_member'] === '1';
 
-// Fetch assessments with readiness_score
-$res = supabaseRequest('GET',
-    'assessments?select=id,aruga_id,interviewer_code,created_at,readiness_score,children(first_name,last_name,date_of_birth,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc&limit=10000'
+// Fetch assessments with readiness_score (paginated — Supabase caps each response at 1000 rows)
+$assessments = supabaseFetchAll(
+    'assessments?select=id,aruga_id,interviewer_code,created_at,readiness_score,children(first_name,last_name,date_of_birth,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc'
 );
 
-if (!$res['success']) {
-    echo json_encode(['success' => false, 'data' => [], 'total' => 0]); exit;
-}
-
 // Fetch 4Ps data
-$pqRes = supabaseRequest('GET', 'pre_qualification?select=assessment_id,is_4ps_member&limit=100000');
+$pqData = supabaseFetchAll('pre_qualification?select=assessment_id,is_4ps_member');
 $pqMap = [];
-if ($pqRes['success'] && is_array($pqRes['data'])) {
-    foreach ($pqRes['data'] as $pq) {
-        $pqMap[$pq['assessment_id']] = (bool)($pq['is_4ps_member'] ?? false);
-    }
+foreach ($pqData as $pq) {
+    $pqMap[$pq['assessment_id']] = (bool)($pq['is_4ps_member'] ?? false);
 }
 
 $rows = [];
-foreach ($res['data'] as $a) {
+foreach ($assessments as $a) {
     $child = is_array($a['children'])
         ? (isset($a['children'][0]) ? $a['children'][0] : $a['children'])
         : null;
@@ -119,7 +55,7 @@ foreach ($res['data'] as $a) {
     if (!is_array($disabilities)) $disabilities = [];
     $disability = !empty($disabilities) ? $disabilities[0] : '—';
 
-    $childRegion   = normalizeRegion($child['region'] ?? '');
+    $childRegion   = normalizeRegion($child['region'] ?? '') ?: '—';
     $arugaId       = $a['aruga_id']         ?? '—';
     $code          = $a['interviewer_code'] ?? '—';
     $date          = $a['created_at'] ? date('M j, Y', strtotime($a['created_at'])) : '—';
