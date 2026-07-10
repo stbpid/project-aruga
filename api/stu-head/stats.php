@@ -44,6 +44,14 @@ foreach ($fetched['assessments'] as $a) {
 
 $pendingCount = $totalBeneficiaries - $completedCount;
 
+// Target coverage = active (non-deleted) beneficiaries in this region vs its target
+$regionTargets = getRegionTargets();
+$target = $regionTargets[$normalizedTarget] ?? null;
+$targetRate = $target ? round(($totalBeneficiaries / $target) * 100, 1) : null;
+
+// Pending vs target = how much of the target quota is still not completed
+$pendingTargetRate = $target ? round((max($target - $completedCount, 0) / $target) * 100, 1) : null;
+
 // Interviewer count — filter by normalized region to handle inconsistent stored values
 $interviewerCount = 0;
 foreach ($fetched['interviewers'] as $r) {
@@ -59,5 +67,8 @@ echo json_encode([
         'completed'           => $completedCount,
         'pending'             => $pendingCount,
         'interviewer_count'   => $interviewerCount,
+        'target'              => $target,
+        'target_rate'         => $targetRate,
+        'pending_target_rate' => $pendingTargetRate,
     ]
 ]);
