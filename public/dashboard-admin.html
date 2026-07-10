@@ -192,7 +192,7 @@
           <div class="stat-icon blue"><span class="material-symbols-outlined">trending_up</span></div>
           <div class="stat-body">
             <div class="stat-value" id="stat-completion-rate">—</div>
-            <div class="stat-label">Completion Rate</div>
+            <div class="stat-label">Target Coverage</div>
             <div class="stat-change up" id="stat-completion-sub">Loading...</div>
           </div>
         </div>
@@ -2976,7 +2976,7 @@
       document.getElementById('stat-regions-covered').textContent = d.regions_covered;
       document.getElementById('stat-regions-sub').textContent = 'Covered regions';
       document.getElementById('stat-completion-rate').textContent = d.completion_rate + '%';
-      document.getElementById('stat-completion-sub').textContent = 'Completed vs total';
+      document.getElementById('stat-completion-sub').textContent = 'Active vs target';
     } catch (e) {
       ['stat-beneficiaries-sub','stat-interviewers-sub','stat-regions-sub','stat-completion-sub']
         .forEach(id => { const el = document.getElementById(id); if (el) el.textContent = 'Failed to load'; });

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/region-coverage-helper.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET');
@@ -39,9 +40,6 @@ function supabaseCount($endpoint) {
 // Total beneficiaries = total rows in assessments table
 $totalBeneficiaries = supabaseCount('assessments?select=id&deleted_at=is.null');
 
-// Completed assessments
-$completedCount = supabaseCount('assessments?select=id&deleted_at=is.null&status=eq.completed');
-
 // Active interviewers — no status filter first, count all, then try with active
 $activeInterviewers = supabaseCount('interviewers?select=id&status=eq.active');
 // Fallback: if 0, count all interviewers (status column may not exist or have different value)
@@ -59,9 +57,17 @@ if (!empty($arrMatch[1])) {
     $regionsCovered = count($keys[1]);
 }
 
-// Completion rate = completed / total * 100
-$completionRate = $totalBeneficiaries > 0
-    ? round(($completedCount / $totalBeneficiaries) * 100, 1)
+// Completion rate = total active children across all regions / total region targets * 100
+$regionCounts = getActiveChildrenCountsByRegion();
+$regionTargets = getRegionTargets();
+$totalActive = 0;
+$totalTarget = 0;
+foreach ($regionTargets as $region => $target) {
+    $totalActive += $regionCounts[$region] ?? 0;
+    $totalTarget += $target;
+}
+$completionRate = $totalTarget > 0
+    ? round(($totalActive / $totalTarget) * 100, 1)
     : 0;
 
 echo json_encode([
