@@ -50,7 +50,8 @@ $target = $regionTargets[$normalizedTarget] ?? null;
 $targetRate = $target ? round(($totalBeneficiaries / $target) * 100, 1) : null;
 
 // Pending vs target = how much of the target quota is still not completed
-$pendingTargetRate = $target ? round((max($target - $completedCount, 0) / $target) * 100, 1) : null;
+$pendingVsTarget = $target ? max($target - $completedCount, 0) : null;
+$pendingTargetRate = $target ? round(($pendingVsTarget / $target) * 100, 1) : null;
 
 // Interviewer count — filter by normalized region to handle inconsistent stored values
 $interviewerCount = 0;
@@ -69,6 +70,7 @@ echo json_encode([
         'interviewer_count'   => $interviewerCount,
         'target'              => $target,
         'target_rate'         => $targetRate,
+        'pending_vs_target'   => $pendingVsTarget,
         'pending_target_rate' => $pendingTargetRate,
     ]
 ]);

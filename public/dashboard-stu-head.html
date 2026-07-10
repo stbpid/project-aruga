@@ -1202,10 +1202,11 @@
         const intv  = d.interviewer_count || 0;
         const targetRate = d.target_rate != null ? d.target_rate.toFixed(1) : null;
         const pendingTargetRate = d.pending_target_rate != null ? d.pending_target_rate.toFixed(1) : null;
+        const pendingVsTarget = d.pending_vs_target != null ? d.pending_vs_target : pend;
 
         document.getElementById('stat-beneficiaries').textContent = total.toLocaleString();
         document.getElementById('stat-completed').textContent = comp.toLocaleString();
-        document.getElementById('stat-pending').textContent = pend.toLocaleString();
+        document.getElementById('stat-pending').textContent = pendingVsTarget.toLocaleString();
         document.getElementById('stat-interviewers').textContent = intv.toLocaleString();
         document.getElementById('stat-completed-rate').textContent = targetRate != null ? (targetRate + '% of target') : 'No target set';
         document.getElementById('stat-pending-rate').textContent = pendingTargetRate != null ? (pendingTargetRate + '% of target remaining') : 'No target set';
