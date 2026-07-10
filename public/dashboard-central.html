@@ -159,7 +159,7 @@
           <div class="stat-icon blue"><span class="material-symbols-outlined">trending_up</span></div>
           <div class="stat-body">
             <div class="stat-value" id="co-stat-completion-rate">—</div>
-            <div class="stat-label">Completion Rate</div>
+            <div class="stat-label">Target Coverage</div>
             <div class="stat-change up" id="co-stat-completion-sub">Loading...</div>
           </div>
         </div>
@@ -233,13 +233,12 @@
         </div>
       </div>
 
-      <!-- Top Issues This Month -->
+      <!-- Top Issues -->
       <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-header">
           <div>
             <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
-              <div class="card-title">Top Issues This Month</div>
-              <span id="co-top-issues-month-chip" style="font-size:0.65rem;font-weight:700;background:#eff6ff;color:#1d4ed8;padding:0.15rem 0.55rem;border-radius:999px;white-space:nowrap;"></span>
+              <div class="card-title">Top Issues</div>
             </div>
             <div class="card-subtitle" id="co-top-issues-subtitle">Loading...</div>
           </div>
@@ -1576,7 +1575,7 @@
         document.getElementById('co-stat-regions-covered').textContent = d.regions_covered||0;
         document.getElementById('co-stat-regions-sub').textContent = 'Covered regions';
         document.getElementById('co-stat-completion-rate').textContent = (d.completion_rate||0) + '%';
-        document.getElementById('co-stat-completion-sub').textContent = 'Completed vs total';
+        document.getElementById('co-stat-completion-sub').textContent = 'Active vs target';
       }
 
       coAllDisabilities = (regionsRes.success && regionsRes.disabilities) ? regionsRes.disabilities : [];
@@ -1608,10 +1607,11 @@
       document.getElementById('co-region-subtitle').textContent = 'All regions with submitted assessments';
       container.innerHTML = data.map((r, i) => {
         const target = r.target || null;
+        const isOverTarget = target ? r.count > target : false;
         const barPct = target ? Math.min(Math.round((r.count / target) * 100), 100) : Math.round((r.count / maxCount) * 100);
         const pctLabel = target ? (() => { const p = Math.min(Math.round((r.count / target) * 100), 100); return p >= 100 ? '100%' : `${p}%`; })() : null;
         const countDisplay = target
-          ? `${r.count.toLocaleString()} / ${target.toLocaleString()}<span style="font-size:0.7rem;font-weight:400;color:var(--gray-400);margin-left:0.35rem;">${pctLabel}</span>`
+          ? `<span style="${isOverTarget ? 'color:#dc2626;' : ''}">${r.count.toLocaleString()} / ${target.toLocaleString()}</span><span style="font-size:0.7rem;font-weight:400;color:var(--gray-400);margin-left:0.35rem;">${pctLabel}</span>`
           : r.count.toLocaleString();
         const tipText = target
           ? `<strong>${r.region.replace(/'/g,"&#39;")}</strong>: ${r.count.toLocaleString()} of ${target.toLocaleString()} target`
@@ -1735,23 +1735,20 @@
       if (pct >= 60) return { bg:'#fff7ed', border:'#fdba74', icon:'#ea580c', badge:'#f97316', label:'High' };
       return { bg:'#fefce8', border:'#fde047', icon:'#ca8a04', badge:'#eab308', label:'Moderate' };
     }
-    const monthChip = document.getElementById('co-top-issues-month-chip');
-    if (monthChip) monthChip.textContent = new Date().toLocaleString('default',{month:'long'});
     try {
       const json = await authFetch('/api/get-top-issues.php').then(r=>r.json());
       if (!json.success) throw new Error();
       const issues = json.issues || [];
-      document.getElementById('co-top-issues-subtitle').textContent = json.month_label + ' — ' + json.total_this_month.toLocaleString() + ' assessments processed';
-      if (monthChip) monthChip.textContent = json.month_label || new Date().toLocaleString('default',{month:'long'});
+      document.getElementById('co-top-issues-subtitle').textContent = json.total_assessments.toLocaleString() + ' assessments processed';
       const badge = document.getElementById('co-top-issues-badge');
       badge.textContent = issues.length + ' alerts';
       badge.style.display = '';
       const grid = document.getElementById('co-top-issues-grid');
       if (!issues.length) {
-        grid.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray-400);font-size:0.75rem;grid-column:1/-1;">No issues flagged this month.</div>';
+        grid.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray-400);font-size:0.75rem;grid-column:1/-1;">No issues flagged.</div>';
         return;
       }
-      const total = json.total_this_month || 1;
+      const total = json.total_assessments || 1;
       grid.innerHTML = issues.map(issue => {
         const pct = total > 0 ? Math.round((issue.count / total) * 100) : 0;
         const s = coIssueSeverity(pct);
