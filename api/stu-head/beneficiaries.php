@@ -1,6 +1,7 @@
 ﻿<?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../region-coverage-helper.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET');
@@ -22,68 +23,18 @@ if (!$region) {
 }
 
 function stuNormalizeRegion($r) {
-    $r = trim($r ?? '');
-    $map = [
-        'NCR'                              => 'NCR (National Capital Region)',
-        'NCR – Metro Manila'               => 'NCR (National Capital Region)',
-        'NCR - Metro Manila'               => 'NCR (National Capital Region)',
-        'National Capital Region'          => 'NCR (National Capital Region)',
-        'Region I – Ilocos Region'         => 'Region I (Ilocos Region)',
-        'Region I - Ilocos Region'         => 'Region I (Ilocos Region)',
-        'Region II – Cagayan Valley'       => 'Region II (Cagayan Valley)',
-        'Region II - Cagayan Valley'       => 'Region II (Cagayan Valley)',
-        'Region III – Central Luzon'       => 'Region III (Central Luzon)',
-        'Region III - Central Luzon'       => 'Region III (Central Luzon)',
-        'Region IV-A – CALABARZON'         => 'Region IV-A (CALABARZON)',
-        'Region IV-A - CALABARZON'         => 'Region IV-A (CALABARZON)',
-        'CALABARZON'                       => 'Region IV-A (CALABARZON)',
-        'Region IV-B – MIMAROPA'           => 'Region IV-B (MIMAROPA)',
-        'Region IV-B - MIMAROPA'           => 'Region IV-B (MIMAROPA)',
-        'MIMAROPA'                         => 'Region IV-B (MIMAROPA)',
-        'Region V – Bicol Region'          => 'Region V (Bicol Region)',
-        'Region V - Bicol Region'          => 'Region V (Bicol Region)',
-        'Bicol Region'                     => 'Region V (Bicol Region)',
-        'Region V (Bicol)'                 => 'Region V (Bicol Region)',
-        'Region VI – Western Visayas'      => 'Region VI (Western Visayas)',
-        'Region VI - Western Visayas'      => 'Region VI (Western Visayas)',
-        'Region VII – Central Visayas'     => 'Region VII (Central Visayas)',
-        'Region VII - Central Visayas'     => 'Region VII (Central Visayas)',
-        'Region VIII – Eastern Visayas'    => 'Region VIII (Eastern Visayas)',
-        'Region VIII - Eastern Visayas'    => 'Region VIII (Eastern Visayas)',
-        'Region IX – Zamboanga Peninsula'  => 'Region IX (Zamboanga Peninsula)',
-        'Region IX - Zamboanga Peninsula'  => 'Region IX (Zamboanga Peninsula)',
-        'Region X – Northern Mindanao'     => 'Region X (Northern Mindanao)',
-        'Region X - Northern Mindanao'     => 'Region X (Northern Mindanao)',
-        'Region XI – Davao Region'         => 'Region XI (Davao Region)',
-        'Region XI - Davao Region'         => 'Region XI (Davao Region)',
-        'Region XII – SOCCSKSARGEN'        => 'Region XII (SOCCSKSARGEN)',
-        'Region XII - SOCCSKSARGEN'        => 'Region XII (SOCCSKSARGEN)',
-        'Region XIII – Caraga'             => 'Region XIII (Caraga)',
-        'Region XIII - Caraga'             => 'Region XIII (Caraga)',
-        'Caraga'                           => 'Region XIII (Caraga)',
-        'CAR – Cordillera'                 => 'CAR (Cordillera Administrative Region)',
-        'CAR - Cordillera'                 => 'CAR (Cordillera Administrative Region)',
-        'CAR'                              => 'CAR (Cordillera Administrative Region)',
-        'Cordillera'                       => 'CAR (Cordillera Administrative Region)',
-        'BARMM'                            => 'BARMM (Bangsamoro)',
-        'Bangsamoro'                       => 'BARMM (Bangsamoro)',
-    ];
-    return $map[$r] ?? ($r ?: '');
+    return normalizeRegion($r) ?: '';
 }
 
 $normalizedTarget = stuNormalizeRegion($region);
 
-// Fetch all assessments with child region — filter by children.region match
-$res = supabaseRequest('GET',
-    'assessments?select=id,aruga_id,interviewer_code,status,created_at,readiness_score,children(first_name,last_name,date_of_birth,sex,barangay,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc&limit=100000'
+// Fetch all assessments with child region — filter by children.region match (paginated)
+$assessments = supabaseFetchAll(
+    'assessments?select=id,aruga_id,interviewer_code,status,created_at,readiness_score,children(first_name,last_name,date_of_birth,sex,barangay,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc'
 );
 
-if (!$res['success']) {
-    echo json_encode(['success' => false, 'data' => [], 'total' => 0]); exit;
-}
-
 $rows = [];
-foreach ($res['data'] as $a) {
+foreach ($assessments as $a) {
     $child = is_array($a['children'])
         ? (isset($a['children'][0]) ? $a['children'][0] : $a['children'])
         : null;

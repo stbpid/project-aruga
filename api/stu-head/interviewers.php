@@ -1,6 +1,7 @@
 ﻿<?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../region-coverage-helper.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET');
@@ -16,98 +17,22 @@ if (!$region) {
 }
 requireRegion($region);
 
-function normalizeRegion($r) {
-    $r = trim($r ?? '');
-    if (!$r) return '—';
-    $map = [
-        // canonical forms map to themselves
-        'NCR (National Capital Region)'          => 'NCR (National Capital Region)',
-        'Region I (Ilocos Region)'               => 'Region I (Ilocos Region)',
-        'Region II (Cagayan Valley)'             => 'Region II (Cagayan Valley)',
-        'Region III (Central Luzon)'             => 'Region III (Central Luzon)',
-        'Region IV-A (CALABARZON)'               => 'Region IV-A (CALABARZON)',
-        'Region IV-B (MIMAROPA)'                 => 'Region IV-B (MIMAROPA)',
-        'Region V (Bicol Region)'                => 'Region V (Bicol Region)',
-        'Region VI (Western Visayas)'            => 'Region VI (Western Visayas)',
-        'Region VII (Central Visayas)'           => 'Region VII (Central Visayas)',
-        'Region VIII (Eastern Visayas)'          => 'Region VIII (Eastern Visayas)',
-        'Region IX (Zamboanga Peninsula)'        => 'Region IX (Zamboanga Peninsula)',
-        'Region X (Northern Mindanao)'           => 'Region X (Northern Mindanao)',
-        'Region XI (Davao Region)'               => 'Region XI (Davao Region)',
-        'Region XII (SOCCSKSARGEN)'              => 'Region XII (SOCCSKSARGEN)',
-        'Region XIII (Caraga)'                   => 'Region XIII (Caraga)',
-        'CAR (Cordillera Administrative Region)' => 'CAR (Cordillera Administrative Region)',
-        'BARMM (Bangsamoro)'                     => 'BARMM (Bangsamoro)',
-        // aliases
-        'NCR'                             => 'NCR (National Capital Region)',
-        'NCR – Metro Manila'              => 'NCR (National Capital Region)',
-        'NCR - Metro Manila'              => 'NCR (National Capital Region)',
-        'National Capital Region'         => 'NCR (National Capital Region)',
-        'Region I – Ilocos Region'        => 'Region I (Ilocos Region)',
-        'Region I - Ilocos Region'        => 'Region I (Ilocos Region)',
-        'Region II – Cagayan Valley'      => 'Region II (Cagayan Valley)',
-        'Region II - Cagayan Valley'      => 'Region II (Cagayan Valley)',
-        'Region III – Central Luzon'      => 'Region III (Central Luzon)',
-        'Region III - Central Luzon'      => 'Region III (Central Luzon)',
-        'Region IV-A – CALABARZON'        => 'Region IV-A (CALABARZON)',
-        'Region IV-A - CALABARZON'        => 'Region IV-A (CALABARZON)',
-        'CALABARZON'                      => 'Region IV-A (CALABARZON)',
-        'Region IV-B – MIMAROPA'          => 'Region IV-B (MIMAROPA)',
-        'Region IV-B - MIMAROPA'          => 'Region IV-B (MIMAROPA)',
-        'MIMAROPA'                        => 'Region IV-B (MIMAROPA)',
-        'Region V – Bicol Region'         => 'Region V (Bicol Region)',
-        'Region V - Bicol Region'         => 'Region V (Bicol Region)',
-        'Region V (Bicol)'                => 'Region V (Bicol Region)',
-        'Bicol Region'                    => 'Region V (Bicol Region)',
-        'Region VI – Western Visayas'     => 'Region VI (Western Visayas)',
-        'Region VI - Western Visayas'     => 'Region VI (Western Visayas)',
-        'Region VII – Central Visayas'    => 'Region VII (Central Visayas)',
-        'Region VII - Central Visayas'    => 'Region VII (Central Visayas)',
-        'Region VIII – Eastern Visayas'   => 'Region VIII (Eastern Visayas)',
-        'Region VIII - Eastern Visayas'   => 'Region VIII (Eastern Visayas)',
-        'Region IX – Zamboanga Peninsula' => 'Region IX (Zamboanga Peninsula)',
-        'Region IX - Zamboanga Peninsula' => 'Region IX (Zamboanga Peninsula)',
-        'Region X – Northern Mindanao'    => 'Region X (Northern Mindanao)',
-        'Region X - Northern Mindanao'    => 'Region X (Northern Mindanao)',
-        'Region XI – Davao Region'        => 'Region XI (Davao Region)',
-        'Region XI - Davao Region'        => 'Region XI (Davao Region)',
-        'Region XII – SOCCSKSARGEN'       => 'Region XII (SOCCSKSARGEN)',
-        'Region XII - SOCCSKSARGEN'       => 'Region XII (SOCCSKSARGEN)',
-        'Region XIII – Caraga'            => 'Region XIII (Caraga)',
-        'Region XIII - Caraga'            => 'Region XIII (Caraga)',
-        'Caraga'                          => 'Region XIII (Caraga)',
-        'CAR – Cordillera'                => 'CAR (Cordillera Administrative Region)',
-        'CAR - Cordillera'                => 'CAR (Cordillera Administrative Region)',
-        'CAR'                             => 'CAR (Cordillera Administrative Region)',
-        'Cordillera'                      => 'CAR (Cordillera Administrative Region)',
-        'BARMM'                           => 'BARMM (Bangsamoro)',
-        'Bangsamoro'                      => 'BARMM (Bangsamoro)',
-    ];
-    if (isset($map[$r])) return $map[$r];
-    // case-insensitive fallback
-    $rLower = mb_strtolower($r);
-    foreach ($map as $key => $val) {
-        if (mb_strtolower($key) === $rLower) return $val;
-    }
-    return $r;
+function stuIntNormalizeRegion($r) {
+    return normalizeRegion($r) ?: '—';
 }
 
 // Normalize the incoming region so it matches what's stored in various formats.
 // Fetch all interviewers and filter in PHP to handle inconsistent DB values.
-$normalizedRegion = normalizeRegion($region);
+$normalizedRegion = stuIntNormalizeRegion($region);
 
-$res = supabaseRequest('GET',
-    'interviewers?select=id,full_name,interviewer_code,region,province,position,office,status&order=full_name.asc&limit=10000'
+$interviewersData = supabaseFetchAll(
+    'interviewers?select=id,full_name,interviewer_code,region,province,position,office,status&order=full_name.asc'
 );
-
-if (!$res['success']) {
-    echo json_encode(['success' => false, 'data' => []]); exit;
-}
 
 $monthStart = date('Y-m-01T00:00:00');
 $monthEnd   = date('Y-m-t') . 'T23:59:59';
 
-$codes = array_filter(array_column($res['data'], 'interviewer_code'));
+$codes = array_filter(array_column($interviewersData, 'interviewer_code'));
 
 $totalMap      = [];
 $completedMap  = [];
@@ -117,44 +42,40 @@ $lastActiveMap = [];
 
 if (!empty($codes)) {
     $codeIn = implode(',', $codes);
-    $aRes = supabaseRequest('GET',
-        'assessments?select=interviewer_code,status,created_at&interviewer_code=in.(' . $codeIn . ')&limit=100000'
+    $assessmentsData = supabaseFetchAll(
+        'assessments?select=interviewer_code,status,created_at&interviewer_code=in.(' . $codeIn . ')'
     );
-    if ($aRes['success'] && is_array($aRes['data'])) {
-        foreach ($aRes['data'] as $a) {
-            $code = $a['interviewer_code'] ?? '';
-            if (!$code) continue;
-            $totalMap[$code] = ($totalMap[$code] ?? 0) + 1;
-            if ($a['status'] === 'completed') $completedMap[$code] = ($completedMap[$code] ?? 0) + 1;
-            $ca = $a['created_at'] ?? '';
-            if ($ca >= $monthStart && $ca <= $monthEnd) {
-                $monthMap[$code] = ($monthMap[$code] ?? 0) + 1;
-                if ($a['status'] === 'completed') $completedMonthMap[$code] = ($completedMonthMap[$code] ?? 0) + 1;
-            }
-            if ($ca && (!isset($lastActiveMap[$code]) || $ca > $lastActiveMap[$code])) {
-                $lastActiveMap[$code] = $ca;
-            }
+    foreach ($assessmentsData as $a) {
+        $code = $a['interviewer_code'] ?? '';
+        if (!$code) continue;
+        $totalMap[$code] = ($totalMap[$code] ?? 0) + 1;
+        if ($a['status'] === 'completed') $completedMap[$code] = ($completedMap[$code] ?? 0) + 1;
+        $ca = $a['created_at'] ?? '';
+        if ($ca >= $monthStart && $ca <= $monthEnd) {
+            $monthMap[$code] = ($monthMap[$code] ?? 0) + 1;
+            if ($a['status'] === 'completed') $completedMonthMap[$code] = ($completedMonthMap[$code] ?? 0) + 1;
+        }
+        if ($ca && (!isset($lastActiveMap[$code]) || $ca > $lastActiveMap[$code])) {
+            $lastActiveMap[$code] = $ca;
         }
     }
 
-    $sRes = supabaseRequest('GET',
-        'sessions?select=interviewer_code,created_at&interviewer_code=in.(' . $codeIn . ')&limit=100000'
+    $sessionsData = supabaseFetchAll(
+        'sessions?select=interviewer_code,created_at&interviewer_code=in.(' . $codeIn . ')'
     );
-    if ($sRes['success'] && is_array($sRes['data'])) {
-        foreach ($sRes['data'] as $s) {
-            $code = $s['interviewer_code'] ?? '';
-            $ca   = $s['created_at'] ?? '';
-            if (!$code || !$ca) continue;
-            if (!isset($lastActiveMap[$code]) || $ca > $lastActiveMap[$code]) {
-                $lastActiveMap[$code] = $ca;
-            }
+    foreach ($sessionsData as $s) {
+        $code = $s['interviewer_code'] ?? '';
+        $ca   = $s['created_at'] ?? '';
+        if (!$code || !$ca) continue;
+        if (!isset($lastActiveMap[$code]) || $ca > $lastActiveMap[$code]) {
+            $lastActiveMap[$code] = $ca;
         }
     }
 }
 
 // Filter by normalized region
-$filtered = array_filter($res['data'], function($r) use ($normalizedRegion) {
-    return normalizeRegion($r['region'] ?? '') === $normalizedRegion;
+$filtered = array_filter($interviewersData, function($r) use ($normalizedRegion) {
+    return stuIntNormalizeRegion($r['region'] ?? '') === $normalizedRegion;
 });
 
 $rows = array_map(function($r) use ($totalMap, $completedMap, $monthMap, $completedMonthMap, $lastActiveMap) {
@@ -163,7 +84,7 @@ $rows = array_map(function($r) use ($totalMap, $completedMap, $monthMap, $comple
         'id'                => $r['id'] ?? null,
         'name'              => $r['full_name'] ?? '—',
         'code'              => $code,
-        'region'            => normalizeRegion($r['region'] ?? ''),
+        'region'            => stuIntNormalizeRegion($r['region'] ?? ''),
         'province'          => $r['province'] ?? '—',
         'position'          => $r['position'] ?? '—',
         'office'            => $r['office'] ?? '—',
