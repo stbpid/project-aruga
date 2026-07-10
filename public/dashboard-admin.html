@@ -3000,10 +3000,11 @@
       document.getElementById('region-subtitle').textContent = 'All regions with submitted assessments';
       container.innerHTML = data.map((r, i) => {
         const target = r.target || null;
+        const isOverTarget = target ? r.count > target : false;
         const barPct = target ? Math.min(Math.round((r.count / target) * 100), 100) : Math.round((r.count / maxCount) * 100);
         const pctLabel = target ? (() => { const p = Math.min(Math.round((r.count / target) * 100), 100); return p >= 100 ? '100%' : `${p}%`; })() : null;
         const countDisplay = target
-          ? `${r.count.toLocaleString()} / ${target.toLocaleString()}<span style="font-size:0.7rem;font-weight:400;color:var(--gray-400);margin-left:0.35rem;">${pctLabel}</span>`
+          ? `<span style="${isOverTarget ? 'color:#dc2626;' : ''}">${r.count.toLocaleString()} / ${target.toLocaleString()}</span><span style="font-size:0.7rem;font-weight:400;color:var(--gray-400);margin-left:0.35rem;">${pctLabel}</span>`
           : r.count.toLocaleString();
         const tipText = target
           ? `<strong>${r.region.replace(/'/g,"&#39;")}</strong>: ${r.count.toLocaleString()} of ${target.toLocaleString()} target`
