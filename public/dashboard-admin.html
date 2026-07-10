@@ -159,8 +159,8 @@
     <!-- Views -->
     <!-- Overview View -->
     <div class="dash-content" id="view-overview">
-      <div class="page-title">System Overview <span style="font-size: 0.5em; font-weight: 400; color: #888;">v1test</span></div>
-      <div class="page-subtitle">Real-time monitoring across all regions — as of May 2026</div>
+      <div class="page-title">System Overview</div>
+      <div class="page-subtitle">Real-time monitoring across all regions</div>
 
       <!-- Stats -->
       <div class="stats-grid">
@@ -273,13 +273,12 @@
 
 
 
-      <!-- Top Issues This Month -->
+      <!-- Top Issues -->
       <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-header">
           <div>
             <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
-              <div class="card-title">Top Issues This Month</div>
-              <span id="top-issues-month-chip" style="font-size:0.65rem;font-weight:700;background:#eff6ff;color:#1d4ed8;padding:0.15rem 0.55rem;border-radius:999px;white-space:nowrap;"></span>
+              <div class="card-title">Top Issues</div>
             </div>
             <div class="card-subtitle" id="top-issues-subtitle">Loading...</div>
           </div>
@@ -5886,18 +5885,16 @@
       if (!json.success) throw new Error();
       const issues = json.issues || [];
       document.getElementById('top-issues-subtitle').textContent =
-        json.month_label + ' — ' + json.total_this_month.toLocaleString() + ' assessments processed';
-      const monthChip = document.getElementById('top-issues-month-chip');
-      if (monthChip) monthChip.textContent = json.month_label || new Date().toLocaleString('default',{month:'long'});
+        json.total_assessments.toLocaleString() + ' assessments processed';
       const badge = document.getElementById('top-issues-badge');
       badge.textContent = issues.length + ' alerts';
       badge.style.display = '';
       const grid = document.getElementById('top-issues-grid');
       if (!issues.length) {
-        grid.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray-400);font-size:0.75rem;grid-column:1/-1;">No issues flagged this month.</div>';
+        grid.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray-400);font-size:0.75rem;grid-column:1/-1;">No issues flagged.</div>';
         return;
       }
-      const total = json.total_this_month || 1;
+      const total = json.total_assessments || 1;
       grid.innerHTML = issues.map(issue => {
         const pct = total > 0 ? Math.round((issue.count / total) * 100) : 0;
         const s = issueSeverity(pct);
