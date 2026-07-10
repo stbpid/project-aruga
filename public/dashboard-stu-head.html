@@ -1213,8 +1213,14 @@
         document.getElementById('stat-interviewers-sub').textContent = 'in ' + region;
 
         document.getElementById('progress-subtitle').textContent = region + ' performance tracking';
-        document.getElementById('progress-overall-label').textContent = comp.toLocaleString() + ' / ' + total.toLocaleString() + ' (' + rate + '%)';
-        document.getElementById('progress-overall-bar').style.width = rate + '%';
+        const target = d.target || null;
+        if (target) {
+          document.getElementById('progress-overall-label').textContent = comp.toLocaleString() + ' / ' + target.toLocaleString() + ' (' + targetRate + '%)';
+          document.getElementById('progress-overall-bar').style.width = Math.min(targetRate, 100) + '%';
+        } else {
+          document.getElementById('progress-overall-label').textContent = 'No target set';
+          document.getElementById('progress-overall-bar').style.width = '0%';
+        }
       }
     } catch(e) {}
 
