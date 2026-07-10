@@ -1,6 +1,7 @@
 ﻿<?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/region-coverage-helper.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET');
@@ -22,16 +23,11 @@ if ($range !== 'all') {
     $dateFilter = '&created_at=gte.' . urlencode($since);
 }
 
-// ── Fetch core data ──────────────────────────────────────────
-$assRes = supabaseRequest('GET', 'assessments?select=id,status,readiness_score,created_at,interviewer_id,interviewer_code&deleted_at=is.null&limit=100000' . $dateFilter);
-$childRes = supabaseRequest('GET', 'children?select=assessment_id,region,province,city_municipality,date_of_birth,sex&limit=100000');
-$disRes   = supabaseRequest('GET', 'child_education_health?select=assessment_id,disabilities&limit=100000');
-$intRes   = supabaseRequest('GET', 'interviewers?select=id,full_name,interviewer_code,region,status&limit=10000');
-
-$assessments = ($assRes['success'] && is_array($assRes['data'])) ? $assRes['data'] : [];
-$children    = ($childRes['success'] && is_array($childRes['data'])) ? $childRes['data'] : [];
-$disData     = ($disRes['success'] && is_array($disRes['data'])) ? $disRes['data'] : [];
-$interviewers= ($intRes['success'] && is_array($intRes['data'])) ? $intRes['data'] : [];
+// ── Fetch core data (paginated — Supabase caps each response at 1000 rows) ──
+$assessments  = supabaseFetchAll('assessments?select=id,status,readiness_score,created_at,interviewer_id,interviewer_code&deleted_at=is.null' . $dateFilter);
+$children     = supabaseFetchAll('children?select=assessment_id,region,province,city_municipality,date_of_birth,sex');
+$disData      = supabaseFetchAll('child_education_health?select=assessment_id,disabilities');
+$interviewers = supabaseFetchAll('interviewers?select=id,full_name,interviewer_code,region,status');
 
 // Build lookup maps
 $childMap = [];
@@ -45,29 +41,7 @@ foreach ($disData as $d) {
 }
 
 function analyticsNormalizeRegion($r) {
-    $r = trim($r ?? '');
-    $map = [
-        'NCR'=>'NCR (National Capital Region)','NCR – Metro Manila'=>'NCR (National Capital Region)',
-        'NCR - Metro Manila'=>'NCR (National Capital Region)','National Capital Region'=>'NCR (National Capital Region)',
-        'Region I – Ilocos Region'=>'Region I (Ilocos Region)','Region I - Ilocos Region'=>'Region I (Ilocos Region)',
-        'Region II – Cagayan Valley'=>'Region II (Cagayan Valley)','Region II - Cagayan Valley'=>'Region II (Cagayan Valley)',
-        'Region III – Central Luzon'=>'Region III (Central Luzon)','Region III - Central Luzon'=>'Region III (Central Luzon)',
-        'Region IV-A – CALABARZON'=>'Region IV-A (CALABARZON)','Region IV-A - CALABARZON'=>'Region IV-A (CALABARZON)','CALABARZON'=>'Region IV-A (CALABARZON)',
-        'Region IV-B – MIMAROPA'=>'Region IV-B (MIMAROPA)','Region IV-B - MIMAROPA'=>'Region IV-B (MIMAROPA)','MIMAROPA'=>'Region IV-B (MIMAROPA)',
-        'Region V – Bicol Region'=>'Region V (Bicol Region)','Region V - Bicol Region'=>'Region V (Bicol Region)','Bicol Region'=>'Region V (Bicol Region)','Region V'=>'Region V (Bicol Region)','Region V (Bicol)'=>'Region V (Bicol Region)',
-        'Region VI – Western Visayas'=>'Region VI (Western Visayas)','Region VI - Western Visayas'=>'Region VI (Western Visayas)','Region VI'=>'Region VI (Western Visayas)',
-        'Region VII – Central Visayas'=>'Region VII (Central Visayas)','Region VII - Central Visayas'=>'Region VII (Central Visayas)','Region VII'=>'Region VII (Central Visayas)',
-        'Region VIII – Eastern Visayas'=>'Region VIII (Eastern Visayas)','Region VIII - Eastern Visayas'=>'Region VIII (Eastern Visayas)','Region VIII'=>'Region VIII (Eastern Visayas)',
-        'Region IX – Zamboanga Peninsula'=>'Region IX (Zamboanga Peninsula)','Region IX - Zamboanga Peninsula'=>'Region IX (Zamboanga Peninsula)','Region IX'=>'Region IX (Zamboanga Peninsula)',
-        'Region X – Northern Mindanao'=>'Region X (Northern Mindanao)','Region X - Northern Mindanao'=>'Region X (Northern Mindanao)','Region X'=>'Region X (Northern Mindanao)',
-        'Region XI – Davao Region'=>'Region XI (Davao Region)','Region XI - Davao Region'=>'Region XI (Davao Region)','Region XI'=>'Region XI (Davao Region)',
-        'Region XII – SOCCSKSARGEN'=>'Region XII (SOCCSKSARGEN)','Region XII - SOCCSKSARGEN'=>'Region XII (SOCCSKSARGEN)','Region XII'=>'Region XII (SOCCSKSARGEN)',
-        'Region XIII – Caraga'=>'Region XIII (Caraga)','Region XIII - Caraga'=>'Region XIII (Caraga)','Caraga'=>'Region XIII (Caraga)','Region XIII'=>'Region XIII (Caraga)',
-        'CAR – Cordillera'=>'CAR (Cordillera Administrative Region)','CAR - Cordillera'=>'CAR (Cordillera Administrative Region)',
-        'CAR'=>'CAR (Cordillera Administrative Region)','Cordillera'=>'CAR (Cordillera Administrative Region)',
-        'BARMM'=>'BARMM (Bangsamoro)','Bangsamoro'=>'BARMM (Bangsamoro)',
-    ];
-    return $map[$r] ?? ($r ?: '—');
+    return normalizeRegion($r) ?: '—';
 }
 
 // Apply region filter
@@ -96,20 +70,22 @@ if ($provinceFilter) {
 $total     = count($assessments);
 $completed = count(array_filter($assessments, fn($a) => ($a['status'] ?? '') === 'completed'));
 
-// Completion rate = completed vs national target (sum of per-region targets)
-$regionTargets = [
-    'Region I (Ilocos Region)'    => 150,
-    'Region II (Cagayan Valley)'  => 100,
-    'Region III (Central Luzon)'  => 100,
-    'Region IV-A (CALABARZON)'    => 100,
-    'Region IV-B (MIMAROPA)'      => 150,
-    'Region V (Bicol Region)'     => 100,
-    'Region VI (Western Visayas)' => 150,
-    'Region XI (Davao Region)'      => 150,
-    'NCR (National Capital Region)' => 140,
-];
-$nationalTarget = array_sum($regionTargets);
-$rate = $nationalTarget > 0 ? round(($completed / $nationalTarget) * 100, 1) : ($total > 0 ? round(($completed / $total) * 100, 1) : 0);
+// Completion rate = active (non-deleted) children vs target, same logic as Overview tab
+$regionTargets = getRegionTargets();
+$activeCountsByRegion = getActiveChildrenCountsByRegion();
+if ($regionFilter) {
+    $normalizedFilter = analyticsNormalizeRegion($regionFilter);
+    $totalActive = $activeCountsByRegion[$normalizedFilter] ?? 0;
+    $totalTarget = $regionTargets[$normalizedFilter] ?? 0;
+} else {
+    $totalActive = 0;
+    $totalTarget = 0;
+    foreach ($regionTargets as $region => $target) {
+        $totalActive += $activeCountsByRegion[$region] ?? 0;
+        $totalTarget += $target;
+    }
+}
+$rate = $totalTarget > 0 ? round(($totalActive / $totalTarget) * 100, 1) : 0;
 
 // Active interviewers (submitted at least once)
 $activeIntIds = array_unique(array_filter(array_column($assessments, 'interviewer_code')));

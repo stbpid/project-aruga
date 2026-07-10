@@ -1,6 +1,7 @@
 ﻿<?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/region-coverage-helper.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET');
@@ -22,53 +23,20 @@ if ($range !== 'all') {
     $dateFilter = '&created_at=gte.' . urlencode($since);
 }
 
-// ── Fetch all needed tables ──────────────────────────────────
-$assRes    = supabaseRequest('GET', 'assessments?select=id,readiness_score,created_at&deleted_at=is.null&limit=100000' . $dateFilter);
-$childRes  = supabaseRequest('GET', 'children?select=assessment_id,region,sex,religion,religion_other,ip_membership&limit=100000');
-$preqRes   = supabaseRequest('GET', 'pre_qualification?select=assessment_id,is_4ps_member&limit=100000');
-$famRes    = supabaseRequest('GET', 'family_members?select=assessment_id&limit=100000');
-$eduRes    = supabaseRequest('GET', 'education_info?select=assessment_id,is_currently_enrolled,not_enrolled_reason&limit=100000');
-$ceduRes   = supabaseRequest('GET', 'child_education_health?select=assessment_id,highest_education,disabilities&limit=100000');
-$econRes   = supabaseRequest('GET', 'economic_capacity?select=assessment_id,income_classification,monthly_income,primary_income_source&limit=100000');
-$healthRes = supabaseRequest('GET', 'health_info?select=assessment_id,has_all_vaccinations,has_ongoing_health_conditions,availed_services_6months,has_barriers_to_healthcare,healthcare_barriers_details,expense_food,expense_medication,expense_therapy,expense_hygiene,expense_assistive_device,expense_other&limit=100000');
-$svcRes    = supabaseRequest('GET', 'service_availment?select=assessment_id,is_aware_of_social_services,has_availed_services,receives_financial_assistance&limit=100000');
-$socioRes  = supabaseRequest('GET', 'socio_economic?select=assessment_id,housing_materials,tenure_status,has_accessibility_modifications,water_source,electricity_source,toilet_type,garbage_disposal&limit=100000');
-
-$rawAss    = ($assRes['success']    && is_array($assRes['data']))    ? $assRes['data']    : [];
-$rawChild  = ($childRes['success']  && is_array($childRes['data']))  ? $childRes['data']  : [];
-$rawPreq   = ($preqRes['success']   && is_array($preqRes['data']))   ? $preqRes['data']   : [];
-$rawFam    = ($famRes['success']    && is_array($famRes['data']))    ? $famRes['data']    : [];
-$rawEdus   = ($eduRes['success']    && is_array($eduRes['data']))    ? $eduRes['data']    : [];
-$rawCedu   = ($ceduRes['success']   && is_array($ceduRes['data']))   ? $ceduRes['data']   : [];
-$rawEcons  = ($econRes['success']   && is_array($econRes['data']))   ? $econRes['data']   : [];
-$rawHealth = ($healthRes['success'] && is_array($healthRes['data'])) ? $healthRes['data'] : [];
-$rawSvcs   = ($svcRes['success']    && is_array($svcRes['data']))    ? $svcRes['data']    : [];
-$rawSocio  = ($socioRes['success']  && is_array($socioRes['data']))  ? $socioRes['data']  : [];
+// ── Fetch all needed tables (paginated — Supabase caps each response at 1000 rows) ──
+$rawAss    = supabaseFetchAll('assessments?select=id,readiness_score,created_at&deleted_at=is.null' . $dateFilter);
+$rawChild  = supabaseFetchAll('children?select=assessment_id,region,sex,religion,religion_other,ip_membership');
+$rawPreq   = supabaseFetchAll('pre_qualification?select=assessment_id,is_4ps_member');
+$rawFam    = supabaseFetchAll('family_members?select=assessment_id');
+$rawEdus   = supabaseFetchAll('education_info?select=assessment_id,is_currently_enrolled,not_enrolled_reason');
+$rawCedu   = supabaseFetchAll('child_education_health?select=assessment_id,highest_education,disabilities');
+$rawEcons  = supabaseFetchAll('economic_capacity?select=assessment_id,income_classification,monthly_income,primary_income_source');
+$rawHealth = supabaseFetchAll('health_info?select=assessment_id,has_all_vaccinations,has_ongoing_health_conditions,availed_services_6months,has_barriers_to_healthcare,healthcare_barriers_details,expense_food,expense_medication,expense_therapy,expense_hygiene,expense_assistive_device,expense_other');
+$rawSvcs   = supabaseFetchAll('service_availment?select=assessment_id,is_aware_of_social_services,has_availed_services,receives_financial_assistance');
+$rawSocio  = supabaseFetchAll('socio_economic?select=assessment_id,housing_materials,tenure_status,has_accessibility_modifications,water_source,electricity_source,toilet_type,garbage_disposal');
 
 function extNormalizeRegion($r) {
-    $r = trim($r ?? '');
-    $map = [
-        'NCR'=>'NCR (National Capital Region)','NCR – Metro Manila'=>'NCR (National Capital Region)',
-        'NCR - Metro Manila'=>'NCR (National Capital Region)','National Capital Region'=>'NCR (National Capital Region)',
-        'Region I – Ilocos Region'=>'Region I (Ilocos Region)','Region I - Ilocos Region'=>'Region I (Ilocos Region)',
-        'Region II – Cagayan Valley'=>'Region II (Cagayan Valley)','Region II - Cagayan Valley'=>'Region II (Cagayan Valley)',
-        'Region III – Central Luzon'=>'Region III (Central Luzon)','Region III - Central Luzon'=>'Region III (Central Luzon)',
-        'Region IV-A – CALABARZON'=>'Region IV-A (CALABARZON)','Region IV-A - CALABARZON'=>'Region IV-A (CALABARZON)','CALABARZON'=>'Region IV-A (CALABARZON)',
-        'Region IV-B – MIMAROPA'=>'Region IV-B (MIMAROPA)','Region IV-B - MIMAROPA'=>'Region IV-B (MIMAROPA)','MIMAROPA'=>'Region IV-B (MIMAROPA)',
-        'Region V – Bicol Region'=>'Region V (Bicol Region)','Region V - Bicol Region'=>'Region V (Bicol Region)','Bicol Region'=>'Region V (Bicol Region)','Region V'=>'Region V (Bicol Region)','Region V (Bicol)'=>'Region V (Bicol Region)',
-        'Region VI – Western Visayas'=>'Region VI (Western Visayas)','Region VI - Western Visayas'=>'Region VI (Western Visayas)','Region VI'=>'Region VI (Western Visayas)',
-        'Region VII – Central Visayas'=>'Region VII (Central Visayas)','Region VII - Central Visayas'=>'Region VII (Central Visayas)','Region VII'=>'Region VII (Central Visayas)',
-        'Region VIII – Eastern Visayas'=>'Region VIII (Eastern Visayas)','Region VIII - Eastern Visayas'=>'Region VIII (Eastern Visayas)','Region VIII'=>'Region VIII (Eastern Visayas)',
-        'Region IX – Zamboanga Peninsula'=>'Region IX (Zamboanga Peninsula)','Region IX - Zamboanga Peninsula'=>'Region IX (Zamboanga Peninsula)','Region IX'=>'Region IX (Zamboanga Peninsula)',
-        'Region X – Northern Mindanao'=>'Region X (Northern Mindanao)','Region X - Northern Mindanao'=>'Region X (Northern Mindanao)','Region X'=>'Region X (Northern Mindanao)',
-        'Region XI – Davao Region'=>'Region XI (Davao Region)','Region XI - Davao Region'=>'Region XI (Davao Region)','Region XI'=>'Region XI (Davao Region)',
-        'Region XII – SOCCSKSARGEN'=>'Region XII (SOCCSKSARGEN)','Region XII - SOCCSKSARGEN'=>'Region XII (SOCCSKSARGEN)','Region XII'=>'Region XII (SOCCSKSARGEN)',
-        'Region XIII – Caraga'=>'Region XIII (Caraga)','Region XIII - Caraga'=>'Region XIII (Caraga)','Caraga'=>'Region XIII (Caraga)','Region XIII'=>'Region XIII (Caraga)',
-        'CAR – Cordillera'=>'CAR (Cordillera Administrative Region)','CAR - Cordillera'=>'CAR (Cordillera Administrative Region)',
-        'CAR'=>'CAR (Cordillera Administrative Region)','Cordillera'=>'CAR (Cordillera Administrative Region)',
-        'BARMM'=>'BARMM (Bangsamoro)','Bangsamoro'=>'BARMM (Bangsamoro)',
-    ];
-    return $map[$r] ?? ($r ?: '—');
+    return normalizeRegion($r) ?: '—';
 }
 
 // Region filter — normalize both sides to handle inconsistent stored values
