@@ -933,11 +933,11 @@
 
   async function coBenLoad() {
     if (coBenLoaded) return;
+    coBenLoaded = true;
     document.getElementById('co-ben-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
       const json = await (await authFetch('/api/get-all-beneficiaries.php?limit=10000&offset=0')).json();
       coBenData = json.success ? json.data : [];
-      coBenLoaded = true;
 
       const rSel = document.getElementById('co-ben-region');
       const BEN_REGIONS = ['NCR (National Capital Region)','Region I (Ilocos Region)','Region II (Cagayan Valley)','Region III (Central Luzon)','Region IV-A (CALABARZON)','Region IV-B (MIMAROPA)','Region V (Bicol Region)','Region VI (Western Visayas)','Region XI (Davao Region)'];
