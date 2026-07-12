@@ -45,7 +45,7 @@
       <div class="payroll-type-modal-msg">Choose which payroll you want to generate.<br><strong>This will prepare a printable PDF document.</strong></div>
     </div>
     <div class="payroll-type-modal-actions">
-      <button id="co-payroll-complete-btn" onclick="closeCoPayrollTypeModal(); coBenGeneratePayoutList();">Complete Beneficiary</button>
+      <button id="co-payroll-complete-btn" onclick="closeCoPayrollTypeModal(); coBenGeneratePayoutList(null, false, true);">Complete Beneficiary</button>
       <button id="co-payroll-special-btn" onclick="closeCoPayrollTypeModal(); openCoSpecialPayrollModal();">Special Payroll</button>
     </div>
   </div>
@@ -2773,23 +2773,26 @@
       return;
     }
     closeCoSpecialPayrollModal();
-    coBenGeneratePayoutList(coSpecialPayrollIds);
+    coBenGeneratePayoutList(coSpecialPayrollIds, false, true);
   }
 
-  async function coBenGeneratePayoutList(arugaIdFilter) {
+  async function coBenGeneratePayoutList(arugaIdFilter, asDocx, testMode) {
     if (!coBenFiltered.length) { showGlobalToast('No beneficiaries match the current filter.', 'error'); return; }
     const btn = document.getElementById('co-ben-payout-btn');
     btn.disabled = true;
     btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;animation:spin 1s linear infinite;">progress_activity</span>Generating...';
 
-    const win = window.open('', '_blank');
-    if (!win) {
-      showGlobalToast('Pop-up blocked. Please allow pop-ups for this site and try again.', 'error');
-      btn.disabled = false;
-      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
-      return;
+    let win = null;
+    if (!asDocx) {
+      win = window.open('', '_blank');
+      if (!win) {
+        showGlobalToast('Pop-up blocked. Please allow pop-ups for this site and try again.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
+        return;
+      }
+      win.document.write('<p style="font-family:sans-serif;padding:2rem;">Generating payroll, please wait...</p>');
     }
-    win.document.write('<p style="font-family:sans-serif;padding:2rem;">Generating payroll, please wait...</p>');
 
     try {
       const region = document.getElementById('co-ben-region').value;
@@ -2817,6 +2820,9 @@
         }, [])
         .sort((a, b) => SIGNATORY_FUNCTION_ORDER.indexOf(normFunction(a.signatory_function)) - SIGNATORY_FUNCTION_ORDER.indexOf(normFunction(b.signatory_function)));
 
+      const specialDisbursingOfficer = (sigJson.success && sigJson.data ? sigJson.data : [])
+        .find(s => s.signatory_status === 'active' && (!region || normRegion(s.signatory_region) === normRegion(region)) && normFunction(s.signatory_function) === 'special disbursing officer');
+
       const now = new Date();
       const monthYear = now.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
       const ROMAN_TO_NUM = { I:'1', II:'2', III:'3', IV:'4', 'IV-A':'4-A', 'IV-B':'4-B', V:'5', VI:'6', VII:'7', VIII:'8', IX:'9', X:'10', XI:'11', XII:'12', XIII:'13' };
@@ -2841,7 +2847,16 @@
         }
       }
 
-      const ROWS_PER_PAGE = 20;
+      if (testMode) {
+        const lastName = r => {
+          const parts = (r.name || '').trim().split(/\s+/);
+          return (parts[parts.length - 1] || '').toLowerCase();
+        };
+        uniqueBen = [...uniqueBen].sort((a, b) => lastName(a).localeCompare(lastName(b)));
+      }
+
+      const ROWS_PER_PAGE = testMode ? 12 : 20;
+      const rowHeightPx = testMode ? 40 : 22;
       const allRows = uniqueBen.map((r, i) => {
         const pd = payoutMap[r.aruga_id] || {};
         const beneficiaryName = (pd.beneficiary_name || r.name || '').toUpperCase();
@@ -2856,6 +2871,12 @@
           <td></td>
         </tr>`;
       });
+
+      const totalAmount = uniqueBen.length * 2000;
+      const totalRowHtml = testMode ? `<tr>
+          <td colspan="4" style="font-weight:bold;text-align:right;">TOTAL</td>
+          <td colspan="3" style="font-weight:bold;">${totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+        </tr>` : '';
 
       const tableHead = `
         <thead>
@@ -2876,7 +2897,7 @@
             <div class="sig-block" style="display:flex;justify-content:space-around;">
               ${matchedSignatories.map(s => `
               <div class="sig-col" style="text-align:center;width:${matchedSignatories.length === 1 ? 40 : 100 / matchedSignatories.length}%;padding:0 10px;">
-                <div style="text-transform:uppercase;font-size:0.85em;margin-bottom:4px;">${s.signatory_function}:</div>
+                <div style="text-transform:uppercase;font-size:0.85em;margin-bottom:0.4in;text-align:left;">${s.signatory_function}:</div>
                 <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
                 <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
                 <div>${s.signatory_position}</div>
@@ -2886,13 +2907,37 @@
           </td>
         </tr>` : '';
 
+      const specialDisbursingOfficerRowHtml = specialDisbursingOfficer ? `
+        <tr style="height:auto;border:none;">
+          <td colspan="7" style="border:none;padding-top:0.3in;">
+            <div class="sig-block" style="display:flex;justify-content:flex-start;">
+              <div class="sig-col" style="text-align:center;width:40%;padding:0 10px;">
+                <div style="text-transform:uppercase;font-size:0.85em;margin-bottom:0.4in;text-align:left;">Certified True and Correct By:</div>
+                <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
+                <div style="font-weight:bold;text-transform:uppercase;">${specialDisbursingOfficer.signatory_fullname}</div>
+                <div>${specialDisbursingOfficer.signatory_position}</div>
+                <div>${specialDisbursingOfficer.signatory_office}</div>
+              </div>
+            </div>
+          </td>
+        </tr>` : '';
+
+      const certificationRowHtml = matchedSignatories.length ? `
+        <tr style="height:auto;border:none;">
+          <td colspan="7" style="border:none;padding-top:0.3in;">
+            <div style="font-size:0.85em;text-align:justify;width:70%;">
+              I hereby certify on my official oath that this Report of Cash Disbursements in ____ page(s) is a full, true and correct statement of all cash disbursements during the period of ________ actually made by me in payment for obligations shown in pertinent disbursement payroll.
+            </div>
+          </td>
+        </tr>` : '';
+
       const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-      const totalPageCount = Math.max(1, Math.ceil(allRows.length / ROWS_PER_PAGE));
-      const makeFooterHtml = (pageNum) => matchedSignatories.length ? '' : `
-      <div id="page-footer">
-        <div class="ftr-text">
-          <span>This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</span>
-          <span>Page ${pageNum} of ${totalPageCount}</span>
+
+      const buildFooterHtml = (pageNum, totalPages) => (matchedSignatories.length && pageNum === totalPages) ? '' : `
+      <div class="page-footer-inline">
+        <div class="ftr-row">
+          <div class="ftr-text">This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</div>
+          <div class="ftr-page">Page <strong>${pageNum}</strong> of <strong>${totalPages}</strong></div>
         </div>
       </div>`;
 
@@ -2907,7 +2952,6 @@
           ${pageRows}
         </tbody>
       </table>
-      ${makeFooterHtml(pages.length + 1)}
     </div>`);
       }
       if (!pages.length) {
@@ -2917,10 +2961,12 @@
         ${tableHead}
         <tbody></tbody>
       </table>
-      ${makeFooterHtml(1)}
     </div>`);
       }
-      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${signatureRowHtml}\n        </tbody>`);
+      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${totalRowHtml}${signatureRowHtml}${specialDisbursingOfficerRowHtml}${certificationRowHtml}\n        </tbody>`);
+      for (let i = 0; i < pages.length - 1; i++) {
+        pages[i] = pages[i].replace('</div>', `${buildFooterHtml(i + 1, pages.length)}\n    </div>`);
+      }
       const pagesHtml = pages.join('\n    <div class="page-break"></div>\n');
 
       const dswdLogoUrl = window.location.origin + '/images/form-logo.webp';
@@ -2949,14 +2995,20 @@
     .hdr-rule { border: none; border-top: 2px solid #000; margin-top: 3px; }
     .hdr-subtitle { text-align: center; font-weight: bold; font-size: 10pt; margin-top: 3px; line-height: 1.4; }
 
-    #page-footer {
-      margin-top: 6mm;
-      padding: 1mm 0 5mm 0;
-      background: #fff;
+    .page-footer-inline {
+      position: absolute;
+      bottom: 50px;
+      left: 0;
+      right: 0;
+      padding: 1mm 12mm 0 12mm;
     }
-    .ftr-text { display: flex; justify-content: space-between; font-size: 7.5pt; color: #555; }
+    .ftr-row { display: flex; justify-content: space-between; align-items: center; }
+    .ftr-text { text-align: left; font-size: 7.5pt; color: #555; }
+    .ftr-page { text-align: right; font-size: 7.5pt; color: #555; white-space: nowrap; }
 
     .page-content {
+      position: relative;
+      min-height: calc(210mm - 38mm - 12mm);
       margin-top: 38mm;
       margin-bottom: 12mm;
       padding: 0 12mm;
@@ -2965,7 +3017,7 @@
     table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     th, td { border: 1px solid #000; padding: 3px 5px; font-size: 8pt; vertical-align: middle; }
     th { font-weight: bold; text-align: center; background: #fff; }
-    tr { height: 22px; }
+    tr { height: ${rowHeightPx}px; }
 
     .page-break { break-after: page; page-break-after: always; }
 
@@ -3004,11 +3056,23 @@
 </body>
 </html>`;
 
-      win.document.open();
-      win.document.write(html);
-      win.document.close();
-      win.focus();
-      setTimeout(() => { win.print(); }, 500);
+      if (asDocx) {
+        const converted = window.htmlDocx.asBlob(html, { orientation: 'landscape' });
+        const dlUrl = URL.createObjectURL(converted);
+        const a = document.createElement('a');
+        a.href = dlUrl;
+        a.download = `Test-Payroll-${monthYear.replace(/\s+/g, '-')}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(dlUrl);
+      } else {
+        win.document.open();
+        win.document.write(html);
+        win.document.close();
+        win.focus();
+        setTimeout(() => { win.print(); }, 500);
+      }
     } catch(e) {
       console.error('Generate Payroll error:', e);
       showGlobalToast('Error generating payout list: ' + (e?.message || e), 'error');
