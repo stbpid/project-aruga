@@ -83,8 +83,22 @@ function getRegionCode($region) {
 }
 
 function generateArugaId($regionCode) {
-    $year = date('Y');
+    $year = (int)date('Y');
     $prefix = "ARUGA-{$year}-{$regionCode}-";
+
+    // Atomic counter via Postgres RPC — avoids the race condition where two
+    // concurrent submissions read the same COUNT() and collide on the same ID.
+    $rpc = supabaseRPC('increment_aruga_counter', [
+        'p_region_code' => $regionCode,
+        'p_year'        => $year,
+    ]);
+
+    if ($rpc['success'] && is_numeric($rpc['data'])) {
+        return sprintf('%s%04d', $prefix, (int)$rpc['data']);
+    }
+
+    // Fallback (RPC unreachable/misconfigured) — old count-based method.
+    // Retry loop in the caller still guards against collisions.
     $countResult = supabaseRequest('GET', 'assessments?select=id&aruga_id=like.' . urlencode($prefix . '*') . '&limit=100000');
     $count = is_array($countResult['data']) ? count($countResult['data']) + 1 : 1;
     return sprintf('%s%04d', $prefix, $count);
