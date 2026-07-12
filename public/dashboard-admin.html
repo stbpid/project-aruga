@@ -472,7 +472,7 @@
           <div class="payroll-type-modal-msg">Choose which payroll you want to generate.<br><strong>This will prepare a printable PDF document.</strong></div>
         </div>
         <div class="payroll-type-modal-actions">
-          <button id="payroll-complete-btn" onclick="closePayrollTypeModal(); generateBenPayoutList();">Complete Beneficiary</button>
+          <button id="payroll-complete-btn" onclick="closePayrollTypeModal(); generateBenPayoutList(null, false, true);">Complete Beneficiary</button>
           <button id="payroll-special-btn" onclick="closePayrollTypeModal(); openSpecialPayrollModal();">Special Payroll</button>
           <button id="payroll-test-btn" onclick="closePayrollTypeModal(); generateBenPayoutList(null, false, true);">Test Payroll</button>
         </div>
