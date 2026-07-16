@@ -63,6 +63,8 @@
     <div class="payroll-type-modal-body">
       <div class="payroll-type-modal-title">Generate Payroll</div>
       <div class="payroll-type-modal-msg">Choose which payroll you want to generate.<br><strong>This will prepare a printable PDF document.</strong></div>
+      <div style="font-size:0.75rem;font-weight:600;color:var(--gray-500);margin-top:0.75rem;">Select Month for Generate Payroll</div>
+      <select id="stu-payroll-month-select" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.8rem;cursor:pointer;padding:0.4rem 0.6rem;margin-top:0.35rem;width:80%;"></select>
     </div>
     <div class="payroll-type-modal-actions">
       <button id="stu-payroll-complete-btn" onclick="closeStuPayrollTypeModal(); stuBenGeneratePayoutList(null, false, true);">Complete Beneficiary</button>
@@ -2466,6 +2468,12 @@
   }
 
   function openStuPayrollTypeModal() {
+    const monthSelect = document.getElementById('stu-payroll-month-select');
+    if (monthSelect && !monthSelect.options.length) {
+      const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      monthSelect.innerHTML = MONTH_NAMES.map((m, i) => `<option value="${i}">${m}</option>`).join('');
+    }
+    if (monthSelect) monthSelect.value = String(new Date().getMonth());
     document.getElementById('stu-payroll-type-modal').classList.add('open');
   }
 
@@ -2603,7 +2611,9 @@
         .find(s => s.signatory_status === 'active' && normRegion(s.signatory_region) === normRegion(region) && normFunction(s.signatory_function) === 'special disbursing officer');
 
       const now = new Date();
-      const monthYear  = now.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
+      const monthSelect = document.getElementById('stu-payroll-month-select');
+      const selectedMonth = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : now.getMonth();
+      const monthYear  = new Date(now.getFullYear(), selectedMonth, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
       const printedOn  = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
       const seenArugaIds = new Set();
