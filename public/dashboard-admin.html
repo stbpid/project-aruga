@@ -8024,13 +8024,13 @@
           <td colspan="7" style="border:none;padding-top:0.5in;">
             <div class="sig-block" style="display:flex;justify-content:space-around;">
               ${matchedSignatories.map(s => `
-              <div class="sig-col" style="text-align:center;width:33.33%;padding:0 10px;">
+              <div class="sig-col" style="text-align:center;width:40%;padding:0 10px;">
                 <div style="text-transform:uppercase;font-size:0.85em;margin-bottom:0.4in;text-align:left;">${s.signatory_function}:</div>
-                <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
+                <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;width:70%;margin-left:auto;margin-right:auto;"></div>
                 <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
                 <div>${s.signatory_position}</div>
               </div>`).join('')}
-              ${matchedSignatories.length < 3 ? '<div class="sig-col" style="width:33.33%;padding:0 10px;"></div>' : ''}
+              ${matchedSignatories.length < 3 ? '<div class="sig-col" style="width:20%;padding:0 10px;"></div>' : ''}
             </div>
           </td>
         </tr>` : '';
@@ -8038,7 +8038,7 @@
       const certificationRowHtml = matchedSignatories.length ? `
         <tr style="height:auto;border:none;">
           <td colspan="7" style="border:none;padding-top:0.3in;">
-            <div style="font-size:0.85em;text-align:justify;width:70%;">
+            <div style="font-size:0.85em;text-align:justify;width:50%;">
               I hereby certify on my official oath that this Report of Cash Disbursements is a full, true and correct statement of all cash disbursements during the period of <strong>${monthYear}</strong> actually made by me in payment for obligations shown in pertinent disbursement payroll.
             </div>
           </td>
@@ -8076,7 +8076,7 @@
       </table>
     </div>`);
       }
-      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${totalRowHtml}${signatureRowHtml}${certificationRowHtml}\n        </tbody>`);
+      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${totalRowHtml}${certificationRowHtml}${signatureRowHtml}\n        </tbody>`);
       for (let i = 0; i < pages.length - 1; i++) {
         pages[i] = pages[i].replace('</div>', `${buildFooterHtml(i + 1, pages.length)}\n    </div>`);
       }
