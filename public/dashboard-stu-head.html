@@ -2595,7 +2595,7 @@
       const sigRes = await authFetch('/api/get-signatories.php');
       const sigJson = await sigRes.json();
       const normRegion = s => (s || '').trim().toLowerCase();
-      const SIGNATORY_FUNCTION_ORDER = ['prepared by', 'reviewed by', 'recommending approval', 'approved by'];
+      const SIGNATORY_FUNCTION_ORDER = ['certified true and correct by', 'approved by'];
       const normFunction = s => (s || '').trim().toLowerCase();
       const matchedSignatories = (sigJson.success && sigJson.data ? sigJson.data : [])
         .filter(s => s.signatory_status === 'active' && normRegion(s.signatory_region) === normRegion(region))
@@ -2606,9 +2606,6 @@
           return acc;
         }, [])
         .sort((a, b) => SIGNATORY_FUNCTION_ORDER.indexOf(normFunction(a.signatory_function)) - SIGNATORY_FUNCTION_ORDER.indexOf(normFunction(b.signatory_function)));
-
-      const specialDisbursingOfficer = (sigJson.success && sigJson.data ? sigJson.data : [])
-        .find(s => s.signatory_status === 'active' && normRegion(s.signatory_region) === normRegion(region) && normFunction(s.signatory_function) === 'special disbursing officer');
 
       const now = new Date();
       const monthSelect = document.getElementById('stu-payroll-month-select');
@@ -2684,42 +2681,19 @@
           <td colspan="7" style="border:none;padding-top:0.5in;">
             <div class="sig-block" style="display:flex;justify-content:space-around;">
               ${matchedSignatories.map(s => `
-              <div class="sig-col" style="text-align:center;width:${matchedSignatories.length === 1 ? 40 : 100 / matchedSignatories.length}%;padding:0 10px;">
-                <div style="text-transform:uppercase;font-size:0.85em;margin-bottom:0.4in;text-align:left;">${s.signatory_function}:</div>
-                <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
-                <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
-                <div>${s.signatory_position}</div>
-                <div>${s.signatory_office}</div>
+              <div class="sig-col" style="text-align:center;width:${normFunction(s.signatory_function) === 'certified true and correct by' ? 60 : 40}%;padding:0 10px;">
+                <div style="font-size:0.85em;height:0.9in;text-align:left;${normFunction(s.signatory_function) === 'certified true and correct by' ? 'width:78%;' : 'text-transform:uppercase;'}">${normFunction(s.signatory_function) === 'certified true and correct by' ? `I hereby certify on my official oath that this Report of Cash Disbursements is a full, true and correct statement of all cash disbursements during the period of <strong>${monthYear}</strong> actually made by me in payment for obligations shown in pertinent disbursement payroll.` : `${s.signatory_function}:`}</div>
+                <div style="width:2.5in;margin-left:0;margin-right:auto;">
+                  <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
+                  <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
+                  <div>${s.signatory_position}</div>
+                </div>
               </div>`).join('')}
             </div>
           </td>
         </tr>` : '';
 
-      const specialDisbursingOfficerRowHtml = specialDisbursingOfficer ? `
-        <tr style="height:auto;border:none;">
-          <td colspan="7" style="border:none;padding-top:0.3in;">
-            <div class="sig-block" style="display:flex;justify-content:flex-start;">
-              <div class="sig-col" style="text-align:center;width:40%;padding:0 10px;">
-                <div style="text-transform:uppercase;font-size:0.85em;margin-bottom:0.4in;text-align:left;">Certified True and Correct By:</div>
-                <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
-                <div style="font-weight:bold;text-transform:uppercase;">${specialDisbursingOfficer.signatory_fullname}</div>
-                <div>${specialDisbursingOfficer.signatory_position}</div>
-                <div>${specialDisbursingOfficer.signatory_office}</div>
-              </div>
-            </div>
-          </td>
-        </tr>` : '';
-
-      const certificationRowHtml = matchedSignatories.length ? `
-        <tr style="height:auto;border:none;">
-          <td colspan="7" style="border:none;padding-top:0.3in;">
-            <div style="font-size:0.85em;text-align:justify;width:70%;">
-              I hereby certify on my official oath that this Report of Cash Disbursements in ____ page(s) is a full, true and correct statement of all cash disbursements during the period of ________ actually made by me in payment for obligations shown in pertinent disbursement payroll.
-            </div>
-          </td>
-        </tr>` : '';
-
-      const buildFooterHtml = (pageNum, totalPages) => (matchedSignatories.length && pageNum === totalPages) ? '' : `
+      const buildFooterHtml = (pageNum, totalPages) => `
       <div class="page-footer-inline">
         <div class="ftr-row">
           <div class="ftr-text">This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</div>
@@ -2749,8 +2723,8 @@
       </table>
     </div>`);
       }
-      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${totalRowHtml}${signatureRowHtml}${specialDisbursingOfficerRowHtml}${certificationRowHtml}\n        </tbody>`);
-      for (let i = 0; i < pages.length - 1; i++) {
+      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${totalRowHtml}${signatureRowHtml}\n        </tbody>`);
+      for (let i = 0; i < pages.length; i++) {
         pages[i] = pages[i].replace('</div>', `${buildFooterHtml(i + 1, pages.length)}\n    </div>`);
       }
       const pagesHtml = pages.join('\n    <div class="page-break"></div>\n');
