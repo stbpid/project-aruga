@@ -8025,10 +8025,12 @@
             <div class="sig-block" style="display:flex;justify-content:space-around;">
               ${matchedSignatories.map(s => `
               <div class="sig-col" style="text-align:center;width:${normFunction(s.signatory_function) === 'certified true and correct by' ? 60 : 40}%;padding:0 10px;">
-                <div style="font-size:0.85em;margin-bottom:0.4in;text-align:left;${normFunction(s.signatory_function) === 'certified true and correct by' ? 'width:90%;' : ''}">${normFunction(s.signatory_function) === 'certified true and correct by' ? `I hereby certify on my official oath that this Report of Cash Disbursements is a full, true and correct statement of all cash disbursements during the period of <strong>${monthYear}</strong> actually made by me in payment for obligations shown in pertinent disbursement payroll.` : `${s.signatory_function}:`}</div>
-                <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;width:2.5in;margin-left:0;margin-right:auto;"></div>
-                <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
-                <div>${s.signatory_position}</div>
+                <div style="font-size:0.85em;margin-bottom:0.4in;text-align:left;${normFunction(s.signatory_function) === 'certified true and correct by' ? 'width:80%;' : ''}">${normFunction(s.signatory_function) === 'certified true and correct by' ? `I hereby certify on my official oath that this Report of Cash Disbursements is a full, true and correct statement of all cash disbursements during the period of <strong>${monthYear}</strong> actually made by me in payment for obligations shown in pertinent disbursement payroll.` : `${s.signatory_function}:`}</div>
+                <div style="width:2.5in;margin-left:0;margin-right:auto;">
+                  <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
+                  <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
+                  <div>${s.signatory_position}</div>
+                </div>
               </div>`).join('')}
             </div>
           </td>
