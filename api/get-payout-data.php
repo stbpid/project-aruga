@@ -18,7 +18,7 @@ $pageSize = 1000;
 $offset = 0;
 $assessments = [];
 while (true) {
-    $endpoint = 'assessments?select=id,aruga_id,status,children(first_name,last_name,middle_name,region)'
+    $endpoint = 'assessments?select=id,aruga_id,status,children(first_name,last_name,middle_name,name_extension,region)'
         . '&deleted_at=is.null&order=created_at.asc&limit=' . $pageSize . '&offset=' . $offset;
     if ($region) {
         $endpoint .= '&children.region=eq.' . urlencode($region);
@@ -82,14 +82,16 @@ while (true) {
 $rows = [];
 foreach ($assessments as $a) {
     $child = $a['children'] ?? [];
-    $firstName  = trim($child['first_name']  ?? '');
-    $lastName   = trim($child['last_name']   ?? '');
-    $middleName = trim($child['middle_name'] ?? '');
+    $firstName     = trim($child['first_name']     ?? '');
+    $lastName      = trim($child['last_name']      ?? '');
+    $middleName    = trim($child['middle_name']    ?? '');
+    $nameExtension = trim($child['name_extension'] ?? '');
 
-    // Format: Last Name, First Name Middle Name
+    // Format: Last Name, First Name Middle Name Extension
     $beneficiaryName = $lastName;
     if ($firstName) $beneficiaryName .= ', ' . $firstName;
     if ($middleName) $beneficiaryName .= ' ' . $middleName;
+    if ($nameExtension) $beneficiaryName .= ' ' . $nameExtension;
 
     // Authorized claimant (only one allowed)
     $claimantNames = $familyMap[$a['id']] ?? [];

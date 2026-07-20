@@ -20,7 +20,7 @@ $only4ps        = isset($_GET['is_4ps_member'])  && $_GET['is_4ps_member'] === '
 
 // Fetch assessments with readiness_score (paginated — Supabase caps each response at 1000 rows)
 $assessments = supabaseFetchAll(
-    'assessments?select=id,aruga_id,interviewer_code,created_at,readiness_score,children(first_name,last_name,date_of_birth,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc'
+    'assessments?select=id,aruga_id,interviewer_code,created_at,readiness_score,children(first_name,last_name,name_extension,date_of_birth,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc'
 );
 
 // Fetch 4Ps data
@@ -39,9 +39,10 @@ foreach ($assessments as $a) {
         ? (isset($a['child_education_health'][0]) ? $a['child_education_health'][0] : $a['child_education_health'])
         : null;
 
-    $firstName = $child['first_name'] ?? '';
-    $lastName  = $child['last_name']  ?? '';
-    $fullName  = trim($firstName . ' ' . $lastName) ?: 'Unknown';
+    $firstName     = $child['first_name'] ?? '';
+    $lastName      = $child['last_name']  ?? '';
+    $nameExtension = $child['name_extension'] ?? '';
+    $fullName      = trim(implode(' ', array_filter([$firstName, $lastName, $nameExtension]))) ?: 'Unknown';
 
     $dob = $child['date_of_birth'] ?? null;
     $age = '—';
