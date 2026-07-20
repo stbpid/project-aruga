@@ -1710,7 +1710,7 @@
     const readiness = (an.readiness_score || a.readiness_score || '').toLowerCase();
     const BANNER_BG = { severe:'linear-gradient(135deg,#dc2626,#991b1b)', moderate:'linear-gradient(135deg,#ea580c,#9a3412)', low:'linear-gradient(135deg,#ca8a04,#854d0e)', stable:'linear-gradient(135deg,#16a34a,#14532d)' };
     const bannerBg = BANNER_BG[readiness] || 'linear-gradient(135deg,#1152d4,#3730a3)';
-    const childName = [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ') || 'Unknown';
+    const childName = [c.first_name, c.middle_name, c.last_name, c.name_extension].filter(Boolean).join(' ') || 'Unknown';
 
     document.getElementById('stu-bene-detail-sub').textContent = '';
 
@@ -3827,7 +3827,7 @@
   function stuSummarizePayload(payload) {
     const lines = [];
     const child = payload.child || {};
-    if (child.first_name || child.last_name) lines.push('Name: ' + [child.first_name, child.middle_name, child.last_name].filter(Boolean).join(' '));
+    if (child.first_name || child.last_name) lines.push('Name: ' + [child.first_name, child.middle_name, child.last_name, child.name_extension].filter(Boolean).join(' '));
     if (child.date_of_birth) lines.push('Date of Birth: ' + child.date_of_birth);
     if (child.sex) lines.push('Sex: ' + child.sex);
     if (child.barangay || child.city_municipality) lines.push('Address: ' + [child.barangay, child.city_municipality, child.province, child.region].filter(Boolean).join(', '));
