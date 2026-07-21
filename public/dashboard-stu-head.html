@@ -1194,7 +1194,7 @@
 
     // Load stats
     try {
-      const r = await authFetch('/api/stu-head/stats.php?region=' + encodeURIComponent(region));
+      const r = await authFetch('/api/stu-head-router.php?action=stats&region=' + encodeURIComponent(region));
       const j = await r.json();
       if (j.success && j.data) {
         const d = j.data;
@@ -1236,7 +1236,7 @@
 
   async function stuRefreshPendingBadge(region) {
     try {
-      const res = await authFetch('/api/stu-head/edit-requests.php?region=' + encodeURIComponent(region) + '&status=pending&limit=50');
+      const res = await authFetch('/api/stu-head-router.php?action=edit-requests&region=' + encodeURIComponent(region) + '&status=pending&limit=50');
       const j = await res.json();
       if (!j.success) return;
       const count = (j.data || []).length;
@@ -1270,7 +1270,7 @@
   async function stuEnsureIntData(region) {
     if (stuIntLoaded) return;
     try {
-      const json = await (await authFetch('/api/stu-head/interviewers.php?region=' + encodeURIComponent(region))).json();
+      const json = await (await authFetch('/api/stu-head-router.php?action=interviewers&region=' + encodeURIComponent(region))).json();
       if (json.success) {
         stuIntData = json.data;
         stuIntLoaded = true;
@@ -1363,7 +1363,7 @@
     if (disability) params.set('disability', disability);
 
     try {
-      const res = await authFetch('/api/stu-head/beneficiaries.php?' + params);
+      const res = await authFetch('/api/stu-head-router.php?action=beneficiaries&' + params);
       const j = await res.json();
 
       if (j.success && Array.isArray(j.data) && j.data.length > 0) {
@@ -1508,7 +1508,7 @@
     document.getElementById('stu-bene-detail-body').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray-400);">Loading...</div>';
     document.getElementById('stu-bene-save-err').textContent = '';
     try {
-      const res = await authFetch('/api/get-beneficiary-detail.php?aruga_id=' + encodeURIComponent(arugaId));
+      const res = await authFetch('/api/beneficiaries-router.php?action=detail&aruga_id=' + encodeURIComponent(arugaId));
       const j = await res.json();
       if (!j.success) throw new Error(j.message || 'Not found');
       stuBeneDetailData = j;
@@ -1958,7 +1958,7 @@
     };
 
     try {
-      const res = await authFetch('/api/update-beneficiary.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const res = await authFetch('/api/beneficiaries-router.php?action=update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
       const j = await res.json();
       if (!j.success) throw new Error(j.message || 'Update failed');
       showGlobalToast('Beneficiary updated successfully.', 'success');
@@ -2416,7 +2416,7 @@
     if (readiness) params.set('readiness', readiness);
     if (status)    params.set('status', status);
 
-    authFetch('/api/stu-head/beneficiaries.php?' + params)
+    authFetch('/api/stu-head-router.php?action=beneficiaries&' + params)
       .then(r => r.json())
       .then(j => {
         let data = j.success && Array.isArray(j.data) ? j.data : [];
@@ -2575,7 +2575,7 @@
       if (readiness) params.set('readiness', readiness);
       if (disability)params.set('disability', disability);
 
-      const res  = await authFetch('/api/stu-head/beneficiaries.php?' + params);
+      const res  = await authFetch('/api/stu-head-router.php?action=beneficiaries&' + params);
       const json = await res.json();
 
       if (!json.success || !json.data?.length) {
@@ -2585,14 +2585,14 @@
       const allData = json.data;
 
       const payoutParams = new URLSearchParams({ region });
-      const payoutRes  = await authFetch('/api/get-payout-data.php?' + payoutParams);
+      const payoutRes  = await authFetch('/api/payroll-router.php?action=payout-data&' + payoutParams);
       const payoutJson = await payoutRes.json();
       const payoutMap  = {};
       if (payoutJson.success && payoutJson.data) {
         payoutJson.data.forEach(r => { payoutMap[r.aruga_id] = r; });
       }
 
-      const sigRes = await authFetch('/api/get-signatories.php');
+      const sigRes = await authFetch('/api/admin-router.php?action=get-signatories');
       const sigJson = await sigRes.json();
       const normRegion = s => (s || '').trim().toLowerCase();
       const SIGNATORY_FUNCTION_ORDER = ['certified true and correct by', 'approved by'];
@@ -2910,7 +2910,7 @@
     const params = new URLSearchParams({ range: stuAnFilters.range });
     if (stuAnFilters.region) params.set('region', stuAnFilters.region);
     try {
-      const json = await (await authFetch('/api/get-analytics.php?' + params)).json();
+      const json = await (await authFetch('/api/analytics-router.php?action=analytics&' + params)).json();
       if (json.success) { STU_AN_DATA=json; STU_AN_TS=Date.now(); }
     } catch(e) {}
   }
@@ -2921,7 +2921,7 @@
     const params = new URLSearchParams({ range: stuAnFilters.range });
     if (stuAnFilters.region) params.set('region', stuAnFilters.region);
     try {
-      const json = await (await authFetch('/api/get-analytics-extended.php?' + params)).json();
+      const json = await (await authFetch('/api/analytics-router.php?action=analytics-extended&' + params)).json();
       if (json.success) { STU_AN_EXT=json; STU_AN_EXT_KEY=key; }
     } catch(e) {}
   }
@@ -3375,7 +3375,7 @@
     document.getElementById('stu-int-subtitle').textContent = region ? 'Interviewers in ' + region : 'Interviewers in your region';
     document.getElementById('stu-int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
-      const json = await (await authFetch('/api/stu-head/interviewers.php?region=' + encodeURIComponent(region))).json();
+      const json = await (await authFetch('/api/stu-head-router.php?action=interviewers&region=' + encodeURIComponent(region))).json();
       stuIntData = json.success ? json.data : [];
       stuIntLoaded = true;
       stuIntFiltered = [...stuIntData];
@@ -3584,7 +3584,7 @@
   async function stuQrLookup(arugaId) {
     const errCard = stuQrEl('stu-qr-error-card'); if (errCard) errCard.style.display = 'none';
     try {
-      const res = await authFetch('/api/field-officer/qr-lookup.php?id=' + encodeURIComponent(arugaId));
+      const res = await authFetch('/api/field-officer-router.php?action=qr-lookup&id=' + encodeURIComponent(arugaId));
       const j = await res.json();
       if (j.success && j.data) {
         const d = j.data;
@@ -3646,7 +3646,7 @@
     if (!tbody) return;
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr>';
     try {
-      const res = await authFetch('/api/stu-head/edit-requests.php?region=' + encodeURIComponent(region) + '&status=pending&limit=50');
+      const res = await authFetch('/api/stu-head-router.php?action=edit-requests&region=' + encodeURIComponent(region) + '&status=pending&limit=50');
       const j = await res.json();
       if (!j.success) throw new Error(j.message || 'Failed');
       const rows = j.data || [];
@@ -3701,7 +3701,7 @@
     document.body.style.overflow = 'hidden';
 
     try {
-      const res = await authFetch('/api/get-beneficiary-detail.php?aruga_id=' + encodeURIComponent(row.aruga_id));
+      const res = await authFetch('/api/beneficiaries-router.php?action=detail&aruga_id=' + encodeURIComponent(row.aruga_id));
       const original = await res.json();
       document.getElementById('erm-change-summary').textContent = stuSummarizePayloadDiff(row.payload || {}, original.success ? original : {});
     } catch(e) {
@@ -3875,7 +3875,7 @@
 
     const reviewerCode = sessionStorage.getItem('interviewer_code') || '';
     try {
-      const res = await authFetch('/api/stu-head/review-edit-request.php', {
+      const res = await authFetch('/api/stu-head-router.php?action=review-edit-request', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({
@@ -4074,7 +4074,7 @@
     document.getElementById('ps-new-pw').value = '';
     document.getElementById('ps-confirm-pw').value = '';
     try {
-      const res  = await authFetch('/api/settings/profile.php');
+      const res  = await authFetch('/api/auth-router.php?action=profile-update');
       const json = await res.json();
       if (json.success) {
         _psRole = json.data.dashboard_role || '';
@@ -4127,7 +4127,7 @@
 
     btn.disabled = true; btn.textContent = 'Saving…';
     try {
-      const res  = await authFetch('/api/settings/profile.php', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const res  = await authFetch('/api/auth-router.php?action=profile-update', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
       const json = await res.json();
       if (json.success) {
         sessionStorage.setItem('interviewer_name', fullName);

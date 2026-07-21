@@ -144,7 +144,7 @@ function confirmLogout() {
 
 async function loadDropdowns() {
   try {
-    const response = await fetch('/api/get-options.php');
+    const response = await fetch('/api/admin-router.php?action=options');
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -178,7 +178,7 @@ async function loadDropdowns() {
 
 async function loadLocations() {
   try {
-    const response = await fetch('/api/get-locations.php');
+    const response = await fetch('/api/admin-router.php?action=locations');
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -3466,7 +3466,7 @@ async function submitAssessment() {
   try {
     const formData = collectFormData();
 
-    const response = await profilingFetch('/api/submit-assessment.php', {
+    const response = await profilingFetch('/api/beneficiaries-router.php?action=submit-assessment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),

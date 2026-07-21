@@ -158,7 +158,7 @@
       btnSubmit.disabled = true;
 
       try {
-        const res = await fetch('/api/dashboard-login.php', {
+        const res = await fetch('/api/auth-router.php?action=login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
