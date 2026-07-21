@@ -8038,10 +8038,11 @@
 
       const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
+      const isNCR = normRegion(region) === normRegion('NCR (National Capital Region)');
       const buildFooterHtml = (pageNum, totalPages) => `
       <div class="page-footer-inline">
         <div class="ftr-row">
-          <div class="ftr-text">This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</div>
+          <div class="ftr-text">${(isNCR && pageNum === totalPages) ? '' : `This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}`}</div>
           <div class="ftr-page">Page <strong>${pageNum}</strong> of <strong>${totalPages}</strong></div>
         </div>
       </div>`;
