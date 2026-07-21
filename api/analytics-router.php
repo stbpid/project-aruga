@@ -1060,9 +1060,9 @@ switch ($action) {
     }
 
     // ================================================================
-    // action=regions-stats  (was api/get-regions-stats.php)
+    // action=region-coverage  (was api/get-region-coverage.php)
     // ================================================================
-    case 'regions-stats': {
+    case 'region-coverage': {
         header('Content-Type: application/json');
         header('Access-Control-Allow-Methods: GET');
 
@@ -1088,9 +1088,9 @@ switch ($action) {
     }
 
     // ================================================================
-    // action=region-coverage  (was api/get-region-coverage.php)
+    // action=regions-stats  (was api/get-regions-stats.php)
     // ================================================================
-    case 'region-coverage': {
+    case 'regions-stats': {
         header('Content-Type: application/json');
         header('Access-Control-Allow-Methods: GET, OPTIONS');
         header('Access-Control-Allow-Headers: Content-Type, Authorization');

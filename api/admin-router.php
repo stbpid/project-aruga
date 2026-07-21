@@ -168,7 +168,7 @@ switch ($action) {
         }
 
         $limit  = getInt('limit', 500, 1, 1000);
-        $auditAction = getStr('action');
+        $auditAction = getStr('audit_action');
         $search = getStr('search');
 
         $query = 'audit_logs?select=id,action,table_name,record_id,old_values,new_values,ip_address,user_agent,created_at,interviewer_id,assessment_id&order=created_at.desc&limit=' . $limit;
