@@ -75,7 +75,7 @@ switch ($action) {
 
         // Fetch all assessments with child region — filter by children.region match (paginated)
         $assessments = supabaseFetchAll(
-            'assessments?select=id,aruga_id,interviewer_code,status,created_at,readiness_score,children(first_name,last_name,date_of_birth,sex,barangay,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc'
+            'assessments?select=id,aruga_id,interviewer_code,status,created_at,readiness_score,children(first_name,last_name,name_extension,date_of_birth,sex,barangay,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc'
         );
 
         $rows = [];
@@ -87,9 +87,11 @@ switch ($action) {
             $childRegion = stuNormalizeRegion($child['region'] ?? '');
             if ($childRegion !== $normalizedTarget) continue;
 
-            $firstName = $child['first_name'] ?? '';
-            $lastName  = $child['last_name']  ?? '';
-            $fullName  = trim($firstName . ' ' . $lastName) ?: 'Unknown';
+            $firstName     = $child['first_name'] ?? '';
+            $lastName      = $child['last_name']  ?? '';
+            $nameExtension = $child['name_extension'] ?? '';
+            if (strcasecmp(trim($nameExtension), 'None') === 0) $nameExtension = '';
+            $fullName      = trim(implode(' ', array_filter([$firstName, $lastName, $nameExtension]))) ?: 'Unknown';
 
             $dob = $child['date_of_birth'] ?? null;
             $age = '—';
@@ -193,12 +195,14 @@ switch ($action) {
         $filtered = [];
         foreach ($rows as $row) {
             $assessmentId = $row['assessment_id'];
-            $childRes = supabaseRequest('GET', 'children?select=region,first_name,last_name&assessment_id=eq.'.urlencode($assessmentId).'&limit=1');
+            $childRes = supabaseRequest('GET', 'children?select=region,first_name,last_name,name_extension&assessment_id=eq.'.urlencode($assessmentId).'&limit=1');
             if (!$childRes['success'] || empty($childRes['data'])) continue;
             $child = $childRes['data'][0];
             if (strtolower(trim($child['region'] ?? '')) !== strtolower(trim($region))) continue;
 
-            $row['child_name'] = trim(($child['first_name'] ?? '') . ' ' . ($child['last_name'] ?? ''));
+            $childExt = $child['name_extension'] ?? '';
+            if (strcasecmp(trim($childExt), 'None') === 0) $childExt = '';
+            $row['child_name'] = trim(implode(' ', array_filter([$child['first_name'] ?? '', $child['last_name'] ?? '', $childExt])));
             $row['child_region'] = $child['region'];
             $filtered[] = $row;
         }
