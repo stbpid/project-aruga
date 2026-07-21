@@ -91,7 +91,7 @@ async function submitForm() {
   submitButton.disabled = true;
 
   try {
-    const response = await fetch('/api/validate-interviewer.php', {
+    const response = await fetch('/api/auth-router.php?action=validate-interviewer', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

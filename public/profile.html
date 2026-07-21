@@ -106,7 +106,7 @@
       if (!arugaId) { showError(); return; }
 
       try {
-        const res  = await fetch('/api/get-profile.php?id=' + encodeURIComponent(arugaId));
+        const res  = await fetch('/api/auth-router.php?action=profile-get&id=' + encodeURIComponent(arugaId));
         const data = await res.json();
 
         if (!data.success) { showError(); return; }

@@ -938,7 +938,7 @@
     coBenLoaded = true;
     document.getElementById('co-ben-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
-      const json = await (await authFetch('/api/get-all-beneficiaries.php?limit=10000&offset=0')).json();
+      const json = await (await authFetch('/api/beneficiaries-router.php?action=all&limit=10000&offset=0')).json();
       coBenData = json.success ? json.data : [];
 
       const rSel = document.getElementById('co-ben-region');
@@ -1077,7 +1077,7 @@
     document.getElementById('co-ben-modal-title').textContent = 'Beneficiary Details';
     body.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--gray-400);">Loading...</div>';
     try {
-      const res  = await authFetch('/api/get-beneficiary-detail.php?aruga_id=' + encodeURIComponent(arugaId));
+      const res  = await authFetch('/api/beneficiaries-router.php?action=detail&aruga_id=' + encodeURIComponent(arugaId));
       const json = await res.json();
       if (!json.success) throw new Error(json.message || 'Failed');
       coBenModalData = json;
@@ -1526,7 +1526,7 @@
     };
 
     try {
-      const res  = await authFetch('/api/update-beneficiary.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const res  = await authFetch('/api/beneficiaries-router.php?action=update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
       const json = await res.json();
       if (!json.success) throw new Error(json.message || 'Update failed');
 
@@ -1564,8 +1564,8 @@
   async function loadCentralData() {
     try {
       const [statsRes, regionsRes] = await Promise.all([
-        authFetch('/api/get-dashboard-stats.php').then(r=>r.json()),
-        authFetch('/api/get-regions-stats.php').then(r=>r.json()),
+        authFetch('/api/analytics-router.php?action=dashboard-stats').then(r=>r.json()),
+        authFetch('/api/analytics-router.php?action=regions-stats').then(r=>r.json()),
       ]);
 
       if (statsRes.success) {
@@ -1594,7 +1594,7 @@
 
   async function coLoadRegionCoverage() {
     try {
-      const res = await authFetch('/api/get-region-coverage.php');
+      const res = await authFetch('/api/analytics-router.php?action=region-coverage');
       const json = await res.json();
       const container = document.getElementById('co-region-rows');
       if (!json.success || !json.data.length) {
@@ -1652,7 +1652,7 @@
     }
 
     try {
-      const json = await authFetch('/api/get-assessment-status.php').then(r=>r.json());
+      const json = await authFetch('/api/payroll-router.php?action=assessment-status').then(r=>r.json());
       if (!json.success) throw new Error();
       const d = json.data;
       const total = d.total || 0;
@@ -1709,7 +1709,7 @@
   async function coLoadRecentActivity() {
     const list = document.getElementById('co-activity-list');
     try {
-      const json = await authFetch('/api/get-audit-logs.php?limit=8').then(r=>r.json());
+      const json = await authFetch('/api/admin-router.php?action=audit-logs&limit=8').then(r=>r.json());
       if (!json.success || !json.data.length) {
         list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--gray-400);font-size:0.75rem;">No recent activity.</div>';
         return;
@@ -1738,7 +1738,7 @@
       return { bg:'#fefce8', border:'#fde047', icon:'#ca8a04', badge:'#eab308', label:'Moderate' };
     }
     try {
-      const json = await authFetch('/api/get-top-issues.php').then(r=>r.json());
+      const json = await authFetch('/api/analytics-router.php?action=top-issues').then(r=>r.json());
       if (!json.success) throw new Error();
       const issues = json.issues || [];
       document.getElementById('co-top-issues-subtitle').textContent = json.total_assessments.toLocaleString() + ' assessments processed';
@@ -1785,7 +1785,7 @@
     if (region) {
       // Fetch filtered data for that region
       try {
-        const res = await authFetch('/api/get-regions-stats.php?region=' + encodeURIComponent(region)).then(r=>r.json());
+        const res = await authFetch('/api/analytics-router.php?action=regions-stats&region=' + encodeURIComponent(region)).then(r=>r.json());
         dis = (res.success && res.disabilities) ? res.disabilities : [];
       } catch(e) { dis = []; }
     }
@@ -1840,7 +1840,7 @@
 
   async function coFetchYearData(year) {
     if (coYearCache[year]) return coYearCache[year];
-    const res = await authFetch('/api/get-monthly-assessments.php?year=' + year);
+    const res = await authFetch('/api/analytics-router.php?action=monthly-assessments&year=' + year);
     const json = await res.json();
     if (json.success) { coYearCache[year] = json.data; return json.data; }
     return null;
@@ -1946,7 +1946,7 @@
         if (el) el.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
       });
       try {
-        const json = await (await authFetch('/api/get-regions-stats.php')).json();
+        const json = await (await authFetch('/api/analytics-router.php?action=regions-stats')).json();
         if (json.success) {
           CO_RG_DATA.summary       = json.summary       || {};
           CO_RG_DATA.regions       = json.regions       || [];
@@ -2198,7 +2198,7 @@
     if (intLoaded) return;
     document.getElementById('int-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
     try {
-      const json = await (await authFetch('/api/get-interviewers.php')).json();
+      const json = await (await authFetch('/api/interviewers-router.php?action=list')).json();
       intData = json.success ? json.data : [];
       intLoaded = true;
       intFiltered = [...intData]; intPage = 0; renderInterviewers();
@@ -2333,7 +2333,7 @@
     if (email) payload.email = email;
     if (password) payload.password = password;
     try {
-      const res  = await authFetch('/api/update-interviewer.php', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      const res  = await authFetch('/api/interviewers-router.php?action=update', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
       const json = await res.json();
       if (!json.success) { errEl.textContent=json.message||'Update failed.'; errEl.style.display=''; btn.disabled=false; btn.textContent='Update'; return; }
     } catch(e) { errEl.textContent='Network error. Please try again.'; errEl.style.display=''; btn.disabled=false; btn.textContent='Update'; return; }
@@ -2806,14 +2806,14 @@
       const region = document.getElementById('co-ben-region').value;
       const params = new URLSearchParams();
       if (region) params.set('region', region);
-      const res = await authFetch('/api/get-payout-data.php?' + params);
+      const res = await authFetch('/api/payroll-router.php?action=payout-data&' + params);
       const json = await res.json();
       const payoutMap = {};
       if (json.success && json.data) {
         json.data.forEach(r => { payoutMap[r.aruga_id] = r; });
       }
 
-      const sigRes = await authFetch('/api/get-signatories.php');
+      const sigRes = await authFetch('/api/admin-router.php?action=get-signatories');
       const sigJson = await sigRes.json();
       const normRegion = s => (s || '').trim().toLowerCase();
       const SIGNATORY_FUNCTION_ORDER = ['certified true and correct by', 'approved by'];
@@ -3191,7 +3191,7 @@
     document.getElementById('ps-new-pw').value = '';
     document.getElementById('ps-confirm-pw').value = '';
     try {
-      const res  = await authFetch('/api/settings/profile.php');
+      const res  = await authFetch('/api/auth-router.php?action=profile-update');
       const json = await res.json();
       if (json.success) {
         _psRole = json.data.dashboard_role || '';
@@ -3244,7 +3244,7 @@
 
     btn.disabled = true; btn.textContent = 'Saving…';
     try {
-      const res  = await authFetch('/api/settings/profile.php', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const res  = await authFetch('/api/auth-router.php?action=profile-update', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
       const json = await res.json();
       if (json.success) {
         sessionStorage.setItem('interviewer_name', fullName);
