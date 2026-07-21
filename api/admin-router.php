@@ -161,7 +161,7 @@ switch ($action) {
 
         header('Content-Type: application/json');
         header('Access-Control-Allow-Methods: GET');
-        requireRole(['admin']);
+        requireRole(['admin', 'central_office']);
 
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['success' => false]); exit;
