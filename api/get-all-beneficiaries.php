@@ -42,6 +42,7 @@ foreach ($assessments as $a) {
     $firstName     = $child['first_name'] ?? '';
     $lastName      = $child['last_name']  ?? '';
     $nameExtension = $child['name_extension'] ?? '';
+    if (strcasecmp(trim($nameExtension), 'None') === 0) $nameExtension = '';
     $fullName      = trim(implode(' ', array_filter([$firstName, $lastName, $nameExtension]))) ?: 'Unknown';
 
     $dob = $child['date_of_birth'] ?? null;

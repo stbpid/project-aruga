@@ -86,6 +86,7 @@ foreach ($assessments as $a) {
     $lastName      = trim($child['last_name']      ?? '');
     $middleName    = trim($child['middle_name']    ?? '');
     $nameExtension = trim($child['name_extension'] ?? '');
+    if (strcasecmp($nameExtension, 'None') === 0) $nameExtension = '';
 
     // Format: Last Name, First Name Middle Name Extension
     $beneficiaryName = $lastName;

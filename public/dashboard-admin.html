@@ -5581,7 +5581,7 @@
     const RBADGE = { severe:'background:#fef2f2;color:#dc2626;', moderate:'background:#fff7ed;color:#ea580c;', low:'background:#fefce8;color:#ca8a04;', stable:'background:#f0fdf4;color:#16a34a;' };
 
     document.getElementById('ben-modal-title').textContent = 'Beneficiary Details';
-    const childName = [c.first_name, c.middle_name, c.last_name, c.name_extension].filter(Boolean).join(' ') || 'Unknown';
+    const childName = [c.first_name, c.middle_name, c.last_name, (c.name_extension && c.name_extension.trim().toLowerCase() !== 'none') ? c.name_extension : ''].filter(Boolean).join(' ') || 'Unknown';
 
     const yesNo = () => [{value:'true',label:'Yes'},{value:'false',label:'No'}];
     const yesNoBool = (v) => v === true || v === 'true' ? 'true' : 'false';

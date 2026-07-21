@@ -1283,7 +1283,7 @@
     const bannerBg = BANNER_BG[readiness] || 'linear-gradient(135deg,#1152d4,#3730a3)';
 
     document.getElementById('co-ben-modal-title').textContent = 'Beneficiary Details';
-    const childName = [c.first_name, c.middle_name, c.last_name, c.name_extension].filter(Boolean).join(' ') || 'Unknown';
+    const childName = [c.first_name, c.middle_name, c.last_name, (c.name_extension && c.name_extension.trim().toLowerCase() !== 'none') ? c.name_extension : ''].filter(Boolean).join(' ') || 'Unknown';
 
     const yesNo = () => [{value:'true',label:'Yes'},{value:'false',label:'No'}];
     const yesNoBool = (v) => v === true || v === 'true' ? 'true' : 'false';
