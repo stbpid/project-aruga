@@ -2854,10 +2854,10 @@
         }
       }
 
-      if (testMode) {
+      {
         const lastName = r => {
-          const parts = (r.name || '').trim().split(/\s+/);
-          return (parts[parts.length - 1] || '').toLowerCase();
+          const displayName = (payoutMap[r.aruga_id] || {}).beneficiary_name || r.name || '';
+          return displayName.split(',')[0].trim().toLowerCase();
         };
         uniqueBen = [...uniqueBen].sort((a, b) => lastName(a).localeCompare(lastName(b)));
       }
