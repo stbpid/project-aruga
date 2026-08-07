@@ -39,6 +39,8 @@ do update set last_number = greatest(aruga_id_counters.last_number, excluded.las
 create or replace function increment_aruga_counter(p_region_code text, p_year int)
 returns int
 language plpgsql
+security invoker
+set search_path = public
 as $$
 declare
     v_next int;
