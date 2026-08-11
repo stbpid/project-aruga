@@ -10,6 +10,7 @@ $map = [
     '/login'                 => 'login-dashboard.html',
     '/contact'               => 'contact.html',
     '/privacy'               => 'privacy.html',
+    '/phcwddata'             => 'phcwddata.html',
     '/profiling'             => 'profiling.html',
     '/success'               => 'success.html',
     '/profile'               => 'profile.html',
