@@ -80,6 +80,39 @@
       transform: translateY(-1px);
     }
 
+    .tabs-bar {
+      background: #fff;
+      padding: 0 35px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 4px;
+    }
+    .tab-btn {
+      appearance: none;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 16px 18px 13px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn:hover { color: var(--primary-dark); }
+    .tab-btn.active { color: var(--primary-dark); border-bottom-color: var(--primary); }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    .tab-placeholder {
+      padding: 80px 35px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+    .tab-placeholder .bi { font-size: 2.2rem; color: #bae6fd; margin-bottom: 12px; display: block; }
+    .tab-placeholder p { font-size: 0.9rem; font-weight: 500; margin: 0; }
+
     .filters-bar {
       background: #f8fafc;
       padding: 20px 35px;
@@ -321,6 +354,7 @@
         border-radius: 0;
       }
 
+      .tabs-bar,
       .filters-bar,
       .footer-text,
       .print-btn-container,
@@ -386,6 +420,14 @@
       </div>
     </div>
   </div>
+
+  <div class="tabs-bar">
+    <button class="tab-btn active" data-tab="doh" onclick="switchTab('doh')">DOH Data</button>
+    <button class="tab-btn" data-tab="rank" onclick="switchTab('rank')">Regional Rank</button>
+    <button class="tab-btn" data-tab="pdao" onclick="switchTab('pdao')">PDAO Data</button>
+  </div>
+
+  <div class="tab-pane active" id="tab-doh">
 
   <div class="filters-bar">
     <div class="row g-3">
@@ -469,6 +511,23 @@
     </div>
 
   </div>
+
+  </div>
+
+  <div class="tab-pane" id="tab-rank">
+    <div class="tab-placeholder">
+      <i class="bi bi-bar-chart-line"></i>
+      <p>Regional Rank content coming soon.</p>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="tab-pdao">
+    <div class="tab-placeholder">
+      <i class="bi bi-clipboard-data"></i>
+      <p>PDAO Data content coming soon.</p>
+    </div>
+  </div>
+
 </div>
 
 <div class="footer-text">
@@ -493,6 +552,18 @@
   };
   let activeCombo = null;
   let activeIndex = -1;
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+      pane.classList.toggle('active', pane.id === 'tab-' + tab);
+    });
+    if (tab === 'doh' && chartInstance) {
+      chartInstance.resize();
+    }
+  }
 
   window.onload = function() {
     initCombo('region');
