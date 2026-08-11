@@ -310,11 +310,23 @@
 
     .region-rank-row:hover { background: #f0f9ff; }
     .province-rank-row:hover { background: #e0f2fe; }
+    .city-rank-row:hover { background: #f0f9ff; }
 
     .pct-chip {
       display: inline-block;
       background: #e0f2fe;
       color: #0284c7;
+      font-weight: 700;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+    .pct-chip-dark {
+      display: inline-block;
+      background: #1e3a8a;
+      color: #ffffff;
       font-weight: 700;
       font-size: 0.7rem;
       padding: 2px 8px;
@@ -630,7 +642,7 @@
           <td class="text-end fw-bold" style="padding-right: 20px; color: #64748b; font-size: 0.85rem;">${item.v.toLocaleString()}</td>
         </tr>
         <tr class="region-province-row" id="${rowId}" style="display:none;">
-          <td colspan="2" style="padding: 0 20px 16px 46px; background:#f8fafc;"></td>
+          <td colspan="2" style="padding: 0 20px 16px 46px;"></td>
         </tr>`;
     }).join('');
   }
@@ -688,7 +700,7 @@
                 </span>
                 <span style="color:#64748b;">
                   <span class="fw-bold">${p.v.toLocaleString()}</span>
-                  <span class="pct-chip">${pct}%</span>
+                  <span class="pct-chip-dark">${pct}%</span>
                 </span>
               </div>
               <div id="${provinceRowId}" style="display:none; padding:4px 8px 8px 30px;"></div>
@@ -742,7 +754,7 @@
         ${topCities.map((c, idx) => {
           const pct = provinceTotal > 0 ? ((c.v / provinceTotal) * 100).toFixed(1) : '0.0';
           return `
-            <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.75rem;">
+            <div class="city-rank-row" style="display:flex; align-items:center; justify-content:space-between; font-size:0.75rem; padding:6px 8px; border-radius:8px; transition: background 0.15s;">
               <span style="color:#475569;">${idx + 1}. ${escapeHtml(c.n)}</span>
               <span style="color:#64748b;">
                 <span class="fw-bold">${c.v.toLocaleString()}</span>
