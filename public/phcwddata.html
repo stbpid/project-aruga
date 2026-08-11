@@ -308,6 +308,9 @@
     .rank-5 { background: #f1f5f9; color: #475569; }
     .rank-other { background: #f8fafc; color: #94a3b8; font-weight: 500; }
 
+    .region-rank-row:hover { background: #f0f9ff; }
+    .province-rank-row:hover { background: #e0f2fe; }
+
     .insight-section {
       background: #f0f9ff;
       border: 1px solid #bae6fd;
@@ -604,15 +607,138 @@
       else if (i === 2) badgeClass = 'rank-3';
       else if (i === 3 || i === 4) badgeClass = 'rank-4';
 
+      const rowId = 'regionRow' + i;
       return `
-        <tr>
+        <tr class="region-rank-row" data-region="${escapeHtml(item.n)}" data-target="${rowId}" onclick="toggleRegionProvinces(this)" style="cursor:pointer;">
           <td style="padding-left: 20px;">
+            <i class="bi bi-chevron-right region-chevron" style="font-size:0.7rem; color:#94a3b8; margin-right:8px; transition: transform 0.15s;"></i>
             <span class="rank-badge ${badgeClass}">${i + 1}</span>
             <span class="fw-medium text-dark" style="font-size:0.85rem">${item.n}</span>
           </td>
           <td class="text-end fw-bold" style="padding-right: 20px; color: #64748b; font-size: 0.85rem;">${item.v.toLocaleString()}</td>
+        </tr>
+        <tr class="region-province-row" id="${rowId}" style="display:none;">
+          <td colspan="2" style="padding: 0 20px 16px 46px; background:#f8fafc;"></td>
         </tr>`;
     }).join('');
+  }
+
+  function toggleRegionProvinces(rowEl) {
+    const targetId = rowEl.dataset.target;
+    const detailRow = document.getElementById(targetId);
+    const chevron = rowEl.querySelector('.region-chevron');
+    const isOpen = detailRow.style.display !== 'none';
+
+    if (isOpen) {
+      detailRow.style.display = 'none';
+      chevron.style.transform = 'rotate(0deg)';
+      return;
+    }
+
+    chevron.style.transform = 'rotate(90deg)';
+    detailRow.style.display = '';
+
+    const cell = detailRow.querySelector('td');
+    if (cell.dataset.loaded === 'true') return;
+    cell.dataset.loaded = 'true';
+
+    const region = rowEl.dataset.region;
+    const provinceMap = {};
+    let regionTotal = 0;
+    rawData.forEach(r => {
+      if (r.region !== region || !r.province) return;
+      const v = Number(r.total) || 0;
+      provinceMap[r.province] = (provinceMap[r.province] || 0) + v;
+      regionTotal += v;
+    });
+
+    const topProvinces = Object.entries(provinceMap)
+      .map(([n, v]) => ({ n, v }))
+      .sort((a, b) => b.v - a.v)
+      .slice(0, 5);
+
+    if (topProvinces.length === 0) {
+      cell.innerHTML = '<div class="text-muted" style="font-size:0.8rem; padding-top:12px;">No province data available.</div>';
+      return;
+    }
+
+    cell.innerHTML = `
+      <div style="padding-top:12px; display:flex; flex-direction:column; gap:2px;">
+        ${topProvinces.map((p, idx) => {
+          const pct = regionTotal > 0 ? ((p.v / regionTotal) * 100).toFixed(1) : '0.0';
+          const provinceRowId = targetId + '-prov' + idx;
+          return `
+            <div>
+              <div class="province-rank-row" data-region="${escapeHtml(region)}" data-province="${escapeHtml(p.n)}" data-target="${provinceRowId}" onclick="toggleProvinceCities(event, this)" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between; font-size:0.8rem; padding:6px 8px; border-radius:8px; transition: background 0.15s;">
+                <span style="color:#334155; font-weight:500;">
+                  <i class="bi bi-chevron-right province-chevron" style="font-size:0.65rem; color:#94a3b8; margin-right:6px; transition: transform 0.15s;"></i>
+                  ${idx + 1}. ${escapeHtml(p.n)}
+                </span>
+                <span style="color:#64748b;">
+                  <span class="fw-bold">${p.v.toLocaleString()}</span>
+                  <span style="color:#0284c7; font-weight:600; margin-left:4px;">(${pct}%)</span>
+                </span>
+              </div>
+              <div id="${provinceRowId}" style="display:none; padding:4px 8px 8px 30px;"></div>
+            </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  function toggleProvinceCities(evt, rowEl) {
+    evt.stopPropagation();
+    const targetId = rowEl.dataset.target;
+    const detailEl = document.getElementById(targetId);
+    const chevron = rowEl.querySelector('.province-chevron');
+    const isOpen = detailEl.style.display !== 'none';
+
+    if (isOpen) {
+      detailEl.style.display = 'none';
+      chevron.style.transform = 'rotate(0deg)';
+      return;
+    }
+
+    chevron.style.transform = 'rotate(90deg)';
+    detailEl.style.display = '';
+
+    if (detailEl.dataset.loaded === 'true') return;
+    detailEl.dataset.loaded = 'true';
+
+    const region = rowEl.dataset.region;
+    const province = rowEl.dataset.province;
+    const cityMap = {};
+    let provinceTotal = 0;
+    rawData.forEach(r => {
+      if (r.region !== region || r.province !== province || !r.city) return;
+      const v = Number(r.total) || 0;
+      cityMap[r.city] = (cityMap[r.city] || 0) + v;
+      provinceTotal += v;
+    });
+
+    const topCities = Object.entries(cityMap)
+      .map(([n, v]) => ({ n, v }))
+      .sort((a, b) => b.v - a.v)
+      .slice(0, 5);
+
+    if (topCities.length === 0) {
+      detailEl.innerHTML = '<div class="text-muted" style="font-size:0.75rem;">No city/municipality data available.</div>';
+      return;
+    }
+
+    detailEl.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:4px; border-left:2px solid #bae6fd; padding-left:10px;">
+        ${topCities.map((c, idx) => {
+          const pct = provinceTotal > 0 ? ((c.v / provinceTotal) * 100).toFixed(1) : '0.0';
+          return `
+            <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.75rem;">
+              <span style="color:#475569;">${idx + 1}. ${escapeHtml(c.n)}</span>
+              <span style="color:#64748b;">
+                <span class="fw-bold">${c.v.toLocaleString()}</span>
+                <span style="color:#0284c7; font-weight:600; margin-left:4px;">(${pct}%)</span>
+              </span>
+            </div>`;
+        }).join('')}
+      </div>`;
   }
 
   window.onload = function() {
