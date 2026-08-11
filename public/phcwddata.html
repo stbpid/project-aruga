@@ -108,6 +108,73 @@
     .custom-select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15); outline: none; }
     .custom-select:disabled { background-color: #f1f5f9; opacity: 0.8; }
 
+    /* Searchable combobox */
+    .combo {
+      position: relative;
+    }
+    .combo-input {
+      appearance: none;
+      background-color: #fff;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%230ea5e9' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 10px 8px;
+      border: 1px solid #bae6fd;
+      border-radius: 50px;
+      padding: 10px 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #334155;
+      width: 100%;
+      transition: all 0.2s;
+    }
+    .combo-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15); outline: none; }
+    .combo-input:disabled { background-color: #f1f5f9; opacity: 0.8; cursor: not-allowed; }
+    .combo.open .combo-input {
+      border-radius: 18px 18px 0 0;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
+    }
+    .combo-panel {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      background: #fff;
+      border: 1px solid var(--primary);
+      border-top: none;
+      border-radius: 0 0 18px 18px;
+      max-height: 260px;
+      overflow-y: auto;
+      box-shadow: 0 12px 24px -8px rgba(2, 132, 199, 0.25);
+    }
+    .combo.open .combo-panel { display: block; }
+    .combo-option {
+      padding: 9px 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #334155;
+      cursor: pointer;
+    }
+    .combo-option:hover,
+    .combo-option.active {
+      background: #f0f9ff;
+      color: var(--primary-dark);
+    }
+    .combo-option.selected {
+      color: var(--primary-dark);
+      font-weight: 700;
+      background: #e0f2fe;
+    }
+    .combo-empty {
+      padding: 12px 20px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
     .dashboard-content { padding: 35px; }
 
     .print-filter-summary {
@@ -324,15 +391,24 @@
     <div class="row g-3">
       <div class="col-12 col-md-4">
         <label class="filter-label">Region</label>
-        <select id="filterRegion" class="custom-select" onchange="applyFilters('region')"><option value="All">All Regions</option></select>
+        <div class="combo" id="comboRegion" data-key="region">
+          <input type="text" class="combo-input" id="inputRegion" placeholder="All Regions" autocomplete="off">
+          <div class="combo-panel" id="panelRegion"></div>
+        </div>
       </div>
       <div class="col-12 col-md-4">
         <label class="filter-label">Province</label>
-        <select id="filterProvince" class="custom-select" onchange="applyFilters('province')" disabled><option value="All">All Provinces</option></select>
+        <div class="combo" id="comboProvince" data-key="province">
+          <input type="text" class="combo-input" id="inputProvince" placeholder="All Provinces" autocomplete="off" disabled>
+          <div class="combo-panel" id="panelProvince"></div>
+        </div>
       </div>
       <div class="col-12 col-md-4">
         <label class="filter-label">City/Municipality</label>
-        <select id="filterCity" class="custom-select" onchange="applyFilters('city')" disabled><option value="All">All Cities</option></select>
+        <div class="combo" id="comboCity" data-key="city">
+          <input type="text" class="combo-input" id="inputCity" placeholder="All Cities" autocomplete="off" disabled>
+          <div class="combo-panel" id="panelCity"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -410,67 +486,208 @@
     '#93c5fd', '#bfdbfe', '#dbeafe', '#e0f2fe', '#f0f9ff'
   ];
 
+  const comboState = {
+    region:   { value: 'All', label: 'All Regions',   options: [], defaultLabel: 'All Regions' },
+    province: { value: 'All', label: 'All Provinces', options: [], defaultLabel: 'All Provinces' },
+    city:     { value: 'All', label: 'All Cities',     options: [], defaultLabel: 'All Cities' }
+  };
+  let activeCombo = null;
+  let activeIndex = -1;
+
   window.onload = function() {
+    initCombo('region');
+    initCombo('province');
+    initCombo('city');
+
     fetch('/data/phcwddata.json')
       .then(res => res.json())
       .then(data => {
         rawData = data;
-        populateDropdown('filterRegion', 'region');
+        refreshComboOptions('region');
         updateDashboard(rawData);
         updatePrintLabels();
       })
       .catch(() => {
         rawData = [];
-        populateDropdown('filterRegion', 'region');
+        refreshComboOptions('region');
         updateDashboard(rawData);
         updatePrintLabels();
       });
+
+    document.addEventListener('click', (e) => {
+      ['region', 'province', 'city'].forEach(key => {
+        const wrap = document.getElementById('combo' + capitalize(key));
+        if (!wrap.contains(e.target)) closeCombo(key);
+      });
+    });
   };
 
-  function populateDropdown(id, key, data = rawData) {
-    const el = document.getElementById(id);
-    el.innerHTML = '<option value="All">All</option>';
+  function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-    if(id === 'filterRegion') el.options[0].text = "All Regions";
-    if(id === 'filterProvince') el.options[0].text = "All Provinces";
-    if(id === 'filterCity') el.options[0].text = "All Cities";
+  function initCombo(key) {
+    const wrap = document.getElementById('combo' + capitalize(key));
+    const input = document.getElementById('input' + capitalize(key));
 
-    const vals = [...new Set(data.map(r => r[key]))].filter(v=>v).sort();
-    vals.forEach(v => {
-      let opt = document.createElement("option");
-      opt.value = v; opt.text = v;
-      el.appendChild(opt);
+    input.addEventListener('focus', () => {
+      if (input.disabled) return;
+      input.select();
+      openCombo(key);
+      renderComboPanel(key, '');
+    });
+
+    input.addEventListener('input', () => {
+      openCombo(key);
+      renderComboPanel(key, input.value);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      const panel = document.getElementById('panel' + capitalize(key));
+      const items = panel.querySelectorAll('.combo-option');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (!wrap.classList.contains('open')) { openCombo(key); renderComboPanel(key, ''); return; }
+        activeIndex = Math.min(activeIndex + 1, items.length - 1);
+        highlightActive(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        highlightActive(items);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeIndex >= 0 && items[activeIndex]) {
+          items[activeIndex].click();
+        }
+      } else if (e.key === 'Escape') {
+        closeCombo(key);
+        input.blur();
+      }
     });
   }
 
+  function highlightActive(items) {
+    items.forEach(el => el.classList.remove('active'));
+    if (items[activeIndex]) {
+      items[activeIndex].classList.add('active');
+      items[activeIndex].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function openCombo(key) {
+    if (activeCombo && activeCombo !== key) closeCombo(activeCombo);
+    document.getElementById('combo' + capitalize(key)).classList.add('open');
+    activeCombo = key;
+    activeIndex = -1;
+  }
+
+  function closeCombo(key) {
+    const wrap = document.getElementById('combo' + capitalize(key));
+    wrap.classList.remove('open');
+    const input = document.getElementById('input' + capitalize(key));
+    const state = comboState[key];
+    input.value = state.value === 'All' ? '' : state.label;
+    if (activeCombo === key) activeCombo = null;
+    activeIndex = -1;
+  }
+
+  function renderComboPanel(key, query) {
+    const panel = document.getElementById('panel' + capitalize(key));
+    const state = comboState[key];
+    const q = query.trim().toLowerCase();
+
+    const allLabel = state.defaultLabel;
+    const filtered = state.options.filter(opt => opt.toLowerCase().includes(q));
+
+    let html = '';
+    if (!q || allLabel.toLowerCase().includes(q)) {
+      html += `<div class="combo-option${state.value === 'All' ? ' selected' : ''}" data-value="All" data-label="${escapeHtml(allLabel)}">${escapeHtml(allLabel)}</div>`;
+    }
+    if (filtered.length === 0 && html === '') {
+      panel.innerHTML = '<div class="combo-empty">No matches found</div>';
+      return;
+    }
+    filtered.forEach(opt => {
+      const selected = state.value === opt ? ' selected' : '';
+      html += `<div class="combo-option${selected}" data-value="${escapeHtml(opt)}" data-label="${escapeHtml(opt)}">${escapeHtml(opt)}</div>`;
+    });
+    panel.innerHTML = html;
+
+    panel.querySelectorAll('.combo-option').forEach(el => {
+      el.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        selectComboOption(key, el.dataset.value, el.dataset.label);
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function selectComboOption(key, value, label) {
+    comboState[key].value = value;
+    comboState[key].label = label;
+    const input = document.getElementById('input' + capitalize(key));
+    input.value = value === 'All' ? '' : label;
+    closeCombo(key);
+    applyFilters(key);
+  }
+
+  function refreshComboOptions(key, data = rawData) {
+    const state = comboState[key];
+    state.options = [...new Set(data.map(r => r[key]))].filter(v => v).sort();
+  }
+
+  function setComboDisabled(key, disabled) {
+    const input = document.getElementById('input' + capitalize(key));
+    input.disabled = disabled;
+    if (disabled) {
+      comboState[key].value = 'All';
+      comboState[key].label = comboState[key].defaultLabel;
+      input.value = '';
+    }
+  }
+
   function applyFilters(level) {
-    const rEl = document.getElementById('filterRegion');
-    const pEl = document.getElementById('filterProvince');
-    const cEl = document.getElementById('filterCity');
+    const region = comboState.region.value;
+    const province = comboState.province.value;
 
     if (level === 'region') {
-      pEl.value = 'All'; cEl.value = 'All'; cEl.disabled = true;
-      if (rEl.value === 'All') {
-        pEl.disabled = true; pEl.innerHTML = '<option value="All">All Provinces</option>';
+      comboState.province.value = 'All';
+      comboState.province.label = comboState.province.defaultLabel;
+      document.getElementById('inputProvince').value = '';
+      comboState.city.value = 'All';
+      comboState.city.label = comboState.city.defaultLabel;
+      document.getElementById('inputCity').value = '';
+
+      if (region === 'All') {
+        setComboDisabled('province', true);
+        setComboDisabled('city', true);
       } else {
-        pEl.disabled = false;
-        populateDropdown('filterProvince', 'province', rawData.filter(r => r.region === rEl.value));
+        setComboDisabled('province', false);
+        refreshComboOptions('province', rawData.filter(r => r.region === region));
+        setComboDisabled('city', true);
       }
     } else if (level === 'province') {
-      cEl.value = 'All';
-      if (pEl.value === 'All') {
-        cEl.disabled = true; cEl.innerHTML = '<option value="All">All Cities</option>';
+      comboState.city.value = 'All';
+      comboState.city.label = comboState.city.defaultLabel;
+      document.getElementById('inputCity').value = '';
+
+      if (province === 'All') {
+        setComboDisabled('city', true);
       } else {
-        cEl.disabled = false;
-        let relevantData = rawData.filter(r => (rEl.value === 'All' || r.region === rEl.value) && r.province === pEl.value);
-        populateDropdown('filterCity', 'city', relevantData);
+        setComboDisabled('city', false);
+        const relevantData = rawData.filter(r => (region === 'All' || r.region === region) && r.province === province);
+        refreshComboOptions('city', relevantData);
       }
     }
 
+    const city = comboState.city.value;
     let filtered = rawData.filter(row => {
-      return (rEl.value === 'All' || row.region === rEl.value) &&
-             (pEl.value === 'All' || row.province === pEl.value) &&
-             (cEl.value === 'All' || row.city === cEl.value);
+      return (region === 'All' || row.region === region) &&
+             (province === 'All' || row.province === province) &&
+             (city === 'All' || row.city === city);
     });
 
     updateDashboard(filtered);
@@ -478,17 +695,9 @@
   }
 
   function updatePrintLabels() {
-    const rEl = document.getElementById('filterRegion');
-    const pEl = document.getElementById('filterProvince');
-    const cEl = document.getElementById('filterCity');
-
-    const rText = rEl.options[rEl.selectedIndex].text;
-    const pText = pEl.options[pEl.selectedIndex].text;
-    const cText = cEl.options[cEl.selectedIndex].text;
-
-    document.getElementById('printRegionVal').innerText = rText;
-    document.getElementById('printProvinceVal').innerText = pText;
-    document.getElementById('printCityVal').innerText = cText;
+    document.getElementById('printRegionVal').innerText = comboState.region.label;
+    document.getElementById('printProvinceVal').innerText = comboState.province.label;
+    document.getElementById('printCityVal').innerText = comboState.city.label;
   }
 
   function updateDashboard(data) {
