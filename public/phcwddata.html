@@ -417,12 +417,20 @@
         break-inside: avoid;
       }
 
-      .ranking-container {
-        height: auto;
-        max-height: none;
-        overflow: visible;
+      .ranking-container,
+      #regionRankContainer,
+      #pdaoRankContainer {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
         border: none;
       }
+
+      .region-province-row,
+      .region-province-row td {
+        display: table-row !important;
+      }
+      .region-province-row td { display: table-cell !important; }
 
       .stats-grid {
         gap: 10px;
@@ -552,7 +560,7 @@
   <div class="tab-pane" id="tab-rank">
     <div class="dashboard-content">
       <div class="section-header">Top 10 Regions by Total Cases</div>
-      <div class="ranking-container" style="height:auto; max-height:640px;">
+      <div class="ranking-container" id="regionRankContainer" style="height:auto; max-height:640px;">
         <table class="table table-hover mb-0">
           <thead>
             <tr>
@@ -569,7 +577,7 @@
   <div class="tab-pane" id="tab-pdao">
     <div class="dashboard-content">
       <div class="section-header">Project Aruga Existing Regions - PDAO Data</div>
-      <div class="ranking-container" style="height:auto; max-height:640px;">
+      <div class="ranking-container" id="pdaoRankContainer" style="height:auto; max-height:640px;">
         <table class="table table-hover mb-0">
           <thead>
             <tr>
@@ -627,7 +635,7 @@
   }
 
   const pdaoData = [
-    { region: 'NCR',         province: 'Metro Manila',   city: 'Caloocan City',              total: 0 },
+    { region: 'NCR',         province: 'Metro Manila',   city: 'Caloocan City',              total: 8912 },
     { region: 'Region I',    province: 'Ilocos Norte',   city: 'Laoag City',                 total: 0 },
     { region: 'Region II',   province: 'Isabela',        city: 'Ilagan City',                total: 1106 },
     { region: 'Region III',  province: 'Pampanga',       city: 'Lubao',                      total: 862 },
@@ -827,6 +835,28 @@
         }).join('')}
       </div>`;
   }
+
+  function expandAllRegionRank() {
+    document.querySelectorAll('#regionRankTableBody .region-rank-row').forEach(rowEl => {
+      const detailRow = document.getElementById(rowEl.dataset.target);
+      if (detailRow && detailRow.style.display === 'none') {
+        toggleRegionProvinces(rowEl);
+      }
+    });
+    document.querySelectorAll('#regionRankTableBody .province-rank-row').forEach(rowEl => {
+      const detailEl = document.getElementById(rowEl.dataset.target);
+      if (detailEl && detailEl.style.display === 'none') {
+        toggleProvinceCities({ stopPropagation(){} }, rowEl);
+      }
+    });
+  }
+
+  window.addEventListener('beforeprint', () => {
+    const activePane = document.querySelector('.tab-pane.active');
+    if (activePane && activePane.id === 'tab-rank') {
+      expandAllRegionRank();
+    }
+  });
 
   window.onload = function() {
     initCombo('region');
