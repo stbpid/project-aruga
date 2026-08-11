@@ -311,6 +311,18 @@
     .region-rank-row:hover { background: #f0f9ff; }
     .province-rank-row:hover { background: #e0f2fe; }
 
+    .pct-chip {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #0284c7;
+      font-weight: 700;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+
     .insight-section {
       background: #f0f9ff;
       border: 1px solid #bae6fd;
@@ -676,7 +688,7 @@
                 </span>
                 <span style="color:#64748b;">
                   <span class="fw-bold">${p.v.toLocaleString()}</span>
-                  <span style="color:#0284c7; font-weight:600; margin-left:4px;">(${pct}%)</span>
+                  <span class="pct-chip">${pct}%</span>
                 </span>
               </div>
               <div id="${provinceRowId}" style="display:none; padding:4px 8px 8px 30px;"></div>
@@ -734,7 +746,7 @@
               <span style="color:#475569;">${idx + 1}. ${escapeHtml(c.n)}</span>
               <span style="color:#64748b;">
                 <span class="fw-bold">${c.v.toLocaleString()}</span>
-                <span style="color:#0284c7; font-weight:600; margin-left:4px;">(${pct}%)</span>
+                <span class="pct-chip">${pct}%</span>
               </span>
             </div>`;
         }).join('')}
