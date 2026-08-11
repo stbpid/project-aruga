@@ -402,6 +402,7 @@
 <script>
   let rawData = [];
   let chartInstance = null;
+  const categoryKeys = ['speech', 'learning', 'intellectual', 'mental', 'visual', 'psychological', 'physical', 'deaf_hearing', 'cancer', 'rear'];
   const categories = ['Speech', 'Learning', 'Intellectual', 'Mental', 'Visual', 'Psychological', 'Physical', 'Deaf/Hearing', 'Cancer', 'Rear'];
 
   const bluePalette = [
@@ -410,12 +411,23 @@
   ];
 
   window.onload = function() {
-    populateDropdown('filterRegion', 0);
-    updateDashboard(rawData);
-    updatePrintLabels();
+    fetch('/data/phcwddata.json')
+      .then(res => res.json())
+      .then(data => {
+        rawData = data;
+        populateDropdown('filterRegion', 'region');
+        updateDashboard(rawData);
+        updatePrintLabels();
+      })
+      .catch(() => {
+        rawData = [];
+        populateDropdown('filterRegion', 'region');
+        updateDashboard(rawData);
+        updatePrintLabels();
+      });
   };
 
-  function populateDropdown(id, col, data = rawData) {
+  function populateDropdown(id, key, data = rawData) {
     const el = document.getElementById(id);
     el.innerHTML = '<option value="All">All</option>';
 
@@ -423,7 +435,7 @@
     if(id === 'filterProvince') el.options[0].text = "All Provinces";
     if(id === 'filterCity') el.options[0].text = "All Cities";
 
-    const vals = [...new Set(data.map(r => r[col]))].filter(v=>v).sort();
+    const vals = [...new Set(data.map(r => r[key]))].filter(v=>v).sort();
     vals.forEach(v => {
       let opt = document.createElement("option");
       opt.value = v; opt.text = v;
@@ -442,7 +454,7 @@
         pEl.disabled = true; pEl.innerHTML = '<option value="All">All Provinces</option>';
       } else {
         pEl.disabled = false;
-        populateDropdown('filterProvince', 1, rawData.filter(r => r[0] === rEl.value));
+        populateDropdown('filterProvince', 'province', rawData.filter(r => r.region === rEl.value));
       }
     } else if (level === 'province') {
       cEl.value = 'All';
@@ -450,15 +462,15 @@
         cEl.disabled = true; cEl.innerHTML = '<option value="All">All Cities</option>';
       } else {
         cEl.disabled = false;
-        let relevantData = rawData.filter(r => (rEl.value === 'All' || r[0] === rEl.value) && r[1] === pEl.value);
-        populateDropdown('filterCity', 2, relevantData);
+        let relevantData = rawData.filter(r => (rEl.value === 'All' || r.region === rEl.value) && r.province === pEl.value);
+        populateDropdown('filterCity', 'city', relevantData);
       }
     }
 
     let filtered = rawData.filter(row => {
-      return (rEl.value === 'All' || row[0] === rEl.value) &&
-             (pEl.value === 'All' || row[1] === pEl.value) &&
-             (cEl.value === 'All' || row[2] === cEl.value);
+      return (rEl.value === 'All' || row.region === rEl.value) &&
+             (pEl.value === 'All' || row.province === pEl.value) &&
+             (cEl.value === 'All' || row.city === cEl.value);
     });
 
     updateDashboard(filtered);
@@ -480,15 +492,15 @@
   }
 
   function updateDashboard(data) {
-    const sums = new Array(categories.length).fill(0);
+    const sums = new Array(categoryKeys.length).fill(0);
     let total = 0;
     let cityMap = {};
 
     data.forEach(r => {
-      for(let i=0; i<categories.length; i++) sums[i] += (Number(r[i+3]) || 0);
-      total += (Number(r[13]) || 0);
-      let c = r[2];
-      cityMap[c] = (cityMap[c]||0) + (Number(r[13]) || 0);
+      for(let i=0; i<categoryKeys.length; i++) sums[i] += (Number(r[categoryKeys[i]]) || 0);
+      total += (Number(r.total) || 0);
+      let c = r.city;
+      cityMap[c] = (cityMap[c]||0) + (Number(r.total) || 0);
     });
 
     document.getElementById('kpiTotal').innerText = total.toLocaleString();
