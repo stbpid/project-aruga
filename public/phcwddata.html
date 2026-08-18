@@ -559,7 +559,7 @@
 
   <div class="tab-pane" id="tab-rank">
     <div class="dashboard-content">
-      <div class="section-header">Top 10 Regions by Total Cases</div>
+      <div class="section-header">Regions by Total Cases</div>
       <div class="ranking-container" id="regionRankContainer" style="height:auto; max-height:640px;">
         <table class="table table-hover mb-0">
           <thead>
@@ -687,8 +687,7 @@
 
     const sorted = Object.entries(regionMap)
       .map(([n, v]) => ({ n, v }))
-      .sort((a, b) => b.v - a.v)
-      .slice(0, 10);
+      .sort((a, b) => b.v - a.v);
 
     if (sorted.length === 0) {
       tbody.innerHTML = '<tr><td colspan="2" class="text-center p-3">No Data</td></tr>';
