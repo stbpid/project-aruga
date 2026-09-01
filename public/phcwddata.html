@@ -426,15 +426,11 @@
         border: none;
       }
 
-      .region-province-row,
-      .region-province-row td {
-        display: table-row !important;
+      #regionRankTableBody .region-province-row {
+        display: none !important;
       }
-      .region-province-row td { display: table-cell !important; }
 
-      .region-rank-row.print-hide,
-      .region-rank-row.print-hide + .region-province-row,
-      .region-rank-row.print-hide + .region-province-row td {
+      .region-rank-row.print-hide {
         display: none !important;
       }
 
@@ -1068,20 +1064,8 @@
 
   function expandAllRegionRank(suffix) {
     const regionRows = Array.from(document.querySelectorAll('#regionRankTableBody' + suffix + ' .region-rank-row'));
-    regionRows.slice(0, 10).forEach(rowEl => {
-      const detailRow = document.getElementById(rowEl.dataset.target);
-      if (detailRow && detailRow.style.display === 'none') {
-        toggleRegionProvinces(rowEl);
-      }
-    });
     regionRows.slice(10).forEach(rowEl => {
       rowEl.classList.add('print-hide');
-    });
-    document.querySelectorAll('#regionRankTableBody' + suffix + ' .province-rank-row').forEach(rowEl => {
-      const detailEl = document.getElementById(rowEl.dataset.target);
-      if (detailEl && detailEl.style.display === 'none') {
-        toggleProvinceCities({ stopPropagation(){} }, rowEl);
-      }
     });
   }
 
