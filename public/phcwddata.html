@@ -432,6 +432,12 @@
       }
       .region-province-row td { display: table-cell !important; }
 
+      .region-rank-row.print-hide,
+      .region-rank-row.print-hide + .region-province-row,
+      .region-rank-row.print-hide + .region-province-row td {
+        display: none !important;
+      }
+
       .stats-grid {
         gap: 10px;
       }
@@ -1069,9 +1075,7 @@
       }
     });
     regionRows.slice(10).forEach(rowEl => {
-      rowEl.style.display = 'none';
-      const detailRow = document.getElementById(rowEl.dataset.target);
-      if (detailRow) detailRow.style.display = 'none';
+      rowEl.classList.add('print-hide');
     });
     document.querySelectorAll('#regionRankTableBody' + suffix + ' .province-rank-row').forEach(rowEl => {
       const detailEl = document.getElementById(rowEl.dataset.target);
