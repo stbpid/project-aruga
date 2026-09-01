@@ -1158,6 +1158,8 @@
     }).join('');
   }
 
+  let landscapePrintStyle = null;
+
   window.addEventListener('beforeprint', () => {
     const activePane = document.querySelector('.tab-pane.active');
     if (activePane && activePane.id === 'tab-rank') {
@@ -1165,6 +1167,18 @@
     }
     if (activePane && activePane.id === 'tab-rank2') {
       buildRank2PrintReport();
+    }
+    if (activePane && activePane.id === 'tab-pdao') {
+      landscapePrintStyle = document.createElement('style');
+      landscapePrintStyle.textContent = '@page { size: A4 landscape; margin: 10mm; }';
+      document.head.appendChild(landscapePrintStyle);
+    }
+  });
+
+  window.addEventListener('afterprint', () => {
+    if (landscapePrintStyle) {
+      landscapePrintStyle.remove();
+      landscapePrintStyle = null;
     }
   });
 
