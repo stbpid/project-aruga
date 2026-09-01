@@ -437,6 +437,52 @@
       }
 
       body, .text-muted { color: #000 !important; }
+
+      #tab-rank2 .row.g-3 { display: none !important; }
+      #rank2PrintReport { display: block !important; }
+      .print-region-block {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 12px;
+        break-inside: avoid;
+      }
+      .print-region-block h6 {
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #0f172a;
+      }
+      .print-region-block .print-col-title {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #0369a1;
+        margin-bottom: 4px;
+      }
+      .print-region-block ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .print-region-block li {
+        font-size: 0.7rem;
+        display: flex;
+        justify-content: space-between;
+        padding: 2px 0;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      .print-province-group {
+        margin-bottom: 6px;
+      }
+      .print-province-group .print-province-name {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #1e3a8a;
+      }
     }
   </style>
 </head>
@@ -579,7 +625,6 @@
     <div class="dashboard-content">
       <div class="row g-3">
         <div class="col-md-4">
-          <div class="section-header">Regions</div>
           <div class="ranking-container" id="regionRankContainer2" style="height:auto; max-height:640px;">
             <table class="table table-hover mb-0">
               <thead>
@@ -593,7 +638,6 @@
           </div>
         </div>
         <div class="col-md-4">
-          <div class="section-header">Provinces</div>
           <div class="ranking-container" id="provinceRankContainer2" style="height:auto; max-height:640px;">
             <table class="table table-hover mb-0">
               <thead>
@@ -609,7 +653,6 @@
           </div>
         </div>
         <div class="col-md-4">
-          <div class="section-header">Cities / Municipalities</div>
           <div class="ranking-container" id="cityRankContainer2" style="height:auto; max-height:640px;">
             <table class="table table-hover mb-0">
               <thead>
@@ -625,6 +668,7 @@
           </div>
         </div>
       </div>
+      <div id="rank2PrintReport" style="display:none;"></div>
     </div>
   </div>
 
@@ -870,7 +914,8 @@
 
     const sorted = Object.entries(cityMap)
       .map(([n, v]) => ({ n, v }))
-      .sort((a, b) => b.v - a.v);
+      .sort((a, b) => b.v - a.v)
+      .slice(0, 5);
 
     const tbody = document.getElementById('cityRankTableBody2');
     if (sorted.length === 0) {
@@ -1026,10 +1071,90 @@
     });
   }
 
+  function buildRank2PrintReport() {
+    const container = document.getElementById('rank2PrintReport');
+    if (!container) return;
+
+    const regionMap = {};
+    rawData.forEach(r => {
+      if (!r.region) return;
+      regionMap[r.region] = (regionMap[r.region] || 0) + (Number(r.total) || 0);
+    });
+
+    const regions = Object.entries(regionMap)
+      .map(([n, v]) => ({ n, v }))
+      .sort((a, b) => b.v - a.v);
+
+    container.innerHTML = regions.map(region => {
+      const provinceMap = {};
+      let regionTotal = 0;
+      rawData.forEach(r => {
+        if (r.region !== region.n || !r.province || r.province === '(Blank)') return;
+        const v = Number(r.total) || 0;
+        provinceMap[r.province] = (provinceMap[r.province] || 0) + v;
+        regionTotal += v;
+      });
+
+      const provinces = Object.entries(provinceMap)
+        .map(([n, v]) => ({ n, v }))
+        .sort((a, b) => b.v - a.v);
+
+      const provincesListHtml = provinces.map(p => {
+        const pct = regionTotal > 0 ? ((p.v / regionTotal) * 100).toFixed(1) : '0.0';
+        return `<li><span>${escapeHtml(p.n)}</span><span>${p.v.toLocaleString()} (${pct}%)</span></li>`;
+      }).join('');
+
+      const citiesHtml = provinces.map(p => {
+        const cityMap = {};
+        let provinceTotal = 0;
+        rawData.forEach(r => {
+          if (r.region !== region.n || r.province !== p.n || !r.city || r.city === '(Blank)') return;
+          const v = Number(r.total) || 0;
+          cityMap[r.city] = (cityMap[r.city] || 0) + v;
+          provinceTotal += v;
+        });
+
+        const topCities = Object.entries(cityMap)
+          .map(([n, v]) => ({ n, v }))
+          .sort((a, b) => b.v - a.v)
+          .slice(0, 5);
+
+        const citiesListHtml = topCities.map(c => {
+          const pct = provinceTotal > 0 ? ((c.v / provinceTotal) * 100).toFixed(1) : '0.0';
+          return `<li><span>${escapeHtml(c.n)}</span><span>${c.v.toLocaleString()} (${pct}%)</span></li>`;
+        }).join('');
+
+        return `
+          <div class="print-province-group">
+            <div class="print-province-name">${escapeHtml(p.n)}</div>
+            <ul>${citiesListHtml || '<li>No city data</li>'}</ul>
+          </div>`;
+      }).join('');
+
+      return `
+        <div class="print-region-block">
+          <div>
+            <h6>${escapeHtml(region.n)} &mdash; ${region.v.toLocaleString()}</h6>
+          </div>
+          <div>
+            <div class="print-col-title">Provinces</div>
+            <ul>${provincesListHtml || '<li>No province data</li>'}</ul>
+          </div>
+          <div>
+            <div class="print-col-title">Top Cities / Municipalities</div>
+            ${citiesHtml || '<div>No city data</div>'}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
   window.addEventListener('beforeprint', () => {
     const activePane = document.querySelector('.tab-pane.active');
     if (activePane && activePane.id === 'tab-rank') {
       expandAllRegionRank('');
+    }
+    if (activePane && activePane.id === 'tab-rank2') {
+      buildRank2PrintReport();
     }
   });
 
