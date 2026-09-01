@@ -681,6 +681,7 @@
             <tr>
               <th style="padding-left: 20px;">Region / Province / City</th>
               <th class="text-end" style="padding-right: 20px;">Total Cases</th>
+              <th class="text-end" style="padding-right: 20px;">Current Beneficiaries</th>
             </tr>
           </thead>
           <tbody id="pdaoRankTableBody"></tbody>
@@ -736,15 +737,15 @@
   }
 
   const pdaoData = [
-    { region: 'NCR',         province: 'Metro Manila',   city: 'Caloocan City',              total: 8912 },
-    { region: 'Region I',    province: 'Ilocos Norte',   city: 'Laoag City',                 total: 565 },
-    { region: 'Region II',   province: 'Isabela',        city: 'Ilagan City',                total: 1106 },
-    { region: 'Region III',  province: 'Pampanga',       city: 'Lubao',                      total: 862 },
-    { region: 'Region IV-A', province: 'Laguna',         city: 'Biñan City',                 total: 1201 },
-    { region: 'Region IV-B', province: 'Palawan',        city: 'Puerto Princesa City',        total: 1793 },
-    { region: 'Region V',    province: 'Sorsogon',       city: 'Sorsogon City',               total: 1392 },
-    { region: 'Region VI',   province: 'Antique',        city: 'San Jose de Buenavista',      total: 450 },
-    { region: 'Region XI',   province: 'Davao del Sur',  city: 'Sta. Cruz',                   total: 383 }
+    { region: 'NCR',         province: 'Metro Manila',   city: 'Caloocan City',              total: 8912, beneficiaries: 141 },
+    { region: 'Region I',    province: 'Ilocos Norte',   city: 'Laoag City',                 total: 565,  beneficiaries: 150 },
+    { region: 'Region II',   province: 'Isabela',        city: 'Ilagan City',                total: 1106, beneficiaries: 100 },
+    { region: 'Region III',  province: 'Pampanga',       city: 'Lubao',                      total: 862,  beneficiaries: 100 },
+    { region: 'Region IV-A', province: 'Laguna',         city: 'Biñan City',                 total: 1201, beneficiaries: 100 },
+    { region: 'Region IV-B', province: 'Palawan',        city: 'Puerto Princesa City',        total: 1793, beneficiaries: 150 },
+    { region: 'Region V',    province: 'Sorsogon',       city: 'Sorsogon City',               total: 1392, beneficiaries: 100 },
+    { region: 'Region VI',   province: 'Antique',        city: 'San Jose de Buenavista',      total: 450,  beneficiaries: 150 },
+    { region: 'Region XI',   province: 'Davao del Sur',  city: 'Sta. Cruz',                   total: 383,  beneficiaries: 150 }
   ];
 
   function renderPdaoRank() {
@@ -772,6 +773,7 @@
             <span class="fw-medium text-dark" style="font-size:0.85rem">${location}</span>
           </td>
           <td class="text-end fw-bold" style="padding-right: 20px; color: #64748b; font-size: 0.85rem;">${item.total.toLocaleString()}</td>
+          <td class="text-end fw-bold" style="padding-right: 20px; color: #64748b; font-size: 0.85rem;">${(item.beneficiaries || 0).toLocaleString()}</td>
         </tr>`;
     }).join('');
   }
@@ -1085,7 +1087,7 @@
       .map(([n, v]) => ({ n, v }))
       .sort((a, b) => b.v - a.v);
 
-    container.innerHTML = regions.map(region => {
+    container.innerHTML = regions.map((region, regionIdx) => {
       const provinceMap = {};
       let regionTotal = 0;
       rawData.forEach(r => {
@@ -1134,7 +1136,7 @@
       return `
         <div class="print-region-block">
           <div>
-            <h6>${escapeHtml(region.n)} &mdash; ${region.v.toLocaleString()}</h6>
+            <h6>${regionIdx + 1}. ${escapeHtml(region.n)} &mdash; ${region.v.toLocaleString()}</h6>
           </div>
           <div>
             <div class="print-col-title">Provinces</div>
