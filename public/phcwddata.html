@@ -467,6 +467,7 @@
   <div class="tabs-bar">
     <button class="tab-btn active" data-tab="doh" onclick="switchTab('doh')">DOH Data</button>
     <button class="tab-btn" data-tab="rank" onclick="switchTab('rank')">Regional Rank</button>
+    <button class="tab-btn" data-tab="rank2" onclick="switchTab('rank2')">Regional Rank 2</button>
     <button class="tab-btn" data-tab="pdao" onclick="switchTab('pdao')">PDAO Data</button>
   </div>
 
@@ -574,6 +575,23 @@
     </div>
   </div>
 
+  <div class="tab-pane" id="tab-rank2">
+    <div class="dashboard-content">
+      <div class="section-header">Regions by Total Cases</div>
+      <div class="ranking-container" id="regionRankContainer2" style="height:auto; max-height:640px;">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th style="padding-left: 20px;">Region</th>
+              <th class="text-end" style="padding-right: 20px;">Total Cases</th>
+            </tr>
+          </thead>
+          <tbody id="regionRankTableBody2"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="tab-pane" id="tab-pdao">
     <div class="dashboard-content">
       <div class="section-header">Project Aruga Existing Regions - PDAO Data</div>
@@ -627,7 +645,10 @@
       chartInstance.resize();
     }
     if (tab === 'rank') {
-      renderRegionRank();
+      renderRegionRank('');
+    }
+    if (tab === 'rank2') {
+      renderRegionRank('2');
     }
     if (tab === 'pdao') {
       renderPdaoRank();
@@ -675,8 +696,8 @@
     }).join('');
   }
 
-  function renderRegionRank() {
-    const tbody = document.getElementById('regionRankTableBody');
+  function renderRegionRank(suffix) {
+    const tbody = document.getElementById('regionRankTableBody' + suffix);
     if (!tbody) return;
 
     const regionMap = {};
@@ -701,7 +722,7 @@
       else if (i === 2) badgeClass = 'rank-3';
       else if (i === 3 || i === 4) badgeClass = 'rank-4';
 
-      const rowId = 'regionRow' + i;
+      const rowId = 'regionRow' + suffix + i;
       return `
         <tr class="region-rank-row" data-region="${escapeHtml(item.n)}" data-target="${rowId}" onclick="toggleRegionProvinces(this)" style="cursor:pointer;">
           <td style="padding-left: 20px;">
@@ -740,7 +761,7 @@
     const provinceMap = {};
     let regionTotal = 0;
     rawData.forEach(r => {
-      if (r.region !== region || !r.province) return;
+      if (r.region !== region || !r.province || r.province === '(Blank)') return;
       const v = Number(r.total) || 0;
       provinceMap[r.province] = (provinceMap[r.province] || 0) + v;
       regionTotal += v;
@@ -803,7 +824,7 @@
     const cityMap = {};
     let provinceTotal = 0;
     rawData.forEach(r => {
-      if (r.region !== region || r.province !== province || !r.city) return;
+      if (r.region !== region || r.province !== province || !r.city || r.city === '(Blank)') return;
       const v = Number(r.total) || 0;
       cityMap[r.city] = (cityMap[r.city] || 0) + v;
       provinceTotal += v;
@@ -835,14 +856,14 @@
       </div>`;
   }
 
-  function expandAllRegionRank() {
-    document.querySelectorAll('#regionRankTableBody .region-rank-row').forEach(rowEl => {
+  function expandAllRegionRank(suffix) {
+    document.querySelectorAll('#regionRankTableBody' + suffix + ' .region-rank-row').forEach(rowEl => {
       const detailRow = document.getElementById(rowEl.dataset.target);
       if (detailRow && detailRow.style.display === 'none') {
         toggleRegionProvinces(rowEl);
       }
     });
-    document.querySelectorAll('#regionRankTableBody .province-rank-row').forEach(rowEl => {
+    document.querySelectorAll('#regionRankTableBody' + suffix + ' .province-rank-row').forEach(rowEl => {
       const detailEl = document.getElementById(rowEl.dataset.target);
       if (detailEl && detailEl.style.display === 'none') {
         toggleProvinceCities({ stopPropagation(){} }, rowEl);
@@ -853,7 +874,10 @@
   window.addEventListener('beforeprint', () => {
     const activePane = document.querySelector('.tab-pane.active');
     if (activePane && activePane.id === 'tab-rank') {
-      expandAllRegionRank();
+      expandAllRegionRank('');
+    }
+    if (activePane && activePane.id === 'tab-rank2') {
+      expandAllRegionRank('2');
     }
   });
 
@@ -869,14 +893,14 @@
         refreshComboOptions('region');
         updateDashboard(rawData);
         updatePrintLabels();
-        renderRegionRank();
+        renderRegionRank('');
       })
       .catch(() => {
         rawData = [];
         refreshComboOptions('region');
         updateDashboard(rawData);
         updatePrintLabels();
-        renderRegionRank();
+        renderRegionRank('');
       });
 
     document.addEventListener('click', (e) => {
