@@ -130,7 +130,7 @@ function getRegionTargets() {
         'Region V (Bicol Region)'     => 100,
         'Region VI (Western Visayas)' => 150,
         'Region XI (Davao Region)'      => 150,
-        'NCR (National Capital Region)' => 140,
+        'NCR (National Capital Region)' => 141,
     ];
 }
 
