@@ -2063,7 +2063,7 @@
           <span class="material-symbols-outlined">list_alt</span>Dropdown Options
         </button>
         <button class="settings-tab" data-tab="regions" onclick="showSettingsTab('regions')">
-          <span class="material-symbols-outlined">map</span>Regions
+          <span class="material-symbols-outlined">flag</span>Region Targets
         </button>
         <button class="settings-tab" data-tab="security" onclick="showSettingsTab('security')">
           <span class="material-symbols-outlined">security</span>Security &amp; Sessions
@@ -2119,95 +2119,18 @@
         <div id="dropdowns-toast" class="settings-toast" style="display:none;"></div>
       </div>
 
-      <!-- ── Tab: Regions ── -->
+      <!-- ── Tab: Region Targets ── -->
       <div class="settings-panel" id="stab-regions" style="display:none;">
-        <div style="display:grid;grid-template-columns:340px 1fr;gap:1rem;align-items:start;">
-
-          <!-- Add / Edit Form -->
-          <div class="card" style="margin:0;">
-            <div class="card-header">
-              <div>
-                <div class="card-title" id="reg-form-title">Add Region</div>
-                <div class="card-subtitle">Fill in the fields below and click Save.</div>
-              </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;">
-              <input type="hidden" id="reg-edit-id" value="">
-              <div>
-                <label class="settings-label">Region Name <span style="color:#dc2626;">*</span></label>
-                <input type="text" id="reg-name" class="settings-input" placeholder="e.g. Region XIV – BARMM">
-              </div>
-              <div>
-                <label class="settings-label">Region Code <span style="color:#dc2626;">*</span></label>
-                <input type="text" id="reg-code" class="settings-input" placeholder="e.g. XIV">
-              </div>
-              <div>
-                <label class="settings-label">Province</label>
-                <input type="text" id="reg-province" class="settings-input" placeholder="e.g. Maguindanao del Norte">
-              </div>
-              <div>
-                <label class="settings-label">Municipality / City</label>
-                <input type="text" id="reg-municipality" class="settings-input" placeholder="e.g. Cotabato City">
-              </div>
-              <div>
-                <label class="settings-label">Status</label>
-                <select id="reg-status" class="settings-input">
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-              <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
-                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="saveRegion()">
-                  <span class="material-symbols-outlined" id="reg-save-icon">add_location</span>
-                  <span id="reg-save-label">Add Region</span>
-                </button>
-                <button class="btn btn-secondary btn-sm" id="reg-cancel-btn" style="display:none;" onclick="regCancelEdit()">
-                  <span class="material-symbols-outlined">close</span>Cancel
-                </button>
-              </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Region Targets</div>
+              <div class="card-subtitle">Set the completion target used for coverage progress bars across the dashboards.</div>
             </div>
           </div>
 
-          <!-- Regions List -->
-          <div class="card" style="margin:0;">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Registered Regions</div>
-                <div class="card-subtitle" id="reg-list-subtitle">All coverage areas in the system</div>
-              </div>
-              <div style="display:flex;gap:0.5rem;">
-                <div class="search-bar" style="width:180px;">
-                  <span class="material-symbols-outlined">search</span>
-                  <input type="text" id="reg-search" placeholder="Search..." oninput="renderRegionSettings()" aria-label="Search regions">
-                </div>
-                <button class="btn btn-secondary btn-sm" onclick="loadRegionSettings()" title="Refresh">
-                  <span class="material-symbols-outlined">refresh</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Status filter -->
-            <div style="display:flex;gap:0.375rem;margin-bottom:0.75rem;flex-wrap:wrap;">
-              <button class="reg-filter-btn active" data-filter="all" onclick="regSetFilter('all',this)">All</button>
-              <button class="reg-filter-btn" data-filter="active" onclick="regSetFilter('active',this)">Active</button>
-              <button class="reg-filter-btn" data-filter="inactive" onclick="regSetFilter('inactive',this)">Inactive</button>
-            </div>
-
-            <div id="regions-list" style="max-height:400px;overflow-y:auto;">
-              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading regions...</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Edit Modal -->
-        <div id="reg-delete-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);">
-          <div style="background:white;border-radius:1rem;width:100%;max-width:360px;padding:1.75rem;box-shadow:0 24px 64px rgba(0,0,0,0.2);">
-            <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:0.5rem;">Remove Region?</div>
-            <div style="font-size:0.8125rem;color:var(--gray-500);margin-bottom:1.5rem;">Remove <strong id="reg-delete-name"></strong> from the system? This does not delete existing assessment records.</div>
-            <div style="display:flex;gap:0.75rem;">
-              <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="document.getElementById('reg-delete-modal').style.display='none'">Cancel</button>
-              <button class="btn btn-sm" style="flex:1;background:#dc2626;color:white;" onclick="regConfirmDelete()">Remove</button>
-            </div>
+          <div id="region-targets-list" style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading region targets...</div>
           </div>
         </div>
 
@@ -6925,150 +6848,100 @@
     showToast('rules-toast', 'System rules saved successfully.', 'success');
   }
 
-  // ── Regions ────────────────────────────────────────────────────
-  let regionsSettingsData = [];
-  let regFilterStatus = 'all';
-  let regDeleteTarget = null;
+  // ── Region Targets ────────────────────────────────────────────
+  let regionTargetsData = [];
+  let regTargetEditing = null; // region_name currently being edited, or null
 
   function loadRegionSettings() {
-    const list = document.getElementById('regions-list');
-    list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:1rem;">Loading...</div>';
-    fetch('/api/admin-router.php?action=locations')
+    const list = document.getElementById('region-targets-list');
+    list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading region targets...</div>';
+    authFetch('/api/admin-router.php?action=get-region-targets')
       .then(r => r.json())
       .then(json => {
-        regionsSettingsData = [];
-        Object.entries(json).forEach(([region, provinces]) => {
-          Object.entries(provinces).forEach(([province, cities]) => {
-            regionsSettingsData.push({ region, province, municipality: Object.keys(cities).join(', '), code: '', status: 'active' });
-          });
-        });
+        if (!json.success) throw new Error(json.message || 'Failed');
+        regionTargetsData = json.data || [];
         renderRegionSettings();
       })
       .catch(() => {
-        regionsSettingsData = [];
-        renderRegionSettings();
-        showToast('regions-toast', 'Could not load regions from server.', 'error');
+        regionTargetsData = [];
+        list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Could not load region targets.</div>';
+        showToast('regions-toast', 'Could not load region targets from server.', 'error');
       });
   }
 
-  function regSetFilter(val, btn) {
-    regFilterStatus = val;
-    document.querySelectorAll('.reg-filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderRegionSettings();
-  }
-
   function renderRegionSettings() {
-    const list = document.getElementById('regions-list');
-    const q = (document.getElementById('reg-search')?.value || '').toLowerCase();
-    let rows = regionsSettingsData;
-    if (regFilterStatus !== 'all') rows = rows.filter(r => (r.status || 'active') === regFilterStatus);
-    if (q) rows = rows.filter(r => (r.region+r.code+r.province+r.municipality).toLowerCase().includes(q));
-    const sub = document.getElementById('reg-list-subtitle');
-    if (sub) sub.textContent = rows.length + ' region' + (rows.length !== 1 ? 's' : '') + ' found';
-    if (!rows.length) {
+    const list = document.getElementById('region-targets-list');
+    if (!regionTargetsData.length) {
       list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No regions found.</div>';
       return;
     }
-    list.innerHTML = rows.map((r, i) => {
-      const status = r.status || 'active';
-      const statusBadge = status === 'active'
-        ? '<span style="font-size:0.65rem;font-weight:700;background:#f0fdf4;color:#16a34a;padding:0.1rem 0.45rem;border-radius:999px;">Active</span>'
-        : '<span style="font-size:0.65rem;font-weight:700;background:#f9fafb;color:#6b7280;padding:0.1rem 0.45rem;border-radius:999px;">Inactive</span>';
-      return `<div class="dd-item-row" style="flex-direction:column;align-items:stretch;gap:0.25rem;padding:0.625rem 0.75rem;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
-          <div style="display:flex;align-items:center;gap:0.5rem;min-width:0;">
-            <span class="material-symbols-outlined" style="font-size:0.9rem;color:var(--blue);flex-shrink:0;">map</span>
-            <div style="min-width:0;">
-              <div style="font-weight:600;font-size:0.8125rem;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.region || r.name || '—'}</div>
-              <div style="font-size:0.68rem;color:var(--gray-400);">${r.code ? 'Code: '+r.code : ''}${r.province ? ' · '+r.province : ''}${r.municipality ? ' · '+r.municipality : ''}</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:0.375rem;flex-shrink:0;">
-            ${statusBadge}
-            <button class="btn btn-ghost btn-sm" title="Edit" onclick="regStartEdit(${i})" style="padding:0.2rem;">
-              <span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span>
-            </button>
-            <button class="btn btn-ghost btn-sm" title="Remove" onclick="regStartDelete(${i})" style="padding:0.2rem;color:#dc2626;">
-              <span class="material-symbols-outlined" style="font-size:0.875rem;">delete</span>
-            </button>
-          </div>
-        </div>
+    list.innerHTML = regionTargetsData.map((r) => {
+      const isEditing = regTargetEditing === r.region_name;
+      const rightSide = isEditing
+        ? `<input type="number" min="0" id="regt-input-${escapeAttr(r.region_name)}" value="${r.target}"
+             class="settings-input" style="width:5.5rem;text-align:right;padding:0.35rem 0.5rem;font-weight:700;"
+             onkeydown="if(event.key==='Enter')regTargetSave('${escapeJs(r.region_name)}');if(event.key==='Escape')regTargetCancel();">
+           <button class="btn btn-ghost btn-sm" title="Save" onclick="regTargetSave('${escapeJs(r.region_name)}')" style="padding:0.3rem;color:#16a34a;">
+             <span class="material-symbols-outlined" style="font-size:1rem;">check</span>
+           </button>
+           <button class="btn btn-ghost btn-sm" title="Cancel" onclick="regTargetCancel()" style="padding:0.3rem;color:#dc2626;">
+             <span class="material-symbols-outlined" style="font-size:1rem;">close</span>
+           </button>`
+        : `<span style="font-size:0.95rem;font-weight:700;color:#111827;min-width:2.5rem;text-align:right;">${r.target}</span>
+           <button class="btn btn-ghost btn-sm" title="Edit target" onclick="regTargetStartEdit('${escapeJs(r.region_name)}')" style="padding:0.3rem;">
+             <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
+           </button>`;
+
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:1rem 1.25rem;border:1px solid var(--gray-100);border-radius:0.75rem;">
+        <div style="font-weight:700;font-size:0.9rem;color:#111827;">${r.region_name}</div>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">${rightSide}</div>
       </div>`;
     }).join('');
   }
 
-  function regStartEdit(idx) {
-    const r = regionsSettingsData[idx];
-    if (!r) return;
-    document.getElementById('reg-edit-id').value = idx;
-    document.getElementById('reg-name').value = r.region || r.name || '';
-    document.getElementById('reg-code').value = r.code || '';
-    document.getElementById('reg-province').value = r.province || '';
-    document.getElementById('reg-municipality').value = r.municipality || '';
-    document.getElementById('reg-status').value = r.status || 'active';
-    document.getElementById('reg-form-title').textContent = 'Edit Region';
-    document.getElementById('reg-save-icon').textContent = 'save';
-    document.getElementById('reg-save-label').textContent = 'Save Changes';
-    document.getElementById('reg-cancel-btn').style.display = '';
+  function escapeAttr(s) { return String(s).replace(/"/g, '&quot;'); }
+  function escapeJs(s) { return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+
+  function regTargetStartEdit(regionName) {
+    regTargetEditing = regionName;
+    renderRegionSettings();
+    const input = document.getElementById('regt-input-' + regionName);
+    if (input) { input.focus(); input.select(); }
   }
 
-  function regCancelEdit() {
-    document.getElementById('reg-edit-id').value = '';
-    document.getElementById('reg-name').value = '';
-    document.getElementById('reg-code').value = '';
-    document.getElementById('reg-province').value = '';
-    document.getElementById('reg-municipality').value = '';
-    document.getElementById('reg-status').value = 'active';
-    document.getElementById('reg-form-title').textContent = 'Add Region';
-    document.getElementById('reg-save-icon').textContent = 'add_location';
-    document.getElementById('reg-save-label').textContent = 'Add Region';
-    document.getElementById('reg-cancel-btn').style.display = 'none';
+  function regTargetCancel() {
+    regTargetEditing = null;
+    renderRegionSettings();
   }
 
-  function saveRegion() {
-    const name     = document.getElementById('reg-name').value.trim();
-    const code     = document.getElementById('reg-code').value.trim();
-    const province = document.getElementById('reg-province').value.trim();
-    const muni     = document.getElementById('reg-municipality').value.trim();
-    const status   = document.getElementById('reg-status').value;
-    const editIdx  = document.getElementById('reg-edit-id').value;
-
-    if (!name || !code) { showToast('regions-toast', 'Region name and code are required.', 'error'); return; }
-
-    if (editIdx !== '') {
-      regionsSettingsData[editIdx] = { ...regionsSettingsData[editIdx], region: name, name, code, province, municipality: muni, status };
-      showToast('regions-toast', `"${name}" updated.`, 'success');
-      regCancelEdit();
-    } else {
-      const dup = regionsSettingsData.find(r => (r.code || '').toLowerCase() === code.toLowerCase());
-      if (dup) { showToast('regions-toast', 'A region with that code already exists.', 'error'); return; }
-      regionsSettingsData.unshift({ region: name, name, code, province, municipality: muni, status });
-      document.getElementById('reg-name').value = '';
-      document.getElementById('reg-code').value = '';
-      document.getElementById('reg-province').value = '';
-      document.getElementById('reg-municipality').value = '';
-      showToast('regions-toast', `"${name}" added.`, 'success');
+  function regTargetSave(regionName) {
+    const input = document.getElementById('regt-input-' + regionName);
+    if (!input) return;
+    const target = parseInt(input.value, 10);
+    if (isNaN(target) || target < 0) {
+      showToast('regions-toast', 'Target must be a non-negative number.', 'error');
+      return;
     }
-    renderRegionSettings();
-  }
 
-  function regStartDelete(idx) {
-    regDeleteTarget = idx;
-    const r = regionsSettingsData[idx];
-    document.getElementById('reg-delete-name').textContent = r.region || r.name || 'this region';
-    const modal = document.getElementById('reg-delete-modal');
-    modal.style.display = 'flex';
-  }
-
-  function regConfirmDelete() {
-    if (regDeleteTarget === null) return;
-    const name = regionsSettingsData[regDeleteTarget].region || regionsSettingsData[regDeleteTarget].name;
-    regionsSettingsData.splice(regDeleteTarget, 1);
-    regDeleteTarget = null;
-    document.getElementById('reg-delete-modal').style.display = 'none';
-    renderRegionSettings();
-    showToast('regions-toast', `"${name}" removed.`, 'success');
+    input.disabled = true;
+    authFetch('/api/admin-router.php?action=update-region-target', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ region_name: regionName, target })
+    })
+      .then(r => r.json())
+      .then(json => {
+        if (!json.success) throw new Error(json.message || 'Failed');
+        const row = regionTargetsData.find(r => r.region_name === regionName);
+        if (row) row.target = target;
+        regTargetEditing = null;
+        renderRegionSettings();
+        showToast('regions-toast', `"${regionName}" target updated.`, 'success');
+      })
+      .catch((e) => {
+        input.disabled = false;
+        showToast('regions-toast', e.message || 'Could not save target.', 'error');
+      });
   }
 
   // ── Signatories ────────────────────────────────────────────────

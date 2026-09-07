@@ -453,6 +453,89 @@ switch ($action) {
     }
 
     // ================================================================
+    // action=get-region-targets — System Settings > Region Targets tab
+    // ================================================================
+    case 'get-region-targets': {
+        require_once __DIR__ . '/lib/auth.php';
+        require_once __DIR__ . '/lib/region-coverage-helper.php';
+
+        header('Content-Type: application/json');
+        requireRole(['admin']);
+
+        $res = supabaseRequest('GET', 'region_targets?select=id,region_name,target&order=region_name.asc');
+
+        // If the table has no rows yet (migration not run / not seeded),
+        // fall back to the hardcoded defaults so the panel is never empty.
+        $rows = ($res['success'] && !empty($res['data'])) ? $res['data'] : [];
+        if (empty($rows)) {
+            $defaults = getRegionTargetsDefaults();
+            $rows = [];
+            foreach ($defaults as $name => $target) {
+                $rows[] = ['id' => null, 'region_name' => $name, 'target' => $target];
+            }
+        }
+
+        echo json_encode(['success' => true, 'data' => $rows]);
+        break;
+    }
+
+    // ================================================================
+    // action=update-region-target — System Settings > Region Targets tab
+    // ================================================================
+    case 'update-region-target': {
+        require_once __DIR__ . '/lib/auth.php';
+
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        requireRole(['admin']);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true);
+        if (!$body) { echo json_encode(['success' => false, 'message' => 'Invalid JSON']); exit; }
+
+        $regionName = trim($body['region_name'] ?? '');
+        if (!$regionName) { echo json_encode(['success' => false, 'message' => 'region_name is required']); exit; }
+
+        if (!isset($body['target']) || !is_numeric($body['target']) || (int)$body['target'] < 0) {
+            echo json_encode(['success' => false, 'message' => 'target must be a non-negative number']); exit;
+        }
+        $target = (int)$body['target'];
+
+        $oldRes = supabaseRequest('GET', 'region_targets?select=id,region_name,target&region_name=eq.' . urlencode($regionName) . '&limit=1');
+        $old    = ($oldRes['success'] && !empty($oldRes['data'])) ? $oldRes['data'][0] : null;
+
+        // Upsert: PATCH if a row exists for this region, otherwise INSERT one.
+        // The table has no seeded row yet if the migration ran without the
+        // seed data, or for a region added after this deploy.
+        if ($old) {
+            $res = supabaseRequest('PATCH',
+                'region_targets?region_name=eq.' . urlencode($regionName),
+                ['target' => $target, 'updated_at' => gmdate('c')]
+            );
+        } else {
+            $res = supabaseRequest('POST', 'region_targets', [
+                'region_name' => $regionName,
+                'target'      => $target,
+            ]);
+        }
+
+        if (!$res['success']) {
+            error_log('update-region-target error: ' . ($res['error'] ?? 'Unknown'));
+            echo json_encode(['success' => false, 'message' => 'A server error occurred. Please try again.']); exit;
+        }
+
+        logAudit($old ? 'update' : 'create', 'region_targets', $old['id'] ?? null, $old, ['region_name' => $regionName, 'target' => $target], null);
+
+        echo json_encode(['success' => true, 'message' => 'Region target updated']);
+        break;
+    }
+
+    // ================================================================
     // action=locations  (was api/get-locations.php) — NO auth.php
     // ================================================================
     case 'locations': {

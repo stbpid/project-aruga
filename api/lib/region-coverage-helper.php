@@ -120,7 +120,9 @@ function supabaseFetchAllMulti($endpoints, $pageSize = 1000) {
     return $all;
 }
 
-function getRegionTargets() {
+// Fallback defaults, used only if the region_targets table is empty or
+// unreachable (e.g. before the migration has been run).
+function getRegionTargetsDefaults() {
     return [
         'Region I (Ilocos Region)'    => 150,
         'Region II (Cagayan Valley)'  => 100,
@@ -132,6 +134,24 @@ function getRegionTargets() {
         'Region XI (Davao Region)'      => 150,
         'NCR (National Capital Region)' => 141,
     ];
+}
+
+// Editable via System Settings > Region Targets (admin-router.php
+// action=get-region-targets / update-region-target), backed by the
+// region_targets table. Falls back to the hardcoded defaults above if the
+// table has no rows yet (e.g. migration not run).
+function getRegionTargets() {
+    $rows = supabaseFetchAll('region_targets?select=region_name,target');
+    if (empty($rows)) {
+        return getRegionTargetsDefaults();
+    }
+    $targets = [];
+    foreach ($rows as $row) {
+        $name = $row['region_name'] ?? '';
+        if ($name === '') continue;
+        $targets[$name] = (int)($row['target'] ?? 0);
+    }
+    return $targets;
 }
 
 /**
