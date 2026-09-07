@@ -5388,6 +5388,78 @@
     </div>`;
   }
 
+  // ── Address cascade (region → province → city → barangay) ──────
+  // Uses the same /api/admin-router.php?action=locations tree the field
+  // officer form uses, cached after the first fetch.
+  let benLocData = null;
+  let benLocPromise = null;
+
+  function benLoadLocations() {
+    if (benLocData) return Promise.resolve(benLocData);
+    if (!benLocPromise) {
+      benLocPromise = fetch('/api/admin-router.php?action=locations')
+        .then(r => r.json())
+        .then(j => { benLocData = j || {}; return benLocData; })
+        .catch(() => { benLocData = {}; return benLocData; });
+    }
+    return benLocPromise;
+  }
+
+  // Fills a select with `values`, keeping `current` selected if still valid.
+  // An unknown saved value is kept as an option so existing records never
+  // lose data just because it is missing from the reference list.
+  function benFillLoc(id, values, current) {
+    const el = document.getElementById('ben-f-' + id);
+    if (!el) return;
+    const list = values || [];
+    let html = '<option value="">—</option>';
+    if (current && list.indexOf(current) === -1) {
+      html += `<option value="${current}" selected>${current}</option>`;
+    }
+    html += list.map(v => `<option value="${v}" ${v === current ? 'selected' : ''}>${v}</option>`).join('');
+    el.innerHTML = html;
+    el.value = current || '';
+    el.disabled = !list.length;
+  }
+
+  const benLocVal = (id) => { const el = document.getElementById('ben-f-' + id); return el ? el.value : ''; };
+
+  // depth: 0 region changed, 1 province changed, 2 city changed.
+  // keep: saved values to re-apply on initial load (null when user-driven).
+  function benSyncAddress(depth, keep) {
+    keep = keep || {};
+    const d = benLocData || {};
+    const region = benLocVal('child-region');
+    if (depth <= 0) benFillLoc('child-province', region && d[region] ? Object.keys(d[region]) : [], keep.province || '');
+    const province = benLocVal('child-province');
+    const cityTree = (region && province && d[region] && d[region][province]) ? d[region][province] : null;
+    if (depth <= 1) benFillLoc('child-city', cityTree ? Object.keys(cityTree) : [], keep.city || '');
+    const city = benLocVal('child-city');
+    const brgys = (cityTree && cityTree[city]) ? cityTree[city] : null;
+    if (depth <= 2) benFillLoc('child-barangay', brgys || [], keep.barangay || '');
+  }
+
+  // Called after the detail view renders: load the tree, populate region,
+  // then re-apply the record's saved province/city/barangay down the chain.
+  function benInitAddress(c) {
+    c = c || {};
+    benLoadLocations().then(d => {
+      benFillLoc('child-region', Object.keys(d), c.region || '');
+      benSyncAddress(0, { province: c.province || '', city: c.city_municipality || '', barangay: c.barangay || '' });
+    });
+  }
+
+  // Placeholder select for cascaded address fields; benInitAddress fills it.
+  function benLocSelect(id, label, onchange) {
+    return `<div>
+      <label style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:0.3rem;">${label}</label>
+      <div style="position:relative;display:flex;align-items:center;">
+        <select id="ben-f-${id}" class="settings-input" ${onchange ? `onchange="${onchange}"` : ''} style="appearance:none;-webkit-appearance:none;padding-right:2rem;" disabled><option value="">—</option></select>
+        <span class="material-symbols-outlined" style="position:absolute;right:0.5rem;font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
+      </div>
+    </div>`;
+  }
+
   function benSelect(id, label, val, options) {
     const opts = options.map(o => {
       const selected = (o.value === val || o.label === val) ? 'selected' : '';
@@ -5657,10 +5729,10 @@
         benInput('child-ext', 'Extension', c.name_extension) +
         benInput('child-dob', 'Date of Birth', c.date_of_birth, 'date') +
         benSelect('child-sex', 'Sex', c.sex, OPT_SEX) +
-        benInput('child-region', 'Region', c.region) +
-        benInput('child-province', 'Province', c.province) +
-        benInput('child-city', 'City / Municipality', c.city_municipality) +
-        benInput('child-barangay', 'Barangay', c.barangay) +
+        benLocSelect('child-region', 'Region', 'benSyncAddress(0)') +
+        benLocSelect('child-province', 'Province', 'benSyncAddress(1)') +
+        benLocSelect('child-city', 'City / Municipality', 'benSyncAddress(2)') +
+        benLocSelect('child-barangay', 'Barangay', '') +
         benInput('child-street', 'Street Address', c.street_address) +
         benInput('child-contact', 'Contact Number', c.contact_number) +
         benSelectOther('child-religion', 'Religion', c.religion, c.religion_other, OPT_RELIGION) +
@@ -5668,7 +5740,7 @@
       , { open: true })}
 
       ${benSection('school', '4. Education & Disability',
-        benSelectOther('ceh-edu', 'Highest Education', ceh.highest_education, ceh.highest_education_other, OPT_EDUC) +
+        `<div style="grid-column:1/-1;">${benSelectOther('ceh-edu', 'Highest Education', ceh.highest_education, ceh.highest_education_other, OPT_EDUC)}</div>` +
         `<div style="grid-column:1/-1;">${benCheckDropdown('ceh-disabilities', 'Disabilities', OPT_DISABILITY_LIST, ceh.disabilities, null, null)}</div>` +
         `<div style="grid-column:1/-1;">${benCheckDropdown('ceh-illnesses', 'Critical Illnesses', OPT_ILLNESS_LIST, ceh.critical_illnesses, ceh.illness_other, 'ceh-illness-other')}</div>`
       )}
@@ -5747,6 +5819,7 @@
       )}`;
 
     document.getElementById('ben-modal-body').innerHTML = html;
+    benInitAddress(c);
   }
 
   function gv(id) {
