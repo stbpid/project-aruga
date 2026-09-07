@@ -5485,18 +5485,18 @@
                  style="position:absolute;right:-1.5rem;top:50%;transform:translateY(-50%);width:13rem;height:13rem;object-fit:contain;opacity:0.06;pointer-events:none;user-select:none;">
 
             <div style="position:relative;padding:1.1rem 1.5rem 2.25rem;display:flex;flex-direction:column;height:100%;box-sizing:border-box;">
-              <div style="font-size:1.05rem;font-weight:800;color:var(--blue);font-family:monospace;letter-spacing:0.01em;flex-shrink:0;">${arugaId}</div>
+              <div style="font-size:1.35rem;font-weight:800;color:var(--blue);font-family:monospace;letter-spacing:0.01em;flex-shrink:0;">${arugaId}</div>
 
-              <div style="display:flex;gap:1.35rem;align-items:flex-start;margin-top:0.85rem;flex:1;min-height:0;">
+              <div style="display:flex;gap:1.5rem;align-items:center;margin-top:1.25rem;flex:1;min-height:0;">
                 <img src="${benQrDataUrl(arugaId, 6)}" alt="QR code for ${arugaId}"
-                     style="width:8.5rem;height:8.5rem;display:block;flex-shrink:0;border-radius:0.25rem;">
+                     style="width:9.5rem;height:9.5rem;display:block;flex-shrink:0;border-radius:0.25rem;">
 
-                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0.7rem;">
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1.1rem;">
                   <div>
-                    <div style="font-size:0.62rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Full Name</div>
-                    <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-top:0.15rem;line-height:1.25;overflow-wrap:anywhere;">${fullName}</div>
+                    <div style="font-size:0.72rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Full Name</div>
+                    <div style="font-size:1.3rem;font-weight:800;color:var(--dark);margin-top:0.2rem;line-height:1.25;overflow-wrap:anywhere;">${fullName}</div>
                   </div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
                     ${benIdRow('Date of Birth', dob)}
                     ${benIdRow('Sex', c.sex)}
                   </div>
