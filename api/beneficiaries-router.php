@@ -244,34 +244,58 @@ switch ($action) {
         $a = $aRes['data'][0];
         $id = $a['id'];
 
-        if (!function_exists('fetchOne')) {
-            function fetchOne($table, $id) {
-                $res = supabaseRequest('GET', $table.'?assessment_id=eq.'.urlencode($id).'&limit=1');
-                return ($res['success'] && !empty($res['data'])) ? $res['data'][0] : [];
-            }
+        // All 11 step tables hang off the same assessment_id and none depends on
+        // another, so they are fetched concurrently in a single batch rather than
+        // one blocking round-trip each (12 sequential requests -> 2).
+        $eid = urlencode($id);
+
+        // key => [table, isMany]
+        $stepTables = [
+            'pre_qualification'      => ['pre_qualification',       false],
+            'respondent'             => ['respondents',             false],
+            'child'                  => ['children',                false],
+            'child_education_health' => ['child_education_health',  false],
+            'family_members'         => ['family_members',          true],
+            'socio_economic'         => ['socio_economic',          false],
+            'health_info'            => ['health_info',             false],
+            'education_info'         => ['education_info',          false],
+            'economic_capacity'      => ['economic_capacity',       false],
+            'service_availment'      => ['service_availment',       false],
+            'assessment_notes'       => ['assessment_notes',        false],
+        ];
+
+        $endpoints = [];
+        foreach ($stepTables as $key => $meta) {
+            $endpoints[$key] = $meta[1]
+                ? $meta[0].'?assessment_id=eq.'.$eid.'&order=member_number.asc'
+                : $meta[0].'?assessment_id=eq.'.$eid.'&limit=1';
         }
-        if (!function_exists('fetchMany')) {
-            function fetchMany($table, $id) {
-                $res = supabaseRequest('GET', $table.'?assessment_id=eq.'.urlencode($id).'&order=member_number.asc');
-                return ($res['success'] && is_array($res['data'])) ? $res['data'] : [];
+
+        $batch = function_exists('supabaseRequestMultiGet')
+            ? supabaseRequestMultiGet($endpoints)
+            : null;
+
+        // Fall back to sequential fetches if the concurrent helper is unavailable,
+        // so behaviour is unchanged on any environment lacking curl_multi.
+        if ($batch === null) {
+            $batch = [];
+            foreach ($endpoints as $key => $endpoint) {
+                $batch[$key] = supabaseRequest('GET', $endpoint);
             }
         }
 
-        echo json_encode([
-            'success'               => true,
-            'assessment'            => $a,
-            'pre_qualification'     => fetchOne('pre_qualification',   $id),
-            'respondent'            => fetchOne('respondents',          $id),
-            'child'                 => fetchOne('children',             $id),
-            'child_education_health'=> fetchOne('child_education_health',$id),
-            'family_members'        => fetchMany('family_members',      $id),
-            'socio_economic'        => fetchOne('socio_economic',       $id),
-            'health_info'           => fetchOne('health_info',          $id),
-            'education_info'        => fetchOne('education_info',       $id),
-            'economic_capacity'     => fetchOne('economic_capacity',    $id),
-            'service_availment'     => fetchOne('service_availment',    $id),
-            'assessment_notes'      => fetchOne('assessment_notes',     $id),
-        ]);
+        $payload = ['success' => true, 'assessment' => $a];
+        foreach ($stepTables as $key => $meta) {
+            $res  = isset($batch[$key]) ? $batch[$key] : null;
+            $rows = ($res && !empty($res['success']) && is_array($res['data'])) ? $res['data'] : [];
+            if ($meta[1]) {
+                $payload[$key] = $rows;                                  // list
+            } else {
+                $payload[$key] = !empty($rows) ? $rows[0] : [];          // single row
+            }
+        }
+
+        echo json_encode($payload);
         break;
     }
 

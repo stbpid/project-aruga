@@ -5425,7 +5425,7 @@
   function benIdRow(label, value) {
     return `<div>
       <div style="font-size:0.62rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">${label}</div>
-      <div style="font-size:0.8rem;font-weight:700;color:var(--dark);margin-top:0.1rem;">${value || '—'}</div>
+      <div style="font-size:0.72rem;font-weight:700;color:var(--dark);margin-top:0.1rem;line-height:1.35;">${value || '—'}</div>
     </div>`;
   }
 
@@ -5441,13 +5441,14 @@
       ? new Date(c.date_of_birth).toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' })
       : '';
     const place = [c.city_municipality, c.region].filter(Boolean).join(', ');
+    const logoUrl = window.location.origin + '/images/logo.webp';
 
     document.getElementById('ben-idcard-body').innerHTML = `
       <div style="display:flex;justify-content:center;padding:1rem 0 2rem;">
         <div id="ben-idcard" style="width:100%;max-width:34rem;background:white;border:1px solid var(--gray-100);border-radius:1.25rem;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
 
           <div style="background:linear-gradient(135deg,#1152d4,#3730a3);padding:1.1rem 1.5rem;color:white;display:flex;align-items:center;gap:0.75rem;">
-            <span class="material-symbols-outlined" style="font-size:1.5rem;">badge</span>
+            <img src="${logoUrl}" alt="Project Aruga" style="width:2.25rem;height:2.25rem;object-fit:contain;flex-shrink:0;border-radius:0.375rem;background:white;padding:0.15rem;" onerror="this.style.display='none'">
             <div>
               <div style="font-size:0.95rem;font-weight:800;letter-spacing:0.02em;">Project Aruga</div>
               <div style="font-size:0.68rem;opacity:0.85;">Beneficiary Identification Card</div>
