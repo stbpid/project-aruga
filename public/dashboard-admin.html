@@ -5550,16 +5550,37 @@
     </div>`;
   }
 
-  function benSection(icon, title, content) {
-    return `<div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
-      <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+  let benSecSeq = 0;
+  function benToggleSection(id) {
+    const body = document.getElementById(id);
+    const chev = document.getElementById(id + '-chev');
+    if (!body) return;
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : '';
+    if (chev) chev.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+  }
+
+  // Collapsible card shell. opts.open starts it expanded; opts.action is header-right HTML.
+  function benCard(icon, title, content, opts) {
+    opts = opts || {};
+    const id = 'ben-sec-' + (++benSecSeq);
+    const open = !!opts.open;
+    return `<div style="background:white;border:1px solid var(--gray-100);border-radius:0.875rem;margin-bottom:0.875rem;overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:0.625rem;padding:1rem 1.25rem;cursor:pointer;user-select:none;" onclick="benToggleSection('${id}')">
         <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">${icon}</span>
         </div>
-        <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">${title}</div>
+        <div style="font-size:0.875rem;font-weight:800;color:var(--dark);flex:1;min-width:0;">${title}</div>
+        ${opts.action ? `<div onclick="event.stopPropagation();" style="flex-shrink:0;">${opts.action}</div>` : ''}
+        <span class="material-symbols-outlined" id="${id}-chev" style="font-size:1.15rem;color:var(--gray-400);flex-shrink:0;transition:transform 0.15s;transform:rotate(${open ? 180 : 0}deg);">expand_more</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">${content}</div>
+      <div id="${id}" style="display:${open ? '' : 'none'};padding:0 1.25rem 1.25rem;">${content}</div>
     </div>`;
+  }
+
+  function benSection(icon, title, content, opts) {
+    return benCard(icon, title,
+      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">${content}</div>`, opts);
   }
 
   function renderBenModal(d) {
@@ -5644,7 +5665,7 @@
         benInput('child-contact', 'Contact Number', c.contact_number) +
         benSelectOther('child-religion', 'Religion', c.religion, c.religion_other, OPT_RELIGION) +
         benSelectOther('child-ip', 'IP Membership', c.ip_membership, c.ip_membership_other, OPT_IP)
-      )}
+      , { open: true })}
 
       ${benSection('school', '4. Education & Disability',
         benSelectOther('ceh-edu', 'Highest Education', ceh.highest_education, ceh.highest_education_other, OPT_EDUC) +
@@ -5652,18 +5673,10 @@
         `<div style="grid-column:1/-1;">${benCheckDropdown('ceh-illnesses', 'Critical Illnesses', OPT_ILLNESS_LIST, ceh.critical_illnesses, ceh.illness_other, 'ceh-illness-other')}</div>`
       )}
 
-      <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.625rem;margin-bottom:1rem;">
-          <div style="display:flex;align-items:center;gap:0.625rem;">
-            <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">people</span></div>
-            <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">5. Family Members</div>
-          </div>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="benAddFamMember()"><span class="material-symbols-outlined" style="font-size:0.875rem;">add</span>Add Member</button>
-        </div>
-        <div id="ben-fam-members">
-          ${fm.length ? fm.map((m,i) => benFamCard(i, m)).join('') : ''}
-        </div>
-      </div>
+      ${benCard('people', '5. Family Members',
+        `<div id="ben-fam-members">${fm.length ? fm.map((m,i) => benFamCard(i, m)).join('') : ''}</div>`,
+        { action: `<button type="button" class="btn btn-secondary btn-sm" onclick="benAddFamMember()"><span class="material-symbols-outlined" style="font-size:0.875rem;">add</span>Add Member</button>` }
+      )}
 
       ${benSection('home', '6. Housing & Socio-Economic',
         benSelectOther('se-materials', 'Housing Materials', se.housing_materials, se.housing_materials_other, OPT_MATERIALS) +
@@ -5723,19 +5736,15 @@
         `<div style="grid-column:1/-1;">${benTextarea('sa-challenges-other', 'Service Challenges: Specify Other', sa.service_challenges_other)}</div>`
       )}
 
-      <div style="margin-bottom:0.5rem;">
-        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
-          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">rate_review</span></div>
-          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">11. Assessment Notes</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">
-          ${benSelect('an-readiness', 'Readiness Score', an.readiness_score || readiness, OPT_READINESS)}
-          <div></div>
-          <div style="grid-column:1/-1;">${benTextarea('an-strengths', 'Strengths', an.strengths)}</div>
-          <div style="grid-column:1/-1;">${benTextarea('an-details', 'Assessment Details', an.assessment_details)}</div>
-          <div style="grid-column:1/-1;">${benTextarea('an-actions', 'Recommended Actions', an.recommended_actions)}</div>
-        </div>
-      </div>`;
+      ${benCard('rate_review', '11. Assessment Notes',
+        `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">` +
+          benSelect('an-readiness', 'Readiness Score', an.readiness_score || readiness, OPT_READINESS) +
+          `<div></div>` +
+          `<div style="grid-column:1/-1;">${benTextarea('an-strengths', 'Strengths', an.strengths)}</div>` +
+          `<div style="grid-column:1/-1;">${benTextarea('an-details', 'Assessment Details', an.assessment_details)}</div>` +
+          `<div style="grid-column:1/-1;">${benTextarea('an-actions', 'Recommended Actions', an.recommended_actions)}</div>` +
+        `</div>`
+      )}`;
 
     document.getElementById('ben-modal-body').innerHTML = html;
   }
