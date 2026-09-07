@@ -5478,41 +5478,62 @@
     const front = `
         <div class="ben-id-face" id="ben-idcard-front" style="position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;width:100%;background:white;border:1px solid var(--gray-100);border-radius:1.25rem;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
           ${header}
-          <div style="padding:1.75rem 1.5rem;display:flex;gap:1.5rem;align-items:flex-start;flex:1;">
-            <div style="width:6.5rem;height:8rem;border:2px dashed var(--gray-200);border-radius:0.625rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;color:var(--gray-400);flex-shrink:0;background:var(--gray-50);">
-              <span class="material-symbols-outlined" style="font-size:2rem;">person</span>
-              <span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Photo</span>
-            </div>
-            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0.85rem;">
-              <div>
-                <div style="font-size:0.62rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Full Name</div>
-                <div style="font-size:1.05rem;font-weight:800;color:var(--dark);margin-top:0.15rem;line-height:1.25;overflow-wrap:anywhere;">${fullName}</div>
+
+          <div style="position:relative;flex:1;min-height:0;overflow:hidden;">
+            <!-- Watermark -->
+            <img src="${logoUrl}" alt="" aria-hidden="true" onerror="this.style.display='none'"
+                 style="position:absolute;right:-1.5rem;top:50%;transform:translateY(-50%);width:13rem;height:13rem;object-fit:contain;opacity:0.06;pointer-events:none;user-select:none;">
+
+            <div style="position:relative;padding:1.1rem 1.5rem 1.25rem;display:flex;flex-direction:column;height:100%;box-sizing:border-box;">
+              <div style="font-size:1.05rem;font-weight:800;color:var(--blue);font-family:monospace;letter-spacing:0.01em;flex-shrink:0;">${arugaId}</div>
+
+              <div style="display:flex;gap:1.35rem;align-items:flex-start;margin-top:0.85rem;flex:1;min-height:0;">
+                <img src="${benQrDataUrl(arugaId, 6)}" alt="QR code for ${arugaId}"
+                     style="width:8.5rem;height:8.5rem;display:block;flex-shrink:0;border-radius:0.25rem;">
+
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0.7rem;">
+                  <div>
+                    <div style="font-size:0.62rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Full Name</div>
+                    <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-top:0.15rem;line-height:1.25;overflow-wrap:anywhere;">${fullName}</div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;">
+                    ${benIdRow('Date of Birth', dob)}
+                    ${benIdRow('Sex', c.sex)}
+                  </div>
+                  ${benIdRow('Address', place, true)}
+                </div>
               </div>
-              <div>
-                <div style="font-size:0.62rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Aruga ID</div>
-                <div style="font-size:0.9rem;font-weight:800;color:var(--blue);font-family:monospace;margin-top:0.15rem;">${arugaId}</div>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;">
-                ${benIdRow('Date of Birth', dob)}
-                ${benIdRow('Sex', c.sex)}
-              </div>
-              ${benIdRow('Address', place, true)}
             </div>
           </div>
-          ${footer}
+
+          <div style="background:linear-gradient(90deg,#1152d4,#3730a3);padding:0.6rem 1.5rem;text-align:center;font-size:0.62rem;color:white;font-weight:600;flex-shrink:0;letter-spacing:0.01em;">
+            Department of Social Welfare and Development
+          </div>
         </div>`;
 
     // ── BACK ─────────────────────────────────────────────────────
+    // No header: a faint photo collage behind the full Project Aruga lockup,
+    // closed by the same gradient footer bar as the front.
+    const bgUrl = window.location.origin + '/images/aruga-bg-dashboard.webp';
     const back = `
-        <div class="ben-id-face" id="ben-idcard-back" style="position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;width:100%;background:white;border:1px solid var(--gray-100);border-radius:1.25rem;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);transform:rotateY(180deg);">
-          ${header}
-          <div style="padding:1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.6rem;flex:1;">
-            <img src="${benQrDataUrl(arugaId, 6)}" alt="QR code for ${arugaId}" style="width:9rem;height:9rem;display:block;border-radius:0.375rem;">
-            <div style="font-size:0.85rem;font-weight:800;color:var(--blue);font-family:monospace;">${arugaId}</div>
-            <div style="font-size:0.68rem;font-weight:700;color:var(--dark);text-align:center;overflow-wrap:anywhere;max-width:20rem;">${fullName}</div>
-            <div style="font-size:0.6rem;color:var(--gray-500);font-weight:600;text-align:center;">Scan to view this beneficiary's profile</div>
+        <div class="ben-id-face" id="ben-idcard-back" style="position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(180deg);display:flex;flex-direction:column;width:100%;background:#fafafa;border:1px solid var(--gray-100);border-radius:1.25rem;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+          <div style="position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+            <img src="${bgUrl}" alt="" aria-hidden="true" onerror="this.style.display='none'"
+                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.5;pointer-events:none;user-select:none;">
+
+            <div style="position:relative;display:flex;align-items:center;justify-content:center;gap:0.9rem;padding:1rem 1.5rem;max-width:100%;">
+              <img src="${logoUrl}" alt="Project Aruga" onerror="this.style.display='none'"
+                   style="width:6.5rem;height:6.5rem;object-fit:contain;flex-shrink:0;">
+              <div style="line-height:1;">
+                <div style="font-size:0.95rem;font-weight:800;color:#111;letter-spacing:0.42em;text-transform:uppercase;margin-left:0.2rem;">Project</div>
+                <div style="font-size:3.1rem;font-weight:800;color:#111;letter-spacing:-0.01em;margin-top:0.1rem;">aruga</div>
+              </div>
+            </div>
           </div>
-          ${footer}
+
+          <div style="background:linear-gradient(90deg,#1152d4,#3730a3);padding:0.6rem 1.5rem;text-align:center;font-size:0.62rem;color:white;font-weight:600;flex-shrink:0;letter-spacing:0.01em;">
+            Department of Social Welfare and Development
+          </div>
         </div>`;
 
     document.getElementById('ben-idcard-body').innerHTML = `
