@@ -5422,10 +5422,23 @@
     if (icon)  icon.textContent  = benIdCardOpen ? 'list_alt' : 'qr_code_2';
   }
 
-  function benIdRow(label, value) {
-    return `<div>
+  // Steps the font down as the value gets longer so a long address still fits
+  // its box instead of pushing the card layout around.
+  function benIdFontSize(text) {
+    const n = (text || '').length;
+    if (n <= 34)  return '0.72rem';
+    if (n <= 60)  return '0.66rem';
+    if (n <= 90)  return '0.60rem';
+    if (n <= 130) return '0.55rem';
+    return '0.5rem';
+  }
+
+  function benIdRow(label, value, autoFit) {
+    const val  = value || '—';
+    const size = autoFit ? benIdFontSize(val) : '0.72rem';
+    return `<div style="min-width:0;">
       <div style="font-size:0.62rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">${label}</div>
-      <div style="font-size:0.72rem;font-weight:700;color:var(--dark);margin-top:0.1rem;line-height:1.35;">${value || '—'}</div>
+      <div style="font-size:${size};font-weight:700;color:var(--dark);margin-top:0.1rem;line-height:1.35;overflow-wrap:anywhere;">${val}</div>
     </div>`;
   }
 
@@ -5440,7 +5453,9 @@
     const dob = c.date_of_birth
       ? new Date(c.date_of_birth).toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' })
       : '';
-    const place = [c.city_municipality, c.region].filter(Boolean).join(', ');
+    // Full address, skipping any part the record does not have.
+    const place = [c.street_address, c.barangay, c.city_municipality, c.region]
+      .map(v => (v || '').trim()).filter(Boolean).join(', ');
     const logoUrl = window.location.origin + '/images/logo.webp';
 
     document.getElementById('ben-idcard-body').innerHTML = `
@@ -5474,7 +5489,7 @@
                 ${benIdRow('Date of Birth', dob)}
                 ${benIdRow('Sex', c.sex)}
               </div>
-              ${benIdRow('Address', place)}
+              ${benIdRow('Address', place, true)}
             </div>
 
             <div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;flex-shrink:0;margin-left:auto;">
