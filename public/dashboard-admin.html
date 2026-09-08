@@ -486,8 +486,8 @@
     <div id="confirm-modal" class="payroll-type-modal">
       <div class="payroll-type-modal-backdrop" onclick="closeConfirmModal()"></div>
       <div class="payroll-type-modal-box" style="max-width:340px;">
-        <div class="payroll-type-modal-top">
-          <div class="payroll-type-modal-icon"><span class="material-symbols-outlined" id="confirm-modal-icon">help</span></div>
+        <div class="payroll-type-modal-top" id="confirm-modal-top">
+          <div class="payroll-type-modal-icon" id="confirm-modal-icon-wrap"><span class="material-symbols-outlined" id="confirm-modal-icon">help</span></div>
         </div>
         <div class="payroll-type-modal-body">
           <div class="payroll-type-modal-title" id="confirm-modal-title">Are you sure?</div>
@@ -1885,27 +1885,26 @@
         <div class="page-subtitle" style="margin:0;">Central office files, templates, reports, and official issuances.</div>
       </div>
 
-      <!-- Section tabs -->
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;margin-top:1.25rem;overflow-x:auto;">
-        <button class="settings-tab active" data-admindoctab="templates" onclick="adminShowDocTab('templates')"><span class="material-symbols-outlined">description</span>Forms &amp; Templates</button>
-      </div>
-
       <!-- Tab: Forms & Templates -->
-      <div id="admin-doctab-templates">
-        <div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem;">
-          <button class="btn btn-primary btn-sm" onclick="openDocumentModal()" style="display:inline-flex;align-items:center;gap:0.3rem;">
+      <div id="admin-doctab-templates" style="margin-top:1.25rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+          <div style="position:relative;max-width:280px;width:100%;">
+            <span class="material-symbols-outlined" style="position:absolute;left:0.6rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--gray-400);pointer-events:none;">search</span>
+            <input type="text" id="document-search" class="settings-input" placeholder="Search documents..." oninput="renderDocuments()" style="padding-left:2.1rem;width:100%;">
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openDocumentModal()" style="display:inline-flex;align-items:center;gap:0.3rem;flex-shrink:0;">
             <span class="material-symbols-outlined" style="font-size:1rem;">add</span>Add Document
           </button>
         </div>
 
-        <div class="card" style="margin:0;padding:0;overflow-x:auto;">
-          <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+        <div class="card table-wrap" style="margin:0;padding:0;">
+          <table class="dash-table">
             <thead>
-              <tr style="border-bottom:1px solid var(--gray-100);">
-                <th style="text-align:left;padding:0.75rem 1rem;color:var(--gray-500);font-weight:700;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;">ID</th>
-                <th style="text-align:left;padding:0.75rem 1rem;color:var(--gray-500);font-weight:700;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;">File Name</th>
-                <th style="text-align:left;padding:0.75rem 1rem;color:var(--gray-500);font-weight:700;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;">Description</th>
-                <th style="text-align:right;padding:0.75rem 1rem;color:var(--gray-500);font-weight:700;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;">Actions</th>
+              <tr>
+                <th>ID</th>
+                <th>File Name</th>
+                <th>Description</th>
+                <th style="text-align:right;">Actions</th>
               </tr>
             </thead>
             <tbody id="documents-tbody">
@@ -6894,20 +6893,33 @@
       tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No documents yet.</td></tr>';
       return;
     }
-    tbody.innerHTML = documentsData.map((d, i) => `
-      <tr style="border-bottom:1px solid var(--gray-100);">
-        <td style="padding:0.75rem 1rem;color:var(--gray-500);">${i + 1}</td>
-        <td style="padding:0.75rem 1rem;font-weight:700;color:var(--dark);">${escapeHtml(d.file_name)}</td>
-        <td style="padding:0.75rem 1rem;color:var(--gray-500);">${escapeHtml(d.description || '—')}</td>
-        <td style="padding:0.75rem 1rem;text-align:right;white-space:nowrap;">
-          <a href="${escapeAttr(d.file_url)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" title="Download" style="padding:0.3rem;display:inline-flex;">
-            <span class="material-symbols-outlined" style="font-size:1rem;">download</span>
+    const searchEl = document.getElementById('document-search');
+    const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+    const filtered = q
+      ? documentsData.filter(d =>
+          d.file_name.toLowerCase().includes(q) ||
+          (d.description || '').toLowerCase().includes(q))
+      : documentsData;
+
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No documents match your search.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = filtered.map((d, i) => `
+      <tr class="table-row-hover">
+        <td>${i + 1}</td>
+        <td><div style="font-weight:600;color:#111811;">${escapeHtml(d.file_name)}</div></td>
+        <td>${escapeHtml(d.description || '—')}</td>
+        <td style="text-align:right;white-space:nowrap;">
+          <a href="${escapeAttr(d.file_url)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm table-action-btn" title="Download" style="display:inline-flex;">
+            <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>
           </a>
-          <button class="btn btn-ghost btn-sm" title="Edit" onclick="openDocumentModal('${escapeJs(d.id)}')" style="padding:0.3rem;">
-            <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
+          <button class="btn btn-ghost btn-sm table-action-btn" title="Edit" onclick="openDocumentModal('${escapeJs(d.id)}')">
+            <span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span>
           </button>
-          <button class="btn btn-ghost btn-sm" title="Delete" onclick="confirmDeleteDocument('${escapeJs(d.id)}','${escapeJs(d.file_name)}')" style="padding:0.3rem;color:#dc2626;">
-            <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
+          <button class="btn btn-ghost btn-sm table-action-btn" title="Delete" onclick="confirmDeleteDocument('${escapeJs(d.id)}','${escapeJs(d.file_name)}')" style="color:#dc2626;">
+            <span class="material-symbols-outlined" style="font-size:0.875rem;">delete</span>
           </button>
         </td>
       </tr>`).join('');
@@ -6981,7 +6993,8 @@
     openConfirmModal({
       title: 'Delete Document?',
       message: `Are you sure you want to delete <strong>${escapeHtml(fileName)}</strong>? This cannot be undone.`,
-      onConfirm: () => deleteDocument(id)
+      onConfirm: () => deleteDocument(id),
+      danger: true
     });
   }
 
@@ -8085,10 +8098,29 @@
 
   let confirmModalOnConfirm = null;
 
-  function openConfirmModal({ title, message, onConfirm }) {
+  function openConfirmModal({ title, message, onConfirm, danger }) {
     document.getElementById('confirm-modal-title').textContent = title || 'Are you sure?';
     document.getElementById('confirm-modal-msg').innerHTML = message || '';
     confirmModalOnConfirm = onConfirm || null;
+
+    const top     = document.getElementById('confirm-modal-top');
+    const iconBox = document.getElementById('confirm-modal-icon-wrap');
+    const icon    = document.getElementById('confirm-modal-icon');
+    const yesBtn  = document.getElementById('confirm-modal-yes-btn');
+    if (danger) {
+      top.style.background = '#fff1f1';
+      iconBox.style.background = '#fee2e2';
+      iconBox.style.color = '#dc2626';
+      icon.textContent = 'warning';
+      yesBtn.style.background = '#dc2626';
+    } else {
+      top.style.background = '#eff6ff';
+      iconBox.style.background = '#dbeafe';
+      iconBox.style.color = 'var(--blue)';
+      icon.textContent = 'help';
+      yesBtn.style.background = 'var(--blue)';
+    }
+
     document.getElementById('confirm-modal').classList.add('open');
   }
 
