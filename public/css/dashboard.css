@@ -1391,32 +1391,39 @@ table.dash-table {
   left: 0;
   min-width: 100%;
   width: max-content;
-  max-width: 260px;
-  max-height: 280px;
+  max-width: 280px;
+  max-height: 300px;
   overflow-y: auto;
+  overflow-x: hidden;
   background: white;
   border: 1px solid var(--gray-100);
-  border-radius: 0.75rem;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
-  padding: 0.35rem;
+  border-radius: 1rem;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+  padding: 0.5rem 0;
   z-index: 1000;
   display: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-200) transparent;
 }
 .cxsel.open .cxsel-panel { display: block; }
+.cxsel-panel::-webkit-scrollbar { width: 5px; }
+.cxsel-panel::-webkit-scrollbar-track { background: transparent; }
+.cxsel-panel::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 10px; }
+.cxsel-panel::-webkit-scrollbar-thumb:hover { background: var(--gray-300); }
 
 .cxsel-option {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.65rem;
-  border-radius: 0.5rem;
-  font-size: 0.78rem;
-  color: var(--gray-700);
+  padding: 0.65rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--dark);
   cursor: pointer;
   white-space: nowrap;
 }
 .cxsel-option:hover { background: var(--gray-50); }
-.cxsel-option.selected { background: var(--blue-light); color: var(--blue); font-weight: 700; }
+.cxsel-option.selected { color: var(--blue); font-weight: 700; }
 
 /* ── Region Bar Chart Hover ──────────────── */
 #rg-bar-chart > div,
