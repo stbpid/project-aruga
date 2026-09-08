@@ -595,7 +595,7 @@ switch ($action) {
             }
         }
 
-        logAudit('update', 'assessments', $assessmentId, null, ['aruga_id'=>$arugaId], null, $assessmentId);
+        logAudit('update', 'assessments', $assessmentId, null, ['aruga_id'=>$arugaId], $authInterviewer['id'] ?? null, $assessmentId);
 
         if (!empty($GLOBALS['updateWarnings'])) {
             echo json_encode(['success'=>false,'message'=>'Some sections failed to save: '.implode('; ', $GLOBALS['updateWarnings'])]);

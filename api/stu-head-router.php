@@ -515,7 +515,7 @@ switch ($action) {
                 }
             }
 
-            logAudit('update', 'assessments', $assessmentId, null, ['aruga_id'=>$arugaId,'via'=>'edit_request_approved'], null, $assessmentId);
+            logAudit('update', 'assessments', $assessmentId, null, ['aruga_id'=>$arugaId,'via'=>'edit_request_approved'], $authInterviewer['id'] ?? null, $assessmentId);
         }
 
         $messages = [

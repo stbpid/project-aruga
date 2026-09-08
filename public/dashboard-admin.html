@@ -3091,7 +3091,7 @@
       });
       const dSel = document.getElementById('all-ben-disability');
       [...disSet.entries()].sort((a,b) => b[1]-a[1]).forEach(([d, cnt]) => {
-        const o = document.createElement('option'); o.value = d; o.textContent = `${d} (${cnt})`; dSel.appendChild(o);
+        const o = document.createElement('option'); o.value = d; o.textContent = d; dSel.appendChild(o);
       });
 
       allBenFiltered = allBenData; allBenPage = 0; renderAllBen();
