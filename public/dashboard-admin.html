@@ -6871,14 +6871,16 @@
   let regionTargetsData = [];
   let regTargetEditing = null; // region_name currently being edited, or null
 
-  function loadRegionSettings() {
+  function loadRegionSettings(force) {
+    if (regionTargetsData.length && !force) { renderRegionSettings(); return; }
     const list = document.getElementById('region-targets-list');
     list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading region targets...</div>';
     authFetch('/api/admin-router.php?action=get-region-targets')
       .then(r => r.json())
       .then(json => {
         if (!json.success) throw new Error(json.message || 'Failed');
-        regionTargetsData = json.data || [];
+        regionTargetsData = (json.data || []).sort((a, b) =>
+          b.target - a.target || a.region_name.localeCompare(b.region_name));
         renderRegionSettings();
       })
       .catch(() => {
@@ -6907,7 +6909,7 @@
            <button class="btn btn-ghost btn-sm" title="Cancel" onclick="regTargetCancel()" style="padding:0.3rem;color:#dc2626;">
              <span class="material-symbols-outlined" style="font-size:1rem;">close</span>
            </button>`
-        : `<span style="font-size:0.95rem;font-weight:600;color:#111827;min-width:2.5rem;text-align:right;">${r.target}</span>
+        : `<span style="font-size:0.8rem;font-weight:500;color:#111827;min-width:2.5rem;text-align:right;">${r.target}</span>
            <button class="btn btn-ghost btn-sm" title="Edit target" onclick="regTargetStartEdit('${escapeJs(r.region_name)}')" style="padding:0.3rem;">
              <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
            </button>`;
@@ -6971,6 +6973,7 @@
         if (!json.success) throw new Error(json.message || 'Failed');
         const row = regionTargetsData.find(r => r.region_name === regionName);
         if (row) row.target = target;
+        regionTargetsData.sort((a, b) => b.target - a.target || a.region_name.localeCompare(b.region_name));
         regTargetEditing = null;
         renderRegionSettings();
         showToast('regions-toast', `"${regionName}" target updated.`, 'success');
