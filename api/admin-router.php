@@ -154,6 +154,171 @@ switch ($action) {
     }
 
     // ================================================================
+    // action=get-documents — System > Documents > Forms & Templates
+    // ================================================================
+    case 'get-documents': {
+        require_once __DIR__ . '/lib/auth.php';
+
+        header('Content-Type: application/json');
+        requireRole(['admin', 'central', 'stu_head', 'field_officer']);
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false]); exit;
+        }
+
+        $res = supabaseRequest('GET', 'documents?select=id,file_name,description,file_url,created_at&order=created_at.asc&limit=10000');
+
+        if (!$res['success']) {
+            echo json_encode(['success' => false, 'data' => []]); exit;
+        }
+
+        echo json_encode(['success' => true, 'data' => $res['data']]);
+        break;
+    }
+
+    // ================================================================
+    // action=add-document — System > Documents > Forms & Templates
+    // ================================================================
+    case 'add-document': {
+        require_once __DIR__ . '/lib/auth.php';
+
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        requireRole(['admin']);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true);
+        if (!$body) { echo json_encode(['success' => false, 'message' => 'Invalid JSON']); exit; }
+
+        $fileName    = trim($body['file_name']   ?? '');
+        $description = trim($body['description'] ?? '');
+        $fileUrl     = trim($body['file_url']     ?? '');
+
+        if (!$fileName || !$fileUrl) {
+            echo json_encode(['success' => false, 'message' => 'File Name and File URL are required.']); exit;
+        }
+        if (!filter_var($fileUrl, FILTER_VALIDATE_URL)) {
+            echo json_encode(['success' => false, 'message' => 'File URL must be a valid URL.']); exit;
+        }
+
+        $payload = [
+            'file_name'   => $fileName,
+            'description' => $description,
+            'file_url'    => $fileUrl,
+        ];
+
+        $res = supabaseRequest('POST', 'documents', $payload);
+
+        if (!$res['success']) {
+            error_log('add-document error: ' . ($res['error'] ?? 'Unknown'));
+            echo json_encode(['success' => false, 'message' => 'A server error occurred. Please try again.']); exit;
+        }
+
+        $newId = (!empty($res['data']) && isset($res['data'][0]['id'])) ? $res['data'][0]['id'] : null;
+        logAudit('create', 'documents', $newId, null, $payload, null);
+
+        echo json_encode(['success' => true, 'message' => 'Document added successfully']);
+        break;
+    }
+
+    // ================================================================
+    // action=update-document — System > Documents > Forms & Templates
+    // ================================================================
+    case 'update-document': {
+        require_once __DIR__ . '/lib/auth.php';
+
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        requireRole(['admin']);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true);
+        if (!$body) { echo json_encode(['success' => false, 'message' => 'Invalid JSON']); exit; }
+
+        $id = trim($body['id'] ?? '');
+        if (!$id) { echo json_encode(['success' => false, 'message' => 'id is required']); exit; }
+
+        $fields = [];
+        if (!empty($body['file_name']))          $fields['file_name']   = trim($body['file_name']);
+        if (isset($body['description']))         $fields['description'] = trim($body['description']);
+        if (!empty($body['file_url'])) {
+            $fileUrl = trim($body['file_url']);
+            if (!filter_var($fileUrl, FILTER_VALIDATE_URL)) {
+                echo json_encode(['success' => false, 'message' => 'File URL must be a valid URL.']); exit;
+            }
+            $fields['file_url'] = $fileUrl;
+        }
+
+        if (empty($fields)) {
+            echo json_encode(['success' => false, 'message' => 'No fields to update']); exit;
+        }
+        $fields['updated_at'] = gmdate('Y-m-d\TH:i:s\Z');
+
+        $oldRes = supabaseRequest('GET', 'documents?select=id,file_name,description,file_url&id=eq.' . urlencode($id) . '&limit=1');
+        $old    = ($oldRes['success'] && !empty($oldRes['data'])) ? $oldRes['data'][0] : null;
+
+        $res = supabaseRequest('PATCH', 'documents?id=eq.' . urlencode($id), $fields);
+
+        if (!$res['success']) {
+            error_log('update-document error: ' . ($res['error'] ?? 'Unknown'));
+            echo json_encode(['success' => false, 'message' => 'A server error occurred. Please try again.']); exit;
+        }
+
+        logAudit('update', 'documents', $id, $old ? array_intersect_key($old, $fields) : null, $fields, null);
+
+        echo json_encode(['success' => true, 'message' => 'Document updated successfully']);
+        break;
+    }
+
+    // ================================================================
+    // action=delete-document — System > Documents > Forms & Templates
+    // ================================================================
+    case 'delete-document': {
+        require_once __DIR__ . '/lib/auth.php';
+
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        requireRole(['admin']);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true);
+        if (!$body) { echo json_encode(['success' => false, 'message' => 'Invalid JSON']); exit; }
+
+        $id = trim($body['id'] ?? '');
+        if (!$id) { echo json_encode(['success' => false, 'message' => 'id is required']); exit; }
+
+        $oldRes = supabaseRequest('GET', 'documents?select=id,file_name,description,file_url&id=eq.' . urlencode($id) . '&limit=1');
+        $old    = ($oldRes['success'] && !empty($oldRes['data'])) ? $oldRes['data'][0] : null;
+
+        $res = supabaseRequest('DELETE', 'documents?id=eq.' . urlencode($id));
+
+        if (!$res['success']) {
+            error_log('delete-document error: ' . ($res['error'] ?? 'Unknown'));
+            echo json_encode(['success' => false, 'message' => 'A server error occurred. Please try again.']); exit;
+        }
+
+        logAudit('delete', 'documents', $id, $old, null, null);
+
+        echo json_encode(['success' => true, 'message' => 'Document deleted successfully']);
+        break;
+    }
+
+    // ================================================================
     // action=audit-logs  (was api/get-audit-logs.php)
     // ================================================================
     case 'audit-logs': {

@@ -485,7 +485,7 @@
     <!-- Generic Confirm Modal -->
     <div id="confirm-modal" class="payroll-type-modal">
       <div class="payroll-type-modal-backdrop" onclick="closeConfirmModal()"></div>
-      <div class="payroll-type-modal-box">
+      <div class="payroll-type-modal-box" style="max-width:340px;">
         <div class="payroll-type-modal-top">
           <div class="payroll-type-modal-icon"><span class="material-symbols-outlined" id="confirm-modal-icon">help</span></div>
         </div>
@@ -1888,183 +1888,65 @@
       <!-- Section tabs -->
       <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;margin-top:1.25rem;overflow-x:auto;">
         <button class="settings-tab active" data-admindoctab="templates" onclick="adminShowDocTab('templates')"><span class="material-symbols-outlined">description</span>Forms &amp; Templates</button>
-        <button class="settings-tab" data-admindoctab="reports" onclick="adminShowDocTab('reports')"><span class="material-symbols-outlined">bar_chart</span>Reports</button>
       </div>
 
       <!-- Tab: Forms & Templates -->
       <div id="admin-doctab-templates">
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem;">
+          <button class="btn btn-primary btn-sm" onclick="openDocumentModal()" style="display:inline-flex;align-items:center;gap:0.3rem;">
+            <span class="material-symbols-outlined" style="font-size:1rem;">add</span>Add Document
+          </button>
+        </div>
 
-          <!-- Profiling Tool -->
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">assignment</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Profiling Tool</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official child assessment profiling form</div>
-                <a href="https://docs.google.com/document/d/19vipJgN7MWBNyuYUI8g5x_ygauiAuVBE/edit?usp=sharing&ouid=100444016392760639585&rtpof=true&sd=true" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display:inline-flex;align-items:center;gap:0.25rem;text-decoration:none;">
-                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- NDA Consent Form -->
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">gavel</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">NDA Consent Form</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Non-disclosure agreement for field interviewers</div>
-                <a href="https://docs.google.com/document/d/102Fmul91yaojDikMLqCWwGO08_D0zzQIiYRV20y-rBY/edit?usp=sharing" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display:inline-flex;align-items:center;gap:0.25rem;text-decoration:none;">
-                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- System User Manual -->
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#faf5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#7c3aed;font-size:1.25rem;">menu_book</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">System User Manual</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Step-by-step guide for using the platform</div>
-                <a href="https://canva.link/projectarugasmsusermanual" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display:inline-flex;align-items:center;gap:0.25rem;text-decoration:none;">
-                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Aruga Briefer -->
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fef9c3;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#ca8a04;font-size:1.25rem;">info</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Aruga Briefer</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Project overview and program briefer</div>
-                <a href="https://drive.google.com/file/d/1Eo6atc24dfkT9kKS9-_dHQvOmrSr8Uh-/view?usp=sharing" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display:inline-flex;align-items:center;gap:0.25rem;text-decoration:none;">
-                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Project Aruga Guidelines -->
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#dc2626;font-size:1.25rem;">rule</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Project Aruga Guidelines</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official operational guidelines and standards</div>
-                <a href="https://drive.google.com/file/d/1YUMYOTyl3Dn-ihLnItDlC6-SwMve61ri/view?usp=sharing" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display:inline-flex;align-items:center;gap:0.25rem;text-decoration:none;">
-                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Presentation Deck -->
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">slideshow</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Presentation Deck</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Official Project Aruga slide deck</div>
-                <a href="https://canva.link/pjlvnbo7b634t1w" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display:inline-flex;align-items:center;gap:0.25rem;text-decoration:none;">
-                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- MOA Template -->
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">contract</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">MOA Template</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Memorandum of Agreement template</div>
-                <a href="https://docs.google.com/document/d/1IRvrWzbtgDs12eOvL2wGgGU-NnEK6Ty1tYvjhCnr7JM/edit?usp=sharing" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display:inline-flex;align-items:center;gap:0.25rem;text-decoration:none;">
-                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Contract of Commitment -->
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#ea580c;font-size:1.25rem;">handshake</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Contract of Commitment</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Commitment agreement for project participants</div>
-                <button class="btn btn-secondary btn-sm" id="dl-btn-contract-commitment" disabled style="opacity:0.45;cursor:not-allowed;">
-                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Mapping of Potential Partners -->
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#16a34a;font-size:1.25rem;">groups</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Mapping of Potential Partners</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Documentation of partner organizations</div>
-                <button class="btn btn-secondary btn-sm" id="dl-btn-partners-mapping" disabled style="opacity:0.45;cursor:not-allowed;">
-                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
-                </button>
-              </div>
-            </div>
-          </div>
-
+        <div class="card" style="margin:0;padding:0;overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--gray-100);">
+                <th style="text-align:left;padding:0.75rem 1rem;color:var(--gray-500);font-weight:700;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;">ID</th>
+                <th style="text-align:left;padding:0.75rem 1rem;color:var(--gray-500);font-weight:700;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;">File Name</th>
+                <th style="text-align:left;padding:0.75rem 1rem;color:var(--gray-500);font-weight:700;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;">Description</th>
+                <th style="text-align:right;padding:0.75rem 1rem;color:var(--gray-500);font-weight:700;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="documents-tbody">
+              <tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading documents...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <!-- Tab: Reports -->
-      <div id="admin-doctab-reports" style="display:none;">
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
-
-          <!-- Presentation Evaluation -->
-          <div class="card" style="margin:0;">
-            <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-              <div style="width:2.5rem;height:2.5rem;border-radius:0.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <span class="material-symbols-outlined" style="color:#1152d4;font-size:1.25rem;">rate_review</span>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-weight:700;font-size:0.875rem;color:var(--dark);">Evaluation Result</div>
-                <div style="font-size:0.75rem;color:var(--gray-400);margin:0.25rem 0 0.75rem;">Evaluation form for project presentations</div>
-                <a href="https://drive.google.com/file/d/1FYU8_tRo1G1R0XPstGCkVqL5OPqmsqin/view?usp=sharing" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="display:inline-flex;align-items:center;gap:0.25rem;text-decoration:none;">
-                  <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>Download
-                </a>
-              </div>
+      <!-- Add/Edit Document Modal -->
+      <div id="document-modal" class="payroll-type-modal">
+        <div class="payroll-type-modal-backdrop" onclick="closeDocumentModal()"></div>
+        <div class="payroll-type-modal-box" style="max-width:420px;text-align:left;">
+          <div style="padding:1.5rem 1.75rem 1rem;border-bottom:1px solid var(--gray-100);">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-size:1rem;font-weight:800;color:var(--dark);" id="document-modal-title">Add Document</div>
+              <button onclick="closeDocumentModal()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;padding:0.25rem;border-radius:0.375rem;"><span class="material-symbols-outlined">close</span></button>
             </div>
           </div>
-
+          <div style="padding:1.25rem 1.75rem;">
+            <input type="hidden" id="document-id">
+            <div style="margin-bottom:0.9rem;">
+              <label class="settings-label">File Name <span style="color:#dc2626;">*</span></label>
+              <input type="text" id="document-file-name" class="settings-input" placeholder="e.g. Profiling Tool">
+            </div>
+            <div style="margin-bottom:0.9rem;">
+              <label class="settings-label">Description</label>
+              <input type="text" id="document-description" class="settings-input" placeholder="Short description">
+            </div>
+            <div style="margin-bottom:0.25rem;">
+              <label class="settings-label">File URL <span style="color:#dc2626;">*</span></label>
+              <input type="text" id="document-file-url" class="settings-input" placeholder="https://...">
+            </div>
+            <div id="document-modal-error" style="display:none;color:#dc2626;font-size:0.75rem;margin-top:0.5rem;"></div>
+          </div>
+          <div style="padding:1rem 1.75rem 1.5rem;display:flex;justify-content:flex-end;gap:0.5rem;">
+            <button class="btn btn-secondary btn-sm" onclick="closeDocumentModal()">Cancel</button>
+            <button class="btn btn-primary btn-sm" id="document-save-btn" onclick="saveDocument()">Save</button>
+          </div>
         </div>
       </div>
-
 
     </div><!-- /view-documents -->
 
@@ -3577,11 +3459,12 @@
     if (view === 'settings') showSettingsTab('dropdowns');
     if (view === 'analytics') { loadAnalyticsView(); loadRegionsView(); }
     if (view === 'report')    { loadReportView(); }
+    if (view === 'documents') { loadDocuments(); }
   }
 
   function adminShowDocTab(tab) {
     document.querySelectorAll('[data-admindoctab]').forEach(t => t.classList.toggle('active', t.dataset.admindoctab === tab));
-    ['templates','reports'].forEach(t => {
+    ['templates'].forEach(t => {
       const el = document.getElementById('admin-doctab-' + t);
       if (el) el.style.display = t === tab ? '' : 'none';
     });
@@ -6923,6 +6806,7 @@
 
   function escapeAttr(s) { return String(s).replace(/"/g, '&quot;'); }
   function escapeJs(s) { return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+  function escapeHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
   function regTargetStartEdit(regionName) {
     regTargetEditing = regionName;
@@ -6982,6 +6866,139 @@
         input.disabled = false;
         showToast('regions-toast', e.message || 'Could not save target.', 'error');
       });
+  }
+
+  // ── Documents (Forms & Templates) ────────────────────────────────
+  let documentsData = [];
+
+  function loadDocuments(force) {
+    if (documentsData.length && !force) { renderDocuments(); return; }
+    const tbody = document.getElementById('documents-tbody');
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading documents...</td></tr>';
+    authFetch('/api/admin-router.php?action=get-documents')
+      .then(r => r.json())
+      .then(json => {
+        if (!json.success) throw new Error(json.message || 'Failed');
+        documentsData = json.data || [];
+        renderDocuments();
+      })
+      .catch(() => {
+        documentsData = [];
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Could not load documents.</td></tr>';
+      });
+  }
+
+  function renderDocuments() {
+    const tbody = document.getElementById('documents-tbody');
+    if (!documentsData.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No documents yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = documentsData.map((d, i) => `
+      <tr style="border-bottom:1px solid var(--gray-100);">
+        <td style="padding:0.75rem 1rem;color:var(--gray-500);">${i + 1}</td>
+        <td style="padding:0.75rem 1rem;font-weight:700;color:var(--dark);">${escapeHtml(d.file_name)}</td>
+        <td style="padding:0.75rem 1rem;color:var(--gray-500);">${escapeHtml(d.description || '—')}</td>
+        <td style="padding:0.75rem 1rem;text-align:right;white-space:nowrap;">
+          <a href="${escapeAttr(d.file_url)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" title="Download" style="padding:0.3rem;display:inline-flex;">
+            <span class="material-symbols-outlined" style="font-size:1rem;">download</span>
+          </a>
+          <button class="btn btn-ghost btn-sm" title="Edit" onclick="openDocumentModal('${escapeJs(d.id)}')" style="padding:0.3rem;">
+            <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
+          </button>
+          <button class="btn btn-ghost btn-sm" title="Delete" onclick="confirmDeleteDocument('${escapeJs(d.id)}','${escapeJs(d.file_name)}')" style="padding:0.3rem;color:#dc2626;">
+            <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
+          </button>
+        </td>
+      </tr>`).join('');
+  }
+
+  function openDocumentModal(id) {
+    const errEl = document.getElementById('document-modal-error');
+    errEl.style.display = 'none';
+    errEl.textContent = '';
+    document.getElementById('document-id').value = id || '';
+    if (id) {
+      const doc = documentsData.find(d => d.id === id);
+      document.getElementById('document-modal-title').textContent = 'Edit Document';
+      document.getElementById('document-file-name').value = doc ? doc.file_name : '';
+      document.getElementById('document-description').value = doc ? (doc.description || '') : '';
+      document.getElementById('document-file-url').value = doc ? doc.file_url : '';
+    } else {
+      document.getElementById('document-modal-title').textContent = 'Add Document';
+      document.getElementById('document-file-name').value = '';
+      document.getElementById('document-description').value = '';
+      document.getElementById('document-file-url').value = '';
+    }
+    document.getElementById('document-modal').classList.add('open');
+  }
+
+  function closeDocumentModal() {
+    document.getElementById('document-modal').classList.remove('open');
+  }
+
+  function saveDocument() {
+    const id          = document.getElementById('document-id').value;
+    const fileName    = document.getElementById('document-file-name').value.trim();
+    const description = document.getElementById('document-description').value.trim();
+    const fileUrl     = document.getElementById('document-file-url').value.trim();
+    const errEl       = document.getElementById('document-modal-error');
+
+    if (!fileName || !fileUrl) {
+      errEl.textContent = 'File Name and File URL are required.';
+      errEl.style.display = '';
+      return;
+    }
+
+    const saveBtn = document.getElementById('document-save-btn');
+    saveBtn.disabled = true;
+
+    const action  = id ? 'update-document' : 'add-document';
+    const payload = id ? { id, file_name: fileName, description, file_url: fileUrl }
+                       : { file_name: fileName, description, file_url: fileUrl };
+
+    authFetch('/api/admin-router.php?action=' + action, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(r => r.json())
+      .then(json => {
+        saveBtn.disabled = false;
+        if (!json.success) throw new Error(json.message || 'Failed');
+        closeDocumentModal();
+        loadDocuments(true);
+        showGlobalToast(id ? 'Document updated.' : 'Document added.', 'success');
+      })
+      .catch(e => {
+        saveBtn.disabled = false;
+        errEl.textContent = e.message || 'Could not save document.';
+        errEl.style.display = '';
+      });
+  }
+
+  function confirmDeleteDocument(id, fileName) {
+    openConfirmModal({
+      title: 'Delete Document?',
+      message: `Are you sure you want to delete <strong>${escapeHtml(fileName)}</strong>? This cannot be undone.`,
+      onConfirm: () => deleteDocument(id)
+    });
+  }
+
+  function deleteDocument(id) {
+    authFetch('/api/admin-router.php?action=delete-document', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    })
+      .then(r => r.json())
+      .then(json => {
+        if (!json.success) throw new Error(json.message || 'Failed');
+        documentsData = documentsData.filter(d => d.id !== id);
+        renderDocuments();
+        showGlobalToast('Document deleted.', 'success');
+      })
+      .catch(e => showGlobalToast(e.message || 'Could not delete document.', 'error'));
   }
 
   // ── Signatories ────────────────────────────────────────────────
