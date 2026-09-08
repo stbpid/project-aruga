@@ -5358,7 +5358,7 @@
 
   function benIdRow(label, value, autoFit) {
     const val  = value || '—';
-    const size = autoFit ? benIdFontSize(val) : '0.72rem';
+    const size = autoFit ? benIdFontSize(val) : '0.70rem';
     return `<div style="min-width:0;">
       <div style="font-size:0.62rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">${label}</div>
       <div style="font-size:${size};font-weight:700;color:var(--dark);margin-top:0.1rem;line-height:1.35;overflow-wrap:anywhere;">${val}</div>
@@ -5405,19 +5405,20 @@
           <div style="position:relative;flex:1;min-height:0;overflow:hidden;">
             <!-- Watermark -->
             <img src="${logoUrl}" alt="" aria-hidden="true" onerror="this.style.display='none'"
-                 style="position:absolute;right:-1.5rem;top:50%;transform:translateY(-50%);width:13rem;height:13rem;object-fit:contain;opacity:0.06;pointer-events:none;user-select:none;">
+                 style="position:absolute;right:-1.5rem;top:50%;transform:translateY(-50%);width:16rem;height:16rem;object-fit:contain;opacity:0.06;pointer-events:none;user-select:none;">
 
             <div style="position:relative;padding:1.1rem 1.5rem 2.25rem;display:flex;flex-direction:column;height:100%;box-sizing:border-box;">
-              <div style="font-size:0.7rem;font-weight:800;color:var(--blue);font-family:monospace;letter-spacing:0.01em;flex-shrink:0;">${arugaId}</div>
+              <div style="display:flex;gap:1.35rem;align-items:flex-start;flex:1;min-height:0;">
+                <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;">
+                  <div style="font-size:0.7rem;font-weight:800;color:var(--blue);font-family:monospace;letter-spacing:0.01em;margin-bottom:0.4rem;">${arugaId}</div>
+                  <img src="${benQrDataUrl(arugaId, 6)}" alt="QR code for ${arugaId}"
+                       style="width:8.5rem;height:8.5rem;display:block;border-radius:0.25rem;">
+                </div>
 
-              <div style="display:flex;gap:1.35rem;align-items:flex-start;margin-top:0.4rem;flex:1;min-height:0;">
-                <img src="${benQrDataUrl(arugaId, 6)}" alt="QR code for ${arugaId}"
-                     style="width:8.5rem;height:8.5rem;display:block;flex-shrink:0;border-radius:0.25rem;">
-
-                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0.7rem;">
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0.7rem;margin-top:0.4rem;">
                   <div>
                     <div style="font-size:0.62rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Full Name</div>
-                    <div style="font-size:1rem;font-weight:800;color:var(--dark);margin-top:0.15rem;line-height:1.25;overflow-wrap:anywhere;">${fullName}</div>
+                    <div style="font-size:0.9rem;font-weight:800;color:var(--dark);margin-top:0.15rem;line-height:1.25;overflow-wrap:anywhere;">${fullName}</div>
                   </div>
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;">
                     ${benIdRow('Date of Birth', dob)}
@@ -5445,8 +5446,8 @@
                  style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.5;pointer-events:none;user-select:none;">
 
             <div style="position:relative;display:flex;align-items:center;justify-content:center;padding:1rem 1.5rem;max-width:100%;">
-              <img src="${logoUrl}" alt="Project Aruga" onerror="this.style.display='none'"
-                   style="width:11rem;height:11rem;object-fit:contain;flex-shrink:0;">
+              <img src="${window.location.origin}/images/projectaruga-longlogo.png" alt="Project Aruga" onerror="this.style.display='none'"
+                   style="width:16rem;height:auto;object-fit:contain;flex-shrink:0;">
             </div>
           </div>
 
