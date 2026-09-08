@@ -273,6 +273,7 @@
             <select id="co-ben-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;">
               <option value="">All Regions</option>
             </select>
+            <div style="display:none;">
             <select id="co-ben-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
               <option value="">All Readiness</option>
               <option value="severe">Severe</option>
@@ -280,6 +281,7 @@
               <option value="low">Low</option>
               <option value="stable">Stable</option>
             </select>
+            </div>
             <select id="co-ben-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;">
               <option value="">All Disabilities</option>
             </select>
@@ -291,7 +293,7 @@
             </label>
             <button class="btn btn-secondary btn-sm" id="co-ben-reset">Reset</button>
             <button class="btn btn-primary btn-sm" id="co-ben-payout-btn" onclick="openCoPayrollTypeModal()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll</button>
-            <button class="btn btn-primary btn-sm" id="co-ben-manage-dsa-btn" onclick="coToggleDsaView()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;" id="co-ben-dsa-icon">payments</span><span id="co-ben-dsa-label">Manage DSA</span></button>
+            <button class="btn btn-sm" id="co-ben-manage-dsa-btn" onclick="coToggleDsaView()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;background:white;color:var(--blue);border:1.5px solid var(--blue);"><span class="material-symbols-outlined" style="font-size:0.875rem;" id="co-ben-dsa-icon">payments</span><span id="co-ben-dsa-label">Manage DSA</span></button>
             <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="co-ben-count">—</span>
           </div>
         </div>
@@ -997,10 +999,23 @@
 
   let coBenDsaMode = false;
 
+  let coDsaState = {};
+
+  function coDsaCircleHtml(arugaId, mi) {
+    const on = !!(coDsaState[arugaId] && coDsaState[arugaId][mi]);
+    return `<button type="button" class="dsa-dot${on ? ' on' : ''}" onclick="coToggleDsaMonth('${arugaId}', ${mi})" title="${CO_DSA_MONTHS[mi]}"></button>`;
+  }
+
+  function coToggleDsaMonth(arugaId, mi) {
+    if (!coDsaState[arugaId]) coDsaState[arugaId] = {};
+    coDsaState[arugaId][mi] = !coDsaState[arugaId][mi];
+    coBenRender();
+  }
+
   function coDsaRow(r) {
     return `<tr class="table-row-hover">
       <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
-      ${CO_DSA_MONTHS.map(() => `<td style="text-align:center;color:var(--gray-400);font-size:0.75rem;">—</td>`).join('')}
+      ${CO_DSA_MONTHS.map((m, mi) => `<td style="text-align:center;">${coDsaCircleHtml(r.aruga_id, mi)}</td>`).join('')}
       <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="coEditDsa('${r.aruga_id}')" title="Edit DSA"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
     </tr>`;
   }

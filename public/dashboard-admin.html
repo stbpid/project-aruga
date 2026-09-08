@@ -312,6 +312,7 @@
             <select id="all-ben-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;overflow:hidden;text-overflow:ellipsis;">
               <option value="">All Regions</option>
             </select>
+            <div style="display:none;">
             <select id="all-ben-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
               <option value="">All Readiness</option>
               <option value="severe">Severe</option>
@@ -319,6 +320,7 @@
               <option value="low">Low</option>
               <option value="stable">Stable</option>
             </select>
+            </div>
             <select id="all-ben-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;">
               <option value="">All Disabilities</option>
             </select>
@@ -330,7 +332,7 @@
             </label>
             <button class="btn btn-secondary btn-sm" id="all-ben-reset">Reset</button>
             <button class="btn btn-primary btn-sm" id="all-ben-payout-btn" onclick="openPayrollTypeModal()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll</button>
-            <button class="btn btn-primary btn-sm" id="all-ben-manage-dsa-btn" onclick="toggleDsaView()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;" id="all-ben-dsa-icon">payments</span><span id="all-ben-dsa-label">Manage DSA</span></button>
+            <button class="btn btn-sm" id="all-ben-manage-dsa-btn" onclick="toggleDsaView()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;background:white;color:var(--blue);border:1.5px solid var(--blue);"><span class="material-symbols-outlined" style="font-size:0.875rem;" id="all-ben-dsa-icon">payments</span><span id="all-ben-dsa-label">Manage DSA</span></button>
             <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="all-ben-count"></span>
           </div>
         </div>
@@ -3131,10 +3133,23 @@
 
   let allBenDsaMode = false;
 
+  let dsaState = {};
+
+  function dsaCircleHtml(arugaId, mi) {
+    const on = !!(dsaState[arugaId] && dsaState[arugaId][mi]);
+    return `<button type="button" class="dsa-dot${on ? ' on' : ''}" onclick="toggleDsaMonth('${arugaId}', ${mi})" title="${DSA_MONTHS[mi]}"></button>`;
+  }
+
+  function toggleDsaMonth(arugaId, mi) {
+    if (!dsaState[arugaId]) dsaState[arugaId] = {};
+    dsaState[arugaId][mi] = !dsaState[arugaId][mi];
+    renderAllBen();
+  }
+
   function dsaRow(r) {
     return `<tr class="table-row-hover">
       <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
-      ${DSA_MONTHS.map(() => `<td style="text-align:center;color:var(--gray-400);font-size:0.75rem;">—</td>`).join('')}
+      ${DSA_MONTHS.map((m, mi) => `<td style="text-align:center;">${dsaCircleHtml(r.aruga_id, mi)}</td>`).join('')}
       <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="editDsa('${r.aruga_id}')" title="Edit DSA"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
     </tr>`;
   }

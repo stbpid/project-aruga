@@ -948,6 +948,20 @@ table.dash-table {
 .table-action-btn { transition: background 0.12s, color 0.12s; }
 .table-action-btn:hover { background: var(--blue-light) !important; color: var(--blue) !important; }
 
+.dsa-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gray-300);
+  background: white;
+  cursor: pointer;
+  padding: 0;
+  display: inline-block;
+  transition: background 0.12s, border-color 0.12s, transform 0.08s;
+}
+.dsa-dot:hover { border-color: var(--blue); transform: scale(1.1); }
+.dsa-dot.on { background: var(--blue); border-color: var(--blue); }
+
 .region-row { transition: background 0.12s; border-radius: 0.375rem; padding-left: 0.25rem; padding-right: 0.25rem; }
 .region-row:hover { background: var(--blue-light); }
 
