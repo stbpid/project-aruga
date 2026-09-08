@@ -3163,7 +3163,11 @@
      'an-f-range', 'an-f-region',
      'document-category-filter',
      'sig-region-filter', 'sig-status-filter',
-     'audit-type', 'audit-table'
+     'audit-type', 'audit-table',
+     'edit-int-region', 'edit-int-status', 'edit-int-role',
+     'add-int-region', 'add-int-status', 'add-int-role',
+     'sig-region', 'sig-function', 'sig-status',
+     'document-category'
     ].forEach(id => { const el = document.getElementById(id); if (el) initCustomSelect(el); });
   });
 
@@ -3255,9 +3259,6 @@
           const subCell = (r.submissions_total||0) === 0
             ? `<span style="color:var(--gray-400);font-size:0.75rem;">No submissions</span>`
             : `<span title="${tooltip}" style="cursor:default;">
-                <span style="font-weight:700;color:var(--dark);">${r.submissions_month||0}</span>
-                <span style="color:var(--gray-400);font-size:0.72rem;"> this month</span>
-                <span style="color:var(--gray-300);"> / </span>
                 <span style="font-weight:600;color:var(--gray-600);">${r.submissions_total||0}</span>
                 <span style="color:var(--gray-400);font-size:0.72rem;"> total</span>
                </span>`;
@@ -3341,6 +3342,7 @@
     const la = r.last_active ? (new Date(r.last_active).toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' })) : 'No activity recorded';
     document.getElementById('edit-int-last-active').textContent = la;
     document.getElementById('edit-int-modal').style.display = 'flex';
+    cxselSync('edit-int-region'); cxselSync('edit-int-status'); cxselSync('edit-int-role');
   }
 
   async function confirmEditInterviewer() {
@@ -3431,6 +3433,7 @@
     [1,2,3,4].forEach(i => document.getElementById('add-int-str-' + i).style.background = '#e5e7eb');
     document.getElementById('add-int-str-label').textContent = '';
     document.getElementById('add-int-modal').style.display = 'flex';
+    cxselSync('add-int-region'); cxselSync('add-int-status'); cxselSync('add-int-role');
   }
 
   async function confirmAddInterviewer() {
@@ -3494,8 +3497,10 @@
     selectEl.style.pointerEvents = 'none';
     selectEl.tabIndex = -1;
 
+    const isFormSelect = selectEl.classList.contains('settings-input');
+
     const wrap = document.createElement('div');
-    wrap.className = 'cxsel';
+    wrap.className = isFormSelect ? 'cxsel cxsel-form' : 'cxsel';
     selectEl.parentNode.insertBefore(wrap, selectEl);
     wrap.appendChild(selectEl);
 
@@ -3552,6 +3557,15 @@
 
     render();
     cxselRegistry.set(selectEl, { render });
+  }
+
+  // Force a wrapped <select>'s custom trigger label to refresh — needed
+  // after code sets `.value = x` programmatically, since that does not
+  // fire a native 'change' event or mutate the value attribute.
+  function cxselSync(id) {
+    const el = document.getElementById(id);
+    const entry = el && cxselRegistry.get(el);
+    if (entry) entry.render();
   }
 
   document.addEventListener('click', () => {
@@ -7087,6 +7101,7 @@
       document.getElementById('document-file-url').value = '';
     }
     document.getElementById('document-modal').classList.add('open');
+    cxselSync('document-category');
   }
 
   function closeDocumentModal() {
@@ -7255,6 +7270,7 @@
     document.getElementById('sig-modal-submit-label').textContent = 'Add Signatory';
     document.getElementById('sig-modal-err').style.display = 'none';
     document.getElementById('sig-modal').style.display = 'flex';
+    cxselSync('sig-region'); cxselSync('sig-function'); cxselSync('sig-status');
   }
 
   function sigStartEdit(idx) {
@@ -7271,6 +7287,7 @@
     document.getElementById('sig-modal-submit-label').textContent = 'Update Signatory';
     document.getElementById('sig-modal-err').style.display = 'none';
     document.getElementById('sig-modal').style.display = 'flex';
+    cxselSync('sig-region'); cxselSync('sig-function'); cxselSync('sig-status');
   }
 
   function closeSignatoryModal() {

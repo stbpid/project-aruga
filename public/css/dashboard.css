@@ -1374,6 +1374,23 @@ table.dash-table {
   outline: none;
 }
 
+/* Full-width variant for form/modal selects (matches .settings-input) */
+.cxsel-form { display: block; width: 100%; }
+.cxsel-form .cxsel-trigger {
+  width: 100%;
+  height: auto;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--dark);
+  border-radius: 0.5rem;
+}
+.cxsel-form.open .cxsel-trigger,
+.cxsel-form .cxsel-trigger:focus-visible {
+  box-shadow: 0 0 0 3px rgba(17,82,212,0.1);
+}
+.cxsel-form .cxsel-panel { width: 100%; max-width: none; }
+
 .cxsel-trigger-label { overflow: hidden; text-overflow: ellipsis; }
 
 .cxsel-trigger .material-symbols-outlined {
