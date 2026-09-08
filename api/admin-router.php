@@ -17,6 +17,8 @@ require_once __DIR__ . '/lib/config.php';
 
 $action = $_GET['action'] ?? '';
 
+const DOCUMENT_CATEGORIES = ['Issuances', 'Manual', 'Guidelines', 'Briefer', 'Storybook', 'Primer', 'Form', 'Presentation', 'AVPs'];
+
 switch ($action) {
 
     // ================================================================
@@ -166,7 +168,7 @@ switch ($action) {
             echo json_encode(['success' => false]); exit;
         }
 
-        $res = supabaseRequest('GET', 'documents?select=id,file_name,description,file_url,created_at&order=created_at.asc&limit=10000');
+        $res = supabaseRequest('GET', 'documents?select=id,file_name,description,file_url,category,created_at&order=created_at.asc&limit=10000');
 
         if (!$res['success']) {
             echo json_encode(['success' => false, 'data' => []]); exit;
@@ -198,6 +200,7 @@ switch ($action) {
         $fileName    = trim($body['file_name']   ?? '');
         $description = trim($body['description'] ?? '');
         $fileUrl     = trim($body['file_url']     ?? '');
+        $category    = trim($body['category']     ?? '');
 
         if (!$fileName || !$fileUrl) {
             echo json_encode(['success' => false, 'message' => 'File Name and File URL are required.']); exit;
@@ -205,11 +208,15 @@ switch ($action) {
         if (!filter_var($fileUrl, FILTER_VALIDATE_URL)) {
             echo json_encode(['success' => false, 'message' => 'File URL must be a valid URL.']); exit;
         }
+        if (!in_array($category, DOCUMENT_CATEGORIES, true)) {
+            echo json_encode(['success' => false, 'message' => 'A valid Category is required.']); exit;
+        }
 
         $payload = [
             'file_name'   => $fileName,
             'description' => $description,
             'file_url'    => $fileUrl,
+            'category'    => $category,
         ];
 
         $res = supabaseRequest('POST', 'documents', $payload);
@@ -258,13 +265,20 @@ switch ($action) {
             }
             $fields['file_url'] = $fileUrl;
         }
+        if (!empty($body['category'])) {
+            $category = trim($body['category']);
+            if (!in_array($category, DOCUMENT_CATEGORIES, true)) {
+                echo json_encode(['success' => false, 'message' => 'A valid Category is required.']); exit;
+            }
+            $fields['category'] = $category;
+        }
 
         if (empty($fields)) {
             echo json_encode(['success' => false, 'message' => 'No fields to update']); exit;
         }
         $fields['updated_at'] = gmdate('Y-m-d\TH:i:s\Z');
 
-        $oldRes = supabaseRequest('GET', 'documents?select=id,file_name,description,file_url&id=eq.' . urlencode($id) . '&limit=1');
+        $oldRes = supabaseRequest('GET', 'documents?select=id,file_name,description,file_url,category&id=eq.' . urlencode($id) . '&limit=1');
         $old    = ($oldRes['success'] && !empty($oldRes['data'])) ? $oldRes['data'][0] : null;
 
         $res = supabaseRequest('PATCH', 'documents?id=eq.' . urlencode($id), $fields);
@@ -302,7 +316,7 @@ switch ($action) {
         $id = trim($body['id'] ?? '');
         if (!$id) { echo json_encode(['success' => false, 'message' => 'id is required']); exit; }
 
-        $oldRes = supabaseRequest('GET', 'documents?select=id,file_name,description,file_url&id=eq.' . urlencode($id) . '&limit=1');
+        $oldRes = supabaseRequest('GET', 'documents?select=id,file_name,description,file_url,category&id=eq.' . urlencode($id) . '&limit=1');
         $old    = ($oldRes['success'] && !empty($oldRes['data'])) ? $oldRes['data'][0] : null;
 
         $res = supabaseRequest('DELETE', 'documents?id=eq.' . urlencode($id));

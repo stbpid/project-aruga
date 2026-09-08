@@ -1893,6 +1893,18 @@
               <span class="material-symbols-outlined">search</span>
               <input type="text" id="document-search" placeholder="Search name, description..." aria-label="Search documents" oninput="renderDocuments()">
             </div>
+            <select id="document-category-filter" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;" onchange="renderDocuments()">
+              <option value="">All Categories</option>
+              <option value="Issuances">Issuances</option>
+              <option value="Manual">Manual</option>
+              <option value="Guidelines">Guidelines</option>
+              <option value="Briefer">Briefer</option>
+              <option value="Storybook">Storybook</option>
+              <option value="Primer">Primer</option>
+              <option value="Form">Form</option>
+              <option value="Presentation">Presentation</option>
+              <option value="AVPs">AVPs</option>
+            </select>
             <button class="btn btn-primary btn-sm" onclick="openDocumentModal()" style="white-space:nowrap;margin-left:auto;">
               <span class="material-symbols-outlined">add</span>Add Document
             </button>
@@ -1905,11 +1917,12 @@
               <tr>
                 <th onclick="sortDocuments('file_name')" style="cursor:pointer;user-select:none;white-space:nowrap;">File Name <span id="doc-sort-icon-file_name" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th onclick="sortDocuments('description')" style="cursor:pointer;user-select:none;white-space:nowrap;">Description <span id="doc-sort-icon-description" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th onclick="sortDocuments('category')" style="cursor:pointer;user-select:none;white-space:nowrap;">Category <span id="doc-sort-icon-category" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th style="text-align:right;">Actions</th>
               </tr>
             </thead>
             <tbody id="documents-tbody">
-              <tr><td colspan="3" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading documents...</td></tr>
+              <tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading documents...</td></tr>
             </tbody>
           </table>
         </div>
@@ -1934,6 +1947,20 @@
             <div style="margin-bottom:0.9rem;">
               <label class="settings-label">Description</label>
               <input type="text" id="document-description" class="settings-input" placeholder="Short description">
+            </div>
+            <div style="margin-bottom:0.9rem;">
+              <label class="settings-label">Category <span style="color:#dc2626;">*</span></label>
+              <select id="document-category" class="settings-input">
+                <option value="Issuances">Issuances</option>
+                <option value="Manual">Manual</option>
+                <option value="Guidelines">Guidelines</option>
+                <option value="Briefer">Briefer</option>
+                <option value="Storybook">Storybook</option>
+                <option value="Primer">Primer</option>
+                <option value="Form">Form</option>
+                <option value="Presentation">Presentation</option>
+                <option value="AVPs">AVPs</option>
+              </select>
             </div>
             <div style="margin-bottom:0.25rem;">
               <label class="settings-label">File URL <span style="color:#dc2626;">*</span></label>
@@ -6871,12 +6898,12 @@
   // ── Documents (Forms & Templates) ────────────────────────────────
   let documentsData = [];
   let docSortKey = null, docSortDir = -1;
-  const DOC_SORT_COLS = ['file_name', 'description'];
+  const DOC_SORT_COLS = ['file_name', 'description', 'category'];
 
   function loadDocuments(force) {
     if (documentsData.length && !force) { renderDocuments(); return; }
     const tbody = document.getElementById('documents-tbody');
-    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading documents...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading documents...</td></tr>';
     authFetch('/api/admin-router.php?action=get-documents')
       .then(r => r.json())
       .then(json => {
@@ -6886,7 +6913,7 @@
       })
       .catch(() => {
         documentsData = [];
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Could not load documents.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Could not load documents.</td></tr>';
       });
   }
 
@@ -6910,19 +6937,25 @@
   function renderDocuments() {
     const tbody = document.getElementById('documents-tbody');
     if (!documentsData.length) {
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No documents yet.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No documents yet.</td></tr>';
       return;
     }
     const searchEl = document.getElementById('document-search');
     const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
-    const filtered = q
-      ? documentsData.filter(d =>
-          d.file_name.toLowerCase().includes(q) ||
-          (d.description || '').toLowerCase().includes(q))
-      : documentsData;
+    const catEl = document.getElementById('document-category-filter');
+    const cat = catEl ? catEl.value : '';
+    let filtered = documentsData;
+    if (q) {
+      filtered = filtered.filter(d =>
+        d.file_name.toLowerCase().includes(q) ||
+        (d.description || '').toLowerCase().includes(q));
+    }
+    if (cat) {
+      filtered = filtered.filter(d => d.category === cat);
+    }
 
     if (!filtered.length) {
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No documents match your search.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No documents match your search.</td></tr>';
       return;
     }
 
@@ -6930,6 +6963,7 @@
       <tr class="table-row-hover">
         <td><div style="font-weight:600;color:#111811;">${escapeHtml(d.file_name)}</div></td>
         <td>${escapeHtml(d.description || '—')}</td>
+        <td><span class="badge badge-blue">${escapeHtml(d.category || '—')}</span></td>
         <td style="text-align:right;white-space:nowrap;">
           <a href="${escapeAttr(d.file_url)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm table-action-btn" title="Download" style="display:inline-flex;">
             <span class="material-symbols-outlined" style="font-size:0.875rem;">download</span>
@@ -6954,11 +6988,13 @@
       document.getElementById('document-modal-title').textContent = 'Edit Document';
       document.getElementById('document-file-name').value = doc ? doc.file_name : '';
       document.getElementById('document-description').value = doc ? (doc.description || '') : '';
+      document.getElementById('document-category').value = doc ? doc.category : 'Form';
       document.getElementById('document-file-url').value = doc ? doc.file_url : '';
     } else {
       document.getElementById('document-modal-title').textContent = 'Add Document';
       document.getElementById('document-file-name').value = '';
       document.getElementById('document-description').value = '';
+      document.getElementById('document-category').value = 'Form';
       document.getElementById('document-file-url').value = '';
     }
     document.getElementById('document-modal').classList.add('open');
@@ -6972,6 +7008,7 @@
     const id          = document.getElementById('document-id').value;
     const fileName    = document.getElementById('document-file-name').value.trim();
     const description = document.getElementById('document-description').value.trim();
+    const category    = document.getElementById('document-category').value;
     const fileUrl     = document.getElementById('document-file-url').value.trim();
     const errEl       = document.getElementById('document-modal-error');
 
@@ -6985,8 +7022,8 @@
     saveBtn.disabled = true;
 
     const action  = id ? 'update-document' : 'add-document';
-    const payload = id ? { id, file_name: fileName, description, file_url: fileUrl }
-                       : { file_name: fileName, description, file_url: fileUrl };
+    const payload = id ? { id, file_name: fileName, description, category, file_url: fileUrl }
+                       : { file_name: fileName, description, category, file_url: fileUrl };
 
     authFetch('/api/admin-router.php?action=' + action, {
       method: 'POST',
