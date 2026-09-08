@@ -1415,8 +1415,8 @@ table.dash-table {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.65rem 1.1rem;
-  font-size: 0.85rem;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.76rem;
   font-weight: 500;
   color: var(--dark);
   cursor: pointer;
