@@ -291,25 +291,14 @@
             </label>
             <button class="btn btn-secondary btn-sm" id="co-ben-reset">Reset</button>
             <button class="btn btn-primary btn-sm" id="co-ben-payout-btn" onclick="openCoPayrollTypeModal()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll</button>
-            <button class="btn btn-primary btn-sm" id="co-ben-manage-dsa-btn" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">payments</span>Manage DSA</button>
+            <button class="btn btn-primary btn-sm" id="co-ben-manage-dsa-btn" onclick="coToggleDsaView()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;" id="co-ben-dsa-icon">payments</span><span id="co-ben-dsa-label">Manage DSA</span></button>
             <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="co-ben-count">—</span>
           </div>
         </div>
         <div class="card">
           <div class="table-wrap">
             <table class="dash-table">
-              <thead>
-                <tr id="co-ben-thead-row">
-                  <th onclick="coBenSort('name')" style="cursor:pointer;user-select:none;white-space:nowrap;">Beneficiary <span id="co-ben-sort-icon-name" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                  <th onclick="coBenSort('age')" style="cursor:pointer;user-select:none;white-space:nowrap;">Age <span id="co-ben-sort-icon-age" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                  <th>Disability</th>
-                  <th onclick="coBenSort('region')" style="cursor:pointer;user-select:none;white-space:nowrap;">Region <span id="co-ben-sort-icon-region" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                  <th onclick="coBenSort('interviewer')" style="cursor:pointer;user-select:none;white-space:nowrap;">Interviewer <span id="co-ben-sort-icon-interviewer" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                  <th onclick="coBenSort('date')" style="cursor:pointer;user-select:none;white-space:nowrap;">Date <span id="co-ben-sort-icon-date" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                  <th onclick="coBenSort('readiness')" style="cursor:pointer;user-select:none;white-space:nowrap;">Readiness <span id="co-ben-sort-icon-readiness" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                  <th>Action</th>
-                </tr>
-              </thead>
+              <thead id="co-ben-thead"></thead>
               <tbody id="co-ben-tbody">
                 <tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
               </tbody>
@@ -988,7 +977,49 @@
     coBenPage = 0; coBenRender();
   }
 
+  const CO_BEN_THEAD_NORMAL = `<tr id="co-ben-thead-row">
+    <th onclick="coBenSort('name')" style="cursor:pointer;user-select:none;white-space:nowrap;">Beneficiary <span id="co-ben-sort-icon-name" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+    <th onclick="coBenSort('age')" style="cursor:pointer;user-select:none;white-space:nowrap;">Age <span id="co-ben-sort-icon-age" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+    <th>Disability</th>
+    <th onclick="coBenSort('region')" style="cursor:pointer;user-select:none;white-space:nowrap;">Region <span id="co-ben-sort-icon-region" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+    <th onclick="coBenSort('interviewer')" style="cursor:pointer;user-select:none;white-space:nowrap;">Interviewer <span id="co-ben-sort-icon-interviewer" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+    <th onclick="coBenSort('date')" style="cursor:pointer;user-select:none;white-space:nowrap;">Date <span id="co-ben-sort-icon-date" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+    <th onclick="coBenSort('readiness')" style="cursor:pointer;user-select:none;white-space:nowrap;">Readiness <span id="co-ben-sort-icon-readiness" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+    <th>Action</th>
+  </tr>`;
+
+  const CO_DSA_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const CO_BEN_THEAD_DSA = `<tr id="co-ben-thead-row">
+    <th style="white-space:nowrap;">Beneficiary</th>
+    ${CO_DSA_MONTHS.map(m => `<th style="white-space:nowrap;text-align:center;">${m}</th>`).join('')}
+    <th>Action</th>
+  </tr>`;
+
+  let coBenDsaMode = false;
+
+  function coDsaRow(r) {
+    return `<tr class="table-row-hover">
+      <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
+      ${CO_DSA_MONTHS.map(() => `<td style="text-align:center;color:var(--gray-400);font-size:0.75rem;">—</td>`).join('')}
+      <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="coEditDsa('${r.aruga_id}')" title="Edit DSA"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
+    </tr>`;
+  }
+
+  function coEditDsa(arugaId) {
+    // TODO: wire up DSA edit action
+  }
+
+  function coToggleDsaView() {
+    coBenDsaMode = !coBenDsaMode;
+    const icon  = document.getElementById('co-ben-dsa-icon');
+    const label = document.getElementById('co-ben-dsa-label');
+    icon.textContent  = coBenDsaMode ? 'arrow_back' : 'payments';
+    label.textContent = coBenDsaMode ? 'Back to Beneficiaries' : 'Manage DSA';
+    coBenRender();
+  }
+
   function coBenRender() {
+    document.getElementById('co-ben-thead').innerHTML = coBenDsaMode ? CO_BEN_THEAD_DSA : CO_BEN_THEAD_NORMAL;
     const total = coBenFiltered.length;
     const totalPages = Math.max(1, Math.ceil(total / CO_PER_PAGE));
     const start = coBenPage * CO_PER_PAGE;
@@ -996,7 +1027,7 @@
     const page = coBenFiltered.slice(start, end);
     document.getElementById('co-ben-count').textContent = '';
     document.getElementById('co-ben-tbody').innerHTML = page.length
-      ? page.map(r => coBenRow(r)).join('')
+      ? page.map(r => coBenDsaMode ? coDsaRow(r) : coBenRow(r)).join('')
       : '<tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
     document.getElementById('co-ben-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} beneficiaries` : 'No results';
     coBuildPagination(coBenPage, totalPages, p => { coBenPage = p; coBenRender(); });
