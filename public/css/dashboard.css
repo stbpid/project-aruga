@@ -1417,12 +1417,13 @@ table.dash-table {
   border-radius: 1rem;
   box-shadow: 0 16px 40px rgba(0,0,0,0.1);
   padding: 0.5rem 0;
-  z-index: 1000;
+  z-index: 10000;
   display: none;
   scrollbar-width: thin;
   scrollbar-color: var(--gray-200) transparent;
 }
-.cxsel.open .cxsel-panel { display: block; }
+.cxsel.open .cxsel-panel,
+.cxsel-panel.open { display: block; }
 .cxsel-panel::-webkit-scrollbar { width: 5px; }
 .cxsel-panel::-webkit-scrollbar-track { background: transparent; }
 .cxsel-panel::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 10px; }

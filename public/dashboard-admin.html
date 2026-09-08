@@ -3499,6 +3499,13 @@
 
     const isFormSelect = selectEl.classList.contains('settings-input');
 
+    // Some markup pairs a plain <select> with a sibling chevron icon for
+    // manual arrow styling (position:absolute over the select). Once the
+    // select is wrapped in our own trigger (which draws its own arrow),
+    // that leftover icon would float on top and duplicate the chevron.
+    const leftoverIcon = selectEl.parentElement && selectEl.parentElement.querySelector(':scope > .material-symbols-outlined');
+    if (leftoverIcon) leftoverIcon.remove();
+
     const wrap = document.createElement('div');
     wrap.className = isFormSelect ? 'cxsel cxsel-form' : 'cxsel';
     selectEl.parentNode.insertBefore(wrap, selectEl);
@@ -3536,11 +3543,42 @@
       });
     }
 
-    function closeDropdown() { wrap.classList.remove('open'); }
+    function closeDropdown() {
+      wrap.classList.remove('open');
+      panel.classList.remove('open');
+      if (panel.parentNode === document.body) {
+        panel.style.position = '';
+        panel.style.top = '';
+        panel.style.left = '';
+        panel.style.width = '';
+        panel.style.minWidth = '';
+        wrap.appendChild(panel);
+      }
+      window.removeEventListener('scroll', positionPanel, true);
+      window.removeEventListener('resize', positionPanel);
+    }
+    function positionPanel() {
+      const r = trigger.getBoundingClientRect();
+      panel.style.position = 'fixed';
+      panel.style.top = (r.bottom + 6) + 'px';
+      panel.style.left = r.left + 'px';
+      panel.style.width = isFormSelect ? r.width + 'px' : '';
+      panel.style.minWidth = r.width + 'px';
+      // Flip above the trigger if there isn't room below.
+      const estHeight = Math.min(300, panel.scrollHeight || 300);
+      if (r.bottom + estHeight + 6 > window.innerHeight && r.top - estHeight - 6 > 0) {
+        panel.style.top = (r.top - estHeight - 6) + 'px';
+      }
+    }
     function openDropdown() {
-      document.querySelectorAll('.cxsel.open').forEach(el => { if (el !== wrap) el.classList.remove('open'); });
+      cxselCloseAll(panel);
       render();
       wrap.classList.add('open');
+      document.body.appendChild(panel);
+      panel.classList.add('open');
+      positionPanel();
+      window.addEventListener('scroll', positionPanel, true);
+      window.addEventListener('resize', positionPanel);
     }
 
     trigger.addEventListener('click', (e) => {
@@ -3556,7 +3594,7 @@
     mo.observe(selectEl, { childList: true, subtree: true, attributes: true, attributeFilter: ['value'] });
 
     render();
-    cxselRegistry.set(selectEl, { render });
+    cxselRegistry.set(selectEl, { render, close: closeDropdown, panel });
   }
 
   // Force a wrapped <select>'s custom trigger label to refresh — needed
@@ -3568,8 +3606,13 @@
     if (entry) entry.render();
   }
 
-  document.addEventListener('click', () => {
-    document.querySelectorAll('.cxsel.open').forEach(el => el.classList.remove('open'));
+  function cxselCloseAll(exceptPanel) {
+    cxselRegistry.forEach(entry => { if (entry.panel !== exceptPanel) entry.close(); });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest && e.target.closest('.cxsel-panel')) return;
+    cxselCloseAll(null);
   });
 
   // ── View switcher ──────────────────────────────────────────────
