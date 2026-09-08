@@ -1330,6 +1330,20 @@ table.dash-table {
 #stu-payroll-special-btn:hover { background: var(--gray-50); }
 .btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
 
+#confirm-modal-yes-btn {
+  background: var(--blue);
+  color: white;
+  border-radius: 0 0 0 1.25rem;
+}
+#confirm-modal-yes-btn:hover { background: #0e45b8; }
+#confirm-modal-no-btn {
+  background: white;
+  color: var(--gray-600);
+  border-left: 1px solid var(--gray-100);
+  border-radius: 0 0 1.25rem 0;
+}
+#confirm-modal-no-btn:hover { background: var(--gray-50); }
+
 /* ── Region Bar Chart Hover ──────────────── */
 #rg-bar-chart > div,
 #rg-dis-bars > div,

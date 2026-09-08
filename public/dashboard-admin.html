@@ -482,6 +482,24 @@
       </div>
     </div>
 
+    <!-- Generic Confirm Modal -->
+    <div id="confirm-modal" class="payroll-type-modal">
+      <div class="payroll-type-modal-backdrop" onclick="closeConfirmModal()"></div>
+      <div class="payroll-type-modal-box">
+        <div class="payroll-type-modal-top">
+          <div class="payroll-type-modal-icon"><span class="material-symbols-outlined" id="confirm-modal-icon">help</span></div>
+        </div>
+        <div class="payroll-type-modal-body">
+          <div class="payroll-type-modal-title" id="confirm-modal-title">Are you sure?</div>
+          <div class="payroll-type-modal-msg" id="confirm-modal-msg"></div>
+        </div>
+        <div class="payroll-type-modal-actions">
+          <button id="confirm-modal-yes-btn" onclick="confirmModalConfirm()">Yes</button>
+          <button id="confirm-modal-no-btn" onclick="closeConfirmModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Special Payroll Modal -->
     <div id="special-payroll-modal" class="payroll-type-modal">
       <div class="payroll-type-modal-backdrop" onclick="closeSpecialPayrollModal()"></div>
@@ -6879,8 +6897,9 @@
     list.innerHTML = regionTargetsData.map((r) => {
       const isEditing = regTargetEditing === r.region_name;
       const rightSide = isEditing
-        ? `<input type="number" min="0" id="regt-input-${escapeAttr(r.region_name)}" value="${r.target}"
+        ? `<input type="number" min="0" max="9999" id="regt-input-${escapeAttr(r.region_name)}" value="${r.target}"
              class="settings-input" style="width:5.5rem;text-align:right;padding:0.35rem 0.5rem;font-weight:700;"
+             oninput="if(this.value.length>4)this.value=this.value.slice(0,4);"
              onkeydown="if(event.key==='Enter')regTargetSave('${escapeJs(r.region_name)}');if(event.key==='Escape')regTargetCancel();">
            <button class="btn btn-ghost btn-sm" title="Save" onclick="regTargetSave('${escapeJs(r.region_name)}')" style="padding:0.3rem;color:#16a34a;">
              <span class="material-symbols-outlined" style="font-size:1rem;">check</span>
@@ -6894,7 +6913,7 @@
            </button>`;
 
       return `<div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:1rem 1.25rem;border:1px solid var(--gray-100);border-radius:0.75rem;">
-        <div style="font-weight:600;font-size:0.9rem;color:#111827;">${r.region_name}</div>
+        <div style="font-weight:500;font-size:0.8rem;color:#111827;">${r.region_name}</div>
         <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">${rightSide}</div>
       </div>`;
     }).join('');
@@ -6919,10 +6938,27 @@
     const input = document.getElementById('regt-input-' + regionName);
     if (!input) return;
     const target = parseInt(input.value, 10);
-    if (isNaN(target) || target < 0) {
-      showToast('regions-toast', 'Target must be a non-negative number.', 'error');
+    if (isNaN(target) || target < 0 || target > 9999) {
+      showToast('regions-toast', 'Target must be a number between 0 and 9999.', 'error');
       return;
     }
+
+    const current = regionTargetsData.find(r => r.region_name === regionName);
+    if (current && current.target === target) {
+      regTargetCancel();
+      return;
+    }
+
+    openConfirmModal({
+      title: 'Update Region Target?',
+      message: `Are you sure you want to update the target for <strong>${regionName}</strong>?`,
+      onConfirm: () => regTargetSaveConfirmed(regionName, target)
+    });
+  }
+
+  function regTargetSaveConfirmed(regionName, target) {
+    const input = document.getElementById('regt-input-' + regionName);
+    if (!input) return;
 
     input.disabled = true;
     authFetch('/api/admin-router.php?action=update-region-target', {
@@ -8025,6 +8061,26 @@
 
   function closePayrollTypeModal() {
     document.getElementById('payroll-type-modal').classList.remove('open');
+  }
+
+  let confirmModalOnConfirm = null;
+
+  function openConfirmModal({ title, message, onConfirm }) {
+    document.getElementById('confirm-modal-title').textContent = title || 'Are you sure?';
+    document.getElementById('confirm-modal-msg').innerHTML = message || '';
+    confirmModalOnConfirm = onConfirm || null;
+    document.getElementById('confirm-modal').classList.add('open');
+  }
+
+  function closeConfirmModal() {
+    document.getElementById('confirm-modal').classList.remove('open');
+    confirmModalOnConfirm = null;
+  }
+
+  function confirmModalConfirm() {
+    const cb = confirmModalOnConfirm;
+    closeConfirmModal();
+    if (cb) cb();
   }
 
   let specialPayrollIds = [];
