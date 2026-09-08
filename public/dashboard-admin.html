@@ -305,7 +305,7 @@
         <!-- Filters -->
         <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
           <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
-            <div class="search-bar" style="flex:1;min-width:140px;max-width:200px;">
+            <div class="search-bar" style="flex:1;min-width:140px;max-width:200px;height:1.875rem;">
               <span class="material-symbols-outlined">search</span>
               <input type="text" id="all-ben-search" placeholder="Search name, ID..." aria-label="Search">
             </div>
@@ -399,7 +399,7 @@
       </div>
       <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
         <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
-          <div class="search-bar" style="flex:1;min-width:140px;max-width:220px;">
+          <div class="search-bar" style="flex:1;min-width:140px;max-width:220px;height:1.875rem;">
             <span class="material-symbols-outlined">search</span>
             <input type="text" id="int-search" placeholder="Search name, code..." aria-label="Search interviewers">
           </div>
@@ -1889,7 +1889,7 @@
       <div id="admin-doctab-templates" style="margin-top:1.25rem;">
         <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
           <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
-            <div class="search-bar" style="flex:1;min-width:140px;max-width:220px;">
+            <div class="search-bar" style="flex:1;min-width:140px;max-width:220px;height:1.875rem;">
               <span class="material-symbols-outlined">search</span>
               <input type="text" id="document-search" placeholder="Search name, description..." aria-label="Search documents" oninput="renderDocuments()">
             </div>
@@ -3157,6 +3157,14 @@
       filterInterviewers();
     });
     document.getElementById('dd-new-item').addEventListener('keydown', e => { if (e.key === 'Enter') addDropdownItem(); });
+
+    ['all-ben-region', 'all-ben-readiness', 'all-ben-disability',
+     'int-region', 'int-role',
+     'an-f-range', 'an-f-region',
+     'document-category-filter',
+     'sig-region-filter', 'sig-status-filter',
+     'audit-type', 'audit-table'
+    ].forEach(id => { const el = document.getElementById(id); if (el) initCustomSelect(el); });
   });
 
   // ── Interviewers View ──────────────────────────────────────────
@@ -3468,6 +3476,87 @@
   }
 
   function _showIntToastLegacy(msg) { showGlobalToast(msg, 'success'); }
+
+  // ── Custom Filter Dropdown ────────────────────────────────────────
+  // Progressively enhances a native <select> into a styled dropdown.
+  // The original <select> stays in the DOM (hidden) as the single source
+  // of truth, so existing code using .value / addEventListener('change')
+  // keeps working unchanged; this just renders + syncs a custom UI on top.
+  const cxselRegistry = new Map(); // select element -> { render() }
+
+  function initCustomSelect(selectEl) {
+    if (!selectEl || cxselRegistry.has(selectEl)) return;
+
+    selectEl.style.position = 'absolute';
+    selectEl.style.width = '1px';
+    selectEl.style.height = '1px';
+    selectEl.style.opacity = '0';
+    selectEl.style.pointerEvents = 'none';
+    selectEl.tabIndex = -1;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'cxsel';
+    selectEl.parentNode.insertBefore(wrap, selectEl);
+    wrap.appendChild(selectEl);
+
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'cxsel-trigger';
+    if (selectEl.style.maxWidth) trigger.style.maxWidth = selectEl.style.maxWidth;
+    trigger.innerHTML = '<span class="cxsel-trigger-label"></span><span class="material-symbols-outlined">expand_more</span>';
+    wrap.appendChild(trigger);
+
+    const panel = document.createElement('div');
+    panel.className = 'cxsel-panel';
+    wrap.appendChild(panel);
+
+    const label = trigger.querySelector('.cxsel-trigger-label');
+
+    function render() {
+      const opts = Array.from(selectEl.options);
+      label.textContent = selectEl.selectedOptions[0] ? selectEl.selectedOptions[0].textContent : '';
+      panel.innerHTML = '';
+      opts.forEach(opt => {
+        const row = document.createElement('div');
+        row.className = 'cxsel-option' + (opt.value === selectEl.value ? ' selected' : '');
+        row.textContent = opt.textContent;
+        row.onclick = () => {
+          if (selectEl.value !== opt.value) {
+            selectEl.value = opt.value;
+            selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          closeDropdown();
+        };
+        panel.appendChild(row);
+      });
+    }
+
+    function closeDropdown() { wrap.classList.remove('open'); }
+    function openDropdown() {
+      document.querySelectorAll('.cxsel.open').forEach(el => { if (el !== wrap) el.classList.remove('open'); });
+      render();
+      wrap.classList.add('open');
+    }
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      wrap.classList.contains('open') ? closeDropdown() : openDropdown();
+    });
+
+    // Re-render whenever the underlying <select> value or options change
+    // (covers programmatic resets like `.value = ''` and dynamically
+    // populated regions lists).
+    selectEl.addEventListener('change', render);
+    const mo = new MutationObserver(render);
+    mo.observe(selectEl, { childList: true, subtree: true, attributes: true, attributeFilter: ['value'] });
+
+    render();
+    cxselRegistry.set(selectEl, { render });
+  }
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.cxsel.open').forEach(el => el.classList.remove('open'));
+  });
 
   // ── View switcher ──────────────────────────────────────────────
   const VIEWS = ['overview','beneficiaries','assessments','interviewers','analytics','report','documents','settings','audit'];

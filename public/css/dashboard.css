@@ -1344,6 +1344,80 @@ table.dash-table {
 }
 #confirm-modal-no-btn:hover { background: var(--gray-50); }
 
+/* ── Custom Filter Dropdown ──────────────── */
+.cxsel { position: relative; display: inline-block; }
+
+.cxsel-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: white;
+  color: var(--gray-700);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  height: 1.875rem;
+  padding: 0 0.6rem;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.cxsel-trigger:hover { background: var(--gray-50); }
+.cxsel.open .cxsel-trigger,
+.cxsel-trigger:focus-visible {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px var(--blue);
+  outline: none;
+}
+
+.cxsel-trigger-label { overflow: hidden; text-overflow: ellipsis; }
+
+.cxsel-trigger .material-symbols-outlined {
+  font-size: 1rem;
+  color: var(--gray-400);
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: transform 0.15s;
+}
+.cxsel.open .cxsel-trigger .material-symbols-outlined { transform: rotate(180deg); }
+
+.cxsel-panel {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  min-width: 100%;
+  width: max-content;
+  max-width: 260px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid var(--gray-100);
+  border-radius: 0.75rem;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+  padding: 0.35rem;
+  z-index: 1000;
+  display: none;
+}
+.cxsel.open .cxsel-panel { display: block; }
+
+.cxsel-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--gray-700);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cxsel-option:hover { background: var(--gray-50); }
+.cxsel-option.selected { background: var(--blue-light); color: var(--blue); font-weight: 700; }
+
 /* ── Region Bar Chart Hover ──────────────── */
 #rg-bar-chart > div,
 #rg-dis-bars > div,
