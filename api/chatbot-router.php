@@ -193,6 +193,7 @@ foreach ($parts as $part) {
         break;
     }
 }
+$modelParts = $parts;
 
 if ($functionCall !== null) {
     $fnName = $functionCall['name'] ?? '';
@@ -206,8 +207,9 @@ if ($functionCall !== null) {
         $toolResult = 'Unknown tool.';
     }
 
-    // Send the tool result back to Gemini for the final answer
-    $contents[] = ['role' => 'model', 'parts' => [['functionCall' => $functionCall]]];
+    // Echo the model's parts back verbatim — they carry a thoughtSignature that
+    // Gemini 3.x requires alongside the functionCall; rebuilding the part drops it.
+    $contents[] = ['role' => 'model', 'parts' => $modelParts];
     $contents[] = [
         'role' => 'user',
         'parts' => [[
