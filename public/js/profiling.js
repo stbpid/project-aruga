@@ -370,7 +370,7 @@ function getStep1HTML() {
       <div class="w-full flex justify-end pb-6">
         <button onclick="if(validateStep(1)) goToStep(2)" class="w-full sm:w-auto px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover shadow-md transition-all flex items-center justify-center gap-2">
           Next: Respondent Profile
-          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
     </div>
@@ -454,7 +454,7 @@ function getStep2HTML() {
         </button>
         <button onclick="if(validateStep(2)) goToStep(3)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
           Next: Child Profile
-          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
     </div>
@@ -664,7 +664,7 @@ function getStep3HTML() {
         </button>
         <button onclick="if(validateStep(3)) goToStep(4)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
           Next: Family Profile
-          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
     </div>
@@ -708,7 +708,7 @@ function getStep4HTML() {
         </button>
         <button onclick="if(validateStep(4)) goToStep(5)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
           <span>Next: Socio Economic</span>
-          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
     </div>
@@ -859,7 +859,7 @@ function getStep5HTML() {
         </button>
         <button onclick="if(validateStep(5)) goToStep(6)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
           <span>Next: Health</span>
-          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
     </div>
@@ -1060,7 +1060,7 @@ function getStep6HTML() {
         </button>
         <button onclick="if(validateStep(6)) goToStep(7)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
           <span>Next: Education</span>
-          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
     </div>
@@ -1189,7 +1189,7 @@ function getStep7HTML() {
         </button>
         <button onclick="if(validateStep(7)) goToStep(8)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
           <span>Next: Economic Capacity</span>
-          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
     </div>
@@ -1274,7 +1274,7 @@ function getStep8HTML() {
         </button>
         <button onclick="if(validateStep(8)) goToStep(9)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
           <span>Next: Service Availment</span>
-          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
     </div>
@@ -1393,7 +1393,7 @@ function getStep9HTML() {
         </button>
         <button onclick="if(validateStep(9)) goToStep(10)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
           <span>Next: Assessment</span>
-          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
     </div>

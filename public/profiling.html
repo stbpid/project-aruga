@@ -24,9 +24,9 @@
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col font-sans">
 
   <!-- HEADER -->
-  <header class="w-full bg-[#f6f8f6f2] border-b border-[#e0e4e0] h-14 sticky top-0 z-50 backdrop-blur-sm">
-    <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
-      
+  <header id="site-header" class="relative w-full sticky top-0 z-50 px-4 pt-4 transition-all duration-300">
+    <div id="nav-pill" class="max-w-7xl mx-auto rounded-xl px-4 sm:px-5 h-14 flex items-center justify-between border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-300">
+
       <div class="flex items-center gap-3">
         <img
           src="/images/logo.webp"
@@ -39,7 +39,7 @@
       </div>
 
       <div class="flex items-center gap-2 sm:gap-3">
-        
+
         <div class="hidden md:flex items-center gap-1 text-brand-dark mr-2">
           <svg class="w-3 h-3 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
@@ -70,6 +70,42 @@
       </div>
     </div>
   </header>
+
+  <script>
+    function updateNavPillOnScroll() {
+      const header = document.getElementById('site-header');
+      const pill = document.getElementById('nav-pill');
+      if (!header || !pill) return;
+      const scrolled = window.scrollY > 8;
+      pill.classList.toggle('bg-white', scrolled);
+      pill.classList.toggle('backdrop-blur-md', scrolled);
+      pill.classList.toggle('shadow-sm', scrolled);
+
+      const backToTop = document.getElementById('back-to-top');
+      if (backToTop) backToTop.classList.toggle('hidden', !scrolled);
+
+      const endSessionFab = document.getElementById('end-session-fab');
+      if (endSessionFab) endSessionFab.classList.toggle('hidden', !scrolled);
+    }
+    window.addEventListener('scroll', updateNavPillOnScroll);
+    updateNavPillOnScroll();
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+
+  <!-- Back to Top Button -->
+  <button id="back-to-top" onclick="scrollToTop()" class="hidden fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-gray-900 hover:bg-black text-white shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-105">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
+  </button>
+
+  <!-- Floating End Session Button -->
+  <button id="end-session-fab" onclick="showLogoutModal()" class="hidden fixed bottom-20 right-6 z-50 w-11 h-11 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-105">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+    </svg>
+  </button>
 
   <!-- LOGOUT MODAL -->
   <div id="logout-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
