@@ -75,7 +75,8 @@
     <div class="bg-white rounded-xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-4xl max-h-full lg:h-[440px] flex flex-col lg:flex-row overflow-hidden">
 
       <aside id="hero-aside" class="relative z-10 w-full h-36 sm:h-44 lg:h-auto lg:w-5/12 bg-brand-blue overflow-hidden transition-transform duration-500 ease-in-out">
-        <img id="hero-aside-img" src="/images/aruga-profiling-cover.webp" alt="" class="w-full h-full object-cover">
+        <img id="hero-aside-img" src="/images/aruga-profiling-cover.webp" alt="" class="w-full h-full object-cover" style="object-position: 65% center;">
+        <div class="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay" style="background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;);"></div>
       </aside>
 
       <div id="form-panel" class="relative z-0 w-full lg:w-7/12 overflow-hidden transition-transform duration-500 ease-in-out">
@@ -202,6 +203,7 @@
       const heroAsideImg = document.getElementById('hero-aside-img');
       if (heroAsideImg) {
         heroAsideImg.src = isDashboard ? '/images/aruga-login-cover.webp' : '/images/aruga-profiling-cover.webp';
+        heroAsideImg.style.objectPosition = isDashboard ? '75% center' : '65% center';
       }
 
       const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
