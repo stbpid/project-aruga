@@ -274,61 +274,59 @@ section, .member-card {
 }
 
 .toast {
-  background: #f7fafc;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  padding: 16px 18px;
+  padding: 12px 16px;
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
   min-width: 300px;
   animation: slideIn 0.3s ease-out;
-  border: 1.5px solid #3b82f6;
 }
 
 .toast.success {
-  border-color: #22c55e;
+  background: #ecfdf5;
 }
 
 .toast.error {
-  border-color: #ef4444;
+  background: #fef2f2;
 }
 
 .toast.warning {
-  border-color: #f59e0b;
+  background: #fffbeb;
 }
 
 .toast.info {
-  border-color: #3b82f6;
+  background: #eff6ff;
 }
 
 .toast-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  font-size: 13px;
+  border: 2px solid currentColor;
+  font-size: 12px;
   font-weight: bold;
-  color: white;
 }
 
 .toast.success .toast-icon {
-  background: #22c55e;
+  color: #22c55e;
 }
 
 .toast.error .toast-icon {
-  background: #ef4444;
+  color: #ef4444;
 }
 
 .toast.warning .toast-icon {
-  background: #f59e0b;
+  color: #f59e0b;
 }
 
 .toast.info .toast-icon {
-  background: #3b82f6;
+  color: #3b82f6;
 }
 
 .toast-content {
@@ -336,28 +334,40 @@ section, .member-card {
 }
 
 .toast-title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 4px;
+  display: none;
 }
 
 .toast-message {
   font-family: 'Poppins', sans-serif;
   font-size: 13px;
-  color: #6b7280;
+  font-weight: 600;
   line-height: 1.4;
 }
 
+.toast.success .toast-message {
+  color: #22c55e;
+}
+
+.toast.error .toast-message {
+  color: #ef4444;
+}
+
+.toast.warning .toast-message {
+  color: #f59e0b;
+}
+
+.toast.info .toast-message {
+  color: #3b82f6;
+}
+
 .toast-close {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1;
   padding: 0;
