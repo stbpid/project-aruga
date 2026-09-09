@@ -25,7 +25,7 @@
 
   <!-- HEADER -->
   <header id="site-header" class="relative w-full sticky top-0 z-50 px-4 pt-4 transition-all duration-300">
-    <div id="nav-pill" class="max-w-7xl mx-auto rounded-xl px-4 sm:px-5 h-14 flex items-center justify-between border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-300">
+    <div id="nav-pill" class="max-w-5xl mx-auto rounded-xl px-4 sm:px-5 h-14 flex items-center justify-between border border-gray-200/80 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-300">
 
       <div class="flex items-center gap-3">
         <img
@@ -77,8 +77,6 @@
       const pill = document.getElementById('nav-pill');
       if (!header || !pill) return;
       const scrolled = window.scrollY > 8;
-      pill.classList.toggle('bg-white', scrolled);
-      pill.classList.toggle('backdrop-blur-md', scrolled);
       pill.classList.toggle('shadow-sm', scrolled);
 
       const backToTop = document.getElementById('back-to-top');
@@ -175,9 +173,9 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="mt-auto border-t border-gray-800 bg-gray-900 py-4 text-center px-4">
-    <p class="text-[9px] sm:text-[11px] text-gray-300 font-light tracking-wide">
-      © 2026 Department of Social Welfare Development - <a href="https://stb.dswd.gov.ph/" target="_blank" rel="noopener noreferrer" class="text-gray-300 hover:text-white underline transition-colors">Social Technology Bureau</a>
+  <footer class="relative w-full pt-1 pb-4 text-center px-4">
+    <p class="text-[10px] text-gray-400">
+      © 2026 Department of Social Welfare Development - <a href="https://stb.dswd.gov.ph/" target="_blank" rel="noopener noreferrer" class="text-brand-blue transition-colors">Social Technology Bureau</a>
     </p>
   </footer>
 
