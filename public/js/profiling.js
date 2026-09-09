@@ -54,7 +54,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   // Back/forward moves between form steps (wizard-style). Pressing back from
   // Step 1 (nothing left to step back to) shows the End Session modal instead.
+  // Anchor + push a guard entry so the very first back press has something of
+  // ours to pop (and catch via popstate) instead of leaving straight away.
   history.replaceState({ profilingStep: 1 }, '', '#' + STEP_SLUGS[1]);
+  history.pushState({ profilingStep: 1 }, '', '#' + STEP_SLUGS[1]);
   window.addEventListener('popstate', function(e) {
     if (!sessionStorage.getItem('session_id')) {
       window.location.replace('/');
