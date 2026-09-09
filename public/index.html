@@ -23,11 +23,11 @@
         <a href="/privacy" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Privacy Policy</a>
         <a href="/user-manual" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Documentation</a>
         <a href="/contact" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Contact us</a>
-        <a href="/dashboard" class="group bg-gray-900 hover:bg-black text-white text-[11.5px] font-semibold pl-5 pr-1.5 py-1.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.03] flex items-center gap-3">
-          Dashboard
-          <span class="w-7 h-7 rounded-lg bg-white/20 group-hover:bg-white/30 flex items-center justify-center shrink-0 transition-all duration-200 group-hover:translate-x-0.5">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+        <a href="/dashboard" class="group bg-gray-900 hover:bg-black text-white text-[11.5px] font-semibold pl-1.5 pr-5 py-1.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.03] flex items-center gap-3">
+          <span class="w-7 h-7 rounded-lg bg-white/20 group-hover:bg-white/30 flex items-center justify-center shrink-0 transition-all duration-200 group-hover:-translate-x-0.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="14" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="3" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="14" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect></svg>
           </span>
+          Dashboard
         </a>
       </nav>
 
@@ -73,8 +73,16 @@
   <main class="flex-grow flex items-center justify-center p-4 overflow-hidden">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-full flex flex-col lg:flex-row overflow-hidden border border-[#e0e4e0]">
 
-      <aside class="relative w-full h-36 sm:h-44 lg:h-auto lg:w-5/12 bg-gray-900">
-      <img id="img-hero" src="/images/hero.webp" alt="Project Aruga Hero" class="absolute inset-0 w-full h-full object-cover opacity-60">
+      <aside class="relative w-full h-36 sm:h-44 lg:h-auto lg:w-5/12 bg-gradient-to-br from-brand-blue to-blue-900 overflow-hidden">
+      <svg class="absolute inset-0 w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="hero-pattern" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="24" stroke="white" stroke-width="2"></line>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#hero-pattern)"></rect>
+      </svg>
+      <img id="img-hero" src="/images/hero.webp" alt="Project Aruga Hero" class="hidden absolute inset-0 w-full h-full object-cover opacity-60">
       </aside>
 
       <section class="w-full lg:w-7/12 p-5 sm:p-8 flex flex-col justify-center overflow-y-auto">
@@ -85,17 +93,17 @@
 
         <h1 class="font-bold text-lg mb-2 text-brand-dark">Data Privacy Agreement</h1>
 
-        <div class="border border-gray-200 rounded-lg divide-y divide-gray-200 mb-3 overflow-hidden">
-          <div class="flex items-center justify-between px-4 py-3">
-            <span class="text-xs sm:text-sm text-gray-700">Handled securely under RA 10173</span>
+        <div class="divide-y divide-gray-200 mb-3">
+          <div class="flex items-center justify-between px-1 py-3">
+            <span class="text-[10.5px] text-gray-700">Handled securely under RA 10173</span>
             <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </div>
-          <div class="flex items-center justify-between px-4 py-3">
-            <span class="text-xs sm:text-sm text-gray-700">Used only for programme delivery</span>
+          <div class="flex items-center justify-between px-1 py-3">
+            <span class="text-[10.5px] text-gray-700">Used only for programme delivery</span>
             <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </div>
-          <div class="flex items-center justify-between px-4 py-3">
-            <span class="text-xs sm:text-sm text-gray-700">Withdraw consent at any time</span>
+          <div class="flex items-center justify-between px-1 py-3">
+            <span class="text-[10.5px] text-gray-700">Withdraw consent at any time</span>
             <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </div>
         </div>
@@ -113,8 +121,9 @@
             <input id="code" name="code" type="text" maxlength="8" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400" placeholder="Enter 8-digit code">
         </div>
 
-        <button id="btn-submit" class="w-full h-9 bg-brand-blue text-white text-sm rounded-lg font-bold hover:bg-brand-blueHover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md" disabled>
-          Submit and Proceed
+        <button id="btn-submit" class="w-full h-9 bg-gray-900 text-white text-sm rounded-lg font-bold hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center justify-between px-4" disabled>
+          <span>Submit and Proceed</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
         </button>
       </section>
     </div>
