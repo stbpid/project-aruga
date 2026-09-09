@@ -24,11 +24,11 @@
         <a href="/privacy" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Privacy Policy</a>
         <a href="/user-manual" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Documentation</a>
         <a href="/contact" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Contact us</a>
-        <a href="/dashboard" class="group bg-brand-blue hover:bg-brand-blueHover text-white text-[11.5px] font-semibold pl-1.5 pr-5 py-1.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.03] flex items-center gap-3">
+        <a id="nav-toggle-btn" href="#dashboard" class="group bg-brand-blue hover:bg-brand-blueHover text-white text-[11.5px] font-semibold pl-1.5 pr-5 py-1.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.03] flex items-center gap-3">
           <span class="w-7 h-7 rounded-lg bg-white/20 group-hover:bg-white/30 flex items-center justify-center shrink-0 transition-all duration-200 group-hover:-translate-x-0.5">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="14" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="3" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="14" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect></svg>
+            <svg id="nav-toggle-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="14" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="3" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="14" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect></svg>
           </span>
-          Dashboard
+          <span id="nav-toggle-label">Dashboard</span>
         </a>
       </nav>
 
@@ -43,7 +43,7 @@
       <a href="/privacy" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Privacy Policy</a>
       <a href="/user-manual" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Documentation</a>
       <a href="/contact" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Contact us</a>
-      <a href="/dashboard" class="block py-2.5 px-3 text-sm font-semibold text-white bg-brand-blue hover:bg-brand-blueHover rounded-xl text-center transition-colors">Dashboard</a>
+      <a id="nav-toggle-btn-mobile" href="#dashboard" class="block py-2.5 px-3 text-sm font-semibold text-white bg-brand-blue hover:bg-brand-blueHover rounded-xl text-center transition-colors">Dashboard</a>
     </div>
   </header>
 
@@ -75,10 +75,13 @@
     <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-full lg:h-[440px] flex flex-col lg:flex-row overflow-hidden border border-[#e0e4e0]">
 
       <aside class="relative w-full h-36 sm:h-44 lg:h-auto lg:w-5/12 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
-      <img id="img-hero" src="/images/hero.webp" alt="Project Aruga Hero" class="hidden absolute inset-0 w-full h-full object-cover opacity-60">
+      <img id="img-hero" src="/images/hero.webp" alt="Project Aruga Hero" class="hidden absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity duration-300">
+      <img id="img-hero-dashboard" src="/images/aruga-bg-dashboard.webp" alt="Project Aruga Dashboard" class="hidden absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity duration-300">
       </aside>
 
-      <section class="w-full lg:w-7/12 p-5 sm:p-8 flex flex-col justify-center overflow-y-auto">
+      <div class="w-full lg:w-7/12 relative overflow-hidden">
+
+      <section id="section-profiling" class="w-full h-full p-5 sm:p-8 flex flex-col justify-center overflow-y-auto transition-opacity duration-300">
 
         <div class="mb-3">
            <img id="img-form-logo" src="/images/form-logo.webp" alt="DSWD Logo" class="h-9 sm:h-10 w-auto object-contain">
@@ -100,7 +103,7 @@
             <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </div>
         </div>
-        
+
         <div class="flex items-center gap-3 mb-4">
            <input type="checkbox" id="agree" class="h-4 w-4 cursor-pointer accent-gray-900 rounded border-gray-300 focus:ring-gray-900">
            <label for="agree" class="text-[11px] font-medium cursor-pointer text-brand-dark leading-tight select-none">
@@ -119,6 +122,41 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
         </button>
       </section>
+
+      <section id="section-dashboard" class="hidden w-full h-full p-5 sm:p-8 flex flex-col justify-center overflow-y-auto transition-opacity duration-300">
+
+        <div class="mb-4">
+          <img src="/images/form-logo.webp" alt="DSWD Logo" class="h-9 sm:h-10 w-auto object-contain">
+        </div>
+
+        <h1 class="font-bold text-lg mb-4 text-brand-dark">Dashboard Login</h1>
+
+        <label for="dash-email" class="block font-bold text-xs mb-1 text-brand-dark">Email Address</label>
+        <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-1.5 h-9 mb-3 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
+          <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <input id="dash-email" name="dash-email" type="email" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400" placeholder="Enter your email address" autocomplete="email">
+        </div>
+
+        <label for="dash-password" class="block font-bold text-xs mb-1 text-brand-dark">Password</label>
+        <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-1.5 h-9 mb-4 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
+          <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <input id="dash-password" name="dash-password" type="password" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400" placeholder="Enter your password" autocomplete="current-password">
+          <button type="button" id="dash-toggle-pw" class="text-gray-400 hover:text-gray-600 flex-shrink-0 focus:outline-none" tabindex="-1">
+            <svg id="dash-pw-eye-show" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <svg id="dash-pw-eye-hide" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+          </button>
+        </div>
+
+        <button id="dash-btn-submit" class="w-full h-9 bg-brand-blue text-white text-[11.5px] rounded-lg font-bold hover:bg-brand-blueHover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md" disabled>
+          Sign In
+        </button>
+
+        <div id="dash-error-msg" class="hidden mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-[11px] text-red-600 font-medium">
+          <span id="dash-error-text"></span>
+        </div>
+      </section>
+
+      </div>
     </div>
   </main>
 
@@ -130,5 +168,152 @@
 
   <script src="/js/toast.js"></script>
   <script src="/js/index.js"></script>
+  <script>
+    // ── Section router (Profiling / Dashboard) ────────────────────
+    const sectionProfiling = document.getElementById('section-profiling');
+    const sectionDashboard = document.getElementById('section-dashboard');
+    const heroProfiling    = document.getElementById('img-hero');
+    const heroDashboard    = document.getElementById('img-hero-dashboard');
+    const navToggleBtn     = document.getElementById('nav-toggle-btn');
+    const navToggleBtnMobile = document.getElementById('nav-toggle-btn-mobile');
+    const navToggleLabel   = document.getElementById('nav-toggle-label');
+    const navToggleIcon    = document.getElementById('nav-toggle-icon');
+
+    const ICON_GRID = '<rect x="3" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="14" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="3" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="14" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect>';
+    const ICON_DOC  = '<rect x="4" y="3" width="16" height="18" rx="2" stroke-width="2"></rect><path stroke-linecap="round" stroke-width="2" d="M9 3h6v2a1 1 0 01-1 1H10a1 1 0 01-1-1V3z"></path><path stroke-linecap="round" stroke-width="2" d="M8 11h8M8 15h5"></path>';
+
+    function showSection(isDashboard) {
+      sectionProfiling.classList.toggle('hidden', isDashboard);
+      sectionDashboard.classList.toggle('hidden', !isDashboard);
+      heroProfiling.classList.toggle('hidden', isDashboard);
+      heroDashboard.classList.toggle('hidden', !isDashboard);
+
+      const label = isDashboard ? 'Profiling Tool' : 'Dashboard';
+      const href  = isDashboard ? '#' : '#dashboard';
+      const icon  = isDashboard ? ICON_DOC : ICON_GRID;
+      [navToggleBtn, navToggleBtnMobile].forEach(btn => {
+        if (!btn) return;
+        btn.setAttribute('href', href);
+        const labelSpan = btn.querySelector('span:not(.w-7)') || btn;
+        if (btn === navToggleBtn) navToggleLabel.textContent = label;
+        else btn.textContent = label;
+      });
+      navToggleIcon.innerHTML = icon;
+
+      if (isDashboard) {
+        setTimeout(() => document.getElementById('dash-email')?.focus(), 350);
+      }
+    }
+
+    function routeFromHash() {
+      showSection(window.location.hash === '#dashboard');
+    }
+
+    window.addEventListener('hashchange', routeFromHash);
+    routeFromHash();
+
+    // Idle-logout notice, shown once when landing on the dashboard section
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.location.hash === '#dashboard' && sessionStorage.getItem('logout_reason') === 'idle') {
+        sessionStorage.removeItem('logout_reason');
+        setTimeout(() => toast.error('You were logged out due to 30 minutes of inactivity.', 'Session Expired'), 300);
+      }
+    });
+
+    // ── Dashboard login form ───────────────────────────────────────
+    const dashEmailInput = document.getElementById('dash-email');
+    const dashPwInput    = document.getElementById('dash-password');
+    const dashBtnSubmit  = document.getElementById('dash-btn-submit');
+    const dashErrorMsg   = document.getElementById('dash-error-msg');
+    const dashErrorText  = document.getElementById('dash-error-text');
+    const dashTogglePw   = document.getElementById('dash-toggle-pw');
+    const dashPwEyeShow  = document.getElementById('dash-pw-eye-show');
+    const dashPwEyeHide  = document.getElementById('dash-pw-eye-hide');
+
+    function dashValidate() {
+      const email = dashEmailInput.value.trim();
+      const pw    = dashPwInput.value;
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      dashBtnSubmit.disabled = !(emailOk && pw.length >= 1);
+    }
+
+    dashEmailInput.addEventListener('input', dashValidate);
+    dashPwInput.addEventListener('input', dashValidate);
+
+    dashTogglePw.addEventListener('click', () => {
+      const isText = dashPwInput.type === 'text';
+      dashPwInput.type = isText ? 'password' : 'text';
+      dashPwEyeShow.classList.toggle('hidden', !isText);
+      dashPwEyeHide.classList.toggle('hidden', isText);
+    });
+
+    function dashShowError(msg) { dashErrorMsg.classList.remove('hidden'); dashErrorText.textContent = msg; }
+    function dashHideError()    { dashErrorMsg.classList.add('hidden'); }
+
+    const DASH_ROLE_REDIRECT = {
+      admin:          '/dashboard-admin',
+      central:        '/dashboard-central',
+      stu_head:       '/dashboard-stu-head',
+      field_officer:  '/dashboard-field-officer',
+    };
+
+    dashBtnSubmit.addEventListener('click', async function() {
+      dashHideError();
+      const email    = dashEmailInput.value.trim().toLowerCase();
+      const password = dashPwInput.value;
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { dashShowError('Please enter a valid email address.'); return; }
+      if (!password) { dashShowError('Please enter your password.'); return; }
+
+      const orig = dashBtnSubmit.textContent;
+      dashBtnSubmit.textContent = 'Signing in...';
+      dashBtnSubmit.disabled = true;
+
+      try {
+        const res = await fetch('/api/auth-router.php?action=login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const result = await res.json();
+
+        if (result.success && result.data) {
+          const d = result.data;
+          sessionStorage.setItem('session_id',           d.session_id       || '');
+          sessionStorage.setItem('interviewer_id',       d.id               || '');
+          sessionStorage.setItem('interviewer_code',     d.interviewer_code || '');
+          sessionStorage.setItem('interviewer_name',     d.full_name        || '');
+          sessionStorage.setItem('interviewer_email',    d.email            || '');
+          sessionStorage.setItem('interviewer_region',   d.region           || '');
+          sessionStorage.setItem('interviewer_province', d.province         || '');
+          sessionStorage.setItem('interviewer_office',   d.office           || '');
+          sessionStorage.setItem('session_started_at',   d.started_at       || '');
+          sessionStorage.setItem('dashboard_role',       d.role             || 'field_officer');
+          sessionStorage.setItem('loginTime',            new Date().toISOString());
+
+          toast.success(`Welcome, ${d.full_name}!`, 'Login Successful');
+          dashBtnSubmit.textContent = '✓ Success! Redirecting...';
+
+          const redirect = DASH_ROLE_REDIRECT[d.role] || '/dashboard-admin';
+          setTimeout(() => { window.location.href = redirect; }, 1000);
+        } else {
+          dashShowError(result.message || 'Invalid email or password.');
+          dashBtnSubmit.textContent = orig;
+          dashBtnSubmit.disabled = false;
+          dashPwInput.value = '';
+          dashPwInput.focus();
+          dashValidate();
+        }
+      } catch {
+        toast.error('Unable to connect to the server. Check your internet connection.', 'Connection Error');
+        dashBtnSubmit.textContent = orig;
+        dashBtnSubmit.disabled = false;
+      }
+    });
+
+    [dashEmailInput, dashPwInput].forEach(el => {
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' && !dashBtnSubmit.disabled) dashBtnSubmit.click(); });
+    });
+  </script>
 </body>
 </html>

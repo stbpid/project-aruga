@@ -7,7 +7,6 @@
 
 $map = [
     '/'                      => 'index.html',
-    '/login'                 => 'login-dashboard.html',
     '/contact'               => 'contact.html',
     '/privacy'               => 'privacy.html',
     '/phcwddata'             => 'phcwddata.html',
@@ -16,7 +15,6 @@ $map = [
     '/profile'               => 'profile.html',
     '/docs'                  => 'docs.html',
     '/user-manual'           => 'user-manual.html',
-    '/dashboard'             => 'dashboard.html',
     '/dashboard-admin'       => 'dashboard-admin.html',
     '/dashboard-central'     => 'dashboard-central.html',
     '/dashboard-stu-head'    => 'dashboard-stu-head.html',

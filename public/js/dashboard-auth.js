@@ -5,7 +5,7 @@ const DASH_SESSION_KEYS = ['session_id', 'interviewer_id'];
 function dashCheckAuth() {
   const missing = DASH_SESSION_KEYS.some(k => !sessionStorage.getItem(k));
   if (missing) {
-    window.location.replace('/dashboard');
+    window.location.replace('/#dashboard');
     return false;
   }
   return true;
@@ -30,7 +30,7 @@ function dashLogout() {
 
 function doLogout() {
   sessionStorage.clear();
-  window.location.replace('/dashboard');
+  window.location.replace('/#dashboard');
 }
 
 function showLogoutModal() {
@@ -172,7 +172,8 @@ function _idleLogout() {
   const modal = document.getElementById('idle-warning-modal');
   if (modal) modal.remove();
   sessionStorage.clear();
-  window.location.replace('/dashboard?reason=idle');
+  sessionStorage.setItem('logout_reason', 'idle');
+  window.location.replace('/#dashboard');
 }
 
 function dashStartIdleTimer() {
