@@ -418,7 +418,7 @@ function getStep2HTML() {
                 <input type="hidden" id="dd-relationship" name="dd-relationship">
                 <span class="material-symbols-outlined pointer-events-none select-none" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:18px;color:#9ca3af;">expand_more</span>
                 <ul id="dd-relationship-list"
-                  class="fixed z-50 bg-white border border-gray-300 rounded shadow-lg overflow-y-auto hidden text-xs sm:text-sm">
+                  class="fixed z-50 bg-white border border-gray-300 rounded shadow-lg overflow-y-auto dropdown-scroll hidden text-xs sm:text-sm">
                 </ul>
               </div>
             </div>
