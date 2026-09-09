@@ -10,6 +10,7 @@
     "xlsx": "^0.18.5"
   },
   "dependencies": {
-    "docx": "^9.6.1"
+    "docx": "^9.6.1",
+    "pdf-parse": "^1.1.1"
   }
 }
