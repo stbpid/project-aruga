@@ -2,7 +2,7 @@
 /**
  * AI Agent Chatbot Router
  *
- * action=ask — accepts a question, answers using Gemini 2.5 Flash-Lite
+ * action=ask — accepts a question, answers using Gemini 3.5 Flash-Lite
  * with function calling over two tools:
  *   - search_documents: keyword search over extracted reference docs
  *   - get_my_assessment_counts: counts of the logged-in interviewer's own assessments
@@ -42,7 +42,7 @@ if (empty($question)) {
     exit;
 }
 
-$geminiApiKey = getenv('GEMINI_API_KEY') ?: ($_ENV['GEMINI_API_KEY'] ?? $_SERVER['GEMINI_API_KEY'] ?? '');
+$geminiApiKey = trim(getenv('GEMINI_API_KEY') ?: ($_ENV['GEMINI_API_KEY'] ?? $_SERVER['GEMINI_API_KEY'] ?? ''));
 if (empty($geminiApiKey)) {
     echo json_encode(['success' => false, 'message' => 'AI Agent is not configured.']);
     exit;
@@ -145,51 +145,37 @@ $toolDeclarations = [
 ];
 
 function callGemini($apiKey, $contents, $tools) {
-    $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=' . urlencode($apiKey);
+    $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent';
 
     $payload = [
         'contents' => $contents,
         'tools' => [['functionDeclarations' => $tools]],
-        // Document lookup and counting don't need extended reasoning; thinking
-        // adds enough latency to blow the serverless function's time budget.
-        'generationConfig' => [
-            'thinkingConfig' => ['thinkingLevel' => 'LOW'],
-        ],
     ];
 
     $body = json_encode($payload);
 
-    // One retry: a cold serverless container occasionally hangs on its first
-    // outbound TLS connection and returns zero bytes.
-    for ($attempt = 1; $attempt <= 2; $attempt++) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($body),
-            'Expect:',
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 8);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 12);
-        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    // The key must go in this header. Passing it as ?key= hangs with no response.
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'x-goog-api-key: ' . $apiKey,
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 25);
 
-        $response  = curl_exec($ch);
-        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($httpCode !== 0) break;
-    }
+    $response  = curl_exec($ch);
+    $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
 
     return [
         'httpCode' => $httpCode,
         'data' => json_decode($response, true),
         'curlError' => $curlError,
-        'payloadBytes' => strlen($body),
-        'attempts' => $attempt,
     ];
 }
 
@@ -200,12 +186,12 @@ $contents = [
 $result = callGemini($geminiApiKey, $contents, $toolDeclarations);
 
 if ($result['httpCode'] === 429) {
-    echo json_encode(['success' => false, 'message' => 'The assistant is busy right now, please try again in a moment.', 'debug' => $result]);
+    echo json_encode(['success' => false, 'message' => 'The assistant is busy right now, please try again in a moment.']);
     exit;
 }
 
 if ($result['httpCode'] < 200 || $result['httpCode'] >= 300) {
-    echo json_encode(['success' => false, 'message' => 'The assistant is temporarily unavailable.', 'debug' => $result]);
+    echo json_encode(['success' => false, 'message' => 'The assistant is temporarily unavailable.']);
     exit;
 }
 
@@ -249,12 +235,12 @@ if ($functionCall !== null) {
     $result = callGemini($geminiApiKey, $contents, $toolDeclarations);
 
     if ($result['httpCode'] === 429) {
-        echo json_encode(['success' => false, 'message' => 'The assistant is busy right now, please try again in a moment.', 'debug' => $result]);
+        echo json_encode(['success' => false, 'message' => 'The assistant is busy right now, please try again in a moment.']);
         exit;
     }
 
     if ($result['httpCode'] < 200 || $result['httpCode'] >= 300) {
-        echo json_encode(['success' => false, 'message' => 'The assistant is temporarily unavailable.', 'debug' => $result]);
+        echo json_encode(['success' => false, 'message' => 'The assistant is temporarily unavailable.']);
         exit;
     }
 
