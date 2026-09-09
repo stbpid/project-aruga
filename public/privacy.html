@@ -87,16 +87,24 @@
 
     function updateNavPillOnScroll() {
       const header = document.getElementById('site-header');
-      const pill = document.getElementById('nav-pill');
-      if (!header || !pill) return;
+      const backToTop = document.getElementById('back-to-top');
+      if (!header) return;
       const scrolled = window.scrollY > 8;
-      pill.classList.toggle('bg-white', scrolled);
-      pill.classList.toggle('backdrop-blur-md', scrolled);
-      pill.classList.toggle('shadow-sm', scrolled);
+      header.classList.toggle('hidden', scrolled);
+      if (backToTop) backToTop.classList.toggle('hidden', !scrolled);
     }
     window.addEventListener('scroll', updateNavPillOnScroll);
     updateNavPillOnScroll();
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   </script>
+
+  <!-- Back to Top Button -->
+  <button id="back-to-top" onclick="scrollToTop()" class="hidden fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-gray-900 hover:bg-black text-white shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-105">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
+  </button>
 
   <!-- MAIN CONTENT -->
   <main class="flex-grow py-8 px-4">
