@@ -31,7 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 requireRole(['admin']);
 
-$question = postStr('question');
+// Read raw — the question goes into a JSON API body, not HTML, so htmlspecialchars() would corrupt apostrophes.
+$requestBody = json_decode(file_get_contents('php://input'), true);
+$question = trim($requestBody['question'] ?? '');
+if (mb_strlen($question) > 2000) {
+    $question = mb_substr($question, 0, 2000);
+}
 if (empty($question)) {
     echo json_encode(['success' => false, 'message' => 'Question is required.']);
     exit;
@@ -204,7 +209,7 @@ if ($functionCall !== null) {
     // Send the tool result back to Gemini for the final answer
     $contents[] = ['role' => 'model', 'parts' => [['functionCall' => $functionCall]]];
     $contents[] = [
-        'role' => 'function',
+        'role' => 'user',
         'parts' => [[
             'functionResponse' => [
                 'name' => $fnName,
