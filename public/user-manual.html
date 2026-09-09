@@ -156,7 +156,7 @@
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
   <!-- HEADER -->
-  <header id="site-header" class="relative w-full sticky top-0 z-50 px-4 pt-4 transition-all duration-300 ease-in-out">
+  <header id="site-header" class="relative w-full px-4 pt-4 transition-all duration-300 ease-in-out">
     <div id="nav-pill" class="max-w-4xl mx-auto rounded-xl px-4 sm:px-5 h-14 flex items-center justify-between border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-300">
 
       <div class="flex items-center gap-3">
@@ -203,13 +203,8 @@
     }
 
     function updateNavPillOnScroll() {
-      const header = document.getElementById('site-header');
       const backToTop = document.getElementById('back-to-top');
-      if (!header) return;
       const scrolled = window.scrollY > 8;
-      header.classList.toggle('opacity-0', scrolled);
-      header.classList.toggle('-translate-y-4', scrolled);
-      header.classList.toggle('pointer-events-none', scrolled);
       if (backToTop) backToTop.classList.toggle('hidden', !scrolled);
     }
     window.addEventListener('scroll', updateNavPillOnScroll);
