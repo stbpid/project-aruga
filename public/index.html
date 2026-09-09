@@ -20,10 +20,10 @@
       </div>
 
       <nav class="hidden md:flex items-center gap-6">
-        <a href="/privacy" class="text-[10.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Privacy Policy</a>
-        <a href="/user-manual" class="text-[10.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Documentation</a>
-        <a href="/contact" class="text-[10.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Contact us</a>
-        <a href="/dashboard" class="group bg-gray-900 hover:bg-black text-white text-[10.5px] font-semibold pl-5 pr-1.5 py-1.5 rounded-full transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.03] flex items-center gap-3">
+        <a href="/privacy" class="text-[9.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Privacy Policy</a>
+        <a href="/user-manual" class="text-[9.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Documentation</a>
+        <a href="/contact" class="text-[9.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Contact us</a>
+        <a href="/dashboard" class="group bg-gray-900 hover:bg-black text-white text-[9.5px] font-semibold pl-5 pr-1.5 py-1.5 rounded-full transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.03] flex items-center gap-3">
           Dashboard
           <span class="w-7 h-7 rounded-full bg-white/20 group-hover:bg-white/30 flex items-center justify-center shrink-0 transition-all duration-200 group-hover:translate-x-0.5">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
@@ -62,10 +62,7 @@
       const pill = document.getElementById('nav-pill');
       if (!header || !pill) return;
       const scrolled = window.scrollY > 8;
-      header.classList.toggle('bg-[#f6f8f6f2]', scrolled);
-      header.classList.toggle('backdrop-blur-md', scrolled);
-      header.classList.toggle('shadow-sm', scrolled);
-      pill.classList.toggle('bg-white/80', scrolled);
+      pill.classList.toggle('bg-white', scrolled);
       pill.classList.toggle('backdrop-blur-md', scrolled);
       pill.classList.toggle('shadow-sm', scrolled);
     }
