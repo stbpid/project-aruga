@@ -3736,7 +3736,7 @@
         body: JSON.stringify({ question }),
       });
       const json = await res.json();
-      thinkingBubble.textContent = json.success ? json.answer : (json.message || 'Something went wrong.');
+      thinkingBubble.textContent = json.success ? json.answer : (json.message || 'Something went wrong.') + (json.debug ? ('\n\nDEBUG: ' + JSON.stringify(json.debug)) : '');
     } catch (err) {
       thinkingBubble.textContent = 'Something went wrong. Please try again.';
     } finally {
