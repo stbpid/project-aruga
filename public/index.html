@@ -12,7 +12,7 @@
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
   <header id="site-header" class="w-full sticky top-0 z-50 px-4 pt-4 transition-all duration-300">
-    <div id="nav-pill" class="max-w-5xl mx-auto rounded-full px-4 sm:px-5 h-14 flex items-center justify-between border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-300">
+    <div id="nav-pill" class="max-w-4xl mx-auto rounded-full px-4 sm:px-5 h-14 flex items-center justify-between border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-300">
 
       <div class="flex items-center gap-3">
         <img id="img-nav-logo" src="/images/logo.webp" alt="Project Aruga Logo" class="h-9 w-auto object-contain rounded-full">
@@ -38,7 +38,7 @@
     </div>
 
     <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden max-w-5xl mx-auto mt-2 bg-white border border-gray-200/80 rounded-2xl shadow-sm px-4 py-3 space-y-1">
+    <div id="mobile-menu" class="hidden md:hidden max-w-4xl mx-auto mt-2 bg-white border border-gray-200/80 rounded-2xl shadow-sm px-4 py-3 space-y-1">
       <a href="/privacy" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Privacy Policy</a>
       <a href="/user-manual" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Documentation</a>
       <a href="/contact" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Contact us</a>
@@ -70,22 +70,22 @@
     updateNavPillOnScroll();
   </script>
 
-  <main class="flex-grow flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-5xl flex flex-col lg:flex-row overflow-hidden border border-[#e0e4e0]">
-      
-      <aside class="relative w-full h-48 sm:h-56 lg:h-auto lg:w-5/12 bg-gray-900">
-      <img id="img-hero" src="/images/hero.webp" alt="Project Aruga Hero" class="absolute inset-0 w-full h-full object-cover opacity-60">  
+  <main class="flex-grow flex items-center justify-center p-4 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-full flex flex-col lg:flex-row overflow-hidden border border-[#e0e4e0]">
+
+      <aside class="relative w-full h-32 sm:h-40 lg:h-auto lg:w-5/12 bg-gray-900">
+      <img id="img-hero" src="/images/hero.webp" alt="Project Aruga Hero" class="absolute inset-0 w-full h-full object-cover opacity-60">
       </aside>
 
-      <section class="w-full lg:w-7/12 p-6 sm:p-8 flex flex-col justify-center">
-        
-        <div class="mb-4">
-           <img id="img-form-logo" src="/images/form-logo.webp" alt="DSWD Logo" class="h-10 sm:h-12 w-auto object-contain">
+      <section class="w-full lg:w-7/12 p-4 sm:p-6 flex flex-col justify-center overflow-y-auto">
+
+        <div class="mb-3">
+           <img id="img-form-logo" src="/images/form-logo.webp" alt="DSWD Logo" class="h-9 sm:h-10 w-auto object-contain">
         </div>
 
-        <h1 class="font-bold text-xl mb-4 text-brand-dark">Data Privacy Agreement</h1>
-        
-        <div class="bg-gray-50 border border-gray-200 p-4 h-48 overflow-y-auto custom-scroll text-sm text-gray-600 mb-4 rounded-lg leading-relaxed text-justify">
+        <h1 class="font-bold text-lg mb-2 text-brand-dark">Data Privacy Agreement</h1>
+
+        <div class="bg-gray-50 border border-gray-200 p-3 h-28 sm:h-32 overflow-y-auto custom-scroll text-xs sm:text-sm text-gray-600 mb-3 rounded-lg leading-relaxed text-justify">
           <p>
             By proceeding, I understand that Project Aruga (Department of Social Welfare and Development) will collect and process personal and sensitive information for the purpose of profiling, assessment, and delivery of services for children with disabilities.
           </p>
@@ -98,20 +98,20 @@
           </ul>
         </div>
         
-        <div class="flex items-center gap-3 mb-6">
+        <div class="flex items-center gap-3 mb-4">
            <input type="checkbox" id="agree" class="h-4 w-4 cursor-pointer text-brand-blue rounded border-gray-300 focus:ring-brand-blue">
-           <label for="agree" class="text-sm font-medium cursor-pointer text-brand-dark leading-tight select-none">
+           <label for="agree" class="text-xs font-medium cursor-pointer text-brand-dark leading-tight select-none">
              I accept the Data Privacy terms and conditions for data processing.
            </label>
         </div>
 
-        <label for="code" class="block font-bold text-sm mb-1 text-brand-dark">Interviewer Code</label>
-        <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-2 h-10 mb-4 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
+        <label for="code" class="block font-bold text-xs mb-1 text-brand-dark">Interviewer Code</label>
+        <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-1.5 h-9 mb-3 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-            <input id="code" name="code" type="text" maxlength="8" class="w-full text-sm outline-none text-gray-800 placeholder-gray-400" placeholder="Enter 8-digit code">
+            <input id="code" name="code" type="text" maxlength="8" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400" placeholder="Enter 8-digit code">
         </div>
-        
-        <button id="btn-submit" class="w-full h-10 bg-brand-blue text-white rounded-lg font-bold hover:bg-brand-blueHover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md" disabled>
+
+        <button id="btn-submit" class="w-full h-9 bg-brand-blue text-white text-sm rounded-lg font-bold hover:bg-brand-blueHover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md" disabled>
           Submit and Proceed
         </button>
       </section>
