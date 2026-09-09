@@ -140,7 +140,7 @@ $toolDeclarations = [
 ];
 
 function callGemini($apiKey, $contents, $tools) {
-    $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=' . urlencode($apiKey);
+    $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=' . urlencode($apiKey);
 
     $payload = [
         'contents' => $contents,
