@@ -174,7 +174,7 @@ if ($result['httpCode'] === 429) {
 }
 
 if ($result['httpCode'] < 200 || $result['httpCode'] >= 300) {
-    echo json_encode(['success' => false, 'message' => 'The assistant is temporarily unavailable.']);
+    echo json_encode(['success' => false, 'message' => 'The assistant is temporarily unavailable.', 'debug' => $result]);
     exit;
 }
 
