@@ -19,6 +19,26 @@ let locationData = {};
 let totalSeconds = 0;
 const MAX_SECONDS = 20 * 60; // 20 minutes
 let timerInterval;
+let currentStep = 1;
+
+// ============================================================================
+// STEP <-> URL HASH ROUTING
+// ============================================================================
+
+const STEP_SLUGS = {
+  1: 'pre-qualification',
+  2: 'respondent-profile',
+  3: 'child-profile',
+  4: 'family-profile',
+  5: 'socio-economic',
+  6: 'health',
+  7: 'education',
+  8: 'economic-capacity',
+  9: 'service-availment',
+  10: 'assessment',
+  11: 'review',
+};
+const SLUG_TO_STEP = Object.fromEntries(Object.entries(STEP_SLUGS).map(([n, s]) => [s, Number(n)]));
 
 // ============================================================================
 // INITIALIZATION
@@ -32,18 +52,26 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Check if user came from index page
   checkAuthentication();
 
-  // Intercept browser back button — show End Session modal instead of navigating away
-  // Push a guard entry so the first back press pops it (staying on this page)
-  // instead of leaving straight away with nothing left for us to catch.
-  history.pushState({ profilingPage: true }, '', location.href);
+  // Back/forward moves between form steps (wizard-style). Pressing back from
+  // Step 1 (nothing left to step back to) shows the End Session modal instead.
+  history.replaceState({ profilingStep: 1 }, '', '#' + STEP_SLUGS[1]);
   window.addEventListener('popstate', function(e) {
     if (!sessionStorage.getItem('session_id')) {
       window.location.replace('/');
       return;
     }
-    // Re-push the guard entry so the next back press is caught too
-    history.pushState({ profilingPage: true }, '', location.href);
-    showLogoutModal();
+
+    const slug = location.hash.replace(/^#/, '');
+    const step = SLUG_TO_STEP[slug];
+
+    if (!step || step === currentStep) {
+      // Nowhere left to go back to — re-anchor on step 1 and confirm exit.
+      history.pushState({ profilingStep: 1 }, '', '#' + STEP_SLUGS[1]);
+      showLogoutModal();
+      return;
+    }
+
+    goToStep(step, { fromPopState: true });
   });
 
   // Handle back/forward cache — re-check auth when page is restored from bfcache
@@ -229,26 +257,35 @@ function updateProgress(step) {
 // NAVIGATION
 // ============================================================================
 
-function goToStep(stepNumber) {
+function goToStep(stepNumber, options = {}) {
   clearAllErrors();
   document.querySelectorAll('.step-section').forEach(el => {
     el.classList.add('hidden-step');
     el.style.opacity = 0;
   });
-  
+
   const target = document.getElementById('step-' + stepNumber);
   if (target) {
     target.classList.remove('hidden-step');
     setTimeout(() => target.style.opacity = 1, 50);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-  
+
   const progressSection = document.getElementById('progress-section');
   if (stepNumber === 11) {
     progressSection.style.display = 'none';
   } else {
     progressSection.style.display = 'block';
     updateProgress(stepNumber);
+  }
+
+  currentStep = stepNumber;
+
+  // Reflect the step in the URL hash so it's bookmarkable/shareable.
+  // Skip when called from the popstate handler (history entry already exists).
+  if (!options.fromPopState) {
+    const slug = STEP_SLUGS[stepNumber];
+    if (slug) history.pushState({ profilingStep: stepNumber }, '', '#' + slug);
   }
 }
 
