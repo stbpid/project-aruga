@@ -169,7 +169,7 @@ $contents = [
 $result = callGemini($geminiApiKey, $contents, $toolDeclarations);
 
 if ($result['httpCode'] === 429) {
-    echo json_encode(['success' => false, 'message' => 'The assistant is busy right now, please try again in a moment.']);
+    echo json_encode(['success' => false, 'message' => 'The assistant is busy right now, please try again in a moment.', 'debug' => $result]);
     exit;
 }
 
