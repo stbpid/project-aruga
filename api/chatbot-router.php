@@ -216,12 +216,12 @@ if ($functionCall !== null) {
     $result = callGemini($geminiApiKey, $contents, $toolDeclarations);
 
     if ($result['httpCode'] === 429) {
-        echo json_encode(['success' => false, 'message' => 'The assistant is busy right now, please try again in a moment.']);
+        echo json_encode(['success' => false, 'message' => 'The assistant is busy right now, please try again in a moment.', 'debug' => $result]);
         exit;
     }
 
     if ($result['httpCode'] < 200 || $result['httpCode'] >= 300) {
-        echo json_encode(['success' => false, 'message' => 'The assistant is temporarily unavailable.']);
+        echo json_encode(['success' => false, 'message' => 'The assistant is temporarily unavailable.', 'debug' => $result]);
         exit;
     }
 
