@@ -80,8 +80,6 @@
       const backToTop = document.getElementById('back-to-top');
       if (backToTop) backToTop.classList.toggle('hidden', !scrolled);
 
-      const endSessionFab = document.getElementById('end-session-fab');
-      if (endSessionFab) endSessionFab.classList.toggle('hidden', !scrolled);
     }
     window.addEventListener('scroll', updateNavPillOnScroll);
     updateNavPillOnScroll();
