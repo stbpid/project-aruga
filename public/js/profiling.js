@@ -33,15 +33,16 @@ document.addEventListener('DOMContentLoaded', async function() {
   checkAuthentication();
 
   // Intercept browser back button — show End Session modal instead of navigating away
-  // Use replaceState (not pushState) to avoid creating skippable history entries
-  history.replaceState({ profilingPage: true }, '', location.href);
+  // Push a guard entry so the first back press pops it (staying on this page)
+  // instead of leaving straight away with nothing left for us to catch.
+  history.pushState({ profilingPage: true }, '', location.href);
   window.addEventListener('popstate', function(e) {
     if (!sessionStorage.getItem('session_id')) {
       window.location.replace('/');
       return;
     }
-    // Re-anchor current entry without adding a new one
-    history.replaceState({ profilingPage: true }, '', location.href);
+    // Re-push the guard entry so the next back press is caught too
+    history.pushState({ profilingPage: true }, '', location.href);
     showLogoutModal();
   });
 
