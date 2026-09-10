@@ -299,7 +299,7 @@
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
           <div>
             <div class="page-title" id="all-ben-page-title" style="margin:0;">Beneficiaries</div>
-            <div class="page-subtitle" style="margin:0;">All submitted assessments across all regions</div>
+            <div class="page-subtitle" id="all-ben-page-subtitle" style="margin:0;">All submitted assessments across all regions</div>
           </div>
         </div>
         <!-- Filters -->
@@ -331,7 +331,7 @@
               4Ps Only
             </label>
             <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="all-ben-count"></span>
-            <button class="btn btn-primary btn-sm" id="all-ben-payout-btn" onclick="openPayrollTypeModal()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;margin-left:auto;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll</button>
+            <button class="btn btn-primary btn-sm" id="all-ben-payout-btn" onclick="openPayrollTypeModal()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll</button>
             <button class="btn btn-sm" id="all-ben-manage-dsa-btn" onclick="toggleDsaView()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;background:white;color:var(--blue);border:1.5px solid var(--blue);margin-left:auto;"><span class="material-symbols-outlined" style="font-size:0.875rem;" id="all-ben-dsa-icon">payments</span><span id="all-ben-dsa-label">Manage DSA</span></button>
           </div>
         </div>
@@ -2537,7 +2537,6 @@
             <option value="children">Children</option>
             <option value="sessions">Sessions</option>
           </select>
-          <button class="btn btn-secondary btn-sm" id="audit-reset">Reset</button>
           <span style="font-size:0.75rem;color:var(--gray-500);margin-left:auto;" id="audit-count">—</span>
         </div>
       </div>
@@ -3164,6 +3163,7 @@
     label.textContent = allBenDsaMode ? 'Back to Beneficiaries' : 'Manage DSA';
     document.getElementById('all-ben-payout-btn').style.display = allBenDsaMode ? 'none' : 'flex';
     document.getElementById('all-ben-page-title').textContent = allBenDsaMode ? 'Manage DSA' : 'Beneficiaries';
+    document.getElementById('all-ben-page-subtitle').textContent = allBenDsaMode ? 'Manage DSA entries for beneficiaries across all regions' : 'All submitted assessments across all regions';
     renderAllBen();
   }
 
@@ -3761,12 +3761,6 @@
     document.getElementById('audit-search').addEventListener('input', filterAudit);
     document.getElementById('audit-type').addEventListener('change', filterAudit);
     document.getElementById('audit-table').addEventListener('change', filterAudit);
-    document.getElementById('audit-reset').addEventListener('click', () => {
-      document.getElementById('audit-search').value = '';
-      document.getElementById('audit-type').value = '';
-      document.getElementById('audit-table').value = '';
-      filterAudit();
-    });
 
     renderAudit();
   }
