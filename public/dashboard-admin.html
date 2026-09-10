@@ -330,7 +330,6 @@
               </div>
               4Ps Only
             </label>
-            <button class="btn btn-secondary btn-sm" id="all-ben-reset">Reset</button>
             <button class="btn btn-primary btn-sm" id="all-ben-payout-btn" onclick="openPayrollTypeModal()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll</button>
             <button class="btn btn-sm" id="all-ben-manage-dsa-btn" onclick="toggleDsaView()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;background:white;color:var(--blue);border:1.5px solid var(--blue);"><span class="material-symbols-outlined" style="font-size:0.875rem;" id="all-ben-dsa-icon">payments</span><span id="all-ben-dsa-label">Manage DSA</span></button>
             <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="all-ben-count"></span>
@@ -424,7 +423,6 @@
             <option value="central">Central</option>
             <option value="admin">Admin</option>
           </select>
-          <button class="btn btn-secondary btn-sm" id="int-reset">Reset</button>
           <button class="btn btn-primary btn-sm" onclick="openAddInterviewerModal()" style="white-space:nowrap;margin-left:auto;">
             <span class="material-symbols-outlined">person_add</span>Add Interviewer
           </button>
@@ -3164,6 +3162,7 @@
     const label = document.getElementById('all-ben-dsa-label');
     icon.textContent  = allBenDsaMode ? 'arrow_back' : 'payments';
     label.textContent = allBenDsaMode ? 'Back to Beneficiaries' : 'Manage DSA';
+    document.getElementById('all-ben-payout-btn').style.display = allBenDsaMode ? 'none' : 'flex';
     renderAllBen();
   }
 
@@ -3186,23 +3185,9 @@
     document.getElementById('all-ben-region').addEventListener('change', filterAllBen);
     document.getElementById('all-ben-readiness').addEventListener('change', filterAllBen);
     document.getElementById('all-ben-disability').addEventListener('change', filterAllBen);
-    document.getElementById('all-ben-reset').addEventListener('click', () => {
-      document.getElementById('all-ben-search').value = '';
-      document.getElementById('all-ben-region').value = '';
-      document.getElementById('all-ben-readiness').value = '';
-      document.getElementById('all-ben-disability').value = '';
-      if (ben4psOnly) toggle4ps();
-      filterAllBen();
-    });
     document.getElementById('int-search').addEventListener('input', filterInterviewers);
     document.getElementById('int-region').addEventListener('change', filterInterviewers);
     document.getElementById('int-role').addEventListener('change', filterInterviewers);
-    document.getElementById('int-reset').addEventListener('click', () => {
-      document.getElementById('int-search').value = '';
-      document.getElementById('int-region').value = '';
-      document.getElementById('int-role').value = '';
-      filterInterviewers();
-    });
     document.getElementById('dd-new-item').addEventListener('keydown', e => { if (e.key === 'Enter') addDropdownItem(); });
 
     ['all-ben-region', 'all-ben-readiness', 'all-ben-disability',
