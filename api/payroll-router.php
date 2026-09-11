@@ -181,6 +181,507 @@ switch ($action) {
         break;
     }
 
+    // ================================================================
+    // action=dsa-grid — one row per beneficiary with per-month status
+    // ================================================================
+    case 'dsa-grid': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin', 'central', 'stu_head', 'field_officer']);
+
+        $region = getStr('region');
+        $year   = (int)(getStr('year') ?: date('Y'));
+
+        // A field officer is confined to their own region; admin/central see all.
+        $role = $authInterviewer['dashboard_role'] ?? '';
+        if ($role === 'field_officer') {
+            $region = trim($authInterviewer['region'] ?? '');
+            if ($region === '') {
+                echo json_encode(['success' => false, 'message' => 'No region assigned.']); exit;
+            }
+        } elseif ($region !== '') {
+            requireRegion($region);
+        }
+
+        // 1. Beneficiaries (paginated — PostgREST caps rows per request).
+        $pageSize = 1000; $offset = 0; $assessments = [];
+        while (true) {
+            $endpoint = 'assessments?select=aruga_id,children(first_name,last_name,middle_name,name_extension,region)'
+                . '&deleted_at=is.null&order=created_at.desc&limit=' . $pageSize . '&offset=' . $offset;
+            $res = supabaseRequest('GET', $endpoint);
+            if (!$res['success']) {
+                echo json_encode(['success' => false, 'message' => 'Failed to fetch beneficiaries']); exit;
+            }
+            $page = $res['data'] ?? [];
+            $assessments = array_merge($assessments, $page);
+            if (count($page) < $pageSize) break;
+            $offset += $pageSize;
+        }
+
+        if ($region !== '') {
+            $assessments = array_values(array_filter($assessments, function ($a) use ($region) {
+                return isset($a['children']['region']) && $a['children']['region'] === $region;
+            }));
+        }
+
+        // 2. Payments for the requested year (paginated).
+        $payMap = []; $offset = 0;
+        while (true) {
+            $res = supabaseRequest('GET',
+                'dsa_payments?select=aruga_id,period_month,status'
+                . '&period_month=gte.' . $year . '-01'
+                . '&period_month=lte.' . $year . '-12'
+                . '&limit=' . $pageSize . '&offset=' . $offset);
+            if (!$res['success']) break;
+            $page = $res['data'] ?? [];
+            foreach ($page as $p) {
+                $payMap[$p['aruga_id']][$p['period_month']] = $p['status'];
+            }
+            if (count($page) < $pageSize) break;
+            $offset += $pageSize;
+        }
+
+        // 3. Standing eligibility.
+        $standing = [];
+        $res = supabaseRequest('GET', 'dsa_beneficiary_status?select=aruga_id,status&limit=10000');
+        if ($res['success']) {
+            foreach ($res['data'] ?? [] as $s) $standing[$s['aruga_id']] = $s['status'];
+        }
+
+        // 4. Months behind counts only elapsed months of the current year.
+        $lastMonth = ((int)date('Y') === $year) ? (int)date('n') : 12;
+
+        $rows = [];
+        foreach ($assessments as $a) {
+            $arugaId = $a['aruga_id'] ?? '';
+            if ($arugaId === '') continue;
+            $c = $a['children'] ?? [];
+            $ext = trim($c['name_extension'] ?? '');
+            if (strcasecmp($ext, 'None') === 0) $ext = '';
+            $name = trim(implode(' ', array_filter([
+                trim($c['first_name'] ?? ''), trim($c['middle_name'] ?? ''),
+                trim($c['last_name'] ?? ''), $ext,
+            ])));
+
+            $months = $payMap[$arugaId] ?? [];
+            $behind = 0;
+            if (!isset($standing[$arugaId])) {
+                for ($m = 1; $m <= $lastMonth; $m++) {
+                    $key = sprintf('%04d-%02d', $year, $m);
+                    if (($months[$key] ?? '') !== 'paid') $behind++;
+                }
+            }
+
+            $rows[] = [
+                'aruga_id'      => $arugaId,
+                'name'          => $name ?: '—',
+                'region'        => $c['region'] ?? '—',
+                'months'        => (object)$months,
+                'months_behind' => $behind,
+                'standing'      => $standing[$arugaId] ?? null,
+            ];
+        }
+
+        echo json_encode(['success' => true, 'data' => $rows, 'year' => $year]);
+        break;
+    }
+
+    // ================================================================
+    // action=dsa-resolve-ids — turn pasted ARUGA IDs into names
+    // ================================================================
+    case 'dsa-resolve-ids': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin', 'central', 'field_officer']);
+
+        $body = json_decode(file_get_contents('php://input'), true) ?? [];
+        $ids    = $body['aruga_ids'] ?? [];
+        $region = trim($body['region'] ?? '');
+
+        $role = $authInterviewer['dashboard_role'] ?? '';
+        if ($role === 'field_officer') {
+            $region = trim($authInterviewer['region'] ?? '');
+        } elseif ($region !== '') {
+            requireRegion($region);
+        }
+
+        if (!is_array($ids) || empty($ids)) {
+            echo json_encode(['success' => true,
+                'data' => ['found' => [], 'unknown' => [], 'wrong_region' => []]]); exit;
+        }
+
+        // Normalize: trim, uppercase, drop blanks, de-duplicate.
+        $ids = array_values(array_unique(array_filter(array_map(function ($s) {
+            return strtoupper(trim((string)$s));
+        }, $ids), function ($s) { return $s !== ''; })));
+
+        if (count($ids) > 1000) {
+            echo json_encode(['success' => false, 'message' => 'Too many IDs (max 1000).']); exit;
+        }
+
+        $quoted = array_map(function ($id) { return '"' . str_replace('"', '', $id) . '"'; }, $ids);
+        $res = supabaseRequest('GET',
+            'assessments?select=aruga_id,children(first_name,last_name,middle_name,name_extension,region)'
+            . '&deleted_at=is.null&aruga_id=in.(' . urlencode(implode(',', $quoted)) . ')&limit=1000');
+
+        if (!$res['success']) {
+            echo json_encode(['success' => false, 'message' => 'Lookup failed']); exit;
+        }
+
+        $found = []; $wrongRegion = []; $seen = [];
+        foreach ($res['data'] ?? [] as $a) {
+            $arugaId = $a['aruga_id'] ?? '';
+            if ($arugaId === '') continue;
+            $seen[$arugaId] = true;
+            $c = $a['children'] ?? [];
+            $rowRegion = $c['region'] ?? '';
+
+            if ($region !== '' && $rowRegion !== $region) { $wrongRegion[] = $arugaId; continue; }
+
+            $ext = trim($c['name_extension'] ?? '');
+            if (strcasecmp($ext, 'None') === 0) $ext = '';
+            $name = trim(implode(' ', array_filter([
+                trim($c['first_name'] ?? ''), trim($c['middle_name'] ?? ''),
+                trim($c['last_name'] ?? ''), $ext,
+            ])));
+
+            $found[] = ['aruga_id' => $arugaId, 'name' => $name ?: '—', 'region' => $rowRegion];
+        }
+
+        $unknown = array_values(array_filter($ids, function ($id) use ($seen) {
+            return !isset($seen[$id]);
+        }));
+
+        echo json_encode(['success' => true, 'data' => [
+            'found' => $found, 'unknown' => $unknown, 'wrong_region' => $wrongRegion,
+        ]]);
+        break;
+    }
+
+    // ================================================================
+    // action=dsa-record-release — create a locked release + payment rows
+    // ================================================================
+    case 'dsa-record-release': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin', 'field_officer']);
+
+        $body   = json_decode(file_get_contents('php://input'), true) ?? [];
+        $region = trim($body['region'] ?? '');
+        $date   = trim($body['release_date'] ?? '');
+        $months = $body['months'] ?? [];
+        $amount = (int)($body['amount_per_month'] ?? 2000);
+        $exceptions = $body['exceptions'] ?? [];
+
+        $role = $authInterviewer['dashboard_role'] ?? '';
+        if ($role === 'field_officer') {
+            $region = trim($authInterviewer['region'] ?? '');
+        } else {
+            requireRegion($region);
+        }
+
+        // ---- Validate before touching the database ----
+        if ($region === '') {
+            echo json_encode(['success' => false, 'message' => 'Region is required.']); exit;
+        }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            echo json_encode(['success' => false, 'message' => 'Release date must be YYYY-MM-DD.']); exit;
+        }
+        if (!is_array($months) || empty($months)) {
+            echo json_encode(['success' => false, 'message' => 'At least one month is required.']); exit;
+        }
+        $months = array_values(array_unique($months));
+        foreach ($months as $m) {
+            if (!preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $m)) {
+                echo json_encode(['success' => false, 'message' => 'Invalid month: ' . $m]); exit;
+            }
+        }
+        if ($amount <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Amount must be greater than zero.']); exit;
+        }
+
+        $validReasons = ['deceased', 'transferred', 'not_claimed'];
+        $exMap = [];
+        foreach ($exceptions as $ex) {
+            $exId     = strtoupper(trim($ex['aruga_id'] ?? ''));
+            $exReason = trim($ex['reason'] ?? '');
+            if ($exId === '') continue;
+            if (!in_array($exReason, $validReasons, true)) {
+                echo json_encode(['success' => false,
+                    'message' => 'Invalid reason for ' . $exId . '.']); exit;
+            }
+            $exMap[$exId] = $exReason;
+        }
+
+        // ---- Region roster, minus those with a standing status ----
+        $pageSize = 1000; $offset = 0; $assessments = [];
+        while (true) {
+            $res = supabaseRequest('GET',
+                'assessments?select=aruga_id,children(region)&deleted_at=is.null'
+                . '&limit=' . $pageSize . '&offset=' . $offset);
+            if (!$res['success']) {
+                echo json_encode(['success' => false, 'message' => 'Failed to fetch roster']); exit;
+            }
+            $page = $res['data'] ?? [];
+            $assessments = array_merge($assessments, $page);
+            if (count($page) < $pageSize) break;
+            $offset += $pageSize;
+        }
+
+        $standing = [];
+        $sres = supabaseRequest('GET', 'dsa_beneficiary_status?select=aruga_id&limit=10000');
+        if ($sres['success']) {
+            foreach ($sres['data'] ?? [] as $s) $standing[$s['aruga_id']] = true;
+        }
+
+        $roster = [];
+        foreach ($assessments as $a) {
+            $arugaId = $a['aruga_id'] ?? '';
+            if ($arugaId === '') continue;
+            if (($a['children']['region'] ?? '') !== $region) continue;
+            if (isset($standing[$arugaId])) continue;  // deceased/transferred drop off
+            $roster[] = $arugaId;
+        }
+        $roster = array_values(array_unique($roster));
+
+        if (empty($roster)) {
+            echo json_encode(['success' => false,
+                'message' => 'No active beneficiaries in this region.']); exit;
+        }
+
+        // ---- Reject the whole request if any beneficiary-month is already paid ----
+        // Partial application would leave a release whose rows contradict its
+        // stated coverage, which cannot be reconciled against a liquidation.
+        $monthList = implode(',', array_map(function ($m) { return '"' . $m . '"'; }, $months));
+        $clash = supabaseRequest('GET',
+            'dsa_payments?select=aruga_id,period_month&period_month=in.('
+            . urlencode($monthList) . ')&limit=10000');
+        if ($clash['success'] && !empty($clash['data'])) {
+            $rosterSet = array_flip($roster);
+            $conflicts = [];
+            foreach ($clash['data'] as $c) {
+                if (isset($rosterSet[$c['aruga_id']])) {
+                    $conflicts[] = $c['aruga_id'] . ' (' . $c['period_month'] . ')';
+                }
+            }
+            if (!empty($conflicts)) {
+                echo json_encode(['success' => false,
+                    'message' => 'Already recorded for: ' . implode(', ', array_slice($conflicts, 0, 5))
+                        . (count($conflicts) > 5 ? ' and ' . (count($conflicts) - 5) . ' more' : '')
+                        . '. Nothing was saved.']); exit;
+            }
+        }
+
+        // ---- Create the release ----
+        $relRes = supabaseRequest('POST', 'dsa_releases', [
+            'region_name'      => $region,
+            'release_date'     => $date,
+            'months_covered'   => $months,
+            'amount_per_month' => $amount,
+            'recorded_by'      => $authInterviewer['id'],
+            'is_locked'        => true,
+        ]);
+        if (!$relRes['success'] || empty($relRes['data'][0]['id'])) {
+            echo json_encode(['success' => false, 'message' => 'Failed to create release.']); exit;
+        }
+        $releaseId = $relRes['data'][0]['id'];
+
+        // ---- Build every payment row ----
+        $rows = [];
+        foreach ($roster as $arugaId) {
+            $status = $exMap[$arugaId] ?? 'paid';
+            foreach ($months as $m) {
+                $rows[] = ['release_id' => $releaseId, 'aruga_id' => $arugaId,
+                           'period_month' => $m, 'status' => $status];
+            }
+        }
+
+        // Insert in chunks so a large region stays inside the request ceiling.
+        foreach (array_chunk($rows, 500) as $chunk) {
+            $insRes = supabaseRequest('POST', 'dsa_payments', $chunk);
+            if (!$insRes['success']) {
+                // Roll back: the cascade removes any rows already written.
+                supabaseRequest('DELETE', 'dsa_releases?id=eq.' . urlencode($releaseId));
+                echo json_encode(['success' => false,
+                    'message' => 'Failed to save payments. Nothing was saved.']); exit;
+            }
+        }
+
+        // ---- Standing status for deceased/transferred ----
+        sort($months);
+        $effectiveFrom = $months[0];
+        foreach ($exMap as $exId => $reason) {
+            if ($reason === 'not_claimed') continue;
+            supabaseRequest('POST', 'dsa_beneficiary_status', [
+                'aruga_id' => $exId, 'status' => $reason,
+                'effective_from' => $effectiveFrom, 'set_by_release' => $releaseId,
+            ]);
+        }
+
+        $missed = count(array_intersect(array_keys($exMap), $roster));
+        $paid   = count($roster) - $missed;
+
+        echo json_encode(['success' => true, 'data' => [
+            'release_id'   => $releaseId,
+            'paid_count'   => $paid,
+            'missed_count' => $missed,
+            'total_amount' => $paid * $amount * count($months),
+        ]]);
+        break;
+    }
+
+    // ================================================================
+    // action=dsa-releases — release history for a region
+    // ================================================================
+    case 'dsa-releases': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin', 'central', 'stu_head', 'field_officer']);
+
+        $region = getStr('region');
+        $role   = $authInterviewer['dashboard_role'] ?? '';
+        if ($role === 'field_officer') {
+            $region = trim($authInterviewer['region'] ?? '');
+        } elseif ($region !== '') {
+            requireRegion($region);
+        }
+
+        $endpoint = 'dsa_releases?select=id,region_name,release_date,months_covered,'
+            . 'amount_per_month,is_locked,created_at&order=release_date.desc&limit=500';
+        if ($region !== '') $endpoint .= '&region_name=eq.' . urlencode($region);
+
+        $res = supabaseRequest('GET', $endpoint);
+        if (!$res['success']) {
+            echo json_encode(['success' => false, 'message' => 'Failed to fetch releases']); exit;
+        }
+        echo json_encode(['success' => true, 'data' => $res['data'] ?? []]);
+        break;
+    }
+
+    // ================================================================
+    // action=dsa-reopen — admin-only unlock, always audited
+    // ================================================================
+    case 'dsa-reopen': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin']);
+
+        $body      = json_decode(file_get_contents('php://input'), true) ?? [];
+        $releaseId = trim($body['release_id'] ?? '');
+        $reason    = trim($body['reason'] ?? '');
+
+        $uuidPattern = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
+        if (!preg_match($uuidPattern, $releaseId)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid release id.']); exit;
+        }
+        if (strlen($reason) < 5) {
+            echo json_encode(['success' => false,
+                'message' => 'A reason of at least 5 characters is required.']); exit;
+        }
+
+        $cur = supabaseRequest('GET',
+            'dsa_releases?select=id,is_locked&id=eq.' . urlencode($releaseId) . '&limit=1');
+        if (!$cur['success'] || empty($cur['data'])) {
+            echo json_encode(['success' => false, 'message' => 'Release not found.']); exit;
+        }
+        if (!$cur['data'][0]['is_locked']) {
+            echo json_encode(['success' => false, 'message' => 'Release is already open.']); exit;
+        }
+
+        // Audit first: an unlock that was never recorded is the failure mode
+        // that matters, so it must not be possible.
+        $audit = supabaseRequest('POST', 'dsa_release_audit', [
+            'release_id'   => $releaseId,
+            'action'       => 'reopen',
+            'reason'       => $reason,
+            'performed_by' => $authInterviewer['id'],
+        ]);
+        if (!$audit['success']) {
+            echo json_encode(['success' => false, 'message' => 'Failed to write audit record.']); exit;
+        }
+
+        $upd = supabaseRequest('PATCH',
+            'dsa_releases?id=eq.' . urlencode($releaseId), ['is_locked' => false]);
+        if (!$upd['success']) {
+            echo json_encode(['success' => false, 'message' => 'Failed to reopen release.']); exit;
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Release reopened.']);
+        break;
+    }
+
+    // ================================================================
+    // action=dsa-region-summary — which regions are lagging
+    // ================================================================
+    case 'dsa-region-summary': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin', 'central']);
+
+        $year = (int)(getStr('year') ?: date('Y'));
+
+        $relRes = supabaseRequest('GET',
+            'dsa_releases?select=region_name,release_date,months_covered,amount_per_month'
+            . '&order=release_date.desc&limit=2000');
+        if (!$relRes['success']) {
+            echo json_encode(['success' => false, 'message' => 'Failed to fetch releases']); exit;
+        }
+
+        $byRegion = [];
+        foreach ($relRes['data'] ?? [] as $r) {
+            $rn = $r['region_name'];
+            if (!isset($byRegion[$rn])) {
+                $byRegion[$rn] = ['region' => $rn, 'last_release_date' => $r['release_date'],
+                                  'months_covered_count' => 0, 'beneficiaries_behind' => 0,
+                                  'total_disbursed' => 0];
+            }
+            $byRegion[$rn]['months_covered_count'] += count($r['months_covered'] ?? []);
+        }
+
+        // Paid rows per region, for the disbursed total.
+        $pageSize = 1000; $offset = 0; $paidByRegion = [];
+        while (true) {
+            $res = supabaseRequest('GET',
+                'dsa_payments?select=status,period_month,dsa_releases(region_name,amount_per_month)'
+                . '&status=eq.paid&period_month=gte.' . $year . '-01'
+                . '&period_month=lte.' . $year . '-12'
+                . '&limit=' . $pageSize . '&offset=' . $offset);
+            if (!$res['success']) break;
+            $page = $res['data'] ?? [];
+            foreach ($page as $p) {
+                $rn = $p['dsa_releases']['region_name'] ?? null;
+                if ($rn === null) continue;
+                $amt = (int)($p['dsa_releases']['amount_per_month'] ?? 2000);
+                $paidByRegion[$rn] = ($paidByRegion[$rn] ?? 0) + $amt;
+            }
+            if (count($page) < $pageSize) break;
+            $offset += $pageSize;
+        }
+        foreach ($paidByRegion as $rn => $total) {
+            if (isset($byRegion[$rn])) $byRegion[$rn]['total_disbursed'] = $total;
+        }
+
+        $out = array_values($byRegion);
+        usort($out, function ($a, $b) {
+            return strcmp($a['last_release_date'], $b['last_release_date']);  // oldest first
+        });
+
+        echo json_encode(['success' => true, 'data' => $out, 'year' => $year]);
+        break;
+    }
+
     default: {
         http_response_code(400);
         header('Content-Type: application/json');
