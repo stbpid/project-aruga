@@ -80,22 +80,6 @@
     }
     .dsa-dot.on { background: #16a34a; border-color: #16a34a; }
     .dsa-dot.missed { background: #fee2e2; border-color: #dc2626; }
-    .dsa-quarter-cell {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 2rem;
-      height: 1.4rem;
-      padding: 0 0.3rem;
-      border-radius: 999px;
-      border: 1.5px solid #d1d5db;
-      background: #fff;
-      font-size: 0.65rem;
-      font-weight: 700;
-      color: transparent;
-    }
-    .dsa-quarter-cell.on { background: #16a34a; border-color: #16a34a; cursor: default; }
-    .dsa-quarter-cell.missed { background: #fee2e2; border-color: #dc2626; color: #991b1b; cursor: help; }
   </style>
 </head>
 <body>
@@ -351,10 +335,6 @@
             <select id="all-ben-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;">
               <option value="">All Disabilities</option>
             </select>
-            <div id="dsa-period-toggle" style="display:none;border:1px solid var(--border);border-radius:0.375rem;overflow:hidden;">
-              <button id="dsa-view-monthly" class="chart-view-btn active" onclick="setDsaPeriodView('monthly')">Monthly</button>
-              <button id="dsa-view-quarterly" class="chart-view-btn" onclick="setDsaPeriodView('quarterly')">Quarterly</button>
-            </div>
             <label style="display:none;align-items:center;gap:0.35rem;font-size:0.72rem;font-weight:600;color:var(--dark);cursor:pointer;white-space:nowrap;">
               <div id="ben-4ps-toggle" onclick="toggle4ps()" style="width:34px;height:18px;border-radius:999px;background:#e5e7eb;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;">
                 <div id="ben-4ps-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
@@ -3239,25 +3219,13 @@
   </tr>`;
 
   const DSA_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const DSA_QUARTERS = [
-    { label: 'Q1', months: [0, 1, 2] },
-    { label: 'Q2', months: [3, 4, 5] },
-    { label: 'Q3', months: [6, 7, 8] },
-    { label: 'Q4', months: [9, 10, 11] },
-  ];
-  const ALL_BEN_THEAD_DSA_MONTHLY = `<tr id="all-ben-thead-row">
+  const ALL_BEN_THEAD_DSA = `<tr id="all-ben-thead-row">
     <th style="white-space:nowrap;">Beneficiary</th>
     ${DSA_MONTHS.map(m => `<th style="white-space:nowrap;text-align:center;">${m}</th>`).join('')}
     <th style="white-space:nowrap;text-align:center;">Behind</th>
   </tr>`;
-  const ALL_BEN_THEAD_DSA_QUARTERLY = `<tr id="all-ben-thead-row">
-    <th style="white-space:nowrap;">Beneficiary</th>
-    ${DSA_QUARTERS.map(q => `<th style="white-space:nowrap;text-align:center;">${q.label}</th>`).join('')}
-    <th style="white-space:nowrap;text-align:center;">Behind</th>
-  </tr>`;
 
   let allBenDsaMode = false;
-  let dsaPeriodView = 'monthly'; // 'monthly' | 'quarterly'
 
   // Keyed by aruga_id -> { "YYYY-MM": "paid"|"not_claimed"|"deceased"|"transferred" }
   let dsaState = {};
@@ -3268,13 +3236,6 @@
 
   function dsaMonthKey(mi) {
     return dsaYear + '-' + String(mi + 1).padStart(2, '0');
-  }
-
-  function setDsaPeriodView(view) {
-    dsaPeriodView = view;
-    document.getElementById('dsa-view-monthly').classList.toggle('active', view === 'monthly');
-    document.getElementById('dsa-view-quarterly').classList.toggle('active', view === 'quarterly');
-    renderAllBen();
   }
 
   async function loadDsaGrid() {
@@ -3302,43 +3263,15 @@
     return `<span class="dsa-dot${cls}" title="${title}"></span>`;
   }
 
-  // One cell per quarter: green with no hover when every month in it is
-  // paid, red with the specific miss reasons on hover otherwise, empty
-  // when the quarter has no record at all yet.
-  function dsaQuarterCellHtml(arugaId, quarter) {
-    const months = dsaState[arugaId] || {};
-    const statuses = quarter.months.map(mi => months[dsaMonthKey(mi)] || null);
-    const recorded = statuses.filter(Boolean);
-
-    if (recorded.length === 0) {
-      // Nothing recorded yet for this quarter — neutral, no hover.
-      return `<span class="dsa-quarter-cell"></span>`;
-    }
-    if (recorded.length === 3 && statuses.every(s => s === 'paid')) {
-      // Fully paid — green, deliberately no title attribute, no hover.
-      return `<span class="dsa-quarter-cell on"></span>`;
-    }
-
-    // Partial or fully-missed quarter: red, reasons shown on hover only.
-    const reasonLines = quarter.months
-      .map((mi, i) => statuses[i] ? `${DSA_MONTHS[mi]}: ${statuses[i].replace('_', ' ')}` : `${DSA_MONTHS[mi]}: no record`)
-      .join('\n');
-    const paidCount = statuses.filter(s => s === 'paid').length;
-    return `<span class="dsa-quarter-cell missed" title="${reasonLines}">${paidCount}/3</span>`;
-  }
-
   function dsaRow(r) {
     const behind = dsaBehind[r.aruga_id] ?? 0;
     const standing = dsaStanding[r.aruga_id];
     const behindHtml = standing
       ? `<span style="font-size:0.65rem;color:#9ca3af;text-transform:capitalize;">${standing}</span>`
       : `<span style="font-weight:700;color:${behind > 0 ? '#dc2626' : '#16a34a'};">${behind}</span>`;
-    const periodCells = dsaPeriodView === 'quarterly'
-      ? DSA_QUARTERS.map(q => `<td style="text-align:center;">${dsaQuarterCellHtml(r.aruga_id, q)}</td>`).join('')
-      : DSA_MONTHS.map((m, mi) => `<td style="text-align:center;">${dsaCircleHtml(r.aruga_id, mi)}</td>`).join('');
     return `<tr class="table-row-hover">
       <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
-      ${periodCells}
+      ${DSA_MONTHS.map((m, mi) => `<td style="text-align:center;">${dsaCircleHtml(r.aruga_id, mi)}</td>`).join('')}
       <td style="text-align:center;">${behindHtml}</td>
     </tr>`;
   }
@@ -3351,7 +3284,6 @@
     label.textContent = allBenDsaMode ? 'Back to Beneficiaries' : 'Manage DSA';
     document.getElementById('all-ben-payout-btn').style.display = allBenDsaMode ? 'none' : 'flex';
     document.getElementById('dsa-record-btn').style.display = allBenDsaMode ? 'flex' : 'none';
-    document.getElementById('dsa-period-toggle').style.display = allBenDsaMode ? 'flex' : 'none';
     document.getElementById('dsa-releases-panel').style.display = allBenDsaMode ? 'block' : 'none';
     document.getElementById('all-ben-page-title').textContent = allBenDsaMode ? 'Manage DSA' : 'Beneficiaries';
     document.getElementById('all-ben-page-subtitle').textContent = allBenDsaMode ? 'Manage DSA entries for beneficiaries across all regions' : 'All submitted assessments across all regions';
@@ -3684,9 +3616,7 @@
   }
 
   function renderAllBen() {
-    document.getElementById('all-ben-thead').innerHTML = allBenDsaMode
-      ? (dsaPeriodView === 'quarterly' ? ALL_BEN_THEAD_DSA_QUARTERLY : ALL_BEN_THEAD_DSA_MONTHLY)
-      : ALL_BEN_THEAD_NORMAL;
+    document.getElementById('all-ben-thead').innerHTML = allBenDsaMode ? ALL_BEN_THEAD_DSA : ALL_BEN_THEAD_NORMAL;
     const total = allBenFiltered.length;
     const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
     const start = allBenPage * PER_PAGE;
@@ -3694,7 +3624,7 @@
     const page  = allBenFiltered.slice(start, end);
     document.getElementById('all-ben-tbody').innerHTML = page.length
       ? page.map(r => allBenDsaMode ? dsaRow(r) : benRow(r)).join('')
-      : `<tr><td colspan="${allBenDsaMode ? (dsaPeriodView === 'quarterly' ? 6 : 14) : 6}" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>`;
+      : `<tr><td colspan="${allBenDsaMode ? 14 : 6}" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>`;
     document.getElementById('all-ben-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} beneficiaries` : 'No results';
     buildPagination('all-ben-pagination', allBenPage, totalPages, p => { allBenPage = p; renderAllBen(); });
   }
