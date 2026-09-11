@@ -80,6 +80,14 @@
     }
     .dsa-dot.on { background: #16a34a; border-color: #16a34a; }
     .dsa-dot.missed { background: #fee2e2; border-color: #dc2626; }
+    .dsa-reason-select {
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .dsa-reason-select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(17,82,212,0.1);
+    }
   </style>
 </head>
 <body>
@@ -3246,7 +3254,7 @@
   const ALL_BEN_THEAD_DSA = `<tr id="all-ben-thead-row">
     <th style="white-space:nowrap;">Beneficiary</th>
     ${DSA_MONTHS.map(m => `<th style="white-space:nowrap;text-align:center;">${m}</th>`).join('')}
-    <th style="white-space:nowrap;text-align:center;">Behind</th>
+    <th style="white-space:nowrap;text-align:center;">Total</th>
   </tr>`;
 
   let allBenDsaMode = false;
@@ -3254,6 +3262,7 @@
   // Keyed by aruga_id -> { "YYYY-MM": "paid"|"not_claimed"|"deceased"|"transferred" }
   let dsaState = {};
   let dsaBehind = {};
+  let dsaTotalPaid = {};
   let dsaStanding = {};
   let dsaYear = new Date().getFullYear();
   let dsaLoaded = false;
@@ -3269,11 +3278,12 @@
     const res = await authFetch(url);
     const json = await res.json();
     if (!json.success) { alert(json.message || 'Failed to load DSA data.'); return; }
-    dsaState = {}; dsaBehind = {}; dsaStanding = {};
+    dsaState = {}; dsaBehind = {}; dsaTotalPaid = {}; dsaStanding = {};
     json.data.forEach(r => {
-      dsaState[r.aruga_id]    = r.months || {};
-      dsaBehind[r.aruga_id]   = r.months_behind;
-      dsaStanding[r.aruga_id] = r.standing;
+      dsaState[r.aruga_id]     = r.months || {};
+      dsaBehind[r.aruga_id]    = r.months_behind;
+      dsaTotalPaid[r.aruga_id] = r.months_paid;
+      dsaStanding[r.aruga_id]  = r.standing;
     });
     dsaLoaded = true;
     renderAllBen();
@@ -3288,15 +3298,15 @@
   }
 
   function dsaRow(r) {
-    const behind = dsaBehind[r.aruga_id] ?? 0;
+    const totalPaid = dsaTotalPaid[r.aruga_id] ?? 0;
     const standing = dsaStanding[r.aruga_id];
-    const behindHtml = standing
+    const totalHtml = standing
       ? `<span style="font-size:0.65rem;color:#9ca3af;text-transform:capitalize;">${standing}</span>`
-      : `<span style="font-weight:700;color:${behind > 0 ? '#dc2626' : '#16a34a'};">${behind}</span>`;
+      : `<span style="font-weight:700;color:${totalPaid > 0 ? '#16a34a' : '#9ca3af'};">${totalPaid}</span>`;
     return `<tr class="table-row-hover">
       <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
       ${DSA_MONTHS.map((m, mi) => `<td style="text-align:center;">${dsaCircleHtml(r.aruga_id, mi)}</td>`).join('')}
-      <td style="text-align:center;">${behindHtml}</td>
+      <td style="text-align:center;">${totalHtml}</td>
     </tr>`;
   }
 
@@ -3473,7 +3483,7 @@
       <div style="display:flex;align-items:center;gap:0.5rem;padding:0.55rem 0;border-bottom:1px solid var(--gray-100);font-size:0.75rem;">
         <div style="flex:1;"><strong style="text-transform:uppercase;">${f.name}</strong><br><span style="color:#9ca3af;">${f.aruga_id}</span></div>
         <div style="position:relative;flex-shrink:0;">
-          <select onchange="dsaResolved[${i}].reason=this.value;dsaRenderSummary();" style="appearance:none;-webkit-appearance:none;padding:0.4rem 1.85rem 0.4rem 0.65rem;border:1px solid var(--border);border-radius:0.5rem;font-family:inherit;font-size:0.72rem;font-weight:600;color:var(--dark);background:white;cursor:pointer;transition:border-color 0.15s;">
+          <select class="dsa-reason-select" onchange="dsaResolved[${i}].reason=this.value;dsaRenderSummary();" style="appearance:none;-webkit-appearance:none;padding:0.4rem 1.85rem 0.4rem 0.65rem;border:1px solid var(--border);border-radius:0.5rem;font-family:inherit;font-size:0.72rem;font-weight:600;color:var(--dark);background:white;cursor:pointer;">
             <option value="not_claimed">Did not claim</option>
             <option value="deceased">Deceased</option>
             <option value="transferred">Moved away</option>
@@ -3626,7 +3636,7 @@
         const current = dsaEditChanges[cell.payment_id] ?? cell.status;
         const opts = Object.keys(DSA_STATUS_LABELS).map(s =>
           `<option value="${s}" ${s === current ? 'selected' : ''}>${DSA_STATUS_LABELS[s]}</option>`).join('');
-        return `<td style="padding:0.35rem;"><select onchange="dsaEditChanges['${cell.payment_id}']=this.value;" style="font-size:0.7rem;padding:0.2rem;border:1px solid #d1d5db;border-radius:0.25rem;">${opts}</select></td>`;
+        return `<td style="padding:0.35rem;"><select class="dsa-reason-select" onchange="dsaEditChanges['${cell.payment_id}']=this.value;" style="font-size:0.7rem;padding:0.2rem;border:1px solid #d1d5db;border-radius:0.25rem;">${opts}</select></td>`;
       }).join('');
       return `<tr style="border-bottom:1px solid #f3f4f6;">
         <td style="padding:0.35rem;"><strong style="text-transform:uppercase;font-size:0.75rem;">${b.name}</strong><br><span style="font-size:0.65rem;color:#9ca3af;">${b.aruga_id}</span></td>

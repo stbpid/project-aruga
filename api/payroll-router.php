@@ -267,10 +267,12 @@ switch ($action) {
 
             $months = $payMap[$arugaId] ?? [];
             $behind = 0;
+            $paidCount = 0;
             if (!isset($standing[$arugaId])) {
                 for ($m = 1; $m <= $lastMonth; $m++) {
                     $key = sprintf('%04d-%02d', $year, $m);
-                    if (($months[$key] ?? '') !== 'paid') $behind++;
+                    if (($months[$key] ?? '') === 'paid') $paidCount++;
+                    else $behind++;
                 }
             }
 
@@ -280,6 +282,7 @@ switch ($action) {
                 'region'        => $c['region'] ?? '—',
                 'months'        => (object)$months,
                 'months_behind' => $behind,
+                'months_paid'   => $paidCount,
                 'standing'      => $standing[$arugaId] ?? null,
             ];
         }
