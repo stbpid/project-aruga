@@ -3288,6 +3288,18 @@
     document.getElementById('all-ben-page-title').textContent = allBenDsaMode ? 'Manage DSA' : 'Beneficiaries';
     document.getElementById('all-ben-page-subtitle').textContent = allBenDsaMode ? 'Manage DSA entries for beneficiaries across all regions' : 'All submitted assessments across all regions';
     if (allBenDsaMode) {
+      if (!dsaLoaded) {
+        // Show a loading state immediately so the switch to Manage DSA
+        // doesn't look like a stalled click while the requests are in flight.
+        document.getElementById('all-ben-thead').innerHTML = ALL_BEN_THEAD_DSA;
+        document.getElementById('all-ben-tbody').innerHTML =
+          `<tr><td colspan="14" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
+            &nbsp;Loading DSA records…
+          </td></tr>`;
+      }
+      document.getElementById('dsa-releases-list').innerHTML = '<div style="color:#9ca3af;">Loading…</div>';
+      document.getElementById('dsa-region-summary-list').innerHTML = '<div style="color:#9ca3af;">Loading…</div>';
       loadDsaReleases();
       loadDsaRegionSummary();
       if (!dsaLoaded) { loadDsaGrid(); } else { renderAllBen(); }
