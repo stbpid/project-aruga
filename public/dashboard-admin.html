@@ -593,8 +593,10 @@
             <div style="font-size:0.8125rem;color:var(--gray-600);margin-bottom:0.75rem;">Everyone in this region is marked <strong>paid</strong>. List only those who did <strong>not</strong> receive it, one ARUGA ID per line.</div>
             <textarea id="dsa-rel-exceptions" rows="5" class="settings-input" placeholder="ARUGA-2026-NCR-0991&#10;ARUGA-2026-NCR-0992" style="font-family:monospace;resize:vertical;"></textarea>
             <button class="btn btn-secondary btn-sm" onclick="dsaResolveExceptions()" style="margin:0.6rem 0;">Check IDs</button>
+            <div style="border-bottom:1px solid var(--gray-100);margin-bottom:0.75rem;"></div>
             <div id="dsa-resolved-list" style="margin-bottom:0.75rem;"></div>
             <div id="dsa-rel-summary" style="background:var(--gray-50);border-radius:0.5rem;padding:0.75rem;font-size:0.8125rem;margin-bottom:0.9rem;"></div>
+            <div style="border-bottom:1px solid var(--gray-100);margin-bottom:0.9rem;"></div>
             <div style="font-size:0.72rem;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:0.5rem;padding:0.5rem 0.65rem;margin-bottom:0.5rem;">Saving locks this release. Only an admin can reopen it.</div>
             <div id="dsa-step2-error" style="display:none;font-size:0.75rem;color:#dc2626;font-weight:600;padding-top:0.25rem;"></div>
           </div>
@@ -3468,13 +3470,16 @@
     dsaResolved = json.data.found.map(f => ({ ...f, reason: 'not_claimed' }));
 
     let html = dsaResolved.map((f, i) => `
-      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0;border-bottom:1px solid #f3f4f6;font-size:0.75rem;">
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.55rem 0;border-bottom:1px solid var(--gray-100);font-size:0.75rem;">
         <div style="flex:1;"><strong style="text-transform:uppercase;">${f.name}</strong><br><span style="color:#9ca3af;">${f.aruga_id}</span></div>
-        <select onchange="dsaResolved[${i}].reason=this.value;dsaRenderSummary();" style="padding:0.25rem;border:1px solid #d1d5db;border-radius:0.25rem;font-size:0.7rem;">
-          <option value="not_claimed">Did not claim</option>
-          <option value="deceased">Deceased</option>
-          <option value="transferred">Moved away</option>
-        </select>
+        <div style="position:relative;flex-shrink:0;">
+          <select onchange="dsaResolved[${i}].reason=this.value;dsaRenderSummary();" style="appearance:none;-webkit-appearance:none;padding:0.4rem 1.85rem 0.4rem 0.65rem;border:1px solid var(--border);border-radius:0.5rem;font-family:inherit;font-size:0.72rem;font-weight:600;color:var(--dark);background:white;cursor:pointer;transition:border-color 0.15s;">
+            <option value="not_claimed">Did not claim</option>
+            <option value="deceased">Deceased</option>
+            <option value="transferred">Moved away</option>
+          </select>
+          <span class="material-symbols-outlined" style="position:absolute;right:0.4rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
+        </div>
       </div>`).join('');
 
     if (json.data.unknown.length) {
@@ -3548,8 +3553,8 @@
       ? json.data.map(r => `
         <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0;border-bottom:1px solid #f3f4f6;">
           <div style="flex:1;">
-            <strong>${r.release_date}</strong> — ${r.region_name}<br>
-            <span style="color:#9ca3af;">${(r.months_covered || []).join(', ')} · ₱${r.amount_per_month}/mo</span>
+            <strong>${dsaFormatDate(r.release_date)}</strong> — ${r.region_name}<br>
+            <span style="color:#9ca3af;">${(r.months_covered || []).map(dsaFormatMonth).join(', ')} · ₱${r.amount_per_month}/mo</span>
           </div>
           <span style="font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:999px;background:${r.is_locked ? '#fee2e2' : '#dcfce7'};color:${r.is_locked ? '#991b1b' : '#166534'};">${r.is_locked ? 'Locked' : 'Open'}</span>
           ${isAdmin
@@ -3593,7 +3598,7 @@
 
     const rel = dsaEditData.release;
     document.getElementById('dsa-edit-title').textContent =
-      `Editing release — ${rel.region_name} — ${(rel.months_covered || []).join(', ')}`;
+      `Editing release — ${rel.region_name} — ${(rel.months_covered || []).map(dsaFormatMonth).join(', ')}`;
 
     dsaRenderEditTable();
     document.getElementById('dsa-edit-error').style.display = 'none';
@@ -3680,10 +3685,28 @@
       ? json.data.map(r => `
         <div style="display:flex;align-items:center;gap:0.75rem;padding:0.4rem 0;border-bottom:1px solid #f3f4f6;">
           <div style="flex:1;">${r.region}</div>
-          <div style="color:#6b7280;">last ${r.last_release_date}</div>
+          <div style="color:#6b7280;">last ${dsaFormatDate(r.last_release_date)}</div>
           <div style="font-weight:600;">₱${(r.total_disbursed || 0).toLocaleString()}</div>
         </div>`).join('')
       : '<div style="color:#9ca3af;">No releases recorded yet.</div>';
+  }
+
+  // Renders a "YYYY-MM-DD" date string as "11 September 2026". Parsed as
+  // year/month/day components rather than via `new Date(str)` so it isn't
+  // shifted a day by UTC-vs-local interpretation.
+  function dsaFormatDate(dateStr) {
+    if (!dateStr) return '—';
+    const [y, m, d] = dateStr.split('-').map(Number);
+    if (!y || !m || !d) return dateStr;
+    return new Date(y, m - 1, d).toLocaleDateString('en-PH', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  // Renders a "YYYY-MM" period string as "February 2026".
+  function dsaFormatMonth(monthStr) {
+    if (!monthStr) return '—';
+    const [y, m] = monthStr.split('-').map(Number);
+    if (!y || !m) return monthStr;
+    return new Date(y, m - 1, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' });
   }
 
   function renderAllBen() {
