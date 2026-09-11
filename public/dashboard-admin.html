@@ -3349,6 +3349,10 @@
     document.getElementById('dsa-rel-summary').innerHTML = '';
     dsaResolved = [];
     dsaBuildMonthChecklist();
+    // The checklist reflects one specific region's coverage, so it must
+    // rebuild whenever the officer picks a different region here — it
+    // cannot reuse whatever region happened to be loaded on the grid behind it.
+    regionSel.onchange = dsaBuildMonthChecklist;
     document.getElementById('dsa-rel-amount').oninput = dsaRenderSummary;
     document.getElementById('dsa-rel-months').onchange = dsaRenderSummary;
     dsaBackToStep1();
@@ -3359,13 +3363,29 @@
     document.getElementById('dsa-release-modal').style.display = 'none';
   }
 
-  // Months already fully covered are disabled, so the common mistake is unavailable
-  // rather than merely discouraged. The earliest unpaid month is pre-ticked.
-  function dsaBuildMonthChecklist() {
-    const covered = {};
-    Object.values(dsaState).forEach(months => {
-      Object.keys(months || {}).forEach(k => { covered[k] = (covered[k] || 0) + 1; });
-    });
+  // Months already fully covered for the SELECTED region are disabled, so the
+  // common mistake is unavailable rather than merely discouraged. Fetches
+  // that region's own coverage rather than reusing dsaState, which reflects
+  // whichever region was active on the grid behind this modal.
+  async function dsaBuildMonthChecklist() {
+    const region = document.getElementById('dsa-rel-region').value;
+    const container = document.getElementById('dsa-rel-months');
+    container.innerHTML = `<div style="grid-column:1/-1;font-size:0.75rem;color:var(--gray-400);">Loading…</div>`;
+
+    let covered = {};
+    if (region) {
+      const res = await authFetch('/api/payroll-router.php?action=dsa-grid&year=' + dsaYear
+        + '&region=' + encodeURIComponent(region));
+      const json = await res.json();
+      if (json.success) {
+        json.data.forEach(r => {
+          Object.entries(r.months || {}).forEach(([k, status]) => {
+            if (status === 'paid') covered[k] = (covered[k] || 0) + 1;
+          });
+        });
+      }
+    }
+
     const nowMonth = (new Date().getFullYear() === dsaYear) ? new Date().getMonth() + 1 : 12;
     let firstUnpaid = null;
     const html = DSA_MONTHS.map((m, mi) => {
@@ -3376,7 +3396,7 @@
         <input type="checkbox" value="${key}" ${isCovered ? 'disabled' : ''}> ${m}
       </label>`;
     }).join('');
-    document.getElementById('dsa-rel-months').innerHTML = html;
+    container.innerHTML = html;
     if (firstUnpaid) {
       const box = document.querySelector(`#dsa-rel-months input[value="${firstUnpaid}"]`);
       if (box) box.checked = true;
@@ -3395,9 +3415,15 @@
     document.getElementById('dsa-modal-step-label').textContent = 'Step 1 of 2 — Release details';
   }
 
-  function dsaGotoStep2() {
+  async function dsaGotoStep2() {
     const err = document.getElementById('dsa-step1-error');
+    const region = document.getElementById('dsa-rel-region').value;
     const months = dsaSelectedMonths();
+    if (!region) {
+      err.textContent = 'Select a region.';
+      err.style.display = 'block';
+      return;
+    }
     if (!months.length) {
       err.textContent = 'Select at least one month.';
       err.style.display = 'block';
@@ -3415,7 +3441,14 @@
     document.getElementById('dsa-step2-footer').style.display = 'grid';
     document.getElementById('dsa-modal-step-label').textContent = 'Step 2 of 2 — Who did not receive it';
 
-    dsaRosterCount = Object.keys(dsaState).filter(id => !dsaStanding[id]).length;
+    // Roster count must reflect the region selected in THIS modal, not
+    // whichever region happens to be loaded on the grid behind it.
+    const res = await authFetch('/api/payroll-router.php?action=dsa-grid&year=' + dsaYear
+      + '&region=' + encodeURIComponent(region));
+    const json = await res.json();
+    dsaRosterCount = json.success
+      ? json.data.filter(r => !r.standing).length
+      : 0;
     dsaRenderSummary();
   }
 
