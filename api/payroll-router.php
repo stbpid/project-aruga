@@ -621,6 +621,200 @@ switch ($action) {
     }
 
     // ================================================================
+    // action=dsa-release-detail — a reopened release's own rows, for editing
+    // ================================================================
+    case 'dsa-release-detail': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin']);
+
+        $releaseId = getStr('release_id');
+        $uuidPattern = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
+        if (!preg_match($uuidPattern, $releaseId)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid release id.']); exit;
+        }
+
+        $relRes = supabaseRequest('GET',
+            'dsa_releases?select=id,region_name,release_date,months_covered,amount_per_month,is_locked'
+            . '&id=eq.' . urlencode($releaseId) . '&limit=1');
+        if (!$relRes['success'] || empty($relRes['data'])) {
+            echo json_encode(['success' => false, 'message' => 'Release not found.']); exit;
+        }
+        $release = $relRes['data'][0];
+        if ($release['is_locked']) {
+            echo json_encode(['success' => false,
+                'message' => 'Release is locked. Reopen it before editing.']); exit;
+        }
+
+        // This release's own payment rows only — editing is scoped to what
+        // this release actually created, not the whole region.
+        $payRes = supabaseRequest('GET',
+            'dsa_payments?select=id,aruga_id,period_month,status'
+            . '&release_id=eq.' . urlencode($releaseId) . '&order=aruga_id.asc&limit=10000');
+        if (!$payRes['success']) {
+            echo json_encode(['success' => false, 'message' => 'Failed to fetch payments']); exit;
+        }
+
+        $arugaIds = array_values(array_unique(array_column($payRes['data'] ?? [], 'aruga_id')));
+        $nameMap = [];
+        if (!empty($arugaIds)) {
+            $quoted = array_map(function ($id) { return '"' . str_replace('"', '', $id) . '"'; }, $arugaIds);
+            $nameRes = supabaseRequest('GET',
+                'assessments?select=aruga_id,children(first_name,last_name,middle_name,name_extension)'
+                . '&aruga_id=in.(' . urlencode(implode(',', $quoted)) . ')&limit=10000');
+            if ($nameRes['success']) {
+                foreach ($nameRes['data'] ?? [] as $a) {
+                    $c = $a['children'] ?? [];
+                    $ext = trim($c['name_extension'] ?? '');
+                    if (strcasecmp($ext, 'None') === 0) $ext = '';
+                    $nameMap[$a['aruga_id']] = trim(implode(' ', array_filter([
+                        trim($c['first_name'] ?? ''), trim($c['middle_name'] ?? ''),
+                        trim($c['last_name'] ?? ''), $ext,
+                    ]))) ?: '—';
+                }
+            }
+        }
+
+        // Group by beneficiary so the edit UI shows one row per person,
+        // one column per month covered by this release.
+        $byBeneficiary = [];
+        foreach ($payRes['data'] ?? [] as $p) {
+            $aid = $p['aruga_id'];
+            if (!isset($byBeneficiary[$aid])) {
+                $byBeneficiary[$aid] = ['aruga_id' => $aid, 'name' => $nameMap[$aid] ?? '—', 'months' => []];
+            }
+            $byBeneficiary[$aid]['months'][$p['period_month']] = ['payment_id' => $p['id'], 'status' => $p['status']];
+        }
+
+        echo json_encode(['success' => true, 'data' => [
+            'release' => $release,
+            'beneficiaries' => array_values($byBeneficiary),
+        ]]);
+        break;
+    }
+
+    // ================================================================
+    // action=dsa-correct-release — apply edits to a reopened release, relock
+    // ================================================================
+    case 'dsa-correct-release': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin']);
+
+        $body      = json_decode(file_get_contents('php://input'), true) ?? [];
+        $releaseId = trim($body['release_id'] ?? '');
+        $reason    = trim($body['reason'] ?? '');
+        $changes   = $body['changes'] ?? [];   // [{payment_id, status}]
+
+        $uuidPattern = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
+        if (!preg_match($uuidPattern, $releaseId)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid release id.']); exit;
+        }
+        if (strlen($reason) < 5) {
+            echo json_encode(['success' => false,
+                'message' => 'A reason of at least 5 characters is required.']); exit;
+        }
+        if (!is_array($changes) || empty($changes)) {
+            echo json_encode(['success' => false, 'message' => 'No changes to apply.']); exit;
+        }
+
+        $cur = supabaseRequest('GET',
+            'dsa_releases?select=id,is_locked&id=eq.' . urlencode($releaseId) . '&limit=1');
+        if (!$cur['success'] || empty($cur['data'])) {
+            echo json_encode(['success' => false, 'message' => 'Release not found.']); exit;
+        }
+        if ($cur['data'][0]['is_locked']) {
+            echo json_encode(['success' => false,
+                'message' => 'Release is locked. Reopen it before editing.']); exit;
+        }
+
+        // Load current rows for this release so we know what is actually
+        // changing (for the audit trail) and can reject ids that don't belong.
+        $payRes = supabaseRequest('GET',
+            'dsa_payments?select=id,aruga_id,period_month,status&release_id=eq.' . urlencode($releaseId)
+            . '&limit=10000');
+        if (!$payRes['success']) {
+            echo json_encode(['success' => false, 'message' => 'Failed to load current rows']); exit;
+        }
+        $current = [];
+        foreach ($payRes['data'] ?? [] as $p) $current[$p['id']] = $p;
+
+        $validStatuses = ['paid', 'deceased', 'transferred', 'not_claimed'];
+        $applied = [];
+        foreach ($changes as $ch) {
+            $pid    = trim($ch['payment_id'] ?? '');
+            $status = trim($ch['status'] ?? '');
+            if (!preg_match($uuidPattern, $pid)) {
+                echo json_encode(['success' => false, 'message' => 'Invalid payment id: ' . $pid]); exit;
+            }
+            if (!in_array($status, $validStatuses, true)) {
+                echo json_encode(['success' => false, 'message' => 'Invalid status: ' . $status]); exit;
+            }
+            if (!isset($current[$pid])) {
+                echo json_encode(['success' => false,
+                    'message' => 'Payment ' . $pid . ' does not belong to this release.']); exit;
+            }
+            if ($current[$pid]['status'] === $status) continue; // no-op, skip
+            $applied[] = [
+                'payment_id' => $pid,
+                'aruga_id'   => $current[$pid]['aruga_id'],
+                'period_month' => $current[$pid]['period_month'],
+                'from' => $current[$pid]['status'],
+                'to'   => $status,
+            ];
+        }
+
+        if (empty($applied)) {
+            echo json_encode(['success' => false, 'message' => 'Nothing changed.']); exit;
+        }
+
+        // Audit the exact before/after values first — same reasoning as
+        // reopen: a correction that isn't recorded is the failure mode that
+        // matters, so writing it must happen before the data changes.
+        $audit = supabaseRequest('POST', 'dsa_release_audit', [
+            'release_id'   => $releaseId,
+            'action'       => 'correct',
+            'reason'       => $reason,
+            'performed_by' => $authInterviewer['id'],
+            'details'      => $applied,
+        ]);
+        if (!$audit['success']) {
+            echo json_encode(['success' => false, 'message' => 'Failed to write audit record.']); exit;
+        }
+
+        foreach ($applied as $ch) {
+            $upd = supabaseRequest('PATCH',
+                'dsa_payments?id=eq.' . urlencode($ch['payment_id']), ['status' => $ch['to']]);
+            if (!$upd['success']) {
+                echo json_encode(['success' => false,
+                    'message' => 'Failed partway through applying changes. Release is still open — review and retry.']); exit;
+            }
+        }
+
+        // Relock as part of the same save — an edit left open is a release
+        // nobody has actually finished correcting.
+        $relockAudit = supabaseRequest('POST', 'dsa_release_audit', [
+            'release_id'   => $releaseId,
+            'action'       => 'relock',
+            'reason'       => 'Auto-relocked after correction.',
+            'performed_by' => $authInterviewer['id'],
+        ]);
+        $upd = supabaseRequest('PATCH',
+            'dsa_releases?id=eq.' . urlencode($releaseId), ['is_locked' => true]);
+        if (!$upd['success']) {
+            echo json_encode(['success' => false,
+                'message' => 'Changes saved but relock failed. Release is still open — relock manually.']); exit;
+        }
+
+        echo json_encode(['success' => true, 'data' => ['applied' => count($applied)]]);
+        break;
+    }
+
+    // ================================================================
     // action=dsa-region-summary — which regions are lagging
     // ================================================================
     case 'dsa-region-summary': {
