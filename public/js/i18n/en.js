@@ -39,6 +39,34 @@ window.I18N_EN = {
   modal_logout_body2: 'All unsaved data will be lost.',
   modal_logout_cancel: 'Cancel',
   modal_logout_confirm: 'Yes, End Session',
+
+  // Step 1: Pre-Qualification
+  step1_heading: 'Pre-Qualification',
+  step1_subtext: 'Confirm 4Ps membership to help us coordinate your benefits.',
+  step1_sec_heading: '4Ps Membership',
+  step1_sec_subtext: 'Are you a member of the Pantawid Pamilyang Pilipino Program?',
+  step1_opt_yes_title: 'Yes',
+  step1_opt_yes_sub: 'I am a member of the 4Ps Program',
+  step1_opt_no_title: 'No',
+  step1_opt_no_sub: 'I am not a 4Ps member',
+  step1_lbl_household_id: 'Household ID',
+  step1_ph_household_id: 'Enter 13-18 character ID',
+  step1_helper_household_id: 'Found on your 4Ps ID card.',
+  step1_btn_next: 'Next: Respondent Profile',
+
+  // Step 2: Respondent Profile
+  step2_heading: 'Respondent Profile',
+  step2_subtext: 'Provide your personal details as the individual completing this assessment.',
+  step2_sec_heading: 'Respondent Profile',
+  step2_lbl_name: 'Name of Respondent',
+  step2_ph_name: 'Enter full name',
+  step2_lbl_relationship: 'Relationship to the Child',
+  step2_ph_relationship: 'Relationship to the Child',
+  step2_lbl_email: 'Email Address',
+  step2_ph_email: 'name@example.com',
+  step2_lbl_contact: 'Contact Number',
+  step2_ph_contact: '0912 345 6789',
+  step2_btn_next: 'Next: Child Profile',
 };
 
 window.I18N_EN_DROPDOWNS = {};

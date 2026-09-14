@@ -39,6 +39,34 @@ window.I18N_TL = {
   modal_logout_body2: 'Mawawala ang lahat ng hindi nai-save na datos.',
   modal_logout_cancel: 'Kanselahin',
   modal_logout_confirm: 'Oo, Tapusin ang Sesyon',
+
+  // Step 1: Pre-Qualification
+  step1_heading: 'Paunang Kwalipikasyon',
+  step1_subtext: 'Kumpirmahin ang pagiging kasapi sa 4Ps upang matulungan kaming i-coordinate ang iyong mga benepisyo.',
+  step1_sec_heading: 'Pagiging Kasapi sa 4Ps',
+  step1_sec_subtext: 'Ikaw ba ay kasapi ng Pantawid Pamilyang Pilipino Program?',
+  step1_opt_yes_title: 'Oo',
+  step1_opt_yes_sub: 'Ako ay kasapi ng 4Ps Program',
+  step1_opt_no_title: 'Hindi',
+  step1_opt_no_sub: 'Hindi ako kasapi ng 4Ps',
+  step1_lbl_household_id: 'Household ID',
+  step1_ph_household_id: 'Ilagay ang 13-18 karakter na ID',
+  step1_helper_household_id: 'Makikita sa iyong 4Ps ID card.',
+  step1_btn_next: 'Susunod: Profile ng Respondent',
+
+  // Step 2: Respondent Profile
+  step2_heading: 'Profile ng Respondent',
+  step2_subtext: 'Ibigay ang iyong personal na impormasyon bilang taong sumasagot sa pagtatasang ito.',
+  step2_sec_heading: 'Profile ng Respondent',
+  step2_lbl_name: 'Pangalan ng Respondent',
+  step2_ph_name: 'Ilagay ang buong pangalan',
+  step2_lbl_relationship: 'Kaugnayan sa Bata',
+  step2_ph_relationship: 'Kaugnayan sa Bata',
+  step2_lbl_email: 'Email Address',
+  step2_ph_email: 'name@example.com',
+  step2_lbl_contact: 'Numero ng Contact',
+  step2_ph_contact: '0912 345 6789',
+  step2_btn_next: 'Susunod: Profile ng Bata',
 };
 
 window.I18N_TL_DROPDOWNS = {};

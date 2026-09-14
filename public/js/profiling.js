@@ -326,52 +326,52 @@ function getStep1HTML() {
   return `
     <div id="step-1" class="step-section w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Pre-Qualification</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Confirm 4Ps membership to help us coordinate your benefits.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step1_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step1_subtext')}</p>
       </div>
-      
+
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-start gap-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">assignment_ind</span>
           </div>
           <div>
-            <h2 class="font-bold text-brand-dark text-base sm:text-lg leading-tight">4Ps Membership</h2>
-            <p class="text-gray-500 text-xs sm:text-sm mt-0.5">Are you a member of the Pantawid Pamilyang Pilipino Program?</p>
+            <h2 class="font-bold text-brand-dark text-base sm:text-lg leading-tight">${t('step1_sec_heading')}</h2>
+            <p class="text-gray-500 text-xs sm:text-sm mt-0.5">${t('step1_sec_subtext')}</p>
           </div>
         </div>
-        
+
         <fieldset class="space-y-3 mb-5">
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-1 cursor-pointer hover:border-blue-300 transition-all select-none">
             <input type="radio" id="membership-yes" name="membership" value="Yes" class="peer sr-only" onchange="toggleId(true)" checked>
             <div class="p-2 flex flex-col border-transparent transition-all">
-              <span class="font-bold text-brand-dark block text-xs sm:text-sm">Yes</span>
-              <span class="text-[10px] sm:text-xs text-gray-500">I am a member of the 4Ps Program</span>
+              <span class="font-bold text-brand-dark block text-xs sm:text-sm">${t('step1_opt_yes_title')}</span>
+              <span class="text-[10px] sm:text-xs text-gray-500">${t('step1_opt_yes_sub')}</span>
             </div>
           </label>
-          
+
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-1 cursor-pointer hover:border-blue-300 transition-all select-none">
             <input type="radio" id="membership-no" name="membership" value="No" class="peer sr-only" onchange="toggleId(false)">
             <div class="p-2 flex flex-col border-transparent transition-all">
-              <span class="font-bold text-brand-dark block text-xs sm:text-sm">No</span>
-              <span class="text-[10px] sm:text-xs text-gray-500">I am not a 4Ps member</span>
+              <span class="font-bold text-brand-dark block text-xs sm:text-sm">${t('step1_opt_no_title')}</span>
+              <span class="text-[10px] sm:text-xs text-gray-500">${t('step1_opt_no_sub')}</span>
             </div>
           </label>
         </fieldset>
-        
+
         <div id="id-container" class="transition-opacity duration-300">
-          <label for="household-id" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Household ID <span class="text-red-500">*</span></label>
+          <label for="household-id" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step1_lbl_household_id')} <span class="text-red-500">*</span></label>
           <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-1.5 h-9 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
             <span class="material-symbols-outlined text-[16px] text-gray-400">badge</span>
-            <input id="household-id" name="household-id" type="text" maxlength="18" oninput="this.value=this.value.slice(0,18)" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" placeholder="Enter 13-18 character ID">
+            <input id="household-id" name="household-id" type="text" maxlength="18" oninput="this.value=this.value.slice(0,18)" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" placeholder="${t('step1_ph_household_id')}">
           </div>
-          <p class="text-[10px] sm:text-xs text-brand-blue mt-1">Found on your 4Ps ID card.</p>
+          <p class="text-[10px] sm:text-xs text-brand-blue mt-1">${t('step1_helper_household_id')}</p>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-end pb-6">
         <button onclick="if(validateStep(1)) goToStep(2)" class="w-full sm:w-auto px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover shadow-md transition-all flex items-center justify-center gap-2">
-          Next: Respondent Profile
+          ${t('step1_btn_next')}
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -387,36 +387,36 @@ function getStep2HTML() {
   return `
     <div id="step-2" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Respondent Profile</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Provide your personal details as the individual completing this assessment.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step2_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step2_subtext')}</p>
       </div>
-      
+
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-8 flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">account_circle</span>
           </div>
-          <h2 class="font-bold text-brand-dark text-base sm:text-lg">Respondent Profile</h2>
+          <h2 class="font-bold text-brand-dark text-base sm:text-lg">${t('step2_sec_heading')}</h2>
         </div>
-        
+
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="resp-name" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Name of Respondent <span class="text-red-500">*</span></label>
+              <label for="resp-name" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step2_lbl_name')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">person</span>
                 </div>
-                <input type="text" id="resp-name" name="resp-name" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter full name">
+                <input type="text" id="resp-name" name="resp-name" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step2_ph_name')}">
               </div>
             </div>
-            
+
             <div>
-              <label for="dd-relationship-input" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Relationship to the Child <span class="text-red-500">*</span></label>
+              <label for="dd-relationship-input" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step2_lbl_relationship')} <span class="text-red-500">*</span></label>
               <div class="relative" id="relationship-combobox">
                 <input type="text" id="dd-relationship-input" name="dd-relationship-input" autocomplete="off"
                   class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400"
-                  placeholder="Relationship to the Child">
+                  placeholder="${t('step2_ph_relationship')}">
                 <input type="hidden" id="dd-relationship" name="dd-relationship">
                 <span class="material-symbols-outlined pointer-events-none select-none" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:18px;color:#9ca3af;">expand_more</span>
                 <ul id="dd-relationship-list"
@@ -425,37 +425,37 @@ function getStep2HTML() {
               </div>
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="resp-email" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Email Address</label>
+              <label for="resp-email" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step2_lbl_email')}</label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">mail</span>
                 </div>
-                <input type="email" id="resp-email" name="resp-email" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="name@example.com">
+                <input type="email" id="resp-email" name="resp-email" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step2_ph_email')}">
               </div>
             </div>
-            
+
             <div>
-              <label for="resp-contact" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Contact Number</label>
+              <label for="resp-contact" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step2_lbl_contact')}</label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">phone</span>
                 </div>
-                <input type="tel" id="resp-contact" name="resp-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="0912 345 6789">
+                <input type="tel" id="resp-contact" name="resp-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step2_ph_contact')}">
               </div>
             </div>
           </div>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(1)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(2)) goToStep(3)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          Next: Child Profile
+          ${t('step2_btn_next')}
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
