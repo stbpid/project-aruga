@@ -130,9 +130,6 @@
       <a href="#" class="nav-item" id="nav-report" title="Report" onclick="showView('report');return false;">
         <span class="material-symbols-outlined">summarize</span><span class="nav-label">Report</span>
       </a>
-      <a href="#" class="nav-item" id="nav-aiagent" title="AI Agent" onclick="showView('aiagent');return false;">
-        <span class="material-symbols-outlined">smart_toy</span><span class="nav-label">AI Agent</span>
-      </a>
 
       <div class="nav-section-label">Management</div>
       <a href="#" class="nav-item" id="nav-interviewers" title="User Management" onclick="showView('interviewers');return false;">
@@ -1974,30 +1971,6 @@
 
 
     </div><!-- /view-report -->
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- AI Agent View                                              -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <div class="dash-content" id="view-aiagent" style="display:none;">
-
-      <!-- Header -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;">
-        <div>
-          <div class="page-title" style="margin:0;">AI Agent</div>
-          <div class="page-subtitle" style="margin:0;">NotebookLM assistant</div>
-        </div>
-      </div>
-
-      <div class="card" style="padding:0;overflow:hidden;">
-        <iframe
-          src="https://notebook.google.com/notebook/efd16b03-e65c-49b7-ad17-cb18f2cc37d7"
-          title="NotebookLM"
-          style="width:100%;height:calc(100vh - 220px);min-height:500px;border:0;display:block;"
-          allow="clipboard-write"
-        ></iframe>
-      </div>
-
-    </div><!-- /view-aiagent -->
 
     <!-- Report Settings Modal -->
     <div id="an-report-settings-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
@@ -4228,7 +4201,7 @@
   });
 
   // ── View switcher ──────────────────────────────────────────────
-  const VIEWS = ['overview','beneficiaries','assessments','interviewers','analytics','report','aiagent','documents','settings','audit'];
+  const VIEWS = ['overview','beneficiaries','assessments','interviewers','analytics','report','documents','settings','audit'];
   function showView(view) {
     if (secDirty && !confirm('You have unsaved security settings. Leave anyway?')) return;
     VIEWS.forEach(v => {
