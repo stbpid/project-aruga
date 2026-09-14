@@ -725,142 +725,142 @@ function getStep5HTML() {
   return `
     <div id="step-5" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Socio Economic</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Detail the household's living conditions, assets, and financial resources.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step5_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step5_subtext')}</p>
       </div>
-      
+
       <!-- Housing Condition -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">home</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Housing Condition</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step5_sec_housing')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
-            <label for="dd-materials" class="block text-xs font-bold text-brand-dark mb-1">What type of construction materials are the roofs and outer walls made of? <span class="text-red-500">*</span></label>
+            <label for="dd-materials" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_materials')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-materials" name="dd-materials" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'mat-other')">
-                <option value="" disabled selected>Select Materials</option>
+                <option value="" disabled selected>${t('ph_select_materials')}</option>
               </select>
             </div>
-            <input id="mat-other" name="mat-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="mat-other" name="mat-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div>
-            <label for="dd-tenure" class="block text-xs font-bold text-brand-dark mb-1">What is the tenure status of the house and lot does the family have? <span class="text-red-500">*</span></label>
+            <label for="dd-tenure" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_tenure')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-tenure" name="dd-tenure" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'tenure-other')">
-                <option value="" disabled selected>Select Status</option>
+                <option value="" disabled selected>${t('ph_select_tenure')}</option>
               </select>
             </div>
-            <input id="tenure-other" name="tenure-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="tenure-other" name="tenure-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div>
-            <label for="modifications-yes" class="block text-xs font-bold text-brand-dark mb-1">Are there any modifications in the house to accommodate the child's disability?</label>
+            <label for="modifications-yes" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_modifications')}</label>
             <div class="slide-toggle-container h-8 w-full sm:w-1/3 mb-2">
               <div class="slide-toggle-slider"></div>
               <label for="modifications-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.remove('hidden')">
-                <input type="radio" id="modifications-yes" name="modifications" value="Yes" class="hidden"> 
+                <input type="radio" id="modifications-yes" name="modifications" value="Yes" class="hidden">
                 <span>Yes</span>
               </label>
               <label for="modifications-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.add('hidden')">
-                <input type="radio" id="modifications-no" name="modifications" value="No" class="hidden" checked> 
+                <input type="radio" id="modifications-no" name="modifications" value="No" class="hidden" checked>
                 <span>No</span>
               </label>
             </div>
-            <input id="mod-specify" name="mod-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="mod-specify" name="mod-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div>
-            <label for="dd-electricity" class="block text-xs font-bold text-brand-dark mb-1">What is the main source of electricity in the dwelling place? <span class="text-red-500">*</span></label>
+            <label for="dd-electricity" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_electricity')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-electricity" name="dd-electricity" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'elec-other')">
-                <option value="" disabled selected>Select Source</option>
+                <option value="" disabled selected>${t('ph_select_electricity')}</option>
               </select>
             </div>
-            <input id="elec-other" name="elec-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="elec-other" name="elec-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
-      
+
       <!-- Water Supply -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">water_drop</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Water Supply</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step5_sec_water')}</h3>
         </div>
-        
+
         <div>
-          <label for="dd-water" class="block text-xs font-bold text-brand-dark mb-1">What is your family's main source of water supply? <span class="text-red-500">*</span></label>
+          <label for="dd-water" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_water')} <span class="text-red-500">*</span></label>
           <div class="relative">
             <select id="dd-water" name="dd-water" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'water-other')">
-              <option value="" disabled selected>Select Water Source</option>
+              <option value="" disabled selected>${t('ph_select_water')}</option>
             </select>
           </div>
-          <input id="water-other" name="water-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+          <input id="water-other" name="water-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
         </div>
       </section>
-      
+
       <!-- Sanitation -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">recycling</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Sanitation</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step5_sec_sanitation')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="dd-toilet" class="block text-xs font-bold text-brand-dark mb-1">Main type of toilet facility <span class="text-red-500">*</span></label>
+              <label for="dd-toilet" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_toilet')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-toilet" name="dd-toilet" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'toilet-other')">
-                  <option value="" disabled selected>Select Toilet Type</option>
+                  <option value="" disabled selected>${t('ph_select_toilet')}</option>
                 </select>
               </div>
-              <input id="toilet-other" name="toilet-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+              <input id="toilet-other" name="toilet-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
             </div>
             <div>
-              <label for="toilet-access-yes" class="block text-xs font-bold text-brand-dark mb-1">Is the toilet accessible for the child?</label>
+              <label for="toilet-access-yes" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_toilet_access')}</label>
               <div class="slide-toggle-container h-9 w-full">
                 <div class="slide-toggle-slider"></div>
                 <label for="toilet-access-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                  <input type="radio" id="toilet-access-yes" name="toilet-access" value="Yes" class="hidden" checked> 
+                  <input type="radio" id="toilet-access-yes" name="toilet-access" value="Yes" class="hidden" checked>
                   <span>Yes</span>
                 </label>
                 <label for="toilet-access-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                  <input type="radio" id="toilet-access-no" name="toilet-access" value="No" class="hidden"> 
+                  <input type="radio" id="toilet-access-no" name="toilet-access" value="No" class="hidden">
                   <span>No</span>
                 </label>
               </div>
             </div>
           </div>
-          
+
           <div>
-            <label for="dd-garbage" class="block text-xs font-bold text-brand-dark mb-1">Main system of garbage disposal <span class="text-red-500">*</span></label>
+            <label for="dd-garbage" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_garbage')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-garbage" name="dd-garbage" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'garbage-other')">
-                <option value="" disabled selected>Select System</option>
+                <option value="" disabled selected>${t('ph_select_garbage')}</option>
               </select>
             </div>
-            <input id="garbage-other" name="garbage-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="garbage-other" name="garbage-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(4)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(5)) goToStep(6)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Health</span>
+          <span>${t('step5_btn_next')}</span>
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -1680,12 +1680,12 @@ function populateAllDropdowns() {
   populateMulti('dd-illness', globalData.List_Illness, 'illness-display', 'illness-other-input');
   
   // Step 5
-  populateSelect('dd-materials', globalData.List_Materials, "Select Materials");
-  populateSelect('dd-tenure', globalData.List_Tenure, "Select Status");
-  populateSelect('dd-electricity', globalData.List_Electricity, "Select Source");
-  populateSelect('dd-water', globalData.List_Water, "Select Water Source");
-  populateSelect('dd-toilet', globalData.List_Toilet, "Select Toilet Type");
-  populateSelect('dd-garbage', globalData.List_Garbage, "Select System");
+  populateSelect('dd-materials', globalData.List_Materials, t('ph_select_materials'), 'List_Materials');
+  populateSelect('dd-tenure', globalData.List_Tenure, t('ph_select_tenure'), 'List_Tenure');
+  populateSelect('dd-electricity', globalData.List_Electricity, t('ph_select_electricity'), 'List_Electricity');
+  populateSelect('dd-water', globalData.List_Water, t('ph_select_water'), 'List_Water');
+  populateSelect('dd-toilet', globalData.List_Toilet, t('ph_select_toilet'), 'List_Toilet');
+  populateSelect('dd-garbage', globalData.List_Garbage, t('ph_select_garbage'), 'List_Garbage');
 }
 
 function populateSelect(id, items, placeholder, listKey) {

@@ -133,6 +133,29 @@ window.I18N_EN = {
   ph_select_occupation: 'Select Occupation',
   ph_select_class: 'Select Class',
   ph_select_status: 'Select Status',
+
+  // Step 5: Socio Economic
+  step5_heading: 'Socio Economic',
+  step5_subtext: "Detail the household's living conditions, assets, and financial resources.",
+  step5_sec_housing: 'Housing Condition',
+  step5_lbl_materials: 'What type of construction materials are the roofs and outer walls made of?',
+  step5_lbl_tenure: 'What is the tenure status of the house and lot does the family have?',
+  step5_lbl_modifications: "Are there any modifications in the house to accommodate the child's disability?",
+  step5_lbl_electricity: 'What is the main source of electricity in the dwelling place?',
+  step5_sec_water: 'Water Supply',
+  step5_lbl_water: "What is your family's main source of water supply?",
+  step5_sec_sanitation: 'Sanitation',
+  step5_lbl_toilet: 'Main type of toilet facility',
+  step5_lbl_toilet_access: 'Is the toilet accessible for the child?',
+  step5_lbl_garbage: 'Main system of garbage disposal',
+  step5_btn_next: 'Next: Health',
+
+  ph_select_materials: 'Select Materials',
+  ph_select_tenure: 'Select Status',
+  ph_select_electricity: 'Select Source',
+  ph_select_water: 'Select Water Source',
+  ph_select_toilet: 'Select Toilet Type',
+  ph_select_garbage: 'Select System',
 };
 
 window.I18N_EN_DROPDOWNS = {};
