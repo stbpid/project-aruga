@@ -224,6 +224,33 @@ window.I18N_EN = {
   challenge_requirements: 'Requirements/Documents',
   challenge_none: 'None',
   step9_btn_next: 'Next: Assessment',
+
+  // Step 10: Assessment
+  step10_heading: 'General Observations and Recommendations',
+  step10_subtext: "Provide a summary of the child's situation and specific steps for intervention.",
+  step10_sec_notes: 'Assessment Notes',
+  step10_lbl_strengths: 'Strengths',
+  step10_ph_strengths: 'Enter key strengths...',
+  step10_lbl_assessment: 'Assessment',
+  step10_ph_assessment: 'Provide assessment details...',
+  step10_lbl_recommendations: 'Recommended Actions/Interventions',
+  step10_ph_recommendations: 'Suggest interventions...',
+  step10_sec_readiness: 'Readiness Score',
+  readiness_severe_title: 'Severe: Immediate intervention needed',
+  readiness_severe_desc: 'The well-being of the child and family is at a critical level, requiring urgent and immediate intervention.',
+  readiness_moderate_title: 'Moderate: Address within a short period',
+  readiness_moderate_desc: 'The well-being shows significant areas of concern that need to be addressed in the short term.',
+  readiness_low_title: 'Low: No immediate action needed, but regular monitoring',
+  readiness_low_desc: "The child and family's well-being is generally adequate, with some minor issues requiring attention.",
+  readiness_stable_title: 'Stable: Meets all needs effectively',
+  readiness_stable_desc: "The child and family's well-being is satisfactory and functioning as expected.",
+  step10_btn_review: 'Review Assessment',
+
+  // Step 11: Review
+  step11_heading: 'Review Assessment',
+  step11_subtext: 'Please verify all information before final submission.',
+  step11_btn_edit: 'Edit Forms',
+  step11_btn_submit: 'Submit Assessment',
 };
 
 window.I18N_EN_DROPDOWNS = {};

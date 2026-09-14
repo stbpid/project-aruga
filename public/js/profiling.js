@@ -1410,97 +1410,97 @@ function getStep10HTML() {
   return `
     <div id="step-10" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">General Observations and Recommendations</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Provide a summary of the child's situation and specific steps for intervention.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step10_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step10_subtext')}</p>
       </div>
-      
+
       <!-- Assessment Notes -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">edit_note</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Assessment Notes</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step10_sec_notes')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
-            <label for="strengths" class="block text-xs font-bold text-brand-dark mb-1">Strengths <span class="text-red-500">*</span></label>
-            <textarea id="strengths" name="strengths" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Enter key strengths..."></textarea>
+            <label for="strengths" class="block text-xs font-bold text-brand-dark mb-1">${t('step10_lbl_strengths')} <span class="text-red-500">*</span></label>
+            <textarea id="strengths" name="strengths" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="${t('step10_ph_strengths')}"></textarea>
           </div>
           <div>
-            <label for="assessment" class="block text-xs font-bold text-brand-dark mb-1">Assessment <span class="text-red-500">*</span></label>
-            <textarea id="assessment" name="assessment" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Provide assessment details..."></textarea>
+            <label for="assessment" class="block text-xs font-bold text-brand-dark mb-1">${t('step10_lbl_assessment')} <span class="text-red-500">*</span></label>
+            <textarea id="assessment" name="assessment" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="${t('step10_ph_assessment')}"></textarea>
           </div>
           <div>
-            <label for="recommendations" class="block text-xs font-bold text-brand-dark mb-1">Recommended Actions/Interventions <span class="text-red-500">*</span></label>
-            <textarea id="recommendations" name="recommendations" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Suggest interventions..."></textarea>
+            <label for="recommendations" class="block text-xs font-bold text-brand-dark mb-1">${t('step10_lbl_recommendations')} <span class="text-red-500">*</span></label>
+            <textarea id="recommendations" name="recommendations" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="${t('step10_ph_recommendations')}"></textarea>
           </div>
         </div>
       </section>
-      
+
       <!-- Readiness Score -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">speed</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Readiness Score</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step10_sec_readiness')}</h3>
         </div>
-        
+
         <div class="space-y-3">
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
             <input type="radio" id="readiness-severe" name="readiness" value="severe" class="peer sr-only">
             <div class="flex flex-col">
               <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold">1</span>
-                Severe: Immediate intervention needed
+                ${t('readiness_severe_title')}
               </h3>
-              <p class="text-xs text-gray-500 mt-1 pl-7">The well-being of the child and family is at a critical level, requiring urgent and immediate intervention.</p>
+              <p class="text-xs text-gray-500 mt-1 pl-7">${t('readiness_severe_desc')}</p>
             </div>
           </label>
-          
+
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
             <input type="radio" id="readiness-moderate" name="readiness" value="moderate" class="peer sr-only">
             <div class="flex flex-col">
               <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold">2</span>
-                Moderate: Address within a short period
+                ${t('readiness_moderate_title')}
               </h3>
-              <p class="text-xs text-gray-500 mt-1 pl-7">The well-being shows significant areas of concern that need to be addressed in the short term.</p>
+              <p class="text-xs text-gray-500 mt-1 pl-7">${t('readiness_moderate_desc')}</p>
             </div>
           </label>
-          
+
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
             <input type="radio" id="readiness-low" name="readiness" value="low" class="peer sr-only">
             <div class="flex flex-col">
               <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xs font-bold">3</span>
-                Low: No immediate action needed, but regular monitoring
+                ${t('readiness_low_title')}
               </h3>
-              <p class="text-xs text-gray-500 mt-1 pl-7">The child and family's well-being is generally adequate, with some minor issues requiring attention.</p>
+              <p class="text-xs text-gray-500 mt-1 pl-7">${t('readiness_low_desc')}</p>
             </div>
           </label>
-          
+
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
             <input type="radio" id="readiness-stable" name="readiness" value="stable" class="peer sr-only">
             <div class="flex flex-col">
               <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">4</span>
-                Stable: Meets all needs effectively
+                ${t('readiness_stable_title')}
               </h3>
-              <p class="text-xs text-gray-500 mt-1 pl-7">The child and family's well-being is satisfactory and functioning as expected.</p>
+              <p class="text-xs text-gray-500 mt-1 pl-7">${t('readiness_stable_desc')}</p>
             </div>
           </label>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(9)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
         <button onclick="if(validateStep(10)) generateReview()" class="px-6 h-10 bg-green-600 rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-green-700 flex items-center gap-2 shadow-md transition-all">
-          <span class="material-symbols-outlined text-[16px]">check</span> Review Assessment
+          <span class="material-symbols-outlined text-[16px]">check</span> ${t('step10_btn_review')}
         </button>
       </div>
     </div>
@@ -1515,17 +1515,17 @@ function getStep11HTML() {
   return `
     <div id="step-11" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Review Assessment</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Please verify all information before final submission.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step11_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step11_subtext')}</p>
       </div>
-      
+
       <div id="review-content" class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-6 space-y-6">
         <!-- Review content will be generated here -->
       </div>
-      
+
       <div class="w-full flex justify-between pb-6">
-        <button onclick="goToStep(10)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">Edit Forms</button>
-        <button onclick="submitAssessment()" class="px-6 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">Submit Assessment</button>
+        <button onclick="goToStep(10)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">${t('step11_btn_edit')}</button>
+        <button onclick="submitAssessment()" class="px-6 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">${t('step11_btn_submit')}</button>
       </div>
     </div>
   `;

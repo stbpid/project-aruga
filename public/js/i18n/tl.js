@@ -224,6 +224,33 @@ window.I18N_TL = {
   challenge_requirements: 'Mga Kinakailangan/Dokumento',
   challenge_none: 'Wala',
   step9_btn_next: 'Susunod: Pagtatasa',
+
+  // Step 10: Assessment
+  step10_heading: 'Pangkalahatang Obserbasyon at Rekomendasyon',
+  step10_subtext: 'Ibigay ang buod ng kalagayan ng bata at partikular na hakbang para sa interbensyon.',
+  step10_sec_notes: 'Mga Tala sa Pagtatasa',
+  step10_lbl_strengths: 'Mga Kalakasan',
+  step10_ph_strengths: 'Ilagay ang mga pangunahing kalakasan...',
+  step10_lbl_assessment: 'Pagtatasa',
+  step10_ph_assessment: 'Ibigay ang detalye ng pagtatasa...',
+  step10_lbl_recommendations: 'Inirerekomendang Aksyon/Interbensyon',
+  step10_ph_recommendations: 'Imungkahi ang mga interbensyon...',
+  step10_sec_readiness: 'Readiness Score',
+  readiness_severe_title: 'Malubha: Kailangan ng agarang interbensyon',
+  readiness_severe_desc: 'Ang kagalingan ng bata at pamilya ay nasa kritikal na antas, kailangan ng agaran at mabilisang interbensyon.',
+  readiness_moderate_title: 'Katamtaman: Tutugunan sa loob ng maikling panahon',
+  readiness_moderate_desc: 'Ang kagalingan ay nagpapakita ng mahahalagang bahagi ng alalahanin na kailangang tugunan sa maikling panahon.',
+  readiness_low_title: 'Mababa: Walang kailangang agarang aksyon, ngunit regular na subaybayan',
+  readiness_low_desc: 'Ang kagalingan ng bata at pamilya ay sapat, may ilang menor na isyu na nangangailangan ng pansin.',
+  readiness_stable_title: 'Matatag: Natutugunan lahat ng pangangailangan nang epektibo',
+  readiness_stable_desc: 'Ang kagalingan ng bata at pamilya ay kasiya-siya at umaandar nang inaasahan.',
+  step10_btn_review: 'Suriin ang Pagtatasa',
+
+  // Step 11: Review
+  step11_heading: 'Suriin ang Pagtatasa',
+  step11_subtext: 'Pakisuri ang lahat ng impormasyon bago ang huling pagsusumite.',
+  step11_btn_edit: 'I-edit ang mga Form',
+  step11_btn_submit: 'Isumite ang Pagtatasa',
 };
 
 window.I18N_TL_DROPDOWNS = {
