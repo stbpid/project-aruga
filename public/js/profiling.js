@@ -681,35 +681,35 @@ function getStep4HTML() {
   return `
     <div id="step-4" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Family Profile</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Provide details regarding family members living in the household.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step4_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step4_subtext')}</p>
       </div>
-      
+
       <section class="w-full bg-blue-50 rounded-xl border border-blue-200 shadow-sm p-5 sm:p-6 flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-brand-dark text-base sm:text-lg">Current Family Size</h3>
-          <p class="text-xs text-gray-500">Auto-calculated based on listed members.</p>
+          <h3 class="font-bold text-brand-dark text-base sm:text-lg">${t('step4_sec_family_size')}</h3>
+          <p class="text-xs text-gray-500">${t('step4_helper_family_size')}</p>
         </div>
         <div class="w-20">
           <input id="total-family-size" name="total-family-size" type="number" readonly value="1" class="w-full h-12 text-center text-xl font-bold text-brand-blue bg-white rounded-lg border border-blue-100 outline-none">
         </div>
       </section>
-      
+
       <div id="family-members-container" class="space-y-5">
         <!-- Family member cards will be added here -->
       </div>
-      
+
       <button onclick="addFamilyMember()" class="w-full py-3 border-2 border-dashed border-brand-blue text-brand-blue rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
         <span class="material-symbols-outlined text-[20px]">person_add</span>
-        Add Another Family Member
+        ${t('step4_btn_add_member')}
       </button>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(3)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(4)) goToStep(5)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Socio Economic</span>
+          <span>${t('step4_btn_next')}</span>
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -2243,8 +2243,8 @@ function addFirstFamilyMember() {
   
   // Populate dropdowns for first member
   setTimeout(() => {
-    populateSelect('dd-fam-occ-1', globalData.List_Occupation, "Select Occupation");
-    populateSelect('dd-fam-class-1', globalData.List_Occupation_Class, "Select Class");
+    populateSelect('dd-fam-occ-1', globalData.List_Occupation, t('ph_select_occupation'));
+    populateSelect('dd-fam-class-1', globalData.List_Occupation_Class, t('ph_select_class'));
     populateMulti('dd-fam-dis-1', globalData.List_Disability, 'disp-fam-dis-1');
     populateMulti('dd-fam-ill-1', globalData.List_Illness, 'disp-fam-ill-1');
     initToggles();
@@ -2264,8 +2264,8 @@ function addFamilyMember() {
   
   // Populate dropdowns for new member
   setTimeout(() => {
-    populateSelect(`dd-fam-occ-${memberCount}`, globalData.List_Occupation, "Select Occupation");
-    populateSelect(`dd-fam-class-${memberCount}`, globalData.List_Occupation_Class, "Select Class");
+    populateSelect(`dd-fam-occ-${memberCount}`, globalData.List_Occupation, t('ph_select_occupation'));
+    populateSelect(`dd-fam-class-${memberCount}`, globalData.List_Occupation_Class, t('ph_select_class'));
     populateMulti(`dd-fam-dis-${memberCount}`, globalData.List_Disability, `disp-fam-dis-${memberCount}`);
     populateMulti(`dd-fam-ill-${memberCount}`, globalData.List_Illness, `disp-fam-ill-${memberCount}`);
     initToggles();
@@ -2274,29 +2274,29 @@ function addFamilyMember() {
 }
 
 function getFamilyMemberCardHTML(num, isHead) {
-  const title = isHead ? `Member #${num} (Head of Family)` : `Member #${num}`;
+  const title = isHead ? t('member_title_head', { n: num }) : t('member_title', { n: num });
   const removeButton = !isHead ? `
-    <button onclick="removeMember(this)" class="text-xs bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors font-semibold">Remove</button>
+    <button onclick="removeMember(this)" class="text-xs bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors font-semibold">${t('member_btn_remove')}</button>
   ` : '';
-  
+
   return `
     <section class="member-card w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm relative" id="member-card-${num}">
       <div class="bg-gray-50 px-5 py-3 border-b border-gray-200 flex justify-between items-center rounded-t-xl h-14">
         <h3 class="font-bold text-brand-dark text-sm sm:text-base member-title">${title}</h3>
         <div class="flex items-center gap-2 remove-btn-container">
-          <button onclick="toggleMemberVisibility(this)" class="text-[10px] text-gray-400 font-semibold hover:text-brand-blue transition-colors">Hide</button>
+          <button onclick="toggleMemberVisibility(this)" class="text-[10px] text-gray-400 font-semibold hover:text-brand-blue transition-colors">${t('member_btn_hide')}</button>
           ${removeButton}
         </div>
       </div>
-      
+
       <div class="p-5 sm:p-6 space-y-4 member-content">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="sm:col-span-2">
-            <label for="fam-full-name-${num}" class="block text-xs font-bold text-brand-dark mb-1">Full Name <span class="text-red-500">*</span></label>
-            <input type="text" id="fam-full-name-${num}" name="fam-full-name-${num}" data-field="full_name" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Full Name">
+            <label for="fam-full-name-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_fullname')} <span class="text-red-500">*</span></label>
+            <input type="text" id="fam-full-name-${num}" name="fam-full-name-${num}" data-field="full_name" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('member_ph_fullname')}">
           </div>
           <div>
-            <label for="fam-rel-${num}" class="block text-xs font-bold text-brand-dark mb-1">Relationship to Head</label>
+            <label for="fam-rel-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_relationship')}</label>
             <div class="relative">
               <select id="fam-rel-${num}" name="fam-rel-${num}" data-field="relationship_to_head" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option>${isHead ? 'Head' : 'Spouse'}</option>
@@ -2311,7 +2311,7 @@ function getFamilyMemberCardHTML(num, isHead) {
             </div>
           </div>
           <div>
-            <label for="solo-${num}-yes" class="block text-xs font-bold text-brand-dark mb-1">Solo Parent</label>
+            <label for="solo-${num}-yes" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_solo_parent')}</label>
             <div class="slide-toggle-container h-9 w-full">
               <div class="slide-toggle-slider"></div>
               <label for="solo-${num}-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
@@ -2325,7 +2325,7 @@ function getFamilyMemberCardHTML(num, isHead) {
             </div>
           </div>
           <div>
-            <label for="claimant-${num}-yes" class="block text-xs font-bold text-brand-dark mb-1">Authorized Claimant</label>
+            <label for="claimant-${num}-yes" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_claimant')}</label>
             <div class="slide-toggle-container h-9 w-full">
               <div class="slide-toggle-slider"></div>
               <label for="claimant-${num}-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
@@ -2342,10 +2342,10 @@ function getFamilyMemberCardHTML(num, isHead) {
 
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
-            <label for="fam-civil-${num}" class="block text-xs font-bold text-brand-dark mb-1">Civil Status <span class="text-red-500">*</span></label>
+            <label for="fam-civil-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_civil_status')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="fam-civil-${num}" name="fam-civil-${num}" data-field="civil_status" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
-                <option value="" disabled selected>Select Status</option>
+                <option value="" disabled selected>${t('ph_select_status')}</option>
                 <option>Single</option>
                 <option>Married</option>
                 <option>Widowed</option>
@@ -2355,11 +2355,11 @@ function getFamilyMemberCardHTML(num, isHead) {
             </div>
           </div>
           <div>
-            <label for="fam-age-${num}" class="block text-xs font-bold text-brand-dark mb-1">Age <span class="text-red-500">*</span></label>
-            <input type="text" id="fam-age-${num}" name="fam-age-${num}" data-field="age" maxlength="3" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Age" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <label for="fam-age-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_age')} <span class="text-red-500">*</span></label>
+            <input type="text" id="fam-age-${num}" name="fam-age-${num}" data-field="age" maxlength="3" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('member_ph_age')}" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
           </div>
           <div>
-            <label for="sex-${num}-male" class="block text-xs font-bold text-brand-dark mb-1">Sex</label>
+            <label for="sex-${num}-male" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_sex')}</label>
             <div class="slide-toggle-container h-9 w-full">
               <div class="slide-toggle-slider"></div>
               <label for="sex-${num}-male" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
@@ -2376,18 +2376,18 @@ function getFamilyMemberCardHTML(num, isHead) {
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="dd-fam-occ-${num}" class="block text-xs font-bold text-brand-dark mb-1">Occupation <span class="text-red-500">*</span></label>
+            <label for="dd-fam-occ-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_occupation')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-fam-occ-${num}" name="dd-fam-occ-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
-                <option value="" disabled selected>Loading...</option>
+                <option value="" disabled selected>${t('ph_loading')}</option>
               </select>
             </div>
           </div>
           <div>
-            <label for="dd-fam-class-${num}" class="block text-xs font-bold text-brand-dark mb-1">Occupation Class <span class="text-red-500">*</span></label>
+            <label for="dd-fam-class-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_occ_class')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-fam-class-${num}" name="dd-fam-class-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
-                <option value="" disabled selected>Loading...</option>
+                <option value="" disabled selected>${t('ph_loading')}</option>
               </select>
             </div>
           </div>
@@ -2395,23 +2395,23 @@ function getFamilyMemberCardHTML(num, isHead) {
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="relative">
-            <label for="dd-fam-dis-${num}-btn" class="block text-xs font-bold text-brand-dark mb-1">Disability/Special Needs</label>
+            <label for="dd-fam-dis-${num}-btn" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_disability')}</label>
             <button type="button" id="dd-fam-dis-${num}-btn" onclick="toggleDropdown('dd-fam-dis-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
-              <span id="disp-fam-dis-${num}" class="truncate text-gray-500">Select...</span>
+              <span id="disp-fam-dis-${num}" class="truncate text-gray-500">${t('ph_select_ellipsis')}</span>
               <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-fam-dis-${num}" class="hidden absolute z-10 w-full google-menu mt-1 max-h-40 overflow-y-auto dropdown-scroll">
-              <div class="p-2 text-gray-400 text-xs">Loading...</div>
+              <div class="p-2 text-gray-400 text-xs">${t('ph_loading')}</div>
             </div>
           </div>
           <div class="relative">
-            <label for="dd-fam-ill-${num}-btn" class="block text-xs font-bold text-brand-dark mb-1">Critical Illness</label>
+            <label for="dd-fam-ill-${num}-btn" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_illness')}</label>
             <button type="button" id="dd-fam-ill-${num}-btn" onclick="toggleDropdown('dd-fam-ill-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
-              <span id="disp-fam-ill-${num}" class="truncate text-gray-500">Select...</span>
+              <span id="disp-fam-ill-${num}" class="truncate text-gray-500">${t('ph_select_ellipsis')}</span>
               <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-fam-ill-${num}" class="hidden absolute z-10 w-full google-menu mt-1 max-h-40 overflow-y-auto dropdown-scroll">
-              <div class="p-2 text-gray-400 text-xs">Loading...</div>
+              <div class="p-2 text-gray-400 text-xs">${t('ph_loading')}</div>
             </div>
           </div>
         </div>
@@ -2431,9 +2431,9 @@ function removeMember(btn) {
     c.id = `member-card-${currentCount}`;
     const title = c.querySelector('.member-title');
     if (currentCount === 1) {
-      title.innerText = "Member #1 (Head of Family)";
+      title.innerText = t('member_title_head', { n: 1 });
     } else {
-      title.innerText = `Member #${currentCount}`;
+      title.innerText = t('member_title', { n: currentCount });
     }
   });
   memberCount = currentCount;
@@ -2445,10 +2445,10 @@ function toggleMemberVisibility(btn) {
   const content = card.querySelector('.member-content');
   if (content.style.display === "none") {
     content.style.display = "block";
-    btn.innerText = "Hide";
+    btn.innerText = t('member_btn_hide');
   } else {
     content.style.display = "none";
-    btn.innerText = "Show";
+    btn.innerText = t('member_btn_show');
   }
 }
 

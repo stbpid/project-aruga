@@ -103,6 +103,36 @@ window.I18N_EN = {
   ph_select_ip: 'Select IP Group',
   ph_select_education: 'Select Education',
   ph_none: 'None',
+
+  // Step 4: Family Profile
+  step4_heading: 'Family Profile',
+  step4_subtext: 'Provide details regarding family members living in the household.',
+  step4_sec_family_size: 'Current Family Size',
+  step4_helper_family_size: 'Auto-calculated based on listed members.',
+  step4_btn_add_member: 'Add Another Family Member',
+  step4_btn_next: 'Next: Socio Economic',
+
+  member_title_head: 'Member #{n} (Head of Family)',
+  member_title: 'Member #{n}',
+  member_btn_remove: 'Remove',
+  member_btn_hide: 'Hide',
+  member_btn_show: 'Show',
+  member_lbl_fullname: 'Full Name',
+  member_ph_fullname: 'Enter Full Name',
+  member_lbl_relationship: 'Relationship to Head',
+  member_lbl_solo_parent: 'Solo Parent',
+  member_lbl_claimant: 'Authorized Claimant',
+  member_lbl_civil_status: 'Civil Status',
+  member_lbl_age: 'Age',
+  member_ph_age: 'Age',
+  member_lbl_sex: 'Sex',
+  member_lbl_occupation: 'Occupation',
+  member_lbl_occ_class: 'Occupation Class',
+  member_lbl_disability: 'Disability/Special Needs',
+  member_lbl_illness: 'Critical Illness',
+  ph_select_occupation: 'Select Occupation',
+  ph_select_class: 'Select Class',
+  ph_select_status: 'Select Status',
 };
 
 window.I18N_EN_DROPDOWNS = {};

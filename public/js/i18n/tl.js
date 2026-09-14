@@ -103,6 +103,36 @@ window.I18N_TL = {
   ph_select_ip: 'Pumili ng Grupong IP',
   ph_select_education: 'Pumili ng Edukasyon',
   ph_none: 'Wala',
+
+  // Step 4: Family Profile
+  step4_heading: 'Profile ng Pamilya',
+  step4_subtext: 'Ibigay ang detalye ng mga miyembro ng pamilyang naninirahan sa bahay.',
+  step4_sec_family_size: 'Kasalukuyang Sukat ng Pamilya',
+  step4_helper_family_size: 'Awtomatikong nakukwenta batay sa nakalistang mga miyembro.',
+  step4_btn_add_member: 'Magdagdag ng Ibang Miyembro ng Pamilya',
+  step4_btn_next: 'Susunod: Sosyo-Ekonomiko',
+
+  member_title_head: 'Miyembro #{n} (Puno ng Pamilya)',
+  member_title: 'Miyembro #{n}',
+  member_btn_remove: 'Alisin',
+  member_btn_hide: 'Itago',
+  member_btn_show: 'Ipakita',
+  member_lbl_fullname: 'Buong Pangalan',
+  member_ph_fullname: 'Ilagay ang Buong Pangalan',
+  member_lbl_relationship: 'Kaugnayan sa Puno ng Pamilya',
+  member_lbl_solo_parent: 'Solo Parent',
+  member_lbl_claimant: 'Awtorisadong Claimant',
+  member_lbl_civil_status: 'Katayuang Sibil',
+  member_lbl_age: 'Edad',
+  member_ph_age: 'Edad',
+  member_lbl_sex: 'Kasarian',
+  member_lbl_occupation: 'Trabaho',
+  member_lbl_occ_class: 'Klasipikasyon ng Trabaho',
+  member_lbl_disability: 'Kapansanan/Espesyal na Pangangailangan',
+  member_lbl_illness: 'Malubhang Sakit',
+  ph_select_occupation: 'Pumili ng Trabaho',
+  ph_select_class: 'Pumili ng Klase',
+  ph_select_status: 'Pumili ng Katayuan',
 };
 
 window.I18N_TL_DROPDOWNS = {
