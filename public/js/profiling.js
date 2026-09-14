@@ -471,201 +471,201 @@ function getStep3HTML() {
   return `
     <div id="step-3" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Child Profile</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Provide the child's personal details, demographics, and specific health conditions.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step3_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step3_subtext')}</p>
       </div>
-      
+
       <!-- Personal Information -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-8 flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">face</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base sm:text-lg">Personal Information</h3>
+          <h3 class="font-bold text-brand-dark text-base sm:text-lg">${t('step3_sec_personal')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
-              <label for="child-fname" class="block text-xs font-bold text-brand-dark mb-1">First Name <span class="text-red-500">*</span></label>
-              <input type="text" id="child-fname" name="child-fname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="First Name">
+              <label for="child-fname" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_fname')} <span class="text-red-500">*</span></label>
+              <input type="text" id="child-fname" name="child-fname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_lbl_fname')}">
             </div>
             <div>
-              <label for="child-mname" class="block text-xs font-bold text-brand-dark mb-1">Middle Name</label>
-              <input type="text" id="child-mname" name="child-mname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Middle Name">
+              <label for="child-mname" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_mname')}</label>
+              <input type="text" id="child-mname" name="child-mname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_lbl_mname')}">
             </div>
             <div>
-              <label for="child-lname" class="block text-xs font-bold text-brand-dark mb-1">Last Name <span class="text-red-500">*</span></label>
-              <input type="text" id="child-lname" name="child-lname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Last Name">
+              <label for="child-lname" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_lname')} <span class="text-red-500">*</span></label>
+              <input type="text" id="child-lname" name="child-lname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_lbl_lname')}">
             </div>
             <div>
-              <label for="dd-extension" class="block text-xs font-bold text-brand-dark mb-1">Extension</label>
+              <label for="dd-extension" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_extension')}</label>
               <div class="relative">
                 <select id="dd-extension" name="dd-extension" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
-                  <option value="" disabled selected>Loading...</option>
+                  <option value="" disabled selected>${t('ph_loading')}</option>
                 </select>
               </div>
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="child-region" class="block text-xs font-bold text-brand-dark mb-1">Region <span class="text-red-500">*</span></label>
+              <label for="child-region" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_region')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-region" name="child-region" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateProvinces()">
-                  <option value="" disabled selected>Select Region</option>
+                  <option value="" disabled selected>${t('ph_select_region')}</option>
                 </select>
               </div>
             </div>
             <div>
-              <label for="child-province" class="block text-xs font-bold text-brand-dark mb-1">Province <span class="text-red-500">*</span></label>
+              <label for="child-province" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_province')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-province" name="child-province" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateCities()" disabled>
-                  <option value="" disabled selected>Select Province</option>
+                  <option value="" disabled selected>${t('ph_select_province')}</option>
                 </select>
               </div>
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="child-city" class="block text-xs font-bold text-brand-dark mb-1">City/Municipality <span class="text-red-500">*</span></label>
+              <label for="child-city" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_city')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-city" name="child-city" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateBarangays()" disabled>
-                  <option value="" disabled selected>Select City</option>
+                  <option value="" disabled selected>${t('ph_select_city')}</option>
                 </select>
               </div>
             </div>
             <div>
-              <label for="child-barangay" class="block text-xs font-bold text-brand-dark mb-1">Barangay <span class="text-red-500">*</span></label>
+              <label for="child-barangay" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_barangay')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-barangay" name="child-barangay" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" disabled>
-                  <option value="" disabled selected>Select Barangay</option>
+                  <option value="" disabled selected>${t('ph_select_barangay')}</option>
                 </select>
               </div>
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="child-street" class="block text-xs font-bold text-brand-dark mb-1">Street Address <span class="text-red-500">*</span></label>
-              <input type="text" id="child-street" name="child-street" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="House No., Street">
+              <label for="child-street" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_street')} <span class="text-red-500">*</span></label>
+              <input type="text" id="child-street" name="child-street" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_ph_street')}">
             </div>
             <div>
-              <label for="resp-contact" class="block text-xs font-bold text-brand-dark mb-1">Contact Number</label>
-              <input type="tel" id="child-contact" name="child-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="09XX XXX XXXX">
+              <label for="resp-contact" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_contact')}</label>
+              <input type="tel" id="child-contact" name="child-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_ph_contact_alt')}">
             </div>
           </div>
         </div>
       </section>
-      
+
       <!-- Demographics -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-8 flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">manage_accounts</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base sm:text-lg">Demographics</h3>
+          <h3 class="font-bold text-brand-dark text-base sm:text-lg">${t('step3_sec_demographics')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="child-dob" class="block text-xs font-bold text-brand-dark mb-1">Date of Birth <span class="text-red-500">*</span></label>
+              <label for="child-dob" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_dob')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <input type="date" id="child-dob" name="child-dob" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none text-gray-600">
               </div>
             </div>
             <div>
-              <label for="sex-male" class="block text-xs font-bold text-brand-dark mb-1">Sex</label>
+              <label for="sex-male" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_sex')}</label>
               <div class="slide-toggle-container h-9 w-full sm:w-2/3">
                 <div class="slide-toggle-slider"></div>
                 <label for="sex-male" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                  <input type="radio" id="sex-male" name="sex" value="Male" class="hidden" checked> 
+                  <input type="radio" id="sex-male" name="sex" value="Male" class="hidden" checked>
                   <span>Male</span>
                 </label>
                 <label for="sex-female" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                  <input type="radio" id="sex-female" name="sex" value="Female" class="hidden"> 
+                  <input type="radio" id="sex-female" name="sex" value="Female" class="hidden">
                   <span>Female</span>
                 </label>
               </div>
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="dd-religion" class="block text-xs font-bold text-brand-dark mb-1">Religion <span class="text-red-500">*</span></label>
+              <label for="dd-religion" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_religion')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-religion" name="dd-religion" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'rel-other')">
-                  <option value="" disabled selected>Loading...</option>
+                  <option value="" disabled selected>${t('ph_loading')}</option>
                 </select>
               </div>
-              <input id="rel-other" name="rel-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+              <input id="rel-other" name="rel-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
             </div>
             <div>
-              <label for="dd-ip" class="block text-xs font-bold text-brand-dark mb-1">IP Membership <span class="text-red-500">*</span></label>
+              <label for="dd-ip" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_ip')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-ip" name="dd-ip" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'ip-other')">
-                  <option value="" disabled selected>Loading...</option>
+                  <option value="" disabled selected>${t('ph_loading')}</option>
                 </select>
               </div>
-              <input id="ip-other" name="ip-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+              <input id="ip-other" name="ip-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
             </div>
           </div>
         </div>
       </section>
-      
+
       <!-- Condition & Education -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-8 flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">school</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base sm:text-lg">Condition & Education</h3>
+          <h3 class="font-bold text-brand-dark text-base sm:text-lg">${t('step3_sec_condition_edu')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
-            <label for="dd-education" class="block text-xs font-bold text-brand-dark mb-1">Highest Educational Attainment <span class="text-red-500">*</span></label>
+            <label for="dd-education" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_education')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-education" name="dd-education" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'edu-other')">
-                <option value="" disabled selected>Loading...</option>
+                <option value="" disabled selected>${t('ph_loading')}</option>
               </select>
             </div>
-            <input id="edu-other" name="edu-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="edu-other" name="edu-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div class="relative">
-            <label for="dd-disability-btn" class="block text-xs font-bold text-brand-dark mb-1">Disability or Special Needs (Select all that apply)</label>
+            <label for="dd-disability-btn" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_disability')}</label>
             <button id="dd-disability-btn" type="button" onclick="toggleDropdown('dd-disability')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
-              <span id="disability-display" class="truncate text-gray-400">Select options...</span>
+              <span id="disability-display" class="truncate text-gray-400">${t('txt_select_options_ellipsis')}</span>
               <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-disability" class="hidden absolute z-10 w-full google-menu mt-1 max-h-60 overflow-y-auto dropdown-scroll">
               <!-- Will be populated by JavaScript -->
             </div>
           </div>
-          
+
           <div class="relative">
-            <label for="dd-illness-btn" class="block text-xs font-bold text-brand-dark mb-1">Critical Illness (Select all that apply)</label>
+            <label for="dd-illness-btn" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_illness')}</label>
             <button id="dd-illness-btn" type="button" onclick="toggleDropdown('dd-illness')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
-              <span id="illness-display" class="truncate text-gray-400">Select options...</span>
+              <span id="illness-display" class="truncate text-gray-400">${t('txt_select_options_ellipsis')}</span>
               <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-illness" class="hidden absolute z-10 w-full google-menu mt-1 max-h-60 overflow-y-auto dropdown-scroll">
               <!-- Will be populated by JavaScript -->
             </div>
-            <input id="illness-other-input" name="illness-other-input" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="illness-other-input" name="illness-other-input" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(2)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(3)) goToStep(4)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          Next: Family Profile
+          ${t('step3_btn_next')}
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -1672,10 +1672,10 @@ function populateAllDropdowns() {
   initRelationshipCombobox(globalData.List_Relationship);
   
   // Step 3
-  populateSelect('dd-extension', globalData.List_Extension, "None");
-  populateSelect('dd-religion', globalData.List_Religion, "Select Religion");
-  populateSelect('dd-ip', globalData.List_IP, "Select IP Group");
-  populateSelect('dd-education', globalData.List_Education, "Select Education");
+  populateSelect('dd-extension', globalData.List_Extension, t('ph_none'));
+  populateSelect('dd-religion', globalData.List_Religion, t('ph_select_religion'), 'List_Religion');
+  populateSelect('dd-ip', globalData.List_IP, t('ph_select_ip'), 'List_IP');
+  populateSelect('dd-education', globalData.List_Education, t('ph_select_education'), 'List_Education');
   populateMulti('dd-disability', globalData.List_Disability, 'disability-display');
   populateMulti('dd-illness', globalData.List_Illness, 'illness-display', 'illness-other-input');
   
@@ -1688,7 +1688,7 @@ function populateAllDropdowns() {
   populateSelect('dd-garbage', globalData.List_Garbage, "Select System");
 }
 
-function populateSelect(id, items, placeholder) {
+function populateSelect(id, items, placeholder, listKey) {
   const s = document.getElementById(id);
   if (!s) {
     return;
@@ -1701,24 +1701,24 @@ function populateSelect(id, items, placeholder) {
 
   s.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
   let hasOthers = false;
-  
+
   (items || []).forEach(i => {
     const o = document.createElement('option');
     if (i === "Others" || i === "Other" || i === "Others (Specify)") {
       o.value = "Others";
-      o.innerText = "Others (Specify)";
+      o.innerText = t('option_others_specify');
       hasOthers = true;
     } else {
       o.value = i;
-      o.innerText = i;
+      o.innerText = listKey ? translateOption(listKey, i) : i;
     }
     s.appendChild(o);
   });
-  
+
   if (!hasOthers && id !== 'dd-extension' && id !== 'dd-relationship') {
     const o = document.createElement('option');
     o.value = "Others";
-    o.innerText = "Others (Specify)";
+    o.innerText = t('option_others_specify');
     s.appendChild(o);
   }
 }
@@ -1783,7 +1783,7 @@ function initializeLocationDropdowns() {
   const regionSelect = getLocationSelect('child-region');
   if (!regionSelect) return;
 
-  regionSelect.innerHTML = '<option value="" disabled selected>Select Region</option>';
+  regionSelect.innerHTML = `<option value="" disabled selected>${t('ph_select_region')}</option>`;
   Object.keys(locationData).forEach(region => {
     const opt = document.createElement('option');
     opt.value = region;
@@ -1809,9 +1809,9 @@ function updateProvinces() {
   const citySelect = getLocationSelect('child-city');
   const brgySelect = getLocationSelect('child-barangay');
 
-  provSelect.innerHTML = '<option value="" disabled selected>Select Province</option>';
-  citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
-  brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>';
+  provSelect.innerHTML = `<option value="" disabled selected>${t('ph_select_province')}</option>`;
+  citySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_city')}</option>`;
+  brgySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_barangay')}</option>`;
   provSelect.disabled = true;
   citySelect.disabled = true;
   brgySelect.disabled = true;
@@ -1838,8 +1838,8 @@ function updateCities() {
   const citySelect = getLocationSelect('child-city');
   const brgySelect = getLocationSelect('child-barangay');
 
-  citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
-  brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>';
+  citySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_city')}</option>`;
+  brgySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_barangay')}</option>`;
   citySelect.disabled = true;
   brgySelect.disabled = true;
   citySelect.dispatchEvent(new Event('change'));
@@ -1864,7 +1864,7 @@ function updateBarangays() {
   const city = getLocationValue('child-city');
   const brgySelect = getLocationSelect('child-barangay');
 
-  brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>';
+  brgySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_barangay')}</option>`;
   brgySelect.disabled = true;
   brgySelect.dispatchEvent(new Event('change'));
 
