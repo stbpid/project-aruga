@@ -1265,7 +1265,7 @@ function getStep8HTML() {
                 </label>
               </div>
             </div>
-            <input id="emp-specify" name="emp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="emp-specify" name="emp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
@@ -1320,7 +1320,7 @@ function getStep9HTML() {
                 </label>
               </div>
             </div>
-            <input id="fin-assist-specify" name="fin-assist-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="fin-assist-specify" name="fin-assist-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
           
           <div>
@@ -1338,7 +1338,7 @@ function getStep9HTML() {
                 </label>
               </div>
             </div>
-            <input id="aware-specify" name="aware-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="aware-specify" name="aware-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
           
           <div>
@@ -1356,7 +1356,7 @@ function getStep9HTML() {
                 </label>
               </div>
             </div>
-            <input id="availed-specify" name="availed-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="availed-specify" name="availed-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
@@ -1384,7 +1384,7 @@ function getStep9HTML() {
                 <option value="None">${t('challenge_none')}</option>
               </select>
             </div>
-            <input id="barrier-other" name="barrier-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="barrier-other" name="barrier-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
@@ -1736,6 +1736,7 @@ function populateMulti(cid, items, did, oid = null, listKey) {
   c.innerHTML = "";
   c.className = "hidden fixed google-menu dropdown-scroll overflow-y-auto";
   c.style.zIndex = '9999';
+  if (listKey) c.dataset.listKey = listKey; else delete c.dataset.listKey;
   let hasOthers = false;
 
   (items || []).forEach(x => {
@@ -1992,7 +1993,8 @@ function updateMultiSelect(cid, did) {
     d.classList.add("text-gray-400");
     d.classList.remove("text-gray-900");
   } else {
-    const v = Array.from(chk).map(x => x.value).join(', ');
+    const lk = c.dataset.listKey || '';
+    const v = Array.from(chk).map(x => lk ? translateOption(lk, x.value) : x.value).join(', ');
     d.innerText = v;
     d.classList.remove("text-gray-400");
     d.classList.add("text-gray-900");
@@ -2040,15 +2042,23 @@ function calculateIncomeClass(input) {
   const numVal = parseInt(val || 0);
   const display = document.getElementById('income-class-display');
   
+  // Canonical (English) classification key; the display text may be translated,
+  // but the value submitted to the backend must always be canonical English.
+  let canonicalKey = null;
   if (numVal === 0) {
-    display.innerText = t('step8_ph_income_class_initial');
+    canonicalKey = null;
   } else if (numVal <= 24000) {
-    display.innerText = t('step8_income_class_low');
+    canonicalKey = 'step8_income_class_low';
   } else if (numVal <= 76000) {
-    display.innerText = t('step8_income_class_middle');
+    canonicalKey = 'step8_income_class_middle';
   } else {
-    display.innerText = t('step8_income_class_high');
+    canonicalKey = 'step8_income_class_high';
   }
+
+  display.innerText = canonicalKey ? t(canonicalKey) : t('step8_ph_income_class_initial');
+  display.dataset.canonicalClass = canonicalKey
+    ? ((window.I18N_EN && window.I18N_EN[canonicalKey]) || t(canonicalKey))
+    : '';
 }
 
 // Close dropdowns when clicking outside
@@ -3353,8 +3363,9 @@ function collectFormData() {
   const serviceChalVal = serviceChalEl ? (serviceChalEl.value || null) : null;
 
   const incomeClassEl  = document.getElementById('income-class-display');
-  const incomeClassTxt = incomeClassEl ? incomeClassEl.innerText : '';
-  const incomeClass    = (incomeClassTxt && incomeClassTxt !== 'Enter income to see classification') ? incomeClassTxt : null;
+  // Read the canonical (English) classification stored by calculateIncomeClass(),
+  // never the displayed text, which may be translated.
+  const incomeClass    = (incomeClassEl && incomeClassEl.dataset.canonicalClass) || null;
 
   // Collect family members by DOM order, using data-field attributes
   const familyMembers = [];
