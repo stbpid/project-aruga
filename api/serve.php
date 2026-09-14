@@ -42,7 +42,7 @@ if (isset($map[$path])) {
     $file = __DIR__ . '/../public/' . $map[$path];
     if (file_exists($file)) {
         header('Content-Type: text/html; charset=UTF-8');
-        readfile($file);
+        include $file;
         exit;
     }
 }
