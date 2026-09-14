@@ -1206,53 +1206,53 @@ function getStep8HTML() {
   return `
     <div id="step-8" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Economic Capacity</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Assess the household's financial resources and the employment status of family members.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step8_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step8_subtext')}</p>
       </div>
-      
+
       <!-- Financial Information -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">account_balance_wallet</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Financial Information</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step8_sec_financial')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
-            <label for="income-source" class="block text-xs font-bold text-brand-dark mb-1">What is the primary source of income for the family? <span class="text-red-500">*</span></label>
-            <input type="text" id="income-source" name="income-source" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="e.g., Employment, Business, Remittance">
+            <label for="income-source" class="block text-xs font-bold text-brand-dark mb-1">${t('step8_lbl_income_source')} <span class="text-red-500">*</span></label>
+            <input type="text" id="income-source" name="income-source" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step8_ph_income_source')}">
           </div>
-          
+
           <div>
-            <label for="monthly-income" class="block text-xs font-bold text-brand-dark mb-1">How much is the approximate monthly income of the family? <span class="text-red-500">*</span></label>
+            <label for="monthly-income" class="block text-xs font-bold text-brand-dark mb-1">${t('step8_lbl_monthly_income')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
               <input type="text" id="monthly-income" name="monthly-income" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="0" oninput="calculateIncomeClass(this)">
             </div>
           </div>
-          
+
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <h4 class="font-bold text-brand-dark text-xs mb-1">Income Classification</h4>
-            <p id="income-class-display" class="text-sm font-semibold text-brand-blue">Enter income to see classification</p>
+            <h4 class="font-bold text-brand-dark text-xs mb-1">${t('step8_sec_income_class')}</h4>
+            <p id="income-class-display" class="text-sm font-semibold text-brand-blue">${t('step8_ph_income_class_initial')}</p>
           </div>
         </div>
       </section>
-      
+
       <!-- Employment -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">work</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Employment</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step8_sec_employment')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="employed-yes" class="text-xs font-bold text-brand-dark flex-1">Are the parents/guardians employed or have entrepreneurial activities?</label>
+              <label for="employed-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step8_lbl_employed')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="employed-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.remove('hidden')">
@@ -1275,7 +1275,7 @@ function getStep8HTML() {
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
         <button onclick="if(validateStep(8)) goToStep(9)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Service Availment</span>
+          <span>${t('step8_btn_next')}</span>
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -1291,23 +1291,23 @@ function getStep9HTML() {
   return `
     <div id="step-9" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Service Availment</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Identify the government or private sector services the child has previously accessed.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step9_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step9_subtext')}</p>
       </div>
-      
+
       <!-- Social Services -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">handshake</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Social Services</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step9_sec_social')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="fin_assist-yes" class="text-xs font-bold text-brand-dark flex-1">Does the family receive any form of financial assistance?</label>
+              <label for="fin_assist-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step9_lbl_financial_assistance')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="fin_assist-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('fin-assist-specify').classList.remove('hidden')">
@@ -1325,7 +1325,7 @@ function getStep9HTML() {
           
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="aware_services-yes" class="text-xs font-bold text-brand-dark flex-1">Is the family aware of available social services for children with disabilities?</label>
+              <label for="aware_services-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step9_lbl_aware_services')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="aware_services-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('aware-specify').classList.remove('hidden')">
@@ -1343,7 +1343,7 @@ function getStep9HTML() {
           
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="availed_any-yes" class="text-xs font-bold text-brand-dark flex-1">Has the family availed of any services?</label>
+              <label for="availed_any-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step9_lbl_availed_services')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="availed_any-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('availed-specify').classList.remove('hidden')">
@@ -1367,21 +1367,21 @@ function getStep9HTML() {
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">warning</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Barriers to Service Availment</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step9_sec_barriers')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
-            <label for="service-challenges" class="block text-xs font-bold text-brand-dark mb-1">What are the challenges faced in availing these services? <span class="text-red-500">*</span></label>
+            <label for="service-challenges" class="block text-xs font-bold text-brand-dark mb-1">${t('step9_lbl_challenges')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="service-challenges" name="service-challenges" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'barrier-other')">
-                <option value="" disabled selected>Select Challenge</option>
-                <option>Lack of awareness</option>
-                <option>Financial constraints</option>
-                <option>Distance/Transportation</option>
-                <option>Requirements/Documents</option>
-                <option value="Others">Others (Specify)</option>
-                <option>None</option>
+                <option value="" disabled selected>${t('ph_select_challenge')}</option>
+                <option value="Lack of awareness">${t('challenge_lack_awareness')}</option>
+                <option value="Financial constraints">${t('challenge_financial')}</option>
+                <option value="Distance/Transportation">${t('challenge_distance')}</option>
+                <option value="Requirements/Documents">${t('challenge_requirements')}</option>
+                <option value="Others">${t('option_others_specify')}</option>
+                <option value="None">${t('challenge_none')}</option>
               </select>
             </div>
             <input id="barrier-other" name="barrier-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
@@ -1394,7 +1394,7 @@ function getStep9HTML() {
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
         <button onclick="if(validateStep(9)) goToStep(10)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Assessment</span>
+          <span>${t('step9_btn_next')}</span>
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -2041,13 +2041,13 @@ function calculateIncomeClass(input) {
   const display = document.getElementById('income-class-display');
   
   if (numVal === 0) {
-    display.innerText = "Enter income to see classification";
+    display.innerText = t('step8_ph_income_class_initial');
   } else if (numVal <= 24000) {
-    display.innerText = "Below Minimum / Low Income";
+    display.innerText = t('step8_income_class_low');
   } else if (numVal <= 76000) {
-    display.innerText = "Middle Income";
+    display.innerText = t('step8_income_class_middle');
   } else {
-    display.innerText = "Above Moderate / Upper Income";
+    display.innerText = t('step8_income_class_high');
   }
 }
 

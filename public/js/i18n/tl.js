@@ -191,6 +191,39 @@ window.I18N_TL = {
   ph_select_water: 'Pumili ng Pinagkukunan ng Tubig',
   ph_select_toilet: 'Pumili ng Uri ng Palikuran',
   ph_select_garbage: 'Pumili ng Sistema',
+
+  // Step 8: Economic Capacity
+  step8_heading: 'Kapasidad Pang-ekonomiya',
+  step8_subtext: 'Suriin ang mapagkukunang pinansyal ng sambahayan at katayuan sa trabaho ng mga miyembro ng pamilya.',
+  step8_sec_financial: 'Impormasyong Pinansyal',
+  step8_lbl_income_source: 'Ano ang pangunahing pinagmumulan ng kita ng pamilya?',
+  step8_ph_income_source: 'hal., Trabaho, Negosyo, Remittance',
+  step8_lbl_monthly_income: 'Magkano ang tinatayang buwanang kita ng pamilya?',
+  step8_sec_income_class: 'Klasipikasyon ng Kita',
+  step8_ph_income_class_initial: 'Ilagay ang kita upang makita ang klasipikasyon',
+  step8_income_class_low: 'Mababa sa Minimum / Mababang Kita',
+  step8_income_class_middle: 'Katamtamang Kita',
+  step8_income_class_high: 'Mataas sa Katamtaman / Mataas na Kita',
+  step8_sec_employment: 'Trabaho',
+  step8_lbl_employed: 'Ang mga magulang/tagapag-alaga ba ay may trabaho o negosyo?',
+  step8_btn_next: 'Susunod: Paggamit ng Serbisyo',
+
+  // Step 9: Service Availment
+  step9_heading: 'Paggamit ng Serbisyo',
+  step9_subtext: 'Tukuyin ang mga serbisyo mula sa gobyerno o pribadong sektor na naranasang ma-access ng bata.',
+  step9_sec_social: 'Mga Serbisyong Panlipunan',
+  step9_lbl_financial_assistance: 'Tumatanggap ba ang pamilya ng anumang uri ng tulong pinansyal?',
+  step9_lbl_aware_services: 'Alam ba ng pamilya ang mga magagamit na serbisyong panlipunan para sa mga batang may kapansanan?',
+  step9_lbl_availed_services: 'Nagamit na ba ng pamilya ang anumang serbisyo?',
+  step9_sec_barriers: 'Mga Hadlang sa Paggamit ng Serbisyo',
+  step9_lbl_challenges: 'Ano ang mga hamong kinakaharap sa paggamit ng mga serbisyong ito?',
+  ph_select_challenge: 'Pumili ng Hamon',
+  challenge_lack_awareness: 'Kakulangan sa kaalaman',
+  challenge_financial: 'Limitasyong pinansyal',
+  challenge_distance: 'Distansya/Transportasyon',
+  challenge_requirements: 'Mga Kinakailangan/Dokumento',
+  challenge_none: 'Wala',
+  step9_btn_next: 'Susunod: Pagtatasa',
 };
 
 window.I18N_TL_DROPDOWNS = {

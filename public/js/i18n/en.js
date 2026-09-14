@@ -191,6 +191,39 @@ window.I18N_EN = {
   ph_select_water: 'Select Water Source',
   ph_select_toilet: 'Select Toilet Type',
   ph_select_garbage: 'Select System',
+
+  // Step 8: Economic Capacity
+  step8_heading: 'Economic Capacity',
+  step8_subtext: "Assess the household's financial resources and the employment status of family members.",
+  step8_sec_financial: 'Financial Information',
+  step8_lbl_income_source: 'What is the primary source of income for the family?',
+  step8_ph_income_source: 'e.g., Employment, Business, Remittance',
+  step8_lbl_monthly_income: 'How much is the approximate monthly income of the family?',
+  step8_sec_income_class: 'Income Classification',
+  step8_ph_income_class_initial: 'Enter income to see classification',
+  step8_income_class_low: 'Below Minimum / Low Income',
+  step8_income_class_middle: 'Middle Income',
+  step8_income_class_high: 'Above Moderate / Upper Income',
+  step8_sec_employment: 'Employment',
+  step8_lbl_employed: 'Are the parents/guardians employed or have entrepreneurial activities?',
+  step8_btn_next: 'Next: Service Availment',
+
+  // Step 9: Service Availment
+  step9_heading: 'Service Availment',
+  step9_subtext: 'Identify the government or private sector services the child has previously accessed.',
+  step9_sec_social: 'Social Services',
+  step9_lbl_financial_assistance: 'Does the family receive any form of financial assistance?',
+  step9_lbl_aware_services: 'Is the family aware of available social services for children with disabilities?',
+  step9_lbl_availed_services: 'Has the family availed of any services?',
+  step9_sec_barriers: 'Barriers to Service Availment',
+  step9_lbl_challenges: 'What are the challenges faced in availing these services?',
+  ph_select_challenge: 'Select Challenge',
+  challenge_lack_awareness: 'Lack of awareness',
+  challenge_financial: 'Financial constraints',
+  challenge_distance: 'Distance/Transportation',
+  challenge_requirements: 'Requirements/Documents',
+  challenge_none: 'None',
+  step9_btn_next: 'Next: Assessment',
 };
 
 window.I18N_EN_DROPDOWNS = {};
