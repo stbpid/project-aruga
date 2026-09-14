@@ -24,12 +24,11 @@
         <a href="/privacy" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Privacy Policy</a>
         <a href="/user-manual" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Documentation</a>
         <a href="/contact" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Contact us</a>
-        <a id="nav-toggle-btn" href="#dashboard" class="group bg-brand-blue hover:bg-brand-blueHover text-white text-[11.5px] font-semibold pl-1.5 pr-5 py-1.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.03] flex items-center gap-3">
-          <span class="w-7 h-7 rounded-lg bg-white/20 group-hover:bg-white/30 flex items-center justify-center shrink-0 transition-all duration-200 group-hover:-translate-x-0.5">
-            <svg id="nav-toggle-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="14" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="3" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="14" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect></svg>
-          </span>
-          <span id="nav-toggle-label">Dashboard</span>
-        </a>
+        <button id="nav-toggle-switch" type="button" role="switch" aria-checked="false" aria-label="Switch between Profiling Tool and Dashboard" class="relative flex items-center h-9 rounded-full bg-gray-200 transition-colors duration-300 shadow-inner">
+          <span id="nav-toggle-thumb" class="absolute top-1 left-1 h-7 rounded-full bg-brand-blue shadow-sm transition-all duration-300 ease-in-out"></span>
+          <span id="nav-toggle-label-profiling" class="relative z-10 px-4 h-full flex items-center text-[11.5px] font-semibold text-white transition-colors duration-300">Profiling Tool</span>
+          <span id="nav-toggle-label-dashboard" class="relative z-10 px-4 h-full flex items-center text-[11.5px] font-semibold text-gray-500 transition-colors duration-300">Dashboard</span>
+        </button>
       </nav>
 
       <button id="mobile-menu-btn" class="md:hidden text-gray-600 focus:outline-none p-1" onclick="toggleMobileMenu()">
@@ -43,7 +42,11 @@
       <a href="/privacy" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Privacy Policy</a>
       <a href="/user-manual" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Documentation</a>
       <a href="/contact" class="block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors">Contact us</a>
-      <a id="nav-toggle-btn-mobile" href="#dashboard" class="block py-2.5 px-3 text-sm font-semibold text-white bg-brand-blue hover:bg-brand-blueHover rounded-xl text-center transition-colors">Dashboard</a>
+      <button id="nav-toggle-switch-mobile" type="button" role="switch" aria-checked="false" aria-label="Switch between Profiling Tool and Dashboard" class="relative w-full flex items-center h-10 rounded-full bg-gray-200 transition-colors duration-300 shadow-inner mt-1">
+        <span id="nav-toggle-thumb-mobile" class="absolute top-1 left-1 h-8 rounded-full bg-brand-blue shadow-sm transition-all duration-300 ease-in-out"></span>
+        <span id="nav-toggle-label-profiling-mobile" class="relative z-10 flex-1 h-full flex items-center justify-center text-xs font-semibold text-white transition-colors duration-300">Profiling Tool</span>
+        <span id="nav-toggle-label-dashboard-mobile" class="relative z-10 flex-1 h-full flex items-center justify-center text-xs font-semibold text-gray-500 transition-colors duration-300">Dashboard</span>
+      </button>
     </div>
   </header>
 
@@ -75,7 +78,7 @@
     <div class="bg-white rounded-xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-4xl 2xl:max-w-5xl 3xl:max-w-6xl max-h-full lg:h-[440px] 2xl:h-[520px] 3xl:h-[600px] flex flex-col lg:flex-row overflow-hidden">
 
       <aside id="hero-aside" class="relative z-10 w-full h-36 sm:h-44 md:h-52 lg:h-auto lg:w-5/12 bg-brand-blue overflow-hidden transition-transform duration-500 ease-in-out">
-        <div id="hero-aside-img" class="w-full h-full" style="background-image: url('/images/aruga-profiling-cover.webp'); background-size: auto 100%; background-position: center center; background-repeat: no-repeat;"></div>
+        <div id="hero-aside-img" class="w-full h-full" style="background-image: url('/images/aruga-profiling-cover.webp'); background-size: cover; background-position: center center; background-repeat: no-repeat;"></div>
       </aside>
 
       <div id="form-panel" class="relative z-0 w-full lg:w-7/12 overflow-hidden transition-transform duration-500 ease-in-out">
@@ -185,15 +188,43 @@
     const sectionProfiling = document.getElementById('section-profiling');
     const sectionDashboard = document.getElementById('section-dashboard');
     const heroAside        = document.getElementById('hero-aside');
-    const navToggleBtn     = document.getElementById('nav-toggle-btn');
-    const navToggleBtnMobile = document.getElementById('nav-toggle-btn-mobile');
-    const navToggleLabel   = document.getElementById('nav-toggle-label');
-    const navToggleIcon    = document.getElementById('nav-toggle-icon');
 
-    const ICON_GRID = '<rect x="3" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="14" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="3" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect><rect x="14" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect>';
-    const ICON_DOC  = '<rect x="4" y="3" width="16" height="18" rx="2" stroke-width="2"></rect><path stroke-linecap="round" stroke-width="2" d="M9 3h6v2a1 1 0 01-1 1H10a1 1 0 01-1-1V3z"></path><path stroke-linecap="round" stroke-width="2" d="M8 11h8M8 15h5"></path>';
+    const navSwitch        = document.getElementById('nav-toggle-switch');
+    const navThumb         = document.getElementById('nav-toggle-thumb');
+    const navLabelProfiling = document.getElementById('nav-toggle-label-profiling');
+    const navLabelDashboard = document.getElementById('nav-toggle-label-dashboard');
+
+    const navSwitchMobile  = document.getElementById('nav-toggle-switch-mobile');
+    const navThumbMobile   = document.getElementById('nav-toggle-thumb-mobile');
+    const navLabelProfilingMobile = document.getElementById('nav-toggle-label-profiling-mobile');
+    const navLabelDashboardMobile = document.getElementById('nav-toggle-label-dashboard-mobile');
 
     const formPanel = document.getElementById('form-panel');
+
+    function updateSwitchUI(switchEl, thumbEl, labelProfilingEl, labelDashboardEl, isDashboard) {
+      if (!switchEl) return;
+      switchEl.setAttribute('aria-checked', String(isDashboard));
+      switchEl.classList.toggle('bg-brand-blue', isDashboard);
+      switchEl.classList.toggle('bg-gray-200', !isDashboard);
+
+      const thumbWidth = labelDashboardEl.getBoundingClientRect().width || labelProfilingEl.getBoundingClientRect().width;
+      if (isDashboard) {
+        thumbEl.style.width = `${thumbWidth}px`;
+        thumbEl.style.left = 'auto';
+        thumbEl.style.right = '4px';
+      } else {
+        thumbEl.style.width = `${labelProfilingEl.getBoundingClientRect().width}px`;
+        thumbEl.style.left = '4px';
+        thumbEl.style.right = 'auto';
+      }
+      thumbEl.classList.toggle('bg-white', isDashboard);
+      thumbEl.classList.toggle('bg-brand-blue', !isDashboard);
+
+      labelProfilingEl.classList.toggle('text-white', !isDashboard);
+      labelProfilingEl.classList.toggle('text-gray-500', isDashboard);
+      labelDashboardEl.classList.toggle('text-white', isDashboard);
+      labelDashboardEl.classList.toggle('text-gray-500', !isDashboard);
+    }
 
     function showSection(isDashboard) {
       sectionProfiling.classList.toggle('hidden', isDashboard);
@@ -217,17 +248,8 @@
         formPanel.style.transform = '';
       }
 
-      const label = isDashboard ? 'Profiling Tool' : 'Dashboard';
-      const href  = isDashboard ? '#' : '#dashboard';
-      const icon  = isDashboard ? ICON_DOC : ICON_GRID;
-      [navToggleBtn, navToggleBtnMobile].forEach(btn => {
-        if (!btn) return;
-        btn.setAttribute('href', href);
-        const labelSpan = btn.querySelector('span:not(.w-7)') || btn;
-        if (btn === navToggleBtn) navToggleLabel.textContent = label;
-        else btn.textContent = label;
-      });
-      navToggleIcon.innerHTML = icon;
+      updateSwitchUI(navSwitch, navThumb, navLabelProfiling, navLabelDashboard, isDashboard);
+      updateSwitchUI(navSwitchMobile, navThumbMobile, navLabelProfilingMobile, navLabelDashboardMobile, isDashboard);
 
       if (isDashboard) {
         setTimeout(() => document.getElementById('dash-email')?.focus(), 350);
@@ -237,6 +259,14 @@
     function routeFromHash() {
       showSection(window.location.hash === '#dashboard');
     }
+
+    [navSwitch, navSwitchMobile].forEach(sw => {
+      if (!sw) return;
+      sw.addEventListener('click', () => {
+        const isDashboard = window.location.hash === '#dashboard';
+        window.location.hash = isDashboard ? '' : '#dashboard';
+      });
+    });
 
     let _resizeTimer;
     window.addEventListener('resize', () => {
