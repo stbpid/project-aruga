@@ -1497,7 +1497,7 @@ function getStep10HTML() {
 
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(9)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(10)) generateReview()" class="px-6 h-10 bg-green-600 rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-green-700 flex items-center gap-2 shadow-md transition-all">
           <span class="material-symbols-outlined text-[16px]">check</span> ${t('step10_btn_review')}
