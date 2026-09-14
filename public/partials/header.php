@@ -3,16 +3,14 @@
  * Shared site header (nav-pill + mobile menu).
  *
  * Expects (optional):
- *   $activeNav        - 'profiling' | 'dashboard'  (which switch chip is highlighted). Default 'profiling'.
  *   $interactiveSwitch - bool. true on index.html, where JS toggles between in-page
- *                         sections without navigating. false elsewhere, where the
- *                         switch is just two links to '/' and '/#dashboard'.
+ *                         sections without navigating (renders a sliding switch).
+ *                         false elsewhere, where "Profiling Tool | Dashboard" are
+ *                         just plain links to '/' and '/#dashboard'.
  *   $activePage        - 'privacy' | 'user-manual' | 'contact' | null (default). Highlights
  *                         the matching nav link in blue for the current page.
  */
-$activeNav = $activeNav ?? 'profiling';
 $interactiveSwitch = $interactiveSwitch ?? false;
-$isDashboard = $activeNav === 'dashboard';
 $activePage = $activePage ?? null;
 
 $navLinkClass = function (string $page) use ($activePage) {
@@ -27,7 +25,7 @@ $mobileNavLinkClass = function (string $page) use ($activePage) {
 };
 ?>
   <header id="site-header" class="relative w-full sticky top-0 z-50 px-4 pt-4 transition-all duration-300">
-    <div id="nav-pill" class="max-w-4xl mx-auto rounded-xl px-4 sm:px-5 h-14 flex items-center justify-between border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all duration-300">
+    <div id="nav-pill" class="max-w-4xl mx-auto rounded-xl px-4 sm:px-5 h-14 flex items-center justify-between border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] bg-white/95 backdrop-blur-md transition-all duration-300">
 
       <div class="flex items-center gap-3">
         <img id="img-nav-logo" src="/images/logo.webp" alt="Project Aruga Logo" class="h-9 w-auto object-contain rounded-full">
@@ -46,9 +44,10 @@ $mobileNavLinkClass = function (string $page) use ($activePage) {
           <span id="nav-toggle-label-dashboard" class="relative z-10 px-4 h-full flex items-center text-[11.5px] font-semibold text-gray-500 transition-colors duration-300">Dashboard</span>
         </button>
         <?php else: ?>
-        <div class="flex items-center h-9 p-1 rounded-xl bg-gray-200 shadow-inner">
-          <a href="/" class="px-4 h-full flex items-center text-[11.5px] font-semibold rounded-lg transition-colors <?= $isDashboard ? 'text-gray-500 hover:text-gray-700' : 'text-white bg-brand-blue shadow-sm' ?>">Profiling Tool</a>
-          <a href="/#dashboard" class="px-4 h-full flex items-center text-[11.5px] font-semibold rounded-lg transition-colors <?= $isDashboard ? 'text-white bg-brand-blue shadow-sm' : 'text-gray-500 hover:text-gray-700' ?>">Dashboard</a>
+        <div class="flex items-center gap-2 text-[11.5px] font-semibold">
+          <a href="/" class="text-gray-600 hover:text-brand-blue transition-colors">Profiling Tool</a>
+          <span class="text-gray-300">|</span>
+          <a href="/#dashboard" class="text-gray-600 hover:text-brand-blue transition-colors">Dashboard</a>
         </div>
         <?php endif; ?>
       </nav>
@@ -72,9 +71,10 @@ $mobileNavLinkClass = function (string $page) use ($activePage) {
         <span id="nav-toggle-label-dashboard-mobile" class="relative z-10 flex-1 h-full flex items-center justify-center text-xs font-semibold text-gray-500 transition-colors duration-300">Dashboard</span>
       </button>
       <?php else: ?>
-      <div class="flex items-center p-1 rounded-xl bg-gray-200 shadow-inner mt-1">
-        <a href="/" class="flex-1 py-2 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors <?= $isDashboard ? 'text-gray-500' : 'text-white bg-brand-blue shadow-sm' ?>">Profiling Tool</a>
-        <a href="/#dashboard" class="flex-1 py-2 flex items-center justify-center text-xs font-semibold rounded-lg transition-colors <?= $isDashboard ? 'text-white bg-brand-blue shadow-sm' : 'text-gray-500' ?>">Dashboard</a>
+      <div class="flex items-center justify-center gap-2 py-2 text-xs font-semibold mt-1">
+        <a href="/" class="text-gray-600 hover:text-brand-blue transition-colors">Profiling Tool</a>
+        <span class="text-gray-300">|</span>
+        <a href="/#dashboard" class="text-gray-600 hover:text-brand-blue transition-colors">Dashboard</a>
       </div>
       <?php endif; ?>
     </div>
@@ -92,13 +92,9 @@ $mobileNavLinkClass = function (string $page) use ($activePage) {
     }
 
     function updateHeaderPillOnScroll() {
-      const header = document.getElementById('site-header');
       const pill = document.getElementById('nav-pill');
-      if (!header || !pill || !header.classList.contains('sticky')) return;
-      const scrolled = window.scrollY > 8;
-      pill.classList.toggle('bg-white', scrolled);
-      pill.classList.toggle('backdrop-blur-md', scrolled);
-      pill.classList.toggle('shadow-sm', scrolled);
+      if (!pill) return;
+      pill.classList.toggle('shadow-sm', window.scrollY > 8);
     }
     window.addEventListener('scroll', updateHeaderPillOnScroll);
     updateHeaderPillOnScroll();
