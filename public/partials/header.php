@@ -46,7 +46,7 @@ $mobileNavLinkClass = function (string $page) use ($activePage) {
         <?php else: ?>
         <div class="flex items-center h-9 px-4 rounded-xl bg-gray-200 shadow-inner gap-3">
           <a href="/" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Profiling Tool</a>
-          <span class="text-gray-400">|</span>
+          <span class="text-gray-300">|</span>
           <a href="/#dashboard" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Dashboard</a>
         </div>
         <?php endif; ?>
@@ -73,7 +73,7 @@ $mobileNavLinkClass = function (string $page) use ($activePage) {
       <?php else: ?>
       <div class="flex items-center justify-center h-10 rounded-xl bg-gray-200 shadow-inner mt-1 gap-3 text-xs font-semibold">
         <a href="/" class="text-gray-600 hover:text-brand-blue transition-colors">Profiling Tool</a>
-        <span class="text-gray-400">|</span>
+        <span class="text-gray-300">|</span>
         <a href="/#dashboard" class="text-gray-600 hover:text-brand-blue transition-colors">Dashboard</a>
       </div>
       <?php endif; ?>
