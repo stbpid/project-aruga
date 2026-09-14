@@ -191,6 +191,7 @@ window.I18N_TL = {
   ph_select_water: 'Pumili ng Pinagkukunan ng Tubig',
   ph_select_toilet: 'Pumili ng Uri ng Palikuran',
   ph_select_garbage: 'Pumili ng Sistema',
+  ph_no_data: 'Walang datos',
 
   // Step 8: Economic Capacity
   step8_heading: 'Kapasidad Pang-ekonomiya',
@@ -479,7 +480,7 @@ window.I18N_TL_DROPDOWNS = {
     'Tubed/piped shallow well': 'Mababaw na balon (tubo)',
     'Dug/open well': 'Hukay/bukas na balon',
     'Spring, lake, river, rain': 'Bukal, lawa, ilog, ulan',
-    'Peddler, bottled water': 'Tagabenta, tubig na de-boteMedya',
+    'Peddler, bottled water': 'Tagabenta, tubig na de-bote',
     'Others': 'Iba Pa',
   },
   List_Toilet: {

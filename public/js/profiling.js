@@ -1695,7 +1695,7 @@ function populateSelect(id, items, placeholder, listKey) {
   }
 
   if (!items || items.length === 0) {
-    s.innerHTML = `<option value="" disabled selected>${placeholder} (No data)</option>`;
+    s.innerHTML = `<option value="" disabled selected>${placeholder} (${t('ph_no_data')})</option>`;
     return;
   }
 
@@ -3548,7 +3548,7 @@ async function submitAssessment() {
     window.toast.error(error.message || t('val_submission_error_body'), t('val_submission_error_title'));
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.innerHTML = 'Submit Assessment';
+      submitBtn.innerHTML = t('step11_btn_submit');
     }
   }
 }

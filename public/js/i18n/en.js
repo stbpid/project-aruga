@@ -191,6 +191,7 @@ window.I18N_EN = {
   ph_select_water: 'Select Water Source',
   ph_select_toilet: 'Select Toilet Type',
   ph_select_garbage: 'Select System',
+  ph_no_data: 'No data',
 
   // Step 8: Economic Capacity
   step8_heading: 'Economic Capacity',
