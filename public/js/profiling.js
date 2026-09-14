@@ -765,11 +765,11 @@ function getStep5HTML() {
               <div class="slide-toggle-slider"></div>
               <label for="modifications-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.remove('hidden')">
                 <input type="radio" id="modifications-yes" name="modifications" value="Yes" class="hidden">
-                <span>Yes</span>
+                ${t('btn_yes')}
               </label>
               <label for="modifications-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.add('hidden')">
                 <input type="radio" id="modifications-no" name="modifications" value="No" class="hidden" checked>
-                <span>No</span>
+                ${t('btn_no')}
               </label>
             </div>
             <input id="mod-specify" name="mod-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
@@ -833,11 +833,11 @@ function getStep5HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="toilet-access-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
                   <input type="radio" id="toilet-access-yes" name="toilet-access" value="Yes" class="hidden" checked>
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="toilet-access-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
                   <input type="radio" id="toilet-access-no" name="toilet-access" value="No" class="hidden">
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
@@ -896,11 +896,11 @@ function getStep6HTML() {
               <div class="slide-toggle-slider"></div>
               <label for="vaccines-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
                 <input type="radio" id="vaccines-yes" name="vaccines" value="Yes" class="hidden" checked>
-                <span>Yes</span>
+                ${t('btn_yes')}
               </label>
               <label for="vaccines-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
                 <input type="radio" id="vaccines-no" name="vaccines" value="No" class="hidden">
-                <span>No</span>
+                ${t('btn_no')}
               </label>
             </div>
           </div>
@@ -912,11 +912,11 @@ function getStep6HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="health_cond-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.remove('hidden')">
                   <input type="radio" id="health_cond-yes" name="health_cond" value="Yes" class="hidden">
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="health_cond-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.add('hidden')">
                   <input type="radio" id="health_cond-no" name="health_cond" value="No" class="hidden" checked>
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
@@ -1010,11 +1010,11 @@ function getStep6HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="avail_services-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.remove('hidden')">
                   <input type="radio" id="avail_services-yes" name="avail_services" value="Yes" class="hidden">
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="avail_services-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.add('hidden')">
                   <input type="radio" id="avail_services-no" name="avail_services" value="No" class="hidden" checked>
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
@@ -1027,11 +1027,11 @@ function getStep6HTML() {
               <div class="slide-toggle-slider"></div>
               <label for="facility_access-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
                 <input type="radio" id="facility_access-yes" name="facility_access" value="Yes" class="hidden">
-                <span>Yes</span>
+                ${t('btn_yes')}
               </label>
               <label for="facility_access-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
                 <input type="radio" id="facility_access-no" name="facility_access" value="No" class="hidden" checked>
-                <span>No</span>
+                ${t('btn_no')}
               </label>
             </div>
           </div>
@@ -1043,11 +1043,11 @@ function getStep6HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="barriers-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.remove('hidden')">
                   <input type="radio" id="barriers-yes" name="barriers" value="Yes" class="hidden">
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="barriers-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.add('hidden')">
                   <input type="radio" id="barriers-no" name="barriers" value="No" class="hidden" checked>
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
@@ -1098,11 +1098,11 @@ function getStep7HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="enrolled-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this); toggleEnrollment(true)">
                   <input type="radio" id="enrolled-yes" name="enrolled" value="Yes" class="hidden" checked>
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="enrolled-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); toggleEnrollment(false)">
                   <input type="radio" id="enrolled-no" name="enrolled" value="No" class="hidden">
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
@@ -1136,11 +1136,11 @@ function getStep7HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="school_features-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.remove('hidden')">
                   <input type="radio" id="school_features-yes" name="school_features" value="Yes" class="hidden">
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="school_features-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.add('hidden')">
                   <input type="radio" id="school_features-no" name="school_features" value="No" class="hidden" checked>
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
@@ -1154,11 +1154,11 @@ function getStep7HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="sped_prog-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.remove('hidden')">
                   <input type="radio" id="sped_prog-yes" name="sped_prog" value="Yes" class="hidden">
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="sped_prog-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.add('hidden')">
                   <input type="radio" id="sped_prog-no" name="sped_prog" value="No" class="hidden" checked>
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
@@ -1172,11 +1172,11 @@ function getStep7HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="learning_support-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.remove('hidden')">
                   <input type="radio" id="learning_support-yes" name="learning_support" value="Yes" class="hidden">
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="learning_support-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.add('hidden')">
                   <input type="radio" id="learning_support-no" name="learning_support" value="No" class="hidden" checked>
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
@@ -1257,11 +1257,11 @@ function getStep8HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="employed-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.remove('hidden')">
                   <input type="radio" id="employed-yes" name="employed" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="employed-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.add('hidden')">
                   <input type="radio" id="employed-no" name="employed" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
@@ -1312,11 +1312,11 @@ function getStep9HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="fin_assist-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('fin-assist-specify').classList.remove('hidden')">
                   <input type="radio" id="fin_assist-yes" name="fin_assist" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="fin_assist-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('fin-assist-specify').classList.add('hidden')">
                   <input type="radio" id="fin_assist-no" name="fin_assist" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
@@ -1330,11 +1330,11 @@ function getStep9HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="aware_services-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('aware-specify').classList.remove('hidden')">
                   <input type="radio" id="aware_services-yes" name="aware_services" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="aware_services-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('aware-specify').classList.add('hidden')">
                   <input type="radio" id="aware_services-no" name="aware_services" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
@@ -1348,11 +1348,11 @@ function getStep9HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="availed_any-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('availed-specify').classList.remove('hidden')">
                   <input type="radio" id="availed_any-yes" name="availed_any" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="availed_any-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('availed-specify').classList.add('hidden')">
                   <input type="radio" id="availed_any-no" name="availed_any" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
@@ -2256,8 +2256,8 @@ function addFirstFamilyMember() {
   
   // Populate dropdowns for first member
   setTimeout(() => {
-    populateSelect('dd-fam-occ-1', globalData.List_Occupation, t('ph_select_occupation'));
-    populateSelect('dd-fam-class-1', globalData.List_Occupation_Class, t('ph_select_class'));
+    populateSelect('dd-fam-occ-1', globalData.List_Occupation, t('ph_select_occupation'), 'List_Occupation');
+    populateSelect('dd-fam-class-1', globalData.List_Occupation_Class, t('ph_select_class'), 'List_Occupation_Class');
     populateMulti('dd-fam-dis-1', globalData.List_Disability, 'disp-fam-dis-1', null, 'List_Disability');
     populateMulti('dd-fam-ill-1', globalData.List_Illness, 'disp-fam-ill-1', null, 'List_Illness');
     initToggles();
@@ -2277,8 +2277,8 @@ function addFamilyMember() {
   
   // Populate dropdowns for new member
   setTimeout(() => {
-    populateSelect(`dd-fam-occ-${memberCount}`, globalData.List_Occupation, t('ph_select_occupation'));
-    populateSelect(`dd-fam-class-${memberCount}`, globalData.List_Occupation_Class, t('ph_select_class'));
+    populateSelect(`dd-fam-occ-${memberCount}`, globalData.List_Occupation, t('ph_select_occupation'), 'List_Occupation');
+    populateSelect(`dd-fam-class-${memberCount}`, globalData.List_Occupation_Class, t('ph_select_class'), 'List_Occupation_Class');
     populateMulti(`dd-fam-dis-${memberCount}`, globalData.List_Disability, `disp-fam-dis-${memberCount}`, null, 'List_Disability');
     populateMulti(`dd-fam-ill-${memberCount}`, globalData.List_Illness, `disp-fam-ill-${memberCount}`, null, 'List_Illness');
     initToggles();
@@ -2312,14 +2312,14 @@ function getFamilyMemberCardHTML(num, isHead) {
             <label for="fam-rel-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_relationship')}</label>
             <div class="relative">
               <select id="fam-rel-${num}" name="fam-rel-${num}" data-field="relationship_to_head" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
-                <option>${isHead ? 'Head' : 'Spouse'}</option>
-                <option>Spouse</option>
-                <option>Child</option>
-                <option>Parent</option>
-                <option>Sibling</option>
-                <option>Grandparent</option>
-                <option>Grandchild</option>
-                <option>Other Relative</option>
+                <option value="${isHead ? 'Head' : 'Spouse'}">${translateOption('List_RelationshipToHead', isHead ? 'Head' : 'Spouse')}</option>
+                <option value="Spouse">${translateOption('List_RelationshipToHead', 'Spouse')}</option>
+                <option value="Child">${translateOption('List_RelationshipToHead', 'Child')}</option>
+                <option value="Parent">${translateOption('List_RelationshipToHead', 'Parent')}</option>
+                <option value="Sibling">${translateOption('List_RelationshipToHead', 'Sibling')}</option>
+                <option value="Grandparent">${translateOption('List_RelationshipToHead', 'Grandparent')}</option>
+                <option value="Grandchild">${translateOption('List_RelationshipToHead', 'Grandchild')}</option>
+                <option value="Other Relative">${translateOption('List_RelationshipToHead', 'Other Relative')}</option>
               </select>
             </div>
           </div>
@@ -2329,11 +2329,11 @@ function getFamilyMemberCardHTML(num, isHead) {
               <div class="slide-toggle-slider"></div>
               <label for="solo-${num}-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
                 <input type="radio" name="solo-${num}" id="solo-${num}-yes" value="Yes" data-field="is_solo_parent" class="hidden">
-                <span>Yes</span>
+                ${t('btn_yes')}
               </label>
               <label for="solo-${num}-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
                 <input type="radio" name="solo-${num}" id="solo-${num}-no" value="No" data-field="is_solo_parent" class="hidden" checked>
-                <span>No</span>
+                ${t('btn_no')}
               </label>
             </div>
           </div>
@@ -2343,11 +2343,11 @@ function getFamilyMemberCardHTML(num, isHead) {
               <div class="slide-toggle-slider"></div>
               <label for="claimant-${num}-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
                 <input type="radio" name="claimant-${num}" id="claimant-${num}-yes" value="Yes" data-field="is_authorized_claimant" class="hidden">
-                <span>Yes</span>
+                ${t('btn_yes')}
               </label>
               <label for="claimant-${num}-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
                 <input type="radio" name="claimant-${num}" id="claimant-${num}-no" value="No" data-field="is_authorized_claimant" class="hidden" checked>
-                <span>No</span>
+                ${t('btn_no')}
               </label>
             </div>
           </div>
@@ -2359,11 +2359,11 @@ function getFamilyMemberCardHTML(num, isHead) {
             <div class="relative">
               <select id="fam-civil-${num}" name="fam-civil-${num}" data-field="civil_status" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
                 <option value="" disabled selected>${t('ph_select_status')}</option>
-                <option>Single</option>
-                <option>Married</option>
-                <option>Widowed</option>
-                <option>Separated</option>
-                <option>Live-in</option>
+                <option value="Single">${translateOption('List_CivilStatus', 'Single')}</option>
+                <option value="Married">${translateOption('List_CivilStatus', 'Married')}</option>
+                <option value="Widowed">${translateOption('List_CivilStatus', 'Widowed')}</option>
+                <option value="Separated">${translateOption('List_CivilStatus', 'Separated')}</option>
+                <option value="Live-in">${translateOption('List_CivilStatus', 'Live-in')}</option>
               </select>
             </div>
           </div>
