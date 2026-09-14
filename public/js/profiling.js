@@ -1594,7 +1594,9 @@ function initRelationshipCombobox(options) {
 
   function renderList(filter) {
     const q = (filter || '').toLowerCase();
-    const matched = q ? options.filter(o => o.toLowerCase().includes(q)) : options.slice();
+    const matched = q
+      ? options.filter(o => o.toLowerCase().includes(q) || translateOption('List_Relationship', o).toLowerCase().includes(q))
+      : options.slice();
     activeIndex = -1;
     list.innerHTML = '';
     if (matched.length === 0) {
@@ -1604,13 +1606,14 @@ function initRelationshipCombobox(options) {
       list.appendChild(li);
     } else {
       matched.forEach(o => {
+        const label = translateOption('List_Relationship', o);
         const li = document.createElement('li');
         li.className = 'px-3 py-2 cursor-pointer hover:bg-blue-50';
         li.dataset.option = o;
-        li.textContent = o;
+        li.textContent = label;
         li.addEventListener('mousedown', e => {
           e.preventDefault();
-          input.value = o;
+          input.value = label;
           hidden.value = o;
           list.classList.add('hidden');
         });
@@ -1644,7 +1647,7 @@ function initRelationshipCombobox(options) {
       e.preventDefault();
       if (activeIndex >= 0 && items[activeIndex]) {
         const val = items[activeIndex].dataset.option;
-        input.value = val;
+        input.value = translateOption('List_Relationship', val);
         hidden.value = val;
         list.classList.add('hidden');
       }

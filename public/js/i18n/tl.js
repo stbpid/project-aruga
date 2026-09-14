@@ -25,7 +25,7 @@ window.I18N_TL = {
   steplabel_7: 'Edukasyon',
   steplabel_8: 'Kapasidad Pang-ekonomiya',
   steplabel_9: 'Paggamit ng Serbisyo',
-  steplabel_10: 'Pagtatasa',
+  steplabel_10: 'Assessment',
   steplabel_11: 'Rebyu',
 
   // Static page chrome (profiling.html)
@@ -224,16 +224,16 @@ window.I18N_TL = {
   challenge_distance: 'Distansya/Transportasyon',
   challenge_requirements: 'Mga Kinakailangan/Dokumento',
   challenge_none: 'Wala',
-  step9_btn_next: 'Susunod: Pagtatasa',
+  step9_btn_next: 'Susunod: Assessment',
 
   // Step 10: Assessment
   step10_heading: 'Pangkalahatang Obserbasyon at Rekomendasyon',
   step10_subtext: 'Ibigay ang buod ng kalagayan ng bata at partikular na hakbang para sa interbensyon.',
-  step10_sec_notes: 'Mga Tala sa Pagtatasa',
+  step10_sec_notes: 'Mga Tala sa Assessment',
   step10_lbl_strengths: 'Mga Kalakasan',
   step10_ph_strengths: 'Ilagay ang mga pangunahing kalakasan...',
-  step10_lbl_assessment: 'Pagtatasa',
-  step10_ph_assessment: 'Ibigay ang detalye ng pagtatasa...',
+  step10_lbl_assessment: 'Assessment',
+  step10_ph_assessment: 'Ibigay ang detalye ng Assessment...',
   step10_lbl_recommendations: 'Inirerekomendang Aksyon/Interbensyon',
   step10_ph_recommendations: 'Imungkahi ang mga interbensyon...',
   step10_sec_readiness: 'Readiness Score',
@@ -245,13 +245,13 @@ window.I18N_TL = {
   readiness_low_desc: 'Ang kagalingan ng bata at pamilya ay sapat, may ilang menor na isyu na nangangailangan ng pansin.',
   readiness_stable_title: 'Matatag: Natutugunan lahat ng pangangailangan nang epektibo',
   readiness_stable_desc: 'Ang kagalingan ng bata at pamilya ay kasiya-siya at umaandar nang inaasahan.',
-  step10_btn_review: 'Suriin ang Pagtatasa',
+  step10_btn_review: 'Suriin ang Assessment',
 
   // Step 11: Review
-  step11_heading: 'Suriin ang Pagtatasa',
+  step11_heading: 'Suriin ang Assessment',
   step11_subtext: 'Pakisuri ang lahat ng impormasyon bago ang huling pagsusumite.',
   step11_btn_edit: 'I-edit ang mga Form',
-  step11_btn_submit: 'Isumite ang Pagtatasa',
+  step11_btn_submit: 'Isumite ang Assessment',
 
   // Shared validation message templates
   val_required: 'Kinakailangan ang {field}',
@@ -297,7 +297,7 @@ window.I18N_TL = {
   fieldlbl_availed_services_details: 'detalye ng nagamit na serbisyo',
   fieldlbl_service_challenge: 'hamon sa serbisyo',
   fieldlbl_strengths: 'Mga Kalakasan',
-  fieldlbl_assessment: 'Pagtatasa',
+  fieldlbl_assessment: 'Assessment',
   fieldlbl_recommendations: 'Mga Rekomendasyon',
   fieldlbl_region: 'rehiyon',
   fieldlbl_province: 'probinsya',
@@ -350,7 +350,7 @@ window.I18N_TL = {
   val_submission_error_title: 'Error sa Pagsusumite',
 
   // Review screen (Step 11 dynamic content)
-  review_heading: 'Rebyu ng Pagtatasa',
+  review_heading: 'Rebyu ng Assessment',
   review_subtext: 'Pakisuri ang lahat ng impormasyon bago ang huling pagsusumite',
   review_group_1: '1. Paunang Kwalipikasyon',
   review_group_2: '2. Profile ng Respondent',
@@ -361,7 +361,7 @@ window.I18N_TL = {
   review_group_7: '7. Edukasyon',
   review_group_8: '8. Kapasidad Pang-ekonomiya',
   review_group_9: '9. Paggamit ng Serbisyo',
-  review_group_10: '10. Mga Tala sa Pagtatasa',
+  review_group_10: '10. Mga Tala sa Assessment',
   review_lbl_4ps_member: 'Miyembro ng 4Ps',
   review_lbl_name: 'Pangalan',
   review_lbl_relationship: 'Kaugnayan',
@@ -431,6 +431,16 @@ window.I18N_TL_DROPDOWNS = {
     "T'boli": "T'boli",
     'Manobo': 'Manobo',
     'Others': 'Iba Pa',
+  },
+  List_Relationship: {
+    'Parent': 'Magulang',
+    'Guardian': 'Tagapag-alaga',
+    'Grandparent': 'Lolo/Lola',
+    'Sibling': 'Kapatid',
+    'Aunt/Uncle': 'Tita/Tito',
+    'Relative': 'Kamag-anak',
+    'Social Worker': 'Social Worker',
+    'Foster Parent': 'Foster Parent',
   },
   List_Education: {
     'No formal education': 'Walang pormal na edukasyon',
