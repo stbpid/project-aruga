@@ -1600,7 +1600,7 @@ function initRelationshipCombobox(options) {
     if (matched.length === 0) {
       const li = document.createElement('li');
       li.className = 'px-3 py-2 text-gray-400 italic';
-      li.textContent = 'No match found';
+      li.textContent = t('txt_no_match_found');
       list.appendChild(li);
     } else {
       matched.forEach(o => {
@@ -1676,8 +1676,8 @@ function populateAllDropdowns() {
   populateSelect('dd-religion', globalData.List_Religion, t('ph_select_religion'), 'List_Religion');
   populateSelect('dd-ip', globalData.List_IP, t('ph_select_ip'), 'List_IP');
   populateSelect('dd-education', globalData.List_Education, t('ph_select_education'), 'List_Education');
-  populateMulti('dd-disability', globalData.List_Disability, 'disability-display');
-  populateMulti('dd-illness', globalData.List_Illness, 'illness-display', 'illness-other-input');
+  populateMulti('dd-disability', globalData.List_Disability, 'disability-display', null, 'List_Disability');
+  populateMulti('dd-illness', globalData.List_Illness, 'illness-display', 'illness-other-input', 'List_Illness');
   
   // Step 5
   populateSelect('dd-materials', globalData.List_Materials, t('ph_select_materials'), 'List_Materials');
@@ -1723,7 +1723,7 @@ function populateSelect(id, items, placeholder, listKey) {
   }
 }
 
-function populateMulti(cid, items, did, oid = null) {
+function populateMulti(cid, items, did, oid = null, listKey) {
   let c = document.getElementById(cid);
   if (!c) return;
 
@@ -1751,7 +1751,7 @@ function populateMulti(cid, items, did, oid = null) {
     cb.value = x;
     cb.onchange = function() { updateMultiSelect(cid, did) };
     const s = document.createElement('span');
-    s.innerText = x;
+    s.innerText = listKey ? translateOption(listKey, x) : x;
     l.appendChild(cb);
     l.appendChild(s);
     c.appendChild(l);
@@ -1772,7 +1772,7 @@ function populateMulti(cid, items, did, oid = null) {
       }
     };
     const s = document.createElement('span');
-    s.innerText = "Others (Specify)";
+    s.innerText = t('option_others_specify');
     l.appendChild(cb);
     l.appendChild(s);
     c.appendChild(l);
@@ -1988,7 +1988,7 @@ function updateMultiSelect(cid, did) {
   const d = document.getElementById(did);
   
   if (chk.length === 0) {
-    d.innerText = "Select options...";
+    d.innerText = t('txt_select_options_ellipsis');
     d.classList.add("text-gray-400");
     d.classList.remove("text-gray-900");
   } else {
@@ -2073,7 +2073,7 @@ function initGoogleSelects() {
 
     // Placeholder text from the disabled option
     const placeholderOpt = Array.from(select.options).find(o => o.disabled);
-    const placeholderText = placeholderOpt ? placeholderOpt.text : 'Select...';
+    const placeholderText = placeholderOpt ? placeholderOpt.text : t('ph_select_ellipsis');
 
     // Text input acts as the visible field
     const input = document.createElement('input');
@@ -2138,7 +2138,7 @@ function initGoogleSelects() {
       if (opts.length === 0) {
         const li = document.createElement('li');
         li.className = 'px-3 py-2 text-xs text-gray-400 italic';
-        li.textContent = 'No match found';
+        li.textContent = t('txt_no_match_found');
         list.appendChild(li);
       } else {
         opts.forEach(opt => {
@@ -2245,8 +2245,8 @@ function addFirstFamilyMember() {
   setTimeout(() => {
     populateSelect('dd-fam-occ-1', globalData.List_Occupation, t('ph_select_occupation'));
     populateSelect('dd-fam-class-1', globalData.List_Occupation_Class, t('ph_select_class'));
-    populateMulti('dd-fam-dis-1', globalData.List_Disability, 'disp-fam-dis-1');
-    populateMulti('dd-fam-ill-1', globalData.List_Illness, 'disp-fam-ill-1');
+    populateMulti('dd-fam-dis-1', globalData.List_Disability, 'disp-fam-dis-1', null, 'List_Disability');
+    populateMulti('dd-fam-ill-1', globalData.List_Illness, 'disp-fam-ill-1', null, 'List_Illness');
     initToggles();
     initGoogleSelects();
   }, 100);
@@ -2266,8 +2266,8 @@ function addFamilyMember() {
   setTimeout(() => {
     populateSelect(`dd-fam-occ-${memberCount}`, globalData.List_Occupation, t('ph_select_occupation'));
     populateSelect(`dd-fam-class-${memberCount}`, globalData.List_Occupation_Class, t('ph_select_class'));
-    populateMulti(`dd-fam-dis-${memberCount}`, globalData.List_Disability, `disp-fam-dis-${memberCount}`);
-    populateMulti(`dd-fam-ill-${memberCount}`, globalData.List_Illness, `disp-fam-ill-${memberCount}`);
+    populateMulti(`dd-fam-dis-${memberCount}`, globalData.List_Disability, `disp-fam-dis-${memberCount}`, null, 'List_Disability');
+    populateMulti(`dd-fam-ill-${memberCount}`, globalData.List_Illness, `disp-fam-ill-${memberCount}`, null, 'List_Illness');
     initToggles();
     initGoogleSelects();
   }, 100);
