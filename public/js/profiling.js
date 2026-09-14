@@ -2518,7 +2518,7 @@ function validateStep(step) {
   const ok = fn();
   if (!ok) {
     scrollToFirstError();
-    if (typeof toast !== 'undefined') toast.warning('Please fix the highlighted errors before proceeding.', 'Validation Error');
+    if (typeof toast !== 'undefined') toast.warning(t('val_fix_errors'), t('val_fix_errors_title'));
   }
   return ok;
 }
@@ -2539,11 +2539,11 @@ function getMultiBtn(dropdownId) {
 
 function chkDropdownOther(selectId, otherId, label) {
   const v = getSelVal(selectId);
-  if (!v) { showFieldError(selectId, `Please select ${label}`); return false; }
+  if (!v) { showFieldError(selectId, t('val_please_select', { field: label })); return false; }
   if (v === 'Others' && otherId) {
     const o = (document.getElementById(otherId)?.value || '').trim();
-    if (!o) { showFieldError(otherId, `Please specify ${label}`); return false; }
-    if (o.length > 255) { showFieldError(otherId, `${label} must not exceed 255 characters`); return false; }
+    if (!o) { showFieldError(otherId, t('val_please_specify', { field: label })); return false; }
+    if (o.length > 255) { showFieldError(otherId, t('val_max_length', { field: label, n: 255 })); return false; }
   }
   return true;
 }
@@ -2551,8 +2551,8 @@ function chkDropdownOther(selectId, otherId, label) {
 function chkToggleSpecify(radioName, specifyId, label, maxLen = 500) {
   if (getRadioVal(radioName) === 'Yes' && specifyId) {
     const v = (document.getElementById(specifyId)?.value || '').trim();
-    if (!v) { showFieldError(specifyId, `Please specify ${label}`); return false; }
-    if (v.length > maxLen) { showFieldError(specifyId, `${label} must not exceed ${maxLen} characters`); return false; }
+    if (!v) { showFieldError(specifyId, t('val_please_specify', { field: label })); return false; }
+    if (v.length > maxLen) { showFieldError(specifyId, t('val_max_length', { field: label, n: maxLen })); return false; }
   }
   return true;
 }
@@ -2568,17 +2568,17 @@ function chkMulti(dropdownId, errId, label) {
 
 function chkName(id, label, min, max) {
   const v = (document.getElementById(id)?.value || '').trim();
-  if (!v)              { showFieldError(id, `${label} is required`); return false; }
-  if (v.length < min)  { showFieldError(id, `${label} must be at least ${min} characters`); return false; }
-  if (v.length > max)  { showFieldError(id, `${label} must not exceed ${max} characters`); return false; }
-  if (!isValidName(v)) { showFieldError(id, `${label} can only contain letters, spaces, hyphens, and apostrophes`); return false; }
+  if (!v)              { showFieldError(id, t('val_required', { field: label })); return false; }
+  if (v.length < min)  { showFieldError(id, t('val_min_length', { field: label, n: min })); return false; }
+  if (v.length > max)  { showFieldError(id, t('val_max_length', { field: label, n: max })); return false; }
+  if (!isValidName(v)) { showFieldError(id, t('val_letters_only', { field: label })); return false; }
   return true;
 }
 
 function chkPhone(id, label) {
   const v = (document.getElementById(id)?.value || '').trim();
-  if (!v)               { showFieldError(id, `${label} is required`); return false; }
-  if (!isValidPhone(v)) { showFieldError(id, `${label} must be in format: 09XX XXX XXXX`); return false; }
+  if (!v)               { showFieldError(id, t('val_required', { field: label })); return false; }
+  if (!isValidPhone(v)) { showFieldError(id, t('val_phone_format', { field: label })); return false; }
   return true;
 }
 
@@ -2586,85 +2586,91 @@ function chkPhone(id, label) {
 function validateStep1() {
   if (getRadioVal('membership') !== 'Yes') return true;
   const v = (document.getElementById('household-id')?.value || '').trim();
-  if (!v)               { showFieldError('household-id', 'Household ID is required for 4Ps members'); return false; }
-  if (!/^[A-Za-z0-9]{13,18}$/.test(v)) { showFieldError('household-id', 'Household ID must be 13 to 18 characters'); return false; }
+  if (!v)               { showFieldError('household-id', t('val_step1_hh_required')); return false; }
+  if (!/^[A-Za-z0-9]{13,18}$/.test(v)) { showFieldError('household-id', t('val_step1_hh_length')); return false; }
   return true;
 }
 
 // --- Step 2 ---
 function validateStep2() {
   let ok = true;
-  if (!chkName('resp-name', 'Name of Respondent', 2, 255)) ok = false;
-  if (!getSelVal('dd-relationship'))  { showFieldError('dd-relationship-input', 'Please select a relationship'); ok = false; }
+  if (!chkName('resp-name', t('fieldlbl_name'), 2, 255)) ok = false;
+  if (!getSelVal('dd-relationship'))  { showFieldError('dd-relationship-input', t('val_step2_relationship')); ok = false; }
 
   const email = (document.getElementById('resp-email')?.value || '').trim();
-  if (email && !isValidEmail(email)) { showFieldError('resp-email', 'Please enter a valid email (e.g., name@example.com)'); ok = false; }
-  else if (email && email.length > 255) { showFieldError('resp-email', 'Email must not exceed 255 characters'); ok = false; }
+  if (email && !isValidEmail(email)) { showFieldError('resp-email', t('val_step2_email_invalid')); ok = false; }
+  else if (email && email.length > 255) { showFieldError('resp-email', t('val_step2_email_length')); ok = false; }
 
   const respContact = (document.getElementById('resp-contact')?.value || '').trim();
-  if (respContact && !isValidPhone(respContact)) { showFieldError('resp-contact', 'Contact number must be 11 digits starting with 09'); ok = false; }
+  if (respContact && !isValidPhone(respContact)) { showFieldError('resp-contact', t('val_step2_contact_format')); ok = false; }
   return ok;
 }
 
 // --- Step 3 ---
 function validateStep3() {
   let ok = true;
-  if (!chkName('child-fname', 'First Name', 2, 100)) ok = false;
+  if (!chkName('child-fname', t('fieldlbl_first_name'), 2, 100)) ok = false;
   const mn = (document.getElementById('child-mname')?.value || '').trim();
-  if (mn && mn.length > 100)   { showFieldError('child-mname', 'Middle Name must not exceed 100 characters'); ok = false; }
-  else if (mn && !isValidName(mn)) { showFieldError('child-mname', 'Middle Name can only contain letters, spaces, and hyphens'); ok = false; }
-  if (!chkName('child-lname', 'Last Name', 2, 100)) ok = false;
+  if (mn && mn.length > 100)   { showFieldError('child-mname', t('val_step3_middle_name_length')); ok = false; }
+  else if (mn && !isValidName(mn)) { showFieldError('child-mname', t('val_step3_middle_name_letters')); ok = false; }
+  if (!chkName('child-lname', t('fieldlbl_last_name'), 2, 100)) ok = false;
 
-  ['child-region','child-province','child-city','child-barangay'].forEach(id => {
-    if (!getSelVal(id)) { showFieldError(id, `Please select a ${id.replace('child-','').replace('-',' ')}`); ok = false; }
+  const locationFieldLabelKeys = {
+    'child-region':   'fieldlbl_region',
+    'child-province': 'fieldlbl_province',
+    'child-city':     'fieldlbl_city',
+    'child-barangay': 'fieldlbl_barangay',
+  };
+  Object.keys(locationFieldLabelKeys).forEach(id => {
+    if (!getSelVal(id)) { showFieldError(id, t('val_please_select', { field: t(locationFieldLabelKeys[id]) })); ok = false; }
   });
 
   const st = (document.getElementById('child-street')?.value || '').trim();
-  if (!st)             { showFieldError('child-street', 'Street address is required'); ok = false; }
-  else if (st.length < 5)   { showFieldError('child-street', 'Street address must be at least 5 characters'); ok = false; }
-  else if (st.length > 255) { showFieldError('child-street', 'Street address must not exceed 255 characters'); ok = false; }
+  if (!st)             { showFieldError('child-street', t('val_step3_street_required')); ok = false; }
+  else if (st.length < 5)   { showFieldError('child-street', t('val_step3_street_min')); ok = false; }
+  else if (st.length > 255) { showFieldError('child-street', t('val_step3_street_max')); ok = false; }
 
   const childContact = (document.getElementById('child-contact')?.value || '').trim();
-  if (childContact && !isValidPhone(childContact)) { showFieldError('child-contact', 'Contact number must be 11 digits starting with 09'); ok = false; }
+  if (childContact && !isValidPhone(childContact)) { showFieldError('child-contact', t('val_step3_contact_format')); ok = false; }
 
   const dob = (document.getElementById('child-dob')?.value || '');
-  if (!dob) { showFieldError('child-dob', 'Date of birth is required'); ok = false; }
+  if (!dob) { showFieldError('child-dob', t('val_step3_dob_required')); ok = false; }
   else {
     const d = new Date(dob), today = new Date();
     today.setHours(0,0,0,0);
-    if (d > today) { showFieldError('child-dob', 'Date of birth cannot be in the future'); ok = false; }
+    if (d > today) { showFieldError('child-dob', t('val_step3_dob_future')); ok = false; }
   }
 
   const rel = getSelVal('dd-religion');
-  if (!rel) { showFieldError('dd-religion', 'Please select a religion'); ok = false; }
+  if (!rel) { showFieldError('dd-religion', t('val_please_select', { field: t('fieldlbl_religion') })); ok = false; }
   else if (rel === 'Others') {
     const v = (document.getElementById('rel-other')?.value || '').trim();
-    if (!v) { showFieldError('rel-other', 'Please specify religion'); ok = false; }
+    if (!v) { showFieldError('rel-other', t('val_please_specify', { field: t('fieldlbl_religion') })); ok = false; }
   }
 
   const ip = getSelVal('dd-ip');
-  if (!ip) { showFieldError('dd-ip', 'Please select IP membership status'); ok = false; }
+  if (!ip) { showFieldError('dd-ip', t('val_please_select', { field: t('fieldlbl_ip_status') })); ok = false; }
   else if (ip === 'Others') {
     const v = (document.getElementById('ip-other')?.value || '').trim();
-    if (!v) { showFieldError('ip-other', 'Please specify IP group'); ok = false; }
+    if (!v) { showFieldError('ip-other', t('val_please_specify', { field: t('fieldlbl_ip_group') })); ok = false; }
   }
 
   const edu = getSelVal('dd-education');
-  if (!edu) { showFieldError('dd-education', 'Please select educational attainment'); ok = false; }
+  if (!edu) { showFieldError('dd-education', t('val_please_select', { field: t('fieldlbl_education') })); ok = false; }
   else if (edu === 'Others') {
     const v = (document.getElementById('edu-other')?.value || '').trim();
-    if (!v) { showFieldError('edu-other', 'Please specify educational attainment'); ok = false; }
+    if (!v) { showFieldError('edu-other', t('val_please_specify', { field: t('fieldlbl_education') })); ok = false; }
   }
 
-  if (!chkMulti('dd-disability', 'err-dd-disability', 'Please select at least one disability/special need')) ok = false;
+  if (!chkMulti('dd-disability', 'err-dd-disability', t('val_step3_disability_required'))) ok = false;
 
   const illVals = getMultiVals('dd-illness');
   if (illVals.length === 0) {
-    showFieldError('dd-illness-btn', 'Please select at least one critical illness (or select "None")');
+    showFieldError('dd-illness-btn', t('val_step3_illness_required'));
     ok = false;
   } else if (illVals.includes('Others')) {
     const v = (document.getElementById('illness-other-input')?.value || '').trim();
-    if (!v) { showFieldError('illness-other-input', 'Please specify the critical illness'); ok = false; }
+    if (!v) { showFieldError('illness-other-input', t('val_step3_illness_specify')); ok = false; }
   }
 
   return ok;
@@ -2679,28 +2685,28 @@ function validateStep4() {
 
     const nameEl = card.querySelector('[data-field="full_name"]');
     const nameVal = (nameEl?.value || '').trim();
-    if (!nameVal)             { showElemError(nameEl, `err-fam-name-${n}`, `Member #${n}: Full name is required`); ok = false; }
-    else if (nameVal.length < 2) { showElemError(nameEl, `err-fam-name-${n}`, `Member #${n}: Name must be at least 2 characters`); ok = false; }
-    else if (!isValidName(nameVal)) { showElemError(nameEl, `err-fam-name-${n}`, `Member #${n}: Name can only contain letters, spaces, and hyphens`); ok = false; }
+    if (!nameVal)             { showElemError(nameEl, `err-fam-name-${n}`, t('val_step4_member_name_required', { n })); ok = false; }
+    else if (nameVal.length < 2) { showElemError(nameEl, `err-fam-name-${n}`, t('val_step4_member_name_min', { n })); ok = false; }
+    else if (!isValidName(nameVal)) { showElemError(nameEl, `err-fam-name-${n}`, t('val_step4_member_name_letters', { n })); ok = false; }
 
     const relEl = card.querySelector('[data-field="relationship_to_head"]');
-    if (!relEl?.value) { showElemError(relEl, `err-fam-rel-${n}`, `Member #${n}: Relationship is required`); ok = false; }
+    if (!relEl?.value) { showElemError(relEl, `err-fam-rel-${n}`, t('val_step4_member_relationship', { n })); ok = false; }
 
     const civEl = card.querySelector('[data-field="civil_status"]');
-    if (!civEl?.value) { showElemError(civEl, `err-fam-civ-${n}`, `Member #${n}: Civil status is required`); ok = false; }
+    if (!civEl?.value) { showElemError(civEl, `err-fam-civ-${n}`, t('val_step4_member_civil_status', { n })); ok = false; }
 
     const ageEl = card.querySelector('[data-field="age"]');
     const ageV  = parseInt(ageEl?.value || '');
-    if (!ageEl?.value.trim()) { showElemError(ageEl, `err-fam-age-${n}`, `Member #${n}: Age is required`); ok = false; }
-    else if (isNaN(ageV) || ageV < 0 || ageV > 150) { showElemError(ageEl, `err-fam-age-${n}`, `Member #${n}: Age must be 0–150`); ok = false; }
+    if (!ageEl?.value.trim()) { showElemError(ageEl, `err-fam-age-${n}`, t('val_step4_member_age_required', { n })); ok = false; }
+    else if (isNaN(ageV) || ageV < 0 || ageV > 150) { showElemError(ageEl, `err-fam-age-${n}`, t('val_step4_member_age_range', { n })); ok = false; }
 
     const occEl   = document.getElementById(`dd-fam-occ-${origNum}`);
     const classEl = document.getElementById(`dd-fam-class-${origNum}`);
-    if (!occEl?.value)   { if (occEl)   showFieldError(`dd-fam-occ-${origNum}`,   `Member #${n}: Occupation is required`);       ok = false; }
-    if (!classEl?.value) { if (classEl) showFieldError(`dd-fam-class-${origNum}`, `Member #${n}: Occupation class is required`); ok = false; }
+    if (!occEl?.value)   { if (occEl)   showFieldError(`dd-fam-occ-${origNum}`,   t('val_step4_member_occupation', { n })); ok = false; }
+    if (!classEl?.value) { if (classEl) showFieldError(`dd-fam-class-${origNum}`, t('val_step4_member_occ_class', { n })); ok = false; }
 
-    if (!chkMulti(`dd-fam-dis-${origNum}`, `err-fam-dis-${n}`, `Member #${n}: Select at least one disability/special need`)) ok = false;
-    if (!chkMulti(`dd-fam-ill-${origNum}`, `err-fam-ill-${n}`, `Member #${n}: Select at least one critical illness`)) ok = false;
+    if (!chkMulti(`dd-fam-dis-${origNum}`, `err-fam-dis-${n}`, t('val_step4_member_disability', { n }))) ok = false;
+    if (!chkMulti(`dd-fam-ill-${origNum}`, `err-fam-ill-${n}`, t('val_step4_member_illness', { n }))) ok = false;
   });
   return ok;
 }
@@ -2708,22 +2714,22 @@ function validateStep4() {
 // --- Step 5 ---
 function validateStep5() {
   let ok = true;
-  ok = chkDropdownOther('dd-materials',    'mat-other',    'housing materials')      && ok;
-  ok = chkDropdownOther('dd-tenure',       'tenure-other', 'tenure status')          && ok;
-  ok = chkToggleSpecify('modifications',   'mod-specify',  'modification details')   && ok;
-  ok = chkDropdownOther('dd-electricity',  'elec-other',   'electricity source')     && ok;
-  ok = chkDropdownOther('dd-water',        'water-other',  'water source')           && ok;
-  ok = chkDropdownOther('dd-toilet',       'toilet-other', 'toilet type')            && ok;
-  ok = chkDropdownOther('dd-garbage',      'garbage-other','garbage disposal system')&& ok;
+  ok = chkDropdownOther('dd-materials',    'mat-other',    t('fieldlbl_housing_materials'))     && ok;
+  ok = chkDropdownOther('dd-tenure',       'tenure-other', t('fieldlbl_tenure_status'))         && ok;
+  ok = chkToggleSpecify('modifications',   'mod-specify',  t('fieldlbl_modification_details'))  && ok;
+  ok = chkDropdownOther('dd-electricity',  'elec-other',   t('fieldlbl_electricity_source'))    && ok;
+  ok = chkDropdownOther('dd-water',        'water-other',  t('fieldlbl_water_source'))          && ok;
+  ok = chkDropdownOther('dd-toilet',       'toilet-other', t('fieldlbl_toilet_type'))           && ok;
+  ok = chkDropdownOther('dd-garbage',      'garbage-other',t('fieldlbl_garbage_system'))        && ok;
   return ok;
 }
 
 // --- Step 6 ---
 function validateStep6() {
   let ok = true;
-  ok = chkToggleSpecify('health_cond',    'health-cond-specify', 'health condition details')    && ok;
-  ok = chkToggleSpecify('avail_services', 'avail-specify',       'services availed in 6 months') && ok;
-  ok = chkToggleSpecify('barriers',       'barrier-specify',     'healthcare barrier details')   && ok;
+  ok = chkToggleSpecify('health_cond',    'health-cond-specify', t('fieldlbl_health_condition_details')) && ok;
+  ok = chkToggleSpecify('avail_services', 'avail-specify',       t('fieldlbl_services_availed_6mo'))     && ok;
+  ok = chkToggleSpecify('barriers',       'barrier-specify',     t('fieldlbl_healthcare_barrier_details')) && ok;
   return ok;
 }
 
@@ -2733,15 +2739,15 @@ function validateStep7() {
   const enrolled = getRadioVal('enrolled');
   if (enrolled === 'Yes') {
     const grade = (document.getElementById('grade-level')?.value || '').trim();
-    if (!grade)            { showFieldError('grade-level', 'Grade/Year level is required for enrolled children'); ok = false; }
-    else if (grade.length > 50) { showFieldError('grade-level', 'Grade/Year level must not exceed 50 characters'); ok = false; }
-    ok = chkToggleSpecify('school_features',  'school-access-specify', 'accessibility feature details') && ok;
-    ok = chkToggleSpecify('sped_prog',        'sped-specify',          'SPED program details')          && ok;
-    ok = chkToggleSpecify('learning_support', 'learn-supp-specify',    'learning support details')      && ok;
+    if (!grade)            { showFieldError('grade-level', t('val_step7_grade_required')); ok = false; }
+    else if (grade.length > 50) { showFieldError('grade-level', t('val_step7_grade_max')); ok = false; }
+    ok = chkToggleSpecify('school_features',  'school-access-specify', t('fieldlbl_accessibility_feature_details')) && ok;
+    ok = chkToggleSpecify('sped_prog',        'sped-specify',          t('fieldlbl_sped_details'))                  && ok;
+    ok = chkToggleSpecify('learning_support', 'learn-supp-specify',    t('fieldlbl_learning_support_details'))      && ok;
   } else if (enrolled === 'No') {
     const r = (document.getElementById('not-enrolled-reason')?.value || '').trim();
-    if (!r)           { showFieldError('not-enrolled-reason', 'Please provide a reason for not being enrolled'); ok = false; }
-    else if (r.length > 500) { showFieldError('not-enrolled-reason', 'Reason must not exceed 500 characters'); ok = false; }
+    if (!r)           { showFieldError('not-enrolled-reason', t('val_step7_reason_required')); ok = false; }
+    else if (r.length > 500) { showFieldError('not-enrolled-reason', t('val_step7_reason_max')); ok = false; }
   }
   return ok;
 }
@@ -2750,36 +2756,37 @@ function validateStep7() {
 function validateStep8() {
   let ok = true;
   const src = (document.getElementById('income-source')?.value || '').trim();
-  if (!src)             { showFieldError('income-source', 'Primary income source is required'); ok = false; }
-  else if (src.length < 3)   { showFieldError('income-source', 'Income source must be at least 3 characters'); ok = false; }
-  else if (src.length > 255) { showFieldError('income-source', 'Income source must not exceed 255 characters'); ok = false; }
+  if (!src)             { showFieldError('income-source', t('val_step8_income_source_required')); ok = false; }
+  else if (src.length < 3)   { showFieldError('income-source', t('val_step8_income_source_min')); ok = false; }
+  else if (src.length > 255) { showFieldError('income-source', t('val_step8_income_source_max')); ok = false; }
 
   const inc = (document.getElementById('monthly-income')?.value || '').trim();
-  if (!inc)                  { showFieldError('monthly-income', 'Monthly income is required'); ok = false; }
-  else if (!/^\d+$/.test(inc)) { showFieldError('monthly-income', 'Monthly income must be a whole number'); ok = false; }
+  if (!inc)                  { showFieldError('monthly-income', t('val_step8_income_required')); ok = false; }
+  else if (!/^\d+$/.test(inc)) { showFieldError('monthly-income', t('val_step8_income_whole_number')); ok = false; }
 
-  ok = chkToggleSpecify('employed', 'emp-specify', 'employment details') && ok;
+  ok = chkToggleSpecify('employed', 'emp-specify', t('fieldlbl_employment_details')) && ok;
   return ok;
 }
 
 // --- Step 9 ---
 function validateStep9() {
   let ok = true;
-  ok = chkToggleSpecify('fin_assist',    'fin-assist-specify', 'financial assistance details') && ok;
-  ok = chkToggleSpecify('aware_services','aware-specify',       'service awareness details')   && ok;
-  ok = chkToggleSpecify('availed_any',   'availed-specify',     'availed services details')    && ok;
-  if (!chkDropdownOther('service-challenges', 'barrier-other', 'service challenge')) ok = false;
+  ok = chkToggleSpecify('fin_assist',    'fin-assist-specify', t('fieldlbl_financial_assistance_details')) && ok;
+  ok = chkToggleSpecify('aware_services','aware-specify',       t('fieldlbl_service_awareness_details'))   && ok;
+  ok = chkToggleSpecify('availed_any',   'availed-specify',     t('fieldlbl_availed_services_details'))    && ok;
+  if (!chkDropdownOther('service-challenges', 'barrier-other', t('fieldlbl_service_challenge'))) ok = false;
   return ok;
 }
 
 // --- Step 10 ---
 function validateStep10() {
   let ok = true;
-  [['strengths','Strengths'],['assessment','Assessment'],['recommendations','Recommendations']].forEach(([id, label]) => {
+  [['strengths','fieldlbl_strengths'],['assessment','fieldlbl_assessment'],['recommendations','fieldlbl_recommendations']].forEach(([id, labelKey]) => {
+    const label = t(labelKey);
     const v = (document.getElementById(id)?.value || '').trim();
-    if (!v)              { showFieldError(id, `${label} is required`); ok = false; }
-    else if (v.length < 10)   { showFieldError(id, `${label} must be at least 10 characters`); ok = false; }
-    else if (v.length > 2000) { showFieldError(id, `${label} must not exceed 2000 characters`); ok = false; }
+    if (!v)              { showFieldError(id, t('val_required', { field: label })); ok = false; }
+    else if (v.length < 10)   { showFieldError(id, t('val_step10_min_length_10', { field: label })); ok = false; }
+    else if (v.length > 2000) { showFieldError(id, t('val_step10_max_length_2000', { field: label })); ok = false; }
   });
   if (!getRadioVal('readiness')) {
     const section = document.querySelector('input[name="readiness"]')?.closest('section');
@@ -2787,7 +2794,7 @@ function validateStep10() {
       document.getElementById('err-readiness')?.remove();
       const p = document.createElement('p');
       p.id = 'err-readiness'; p.className = 'field-error mt-2';
-      p.textContent = 'Please select a readiness score';
+      p.textContent = t('val_step10_readiness_required');
       section.querySelector('.space-y-3')?.appendChild(p);
     }
     ok = false;
@@ -2819,17 +2826,25 @@ function generateReview() {
     return el ? el.value : '-';
   };
   
+  // Readiness wording is sourced from the same readiness_*_title keys used by
+  // Step 10's cards, so the review screen can never drift out of sync with them.
   const readinessMap = {
-    severe:   { label: 'Severe: Immediate intervention needed',              color: 'bg-red-50 border-red-200 text-red-700' },
-    moderate: { label: 'Moderate: Address within a short period',            color: 'bg-orange-50 border-orange-200 text-orange-700' },
-    low:      { label: 'Low: No immediate action needed, but monitor regularly', color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
-    stable:   { label: 'Stable: Meets all needs effectively',               color: 'bg-green-50 border-green-200 text-green-700' },
+    severe:   { label: t('readiness_severe_title'),   color: 'bg-red-50 border-red-200 text-red-700' },
+    moderate: { label: t('readiness_moderate_title'), color: 'bg-orange-50 border-orange-200 text-orange-700' },
+    low:      { label: t('readiness_low_title'),      color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+    stable:   { label: t('readiness_stable_title'),   color: 'bg-green-50 border-green-200 text-green-700' },
   };
+
+  // 'Yes - <detail>' / 'No' pattern used throughout the review screen.
+  const yesNo = (radioName, detailId) =>
+    getRadio(radioName) === 'Yes'
+      ? t('review_yes_prefix', { detail: getVal(detailId) })
+      : t('review_no_fallback');
   const readinessVal   = getRadio('readiness') || '';
   const readinessInfo  = readinessMap[readinessVal] || { label: readinessVal || '-', color: 'bg-gray-50 border-gray-200 text-gray-700' };
 
   const incomeClassTxt = document.getElementById('income-class-display')?.innerText || '';
-  const incomeDisplay  = (incomeClassTxt && incomeClassTxt !== 'Enter income to see classification') ? incomeClassTxt : '-';
+  const incomeDisplay  = (incomeClassTxt && incomeClassTxt !== t('step8_ph_income_class_initial')) ? incomeClassTxt : '-';
 
   let html = `
     <!-- REVIEW INTRODUCTION -->
@@ -2839,8 +2854,8 @@ function generateReview() {
           <span class="material-symbols-outlined text-[24px] sm:text-[28px]">fact_check</span>
         </div>
         <div>
-          <h2 class="text-xl sm:text-2xl font-extrabold">Assessment Review</h2>
-          <p class="text-xs sm:text-sm opacity-90 mt-0.5">Please verify all information before final submission</p>
+          <h2 class="text-xl sm:text-2xl font-extrabold">${t('review_heading')}</h2>
+          <p class="text-xs sm:text-sm opacity-90 mt-0.5">${t('review_subtext')}</p>
         </div>
       </div>
     </div>
@@ -2851,15 +2866,15 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">assignment_ind</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">1. Pre-Qualification</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_1')}</h3>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-0 sm:ml-12">
         <div>
-          <p class="text-xs font-bold text-gray-500 uppercase mb-1">4Ps Member</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_4ps_member')}</p>
           <p class="text-sm font-semibold text-gray-900">${getRadio('membership')}</p>
         </div>
         <div>
-          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Household ID</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('step1_lbl_household_id')}</p>
           <p class="text-sm font-semibold text-gray-900">${getVal('household-id')}</p>
         </div>
       </div>
@@ -2871,23 +2886,23 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">account_circle</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">2. Respondent Profile</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_2')}</h3>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-0 sm:ml-12">
         <div>
-          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Name</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_name')}</p>
           <p class="text-sm font-semibold text-gray-900">${getVal('resp-name')}</p>
         </div>
         <div>
-          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Relationship</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_relationship')}</p>
           <p class="text-sm font-semibold text-gray-900">${getVal('dd-relationship')}</p>
         </div>
         <div>
-          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Email</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_email')}</p>
           <p class="text-sm font-semibold text-gray-900 break-all">${getVal('resp-email')}</p>
         </div>
         <div>
-          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Contact</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_contact')}</p>
           <p class="text-sm font-semibold text-gray-900">${getVal('resp-contact')}</p>
         </div>
       </div>
@@ -2899,19 +2914,19 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">face</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">3. Child Profile</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_3')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-4">
         <!-- Personal Information -->
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Personal Information</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step3_sec_personal')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Full Name</p>
+              <p class="text-xs text-gray-500 mb-1">${t('member_lbl_fullname')}</p>
               <p class="text-sm font-semibold text-gray-900">${[document.getElementById('child-fname')?.value?.trim(), document.getElementById('child-mname')?.value?.trim(), document.getElementById('child-lname')?.value?.trim(), document.getElementById('dd-extension')?.value?.trim()].filter(Boolean).join(' ') || '-'}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Date of Birth / Sex</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_dob_sex')}</p>
               <p class="text-sm font-semibold text-gray-900">${(() => { const d = document.getElementById('child-dob')?.value; if (!d) return '-'; const dt = new Date(d + 'T00:00:00'); return dt.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }); })()} / ${getRadio('sex')}</p>
             </div>
           </div>
@@ -2919,30 +2934,30 @@ function generateReview() {
 
         <!-- Address -->
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Address</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('review_lbl_address')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Street Address</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_street')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('child-street')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Barangay</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_barangay')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('child-barangay')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">City/Municipality</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_city')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('child-city')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Province</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_province')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('child-province')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Region</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_region')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('child-region')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Contact Number</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_contact_number')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('child-contact')}</p>
             </div>
           </div>
@@ -2950,14 +2965,14 @@ function generateReview() {
 
         <!-- Demographics -->
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Demographics</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step3_sec_demographics')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Religion</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_religion')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-religion') === 'Others' ? getVal('rel-other') : getVal('dd-religion')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">IP Membership</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_ip')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-ip') === 'Others' ? getVal('ip-other') : getVal('dd-ip')}</p>
             </div>
           </div>
@@ -2965,18 +2980,18 @@ function generateReview() {
 
         <!-- Condition & Education -->
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Condition & Education</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step3_sec_condition_edu')}</p>
           <div class="grid grid-cols-1 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Highest Educational Attainment</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_education')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-education') === 'Others' ? getVal('edu-other') : getVal('dd-education')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Disability or Special Needs</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_disability')}</p>
               <p class="text-sm font-semibold text-gray-900">${document.getElementById('disability-display') ? document.getElementById('disability-display').innerText : '-'}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Critical Illness</p>
+              <p class="text-xs text-gray-500 mb-1">${t('member_lbl_illness')}</p>
               <p class="text-sm font-semibold text-gray-900">${document.getElementById('illness-display') ? document.getElementById('illness-display').innerText : '-'}</p>
             </div>
           </div>
@@ -2990,12 +3005,12 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">family_restroom</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">4. Family Profile</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_4')}</h3>
       </div>
       <div class="ml-0 sm:ml-12">
         <div class="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-4">
           <div class="flex justify-between items-center">
-            <p class="text-sm font-bold text-brand-dark">Total Family Size</p>
+            <p class="text-sm font-bold text-brand-dark">${t('review_lbl_total_family_size')}</p>
             <p class="text-2xl font-extrabold text-brand-blue">${getVal('total-family-size')}</p>
           </div>
         </div>
@@ -3005,14 +3020,14 @@ function generateReview() {
   if (cards.length === 0) {
     html += `
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
-          <p class="text-sm text-gray-500">No family members added</p>
+          <p class="text-sm text-gray-500">${t('review_no_members')}</p>
         </div>
     `;
   } else {
     html += `<div class="space-y-3">`;
     cards.forEach((card, index) => {
       const inputs = card.querySelectorAll('input[type="text"]');
-      let name = "Member " + (index + 1);
+      let name = t('review_member_fallback', { n: index + 1 });
       if (inputs.length > 0 && inputs[0].value) {
         name = inputs[0].value;
       }
@@ -3037,48 +3052,48 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">home</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">5. Socio Economic</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_5')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Housing Condition</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step5_sec_housing')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Construction Materials</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_construction_materials')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-materials') === 'Others' ? getVal('mat-other') : getVal('dd-materials')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Tenure Status</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_tenure_status')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-tenure') === 'Others' ? getVal('tenure-other') : getVal('dd-tenure')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Electricity Source</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_electricity_source')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-electricity') === 'Others' ? getVal('elec-other') : getVal('dd-electricity')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Modifications for Child</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('modifications') === 'Yes' ? 'Yes - ' + getVal('mod-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_modifications')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('modifications', 'mod-specify')}</p>
             </div>
           </div>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Water & Sanitation</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('review_sec_water_sanitation')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Water Source</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_water_source')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-water') === 'Others' ? getVal('water-other') : getVal('dd-water')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Toilet Facility</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_toilet_facility')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-toilet') === 'Others' ? getVal('toilet-other') : getVal('dd-toilet')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Toilet Accessible</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_toilet_accessible')}</p>
               <p class="text-sm font-semibold text-gray-900">${getRadio('toilet-access')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Garbage Disposal</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_garbage_disposal')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-garbage') === 'Others' ? getVal('garbage-other') : getVal('dd-garbage')}</p>
             </div>
           </div>
@@ -3092,19 +3107,19 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">health_and_safety</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">6. Health</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_6')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">General Health</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step6_sec_general')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Vaccinations Complete</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_vaccinations')}</p>
               <p class="text-sm font-semibold text-gray-900">${getRadio('vaccines')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Ongoing Health Conditions</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('health_cond') === 'Yes' ? 'Yes - ' + getVal('health-cond-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_ongoing_conditions')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('health_cond', 'health-cond-specify')}</p>
             </div>
           </div>
         </div>
@@ -3112,27 +3127,27 @@ function generateReview() {
         <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
           <div class="flex justify-between items-center">
             <div>
-              <p class="text-xs font-bold text-gray-700 uppercase mb-1">Total Monthly Health Expense</p>
-              <p class="text-xs text-gray-500">Sum of all health-related costs</p>
+              <p class="text-xs font-bold text-gray-700 uppercase mb-1">${t('review_lbl_total_health_expense')}</p>
+              <p class="text-xs text-gray-500">${t('review_helper_total_health_expense')}</p>
             </div>
             <p class="text-2xl font-extrabold text-brand-blue"><span style="font-family:'Poppins',sans-serif">₱</span>${getVal('exp-total')}</p>
           </div>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Access to Health Services</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step6_sec_access')}</p>
           <div class="grid grid-cols-1 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Availed Services (Past 6 Months)</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('avail_services') === 'Yes' ? 'Yes - ' + getVal('avail-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_availed_6mo')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('avail_services', 'avail-specify')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Health Facility Accessible</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_facility_accessible')}</p>
               <p class="text-sm font-semibold text-gray-900">${getRadio('facility_access')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Barriers to Healthcare</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('barriers') === 'Yes' ? 'Yes - ' + getVal('barrier-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_barriers')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('barriers', 'barrier-specify')}</p>
             </div>
           </div>
         </div>
@@ -3145,33 +3160,33 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">school</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">7. Education</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_7')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Educational Status</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step7_sec_status')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Currently Enrolled</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('enrolled') === 'Yes' ? 'Yes - Grade/Year: ' + getVal('grade-level') : 'No - Reason: ' + getVal('not-enrolled-reason')}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_currently_enrolled')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('enrolled') === 'Yes' ? t('review_enrolled_yes', { grade: getVal('grade-level') }) : t('review_enrolled_no', { reason: getVal('not-enrolled-reason') })}</p>
             </div>
           </div>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">School Accessibility</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step7_sec_accessibility')}</p>
           <div class="grid grid-cols-1 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Physical Accessibility Features</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('school_features') === 'Yes' ? 'Yes - ' + getVal('school-access-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_accessibility_features')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('school_features', 'school-access-specify')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Special Education Programs</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('sped_prog') === 'Yes' ? 'Yes - ' + getVal('sped-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_sped')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('sped_prog', 'sped-specify')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Learning Support</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('learning_support') === 'Yes' ? 'Yes - ' + getVal('learn-supp-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_learning_support')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('learning_support', 'learn-supp-specify')}</p>
             </div>
           </div>
         </div>
@@ -3184,33 +3199,33 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">account_balance_wallet</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">8. Economic Capacity</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_8')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Financial Information</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step8_sec_financial')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Primary Income Source</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_income_source')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('income-source')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Monthly Income</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_monthly_income')}</p>
               <p class="text-sm font-semibold text-gray-900">₱${getVal('monthly-income')}</p>
             </div>
           </div>
         </div>
 
         <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-2">Income Classification</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">${t('review_lbl_income_classification')}</p>
           <p class="text-sm font-bold ${incomeDisplay.includes('Below') || incomeDisplay.includes('Low') ? 'text-red-600' : 'text-brand-blue'}">${incomeDisplay}</p>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Employment</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step8_sec_employment')}</p>
           <div>
-            <p class="text-xs text-gray-500 mb-1">Parents/Guardians Employed</p>
-            <p class="text-sm font-semibold text-gray-900">${getRadio('employed') === 'Yes' ? 'Yes - ' + getVal('emp-specify') : 'No'}</p>
+            <p class="text-xs text-gray-500 mb-1">${t('review_lbl_employed')}</p>
+            <p class="text-sm font-semibold text-gray-900">${yesNo('employed', 'emp-specify')}</p>
           </div>
         </div>
       </div>
@@ -3222,31 +3237,31 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">handshake</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">9. Service Availment</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_9')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Social Services</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step9_sec_social')}</p>
           <div class="grid grid-cols-1 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Financial Assistance</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('fin_assist') === 'Yes' ? 'Yes - ' + getVal('fin-assist-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_fin_assist')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('fin_assist', 'fin-assist-specify')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Aware of Social Services</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('aware_services') === 'Yes' ? 'Yes - ' + getVal('aware-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_aware_services')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('aware_services', 'aware-specify')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Availed Services</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('availed_any') === 'Yes' ? 'Yes - ' + getVal('availed-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_availed_services')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('availed_any', 'availed-specify')}</p>
             </div>
           </div>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Barriers</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step9_sec_barriers')}</p>
           <div>
-            <p class="text-xs text-gray-500 mb-1">Challenges in Availing Services</p>
+            <p class="text-xs text-gray-500 mb-1">${t('review_lbl_challenges')}</p>
             <p class="text-sm font-semibold text-gray-900">${document.getElementById('service-challenges').value === 'Others' ? getVal('barrier-other') : document.getElementById('service-challenges').value}</p>
           </div>
         </div>
@@ -3259,26 +3274,26 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">edit_note</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">10. Assessment Notes</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_10')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-2">Strengths</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">${t('step10_lbl_strengths')}</p>
           <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('strengths')}</p>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-2">Assessment</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">${t('step10_lbl_assessment')}</p>
           <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('assessment')}</p>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-2">Recommended Actions/Interventions</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">${t('step10_lbl_recommendations')}</p>
           <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('recommendations')}</p>
         </div>
 
         <div class="rounded-lg p-4 border ${readinessInfo.color}">
-          <p class="text-xs font-bold uppercase mb-2" style="opacity:0.7">Readiness Score</p>
+          <p class="text-xs font-bold uppercase mb-2" style="opacity:0.7">${t('step10_sec_readiness')}</p>
           <p class="text-sm font-bold">${readinessInfo.label}</p>
         </div>
       </div>
@@ -3527,10 +3542,10 @@ async function submitAssessment() {
       sessionStorage.clear();
       window.location.href = '/success?' + params.toString();
     } else {
-      throw new Error(result.message || 'Submission failed');
+      throw new Error(result.message || t('val_submission_failed'));
     }
   } catch (error) {
-    window.toast.error(error.message || 'Could not reach the server. Please try again.', 'Submission Error');
+    window.toast.error(error.message || t('val_submission_error_body'), t('val_submission_error_title'));
     if (submitBtn) {
       submitBtn.disabled = false;
       submitBtn.innerHTML = 'Submit Assessment';
