@@ -87,6 +87,8 @@ window.I18N_EN = {
   step3_sec_demographics: 'Demographics',
   step3_lbl_dob: 'Date of Birth',
   step3_lbl_sex: 'Sex',
+  opt_male: 'Male',
+  opt_female: 'Female',
   step3_lbl_religion: 'Religion',
   step3_lbl_ip: 'IP Membership',
   step3_sec_condition_edu: 'Condition & Education',

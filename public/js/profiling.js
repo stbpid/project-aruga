@@ -582,11 +582,11 @@ function getStep3HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="sex-male" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
                   <input type="radio" id="sex-male" name="sex" value="Male" class="hidden" checked>
-                  <span>Male</span>
+                  <span>${t('opt_male')}</span>
                 </label>
                 <label for="sex-female" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
                   <input type="radio" id="sex-female" name="sex" value="Female" class="hidden">
-                  <span>Female</span>
+                  <span>${t('opt_female')}</span>
                 </label>
               </div>
             </div>
@@ -2377,11 +2377,11 @@ function getFamilyMemberCardHTML(num, isHead) {
               <div class="slide-toggle-slider"></div>
               <label for="sex-${num}-male" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
                 <input type="radio" name="sex-${num}" id="sex-${num}-male" value="Male" data-field="member_sex" class="hidden" checked>
-                <span>Male</span>
+                <span>${t('opt_male')}</span>
               </label>
               <label for="sex-${num}-female" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
                 <input type="radio" name="sex-${num}" id="sex-${num}-female" value="Female" data-field="member_sex" class="hidden">
-                <span>Female</span>
+                <span>${t('opt_female')}</span>
               </label>
             </div>
           </div>
