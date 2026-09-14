@@ -876,114 +876,114 @@ function getStep6HTML() {
   return `
     <div id="step-6" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Health</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Provide information on the child's medical condition and healthcare accessibility.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step6_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step6_subtext')}</p>
       </div>
-      
+
       <!-- General Health -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">health_and_safety</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">General Health</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step6_sec_general')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <label for="vaccines-yes" class="text-xs font-bold text-brand-dark flex-1">Has the child received all recommended vaccinations?</label>
+            <label for="vaccines-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_vaccinations')}</label>
             <div class="slide-toggle-container h-8 w-32">
               <div class="slide-toggle-slider"></div>
               <label for="vaccines-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                <input type="radio" id="vaccines-yes" name="vaccines" value="Yes" class="hidden" checked> 
+                <input type="radio" id="vaccines-yes" name="vaccines" value="Yes" class="hidden" checked>
                 <span>Yes</span>
               </label>
               <label for="vaccines-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                <input type="radio" id="vaccines-no" name="vaccines" value="No" class="hidden"> 
+                <input type="radio" id="vaccines-no" name="vaccines" value="No" class="hidden">
                 <span>No</span>
               </label>
             </div>
           </div>
-          
+
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="health_cond-yes" class="text-xs font-bold text-brand-dark flex-1">Does the child have any ongoing health conditions?</label>
+              <label for="health_cond-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_ongoing_condition')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="health_cond-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.remove('hidden')">
-                  <input type="radio" id="health_cond-yes" name="health_cond" value="Yes" class="hidden"> 
+                  <input type="radio" id="health_cond-yes" name="health_cond" value="Yes" class="hidden">
                   <span>Yes</span>
                 </label>
                 <label for="health_cond-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.add('hidden')">
-                  <input type="radio" id="health_cond-no" name="health_cond" value="No" class="hidden" checked> 
+                  <input type="radio" id="health_cond-no" name="health_cond" value="No" class="hidden" checked>
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="health-cond-specify" name="health-cond-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="health-cond-specify" name="health-cond-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
-      
+
       <!-- Monthly Health Expenses -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">monetization_on</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Monthly Health Expenses</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step6_sec_expenses')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
-              <label for="exp-food" class="block text-[10px] font-bold text-gray-500 mb-1">Food</label>
+              <label for="exp-food" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_food')}</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
                 <input type="text" id="exp-food" name="exp-food" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label for="exp-med" class="block text-[10px] font-bold text-gray-500 mb-1">Medication</label>
+              <label for="exp-med" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_medication')}</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
                 <input type="text" id="exp-med" name="exp-med" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label for="exp-therapy" class="block text-[10px] font-bold text-gray-500 mb-1">Therapy</label>
+              <label for="exp-therapy" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_therapy')}</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
                 <input type="text" id="exp-therapy" name="exp-therapy" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label for="exp-hygiene" class="block text-[10px] font-bold text-gray-500 mb-1">Hygiene-related needs</label>
+              <label for="exp-hygiene" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_hygiene')}</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
                 <input type="text" id="exp-hygiene" name="exp-hygiene" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label for="exp-assist" class="block text-[10px] font-bold text-gray-500 mb-1">Assistive Device Maint.</label>
+              <label for="exp-assist" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_assistive')}</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
                 <input type="text" id="exp-assist" name="exp-assist" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label for="exp-other" class="block text-[10px] font-bold text-gray-500 mb-1">Other health needs</label>
+              <label for="exp-other" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_other_health')}</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
                 <input type="text" id="exp-other" name="exp-other" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
           </div>
-          
+
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex justify-between items-center">
             <div>
-              <h4 class="font-bold text-brand-dark text-sm">Total Health Expense</h4>
-              <p class="text-[10px] text-gray-500">Sum of all monthly costs</p>
+              <h4 class="font-bold text-brand-dark text-sm">${t('step6_sec_total_expense')}</h4>
+              <p class="text-[10px] text-gray-500">${t('step6_helper_total_expense')}</p>
             </div>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-brand-blue font-bold pointer-events-none text-lg">₱</span>
@@ -992,76 +992,76 @@ function getStep6HTML() {
           </div>
         </div>
       </section>
-      
+
       <!-- Access to Health Services -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">local_hospital</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Access to Health Services</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step6_sec_access')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="avail_services-yes" class="text-xs font-bold text-brand-dark flex-1">Has the child availed health services in the past 6 months?</label>
+              <label for="avail_services-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_availed_6mo')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="avail_services-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.remove('hidden')">
-                  <input type="radio" id="avail_services-yes" name="avail_services" value="Yes" class="hidden"> 
+                  <input type="radio" id="avail_services-yes" name="avail_services" value="Yes" class="hidden">
                   <span>Yes</span>
                 </label>
                 <label for="avail_services-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.add('hidden')">
-                  <input type="radio" id="avail_services-no" name="avail_services" value="No" class="hidden" checked> 
+                  <input type="radio" id="avail_services-no" name="avail_services" value="No" class="hidden" checked>
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="avail-specify" name="avail-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="avail-specify" name="avail-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <label for="facility_access-yes" class="text-xs font-bold text-brand-dark flex-1">Is the health facility accessible for the child?</label>
+            <label for="facility_access-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_facility_accessible')}</label>
             <div class="slide-toggle-container h-8 w-32">
               <div class="slide-toggle-slider"></div>
               <label for="facility_access-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                <input type="radio" id="facility_access-yes" name="facility_access" value="Yes" class="hidden"> 
+                <input type="radio" id="facility_access-yes" name="facility_access" value="Yes" class="hidden">
                 <span>Yes</span>
               </label>
               <label for="facility_access-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                <input type="radio" id="facility_access-no" name="facility_access" value="No" class="hidden" checked> 
+                <input type="radio" id="facility_access-no" name="facility_access" value="No" class="hidden" checked>
                 <span>No</span>
               </label>
             </div>
           </div>
-          
+
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="barriers-yes" class="text-xs font-bold text-brand-dark flex-1">Are there any barriers to accessing health care services?</label>
+              <label for="barriers-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_barriers')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="barriers-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.remove('hidden')">
-                  <input type="radio" id="barriers-yes" name="barriers" value="Yes" class="hidden"> 
+                  <input type="radio" id="barriers-yes" name="barriers" value="Yes" class="hidden">
                   <span>Yes</span>
                 </label>
                 <label for="barriers-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.add('hidden')">
-                  <input type="radio" id="barriers-no" name="barriers" value="No" class="hidden" checked> 
+                  <input type="radio" id="barriers-no" name="barriers" value="No" class="hidden" checked>
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="barrier-specify" name="barrier-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="barrier-specify" name="barrier-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(5)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(6)) goToStep(7)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Education</span>
+          <span>${t('step6_btn_next')}</span>
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -1077,120 +1077,120 @@ function getStep7HTML() {
   return `
     <div id="step-7" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Education</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Identify the child's schooling status and the physical accessibility of their learning environment.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step7_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step7_subtext')}</p>
       </div>
-      
+
       <!-- Educational Status -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">school</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Educational Status</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step7_sec_status')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="enrolled-yes" class="text-xs font-bold text-brand-dark flex-1">Is the child currently enrolled in school?</label>
+              <label for="enrolled-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step7_lbl_enrolled')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="enrolled-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this); toggleEnrollment(true)">
-                  <input type="radio" id="enrolled-yes" name="enrolled" value="Yes" class="hidden" checked> 
+                  <input type="radio" id="enrolled-yes" name="enrolled" value="Yes" class="hidden" checked>
                   <span>Yes</span>
                 </label>
                 <label for="enrolled-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); toggleEnrollment(false)">
-                  <input type="radio" id="enrolled-no" name="enrolled" value="No" class="hidden"> 
+                  <input type="radio" id="enrolled-no" name="enrolled" value="No" class="hidden">
                   <span>No</span>
                 </label>
               </div>
             </div>
-            
+
             <div id="enrollment-yes" class="">
-              <label for="grade-level" class="block text-xs font-bold text-brand-dark mb-1">Grade/Year Level <span class="text-red-500">*</span></label>
-              <input type="text" id="grade-level" name="grade-level" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Grade/Year Level">
+              <label for="grade-level" class="block text-xs font-bold text-brand-dark mb-1">${t('step7_lbl_grade')} <span class="text-red-500">*</span></label>
+              <input type="text" id="grade-level" name="grade-level" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step7_ph_grade')}">
             </div>
             <div id="enrollment-no" class="hidden">
-              <label for="not-enrolled-reason" class="block text-xs font-bold text-brand-dark mb-1">Why not? <span class="text-red-500">*</span></label>
-              <input type="text" id="not-enrolled-reason" name="not-enrolled-reason" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+              <label for="not-enrolled-reason" class="block text-xs font-bold text-brand-dark mb-1">${t('step7_lbl_why_not')} <span class="text-red-500">*</span></label>
+              <input type="text" id="not-enrolled-reason" name="not-enrolled-reason" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
             </div>
           </div>
         </div>
       </section>
-      
+
       <!-- School Accessibility -->
       <section id="form-school-access" class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6 transition-all duration-300">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">accessible</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">School Accessibility</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step7_sec_accessibility')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="school_features-yes" class="text-xs font-bold text-brand-dark flex-1">Is the school equipped with physically accessibility features?</label>
+              <label for="school_features-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step7_lbl_school_accessible')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="school_features-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.remove('hidden')">
-                  <input type="radio" id="school_features-yes" name="school_features" value="Yes" class="hidden"> 
+                  <input type="radio" id="school_features-yes" name="school_features" value="Yes" class="hidden">
                   <span>Yes</span>
                 </label>
                 <label for="school_features-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.add('hidden')">
-                  <input type="radio" id="school_features-no" name="school_features" value="No" class="hidden" checked> 
+                  <input type="radio" id="school_features-no" name="school_features" value="No" class="hidden" checked>
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="school-access-specify" name="school-access-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="school-access-specify" name="school-access-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="sped_prog-yes" class="text-xs font-bold text-brand-dark flex-1">Are there special education programs available?</label>
+              <label for="sped_prog-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step7_lbl_sped')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="sped_prog-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.remove('hidden')">
-                  <input type="radio" id="sped_prog-yes" name="sped_prog" value="Yes" class="hidden"> 
+                  <input type="radio" id="sped_prog-yes" name="sped_prog" value="Yes" class="hidden">
                   <span>Yes</span>
                 </label>
                 <label for="sped_prog-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.add('hidden')">
-                  <input type="radio" id="sped_prog-no" name="sped_prog" value="No" class="hidden" checked> 
+                  <input type="radio" id="sped_prog-no" name="sped_prog" value="No" class="hidden" checked>
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="sped-specify" name="sped-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="sped-specify" name="sped-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="learning_support-yes" class="text-xs font-bold text-brand-dark flex-1">Does the child receive any learning support?</label>
+              <label for="learning_support-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step7_lbl_learning_support')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="learning_support-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.remove('hidden')">
-                  <input type="radio" id="learning_support-yes" name="learning_support" value="Yes" class="hidden"> 
+                  <input type="radio" id="learning_support-yes" name="learning_support" value="Yes" class="hidden">
                   <span>Yes</span>
                 </label>
                 <label for="learning_support-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.add('hidden')">
-                  <input type="radio" id="learning_support-no" name="learning_support" value="No" class="hidden" checked> 
+                  <input type="radio" id="learning_support-no" name="learning_support" value="No" class="hidden" checked>
                   <span>No</span>
                 </label>
               </div>
             </div>
-            <input id="learn-supp-specify" name="learn-supp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="learn-supp-specify" name="learn-supp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(6)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(7)) goToStep(8)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Economic Capacity</span>
+          <span>${t('step7_btn_next')}</span>
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
