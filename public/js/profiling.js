@@ -45,6 +45,8 @@ const SLUG_TO_STEP = Object.fromEntries(Object.entries(STEP_SLUGS).map(([n, s]) 
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', async function() {
+  applyStaticI18n();
+
   // Set max date on DOB to today
   const dobEl = document.getElementById('child-dob');
   if (dobEl) dobEl.max = new Date().toISOString().split('T')[0];
@@ -233,26 +235,26 @@ function updateProgress(step) {
   const bar = document.getElementById('progress-bar');
   const indicator = document.getElementById('step-indicator');
   const label = document.getElementById('step-label');
-  
+
   const stepLabels = {
-    1: 'Pre-Qualification',
-    2: 'Respondent Profile',
-    3: 'Child Profile',
-    4: 'Family Profile',
-    5: 'Socio Economic',
-    6: 'Health',
-    7: 'Education',
-    8: 'Economic Capacity',
-    9: 'Service Availment',
-    10: 'Assessment',
-    11: 'Review'
+    1: t('steplabel_1'),
+    2: t('steplabel_2'),
+    3: t('steplabel_3'),
+    4: t('steplabel_4'),
+    5: t('steplabel_5'),
+    6: t('steplabel_6'),
+    7: t('steplabel_7'),
+    8: t('steplabel_8'),
+    9: t('steplabel_9'),
+    10: t('steplabel_10'),
+    11: t('steplabel_11')
   };
-  
+
   let percent = (step / 11) * 100;
   if (step === 11) percent = 100;
-  
+
   bar.style.width = percent + '%';
-  indicator.innerText = `STEP ${step === 11 ? 'REVIEW' : step} OF 10`;
+  indicator.innerText = step === 11 ? t('step_of_review') : t('step_of', { n: step });
   label.innerText = stepLabels[step] || '';
 }
 
