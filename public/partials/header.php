@@ -44,10 +44,10 @@ $mobileNavLinkClass = function (string $page) use ($activePage) {
           <span id="nav-toggle-label-dashboard" class="relative z-10 px-4 h-full flex items-center text-[11.5px] font-semibold text-gray-500 transition-colors duration-300">Dashboard</span>
         </button>
         <?php else: ?>
-        <div class="flex items-center gap-2 text-[11.5px] font-semibold">
-          <a href="/" class="text-gray-600 hover:text-brand-blue transition-colors">Profiling Tool</a>
-          <span class="text-gray-300">|</span>
-          <a href="/#dashboard" class="text-gray-600 hover:text-brand-blue transition-colors">Dashboard</a>
+        <div class="flex items-center h-9 px-4 rounded-xl bg-gray-200 shadow-inner gap-3">
+          <a href="/" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Profiling Tool</a>
+          <span class="text-gray-400">|</span>
+          <a href="/#dashboard" class="text-[11.5px] font-semibold text-gray-600 hover:text-brand-blue transition-colors">Dashboard</a>
         </div>
         <?php endif; ?>
       </nav>
@@ -71,9 +71,9 @@ $mobileNavLinkClass = function (string $page) use ($activePage) {
         <span id="nav-toggle-label-dashboard-mobile" class="relative z-10 flex-1 h-full flex items-center justify-center text-xs font-semibold text-gray-500 transition-colors duration-300">Dashboard</span>
       </button>
       <?php else: ?>
-      <div class="flex items-center justify-center gap-2 py-2 text-xs font-semibold mt-1">
+      <div class="flex items-center justify-center h-10 rounded-xl bg-gray-200 shadow-inner mt-1 gap-3 text-xs font-semibold">
         <a href="/" class="text-gray-600 hover:text-brand-blue transition-colors">Profiling Tool</a>
-        <span class="text-gray-300">|</span>
+        <span class="text-gray-400">|</span>
         <a href="/#dashboard" class="text-gray-600 hover:text-brand-blue transition-colors">Dashboard</a>
       </div>
       <?php endif; ?>
