@@ -9464,6 +9464,21 @@
         json.data.forEach(r => { payoutMap[r.aruga_id] = r; });
       }
 
+      const sigRes = await authFetch('/api/admin-router.php?action=get-signatories');
+      const sigJson = await sigRes.json();
+      const normRegion = s => (s || '').trim().toLowerCase();
+      const SIGNATORY_FUNCTION_ORDER = ['certified true and correct by', 'approved by'];
+      const normFunction = s => (s || '').trim().toLowerCase();
+      const matchedSignatories = (sigJson.success && sigJson.data ? sigJson.data : [])
+        .filter(s => s.signatory_status === 'active' && (!region || normRegion(s.signatory_region) === normRegion(region)))
+        .filter(s => SIGNATORY_FUNCTION_ORDER.includes(normFunction(s.signatory_function)))
+        .reduce((acc, s) => {
+          const fn = normFunction(s.signatory_function);
+          if (!acc.some(x => normFunction(x.signatory_function) === fn)) acc.push(s);
+          return acc;
+        }, [])
+        .sort((a, b) => SIGNATORY_FUNCTION_ORDER.indexOf(normFunction(a.signatory_function)) - SIGNATORY_FUNCTION_ORDER.indexOf(normFunction(b.signatory_function)));
+
       const now = new Date();
       const monthSelect = document.getElementById('payroll-month-select');
       const selectedMonth = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : now.getMonth();
@@ -9485,7 +9500,9 @@
         uniqueBen = [...uniqueBen].sort((a, b) => lastName(a).localeCompare(lastName(b)));
       }
 
-      const rowsHtml = uniqueBen.map((r, i) => {
+      const ROWS_PER_PAGE = 20;
+      const rowHeightPx = 22;
+      const allRows = uniqueBen.map((r, i) => {
         const pd = payoutMap[r.aruga_id] || {};
         const beneficiaryName = (pd.beneficiary_name || r.name || '').toUpperCase();
         const claimantName = (pd.claimant_name || '').toUpperCase();
@@ -9498,34 +9515,60 @@
           <td></td>
           <td></td>
         </tr>`;
-      }).join('');
+      });
+
+      const tableHead = `
+        <thead>
+          <tr>
+            <th style="width:5%;">NO.</th>
+            <th style="width:16%;">PROJECT ARUGA<br>ID NO.</th>
+            <th style="width:20%;">BENEFICIARY'S NAME</th>
+            <th style="width:20%;">AUTHORIZED CLAIMANT</th>
+            <th style="width:11%;">AMOUNT<br>RECEIVED</th>
+            <th style="width:14%;">DATE<br>RECEIVED</th>
+            <th style="width:14%;">CLAIMANT'S<br>SIGNATURE</th>
+          </tr>
+        </thead>`;
+
+      const signatureRowHtml = matchedSignatories.length ? `
+        <tr style="height:auto;border:none;">
+          <td colspan="7" style="border:none;padding-top:0.5in;">
+            <div class="sig-block" style="display:flex;justify-content:space-around;">
+              ${matchedSignatories.map(s => `
+              <div class="sig-col" style="text-align:center;width:${normFunction(s.signatory_function) === 'certified true and correct by' ? 60 : 40}%;padding:0 10px;">
+                <div style="font-size:0.85em;height:0.9in;text-align:left;${normFunction(s.signatory_function) === 'certified true and correct by' ? 'width:78%;' : 'text-transform:uppercase;'}">${normFunction(s.signatory_function) === 'certified true and correct by' ? `I hereby certify on my official oath that this Report of Cash Disbursements is a full, true and correct statement of all cash disbursements during the period of <strong>${monthYear}</strong> actually made by me in payment for obligations shown in pertinent disbursement payroll.` : `${s.signatory_function}:`}</div>
+                <div style="width:2.5in;margin-left:0;margin-right:auto;">
+                  <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
+                  <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
+                  <div>${s.signatory_position}</div>
+                </div>
+              </div>`).join('')}
+            </div>
+          </td>
+        </tr>` : '';
 
       const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const isNCR = normRegion(region) === normRegion('NCR (National Capital Region)');
+      const buildFooterHtml = (pageNum, totalPages) => `
+      <div class="pp-footer">
+        <div class="ftr-text">${(isNCR && pageNum === totalPages) ? '' : `This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}`}</div>
+        <div class="ftr-page">Page <strong>${pageNum}</strong> of <strong>${totalPages}</strong></div>
+      </div>`;
+
+      const pages = [];
+      for (let p = 0; p < allRows.length; p += ROWS_PER_PAGE) {
+        const pageRows = allRows.slice(p, p + ROWS_PER_PAGE).join('');
+        pages.push({ rows: pageRows });
+      }
+      if (!pages.length) pages.push({ rows: '' });
+
       const dswdLogoUrl = window.location.origin + '/images/form-logo.webp';
       const bpLogoUrl = window.location.origin + '/images/bagong-pilipinas.webp';
+      const totalPages = pages.length;
 
-      body.innerHTML = `
-        <style>
-          #payroll-print-body .pp-sheet { background:#fff; width:297mm; min-height:210mm; margin:0 auto; padding:12mm; box-shadow:0 1px 4px rgba(0,0,0,0.15); font-family:Arial, sans-serif; font-size:9pt; color:#000; }
-          #payroll-print-body .hdr-inner { display:flex; align-items:center; gap:10px; }
-          #payroll-print-body .hdr-logo { display:flex; align-items:center; gap:10px; }
-          #payroll-print-body .hdr-logo img { height:50px; width:auto; object-fit:contain; }
-          #payroll-print-body .hdr-text-wrap { flex:1; display:flex; align-items:center; justify-content:flex-end; text-align:right; }
-          #payroll-print-body .hdr-text { text-align:center; font-size:9pt; line-height:1.4; margin-left:auto; }
-          #payroll-print-body .hdr-rule { border:none; border-top:2px solid #000; margin-top:3px; }
-          #payroll-print-body .hdr-subtitle { text-align:center; font-weight:bold; font-size:10pt; margin-top:8px; line-height:1.4; }
-          #payroll-print-body table { width:100%; border-collapse:collapse; margin-top:10px; }
-          #payroll-print-body th, #payroll-print-body td { border:1px solid #000; padding:3px 5px; font-size:8pt; vertical-align:middle; }
-          #payroll-print-body th { font-weight:bold; text-align:center; background:#fff; }
-          #payroll-print-body .pp-footer { display:flex; justify-content:space-between; align-items:center; margin-top:6mm; font-size:7.5pt; color:#555; }
-          @media print {
-            body * { visibility:hidden; }
-            #payroll-print-body, #payroll-print-body * { visibility:visible; }
-            #payroll-print-body { position:absolute; top:0; left:0; width:100%; }
-            #payroll-print-body .pp-sheet { box-shadow:none; margin:0; width:auto; }
-            @page { size: A4 landscape; margin:0; }
-          }
-        </style>
+      const sheetsHtml = pages.map((pg, idx) => {
+        const isLast = idx === pages.length - 1;
+        return `
         <div class="pp-sheet">
           <div class="hdr-inner">
             <div class="hdr-logo">
@@ -9546,26 +9589,43 @@
             <div>${monthYear}</div>
           </div>
           <table>
-            <thead>
-              <tr>
-                <th style="width:5%;">NO.</th>
-                <th style="width:16%;">PROJECT ARUGA<br>ID NO.</th>
-                <th style="width:20%;">BENEFICIARY'S NAME</th>
-                <th style="width:20%;">AUTHORIZED CLAIMANT</th>
-                <th style="width:11%;">AMOUNT<br>RECEIVED</th>
-                <th style="width:14%;">DATE<br>RECEIVED</th>
-                <th style="width:14%;">CLAIMANT'S<br>SIGNATURE</th>
-              </tr>
-            </thead>
+            ${tableHead}
             <tbody>
-              ${rowsHtml}
+              ${pg.rows}
+              ${isLast ? signatureRowHtml : ''}
             </tbody>
           </table>
-          <div class="pp-footer">
-            <div>This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</div>
-            <div>Page <strong>1</strong> of <strong>1</strong></div>
-          </div>
+          ${buildFooterHtml(idx + 1, totalPages)}
         </div>`;
+      }).join('<div class="pp-sheet-gap"></div>');
+
+      body.innerHTML = `
+        <style>
+          #payroll-print-body .pp-sheet-gap { height:10mm; }
+          #payroll-print-body .pp-sheet { background:#fff; width:297mm; min-height:210mm; margin:0 auto; padding:12mm; box-shadow:0 1px 4px rgba(0,0,0,0.15); font-family:Arial, sans-serif; font-size:9pt; color:#000; display:flex; flex-direction:column; box-sizing:border-box; }
+          #payroll-print-body .hdr-inner { display:flex; align-items:center; gap:10px; }
+          #payroll-print-body .hdr-logo { display:flex; align-items:center; gap:10px; }
+          #payroll-print-body .hdr-logo img { height:50px; width:auto; object-fit:contain; }
+          #payroll-print-body .hdr-text-wrap { flex:1; display:flex; align-items:center; justify-content:flex-end; text-align:right; }
+          #payroll-print-body .hdr-text { text-align:center; font-size:9pt; line-height:1.4; margin-left:auto; }
+          #payroll-print-body .hdr-rule { border:none; border-top:2px solid #000; margin-top:3px; }
+          #payroll-print-body .hdr-subtitle { text-align:center; font-weight:bold; font-size:10pt; margin-top:8px; line-height:1.4; }
+          #payroll-print-body table { width:100%; border-collapse:collapse; margin-top:10px; }
+          #payroll-print-body th, #payroll-print-body td { border:1px solid #000; padding:3px 5px; font-size:8pt; vertical-align:middle; }
+          #payroll-print-body th { font-weight:bold; text-align:center; background:#fff; }
+          #payroll-print-body table tr { height:${rowHeightPx}px; }
+          #payroll-print-body .pp-footer { display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:6mm; font-size:7.5pt; color:#555; }
+          @media print {
+            body * { visibility:hidden; }
+            #payroll-print-body, #payroll-print-body * { visibility:visible; }
+            #payroll-print-body { position:absolute; top:0; left:0; width:100%; margin:0; padding:0; }
+            #payroll-print-body .pp-sheet-gap { display:none; }
+            #payroll-print-body .pp-sheet { box-shadow:none; margin:0; width:auto; break-after:page; page-break-after:always; }
+            #payroll-print-body .pp-sheet:last-child { break-after:auto; page-break-after:auto; }
+            @page { size: A4 landscape; margin:0; }
+          }
+        </style>
+        ${sheetsHtml}`;
     } catch(e) {
       console.error('Print as text error:', e);
       body.innerHTML = `<div style="text-align:center;padding:3rem;color:#dc2626;font-size:0.875rem;">Failed to load: ${e.message}</div>`;
