@@ -78,8 +78,8 @@
       background: #fff;
       vertical-align: middle;
     }
-    .dsa-dot.on { background: #16a34a; border-color: #16a34a; }
-    .dsa-dot.missed { background: #fee2e2; border-color: #dc2626; }
+    .dsa-dot.on { background: var(--blue); border-color: var(--blue); }
+    .dsa-dot.missed { background: #f3f4f6; border-color: #d1d5db; }
     .dsa-reason-select {
       outline: none;
       transition: border-color 0.15s, box-shadow 0.15s;
@@ -622,7 +622,7 @@
             </div>
 
             <div style="margin-bottom:0.9rem;">
-              <label class="settings-label">Release date</label>
+              <label class="settings-label">Payout Date</label>
               <input type="date" id="dsa-rel-date" class="settings-input">
             </div>
 
@@ -642,9 +642,12 @@
 
           <!-- Step 2 -->
           <div id="dsa-step-2" style="display:none;">
-            <div style="font-size:0.8125rem;color:var(--gray-600);margin-bottom:0.75rem;">Everyone in this region is marked <strong>paid</strong>. List only those who did <strong>not</strong> receive it, one ARUGA ID per line.</div>
-            <textarea id="dsa-rel-exceptions" rows="5" class="settings-input" placeholder="ARUGA-2026-NCR-0991&#10;ARUGA-2026-NCR-0992" style="font-family:monospace;resize:vertical;"></textarea>
-            <button class="btn btn-secondary btn-sm" onclick="dsaResolveExceptions()" style="margin:0.6rem 0;">Check IDs</button>
+            <div style="font-size:0.8125rem;color:var(--gray-600);margin-bottom:0.75rem;">Everyone in this region is marked <strong>paid</strong>. Add those who did <strong>not</strong> receive it, by name or ARUGA ID.</div>
+            <div style="display:flex;gap:0.5rem;position:relative;">
+              <input type="text" id="dsa-rel-exceptions" class="settings-input" placeholder="Search name or ARUGA ID…" autocomplete="off" style="flex:1;" oninput="dsaFilterRosterSuggestions()" onkeydown="if(event.key==='Enter'){event.preventDefault();dsaResolveExceptions();}" onblur="setTimeout(() => document.getElementById('dsa-rel-suggestions').style.display='none', 150)">
+              <button class="btn btn-secondary btn-sm" onclick="dsaResolveExceptions()" style="flex-shrink:0;">Add</button>
+              <ul id="dsa-rel-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:4.5rem;max-height:200px;overflow-y:auto;z-index:20;background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.1);list-style:none;margin:0;padding:0.25rem 0;"></ul>
+            </div>
             <div style="border-bottom:1px solid var(--gray-100);margin-bottom:0.75rem;"></div>
             <div id="dsa-resolved-list" style="margin-bottom:0.75rem;"></div>
             <div id="dsa-rel-summary" style="background:var(--gray-50);border-radius:0.5rem;padding:0.75rem;font-size:0.8125rem;margin-bottom:0.9rem;"></div>
@@ -661,7 +664,7 @@
         </div>
         <div id="dsa-step2-footer" style="display:none;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);flex-shrink:0;">
           <button onclick="dsaBackToStep1()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Back</button>
-          <button onclick="dsaSaveRelease()" id="dsa-save-btn" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Save &amp; Lock</button>
+          <button onclick="dsaSaveRelease()" id="dsa-save-btn" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Save</button>
         </div>
       </div>
     </div>
@@ -3346,10 +3349,7 @@
 
   function dsaRow(r) {
     const totalPaid = dsaTotalPaid[r.aruga_id] ?? 0;
-    const standing = dsaStanding[r.aruga_id];
-    const totalHtml = standing
-      ? `<span style="font-size:0.65rem;color:#9ca3af;text-transform:capitalize;">${standing}</span>`
-      : `<span style="font-weight:700;color:${totalPaid > 0 ? '#16a34a' : '#9ca3af'};">${totalPaid}</span>`;
+    const totalHtml = `<span style="font-weight:700;color:${totalPaid > 0 ? 'var(--blue)' : '#9ca3af'};">${totalPaid}</span>`;
     return `<tr class="table-row-hover">
       <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
       ${DSA_MONTHS.map((m, mi) => `<td style="text-align:center;">${dsaCircleHtml(r.aruga_id, mi)}</td>`).join('')}
@@ -3420,6 +3420,32 @@
   // ── Record DSA Release modal ─────────────────────────────────────
   let dsaResolved = [];      // [{aruga_id, name, reason}]
   let dsaRosterCount = 0;
+  let dsaRelRoster = [];     // [{aruga_id, name}] — this release's region roster, for name/ID search
+
+  async function dsaLoadRelRoster() {
+    const region = document.getElementById('dsa-rel-region').value;
+    dsaRelRoster = [];
+    if (!region) return;
+    const res = await authFetch('/api/payroll-router.php?action=dsa-grid&year=' + dsaYear + '&region=' + encodeURIComponent(region));
+    const json = await res.json();
+    if (json.success) dsaRelRoster = (json.data || []).map(r => ({ aruga_id: r.aruga_id, name: r.name }));
+  }
+
+  function dsaFilterRosterSuggestions() {
+    const list = document.getElementById('dsa-rel-suggestions');
+    const q = document.getElementById('dsa-rel-exceptions').value.trim().toLowerCase();
+    if (!q) { list.style.display = 'none'; list.innerHTML = ''; return; }
+    const already = new Set(dsaResolved.map(r => r.aruga_id));
+    const matches = dsaRelRoster
+      .filter(r => !already.has(r.aruga_id) && (r.name.toLowerCase().includes(q) || r.aruga_id.toLowerCase().includes(q)))
+      .slice(0, 8);
+    if (!matches.length) { list.style.display = 'none'; list.innerHTML = ''; return; }
+    list.innerHTML = matches.map(r => `
+      <li style="padding:0.5rem 0.75rem;font-size:0.75rem;cursor:pointer;" onmouseover="this.style.background='var(--gray-50,#f9fafb)'" onmouseout="this.style.background='transparent'" onmousedown="event.preventDefault();dsaResolveExceptions('${r.aruga_id}')">
+        <strong style="text-transform:uppercase;">${r.name}</strong><br><span style="color:#9ca3af;font-size:0.7rem;">${r.aruga_id}</span>
+      </li>`).join('');
+    list.style.display = 'block';
+  }
 
   function openDsaReleaseModal() {
     const regionSel = document.getElementById('dsa-rel-region');
@@ -3434,12 +3460,14 @@
     document.getElementById('dsa-rel-exceptions').value = '';
     document.getElementById('dsa-resolved-list').innerHTML = '';
     document.getElementById('dsa-rel-summary').innerHTML = '';
+    document.getElementById('dsa-rel-suggestions').style.display = 'none';
     dsaResolved = [];
     dsaBuildMonthChecklist();
+    dsaLoadRelRoster();
     // The checklist reflects one specific region's coverage, so it must
     // rebuild whenever the officer picks a different region here — it
     // cannot reuse whatever region happened to be loaded on the grid behind it.
-    regionSel.onchange = dsaBuildMonthChecklist;
+    regionSel.onchange = () => { dsaBuildMonthChecklist(); dsaLoadRelRoster(); };
     document.getElementById('dsa-rel-amount').oninput = dsaRenderSummary;
     document.getElementById('dsa-rel-months').onchange = dsaRenderSummary;
     dsaBackToStep1();
@@ -3539,21 +3567,7 @@
     dsaRenderSummary();
   }
 
-  async function dsaResolveExceptions() {
-    const ids = document.getElementById('dsa-rel-exceptions').value
-      .split(/[\n,]/).map(s => s.trim()).filter(Boolean);
-    if (!ids.length) { dsaResolved = []; document.getElementById('dsa-resolved-list').innerHTML = ''; dsaRenderSummary(); return; }
-
-    const res = await authFetch('/api/payroll-router.php?action=dsa-resolve-ids', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ region: document.getElementById('dsa-rel-region').value, aruga_ids: ids })
-    });
-    const json = await res.json();
-    if (!json.success) { alert(json.message || 'Lookup failed.'); return; }
-
-    dsaResolved = json.data.found.map(f => ({ ...f, reason: 'not_claimed' }));
-
+  function dsaRenderResolvedList() {
     let html = dsaResolved.map((f, i) => `
       <div style="display:flex;align-items:center;gap:0.5rem;padding:0.55rem 0;border-bottom:1px solid var(--gray-100);font-size:0.75rem;">
         <div style="flex:1;"><strong style="text-transform:uppercase;">${f.name}</strong><br><span style="color:#9ca3af;">${f.aruga_id}</span></div>
@@ -3565,16 +3579,58 @@
           </select>
           <span class="material-symbols-outlined" style="position:absolute;right:0.4rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
         </div>
+        <button type="button" onclick="dsaRemoveResolved(${i})" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;flex-shrink:0;padding:0.25rem;" title="Remove"><span class="material-symbols-outlined" style="font-size:1.1rem;">close</span></button>
       </div>`).join('');
-
-    if (json.data.unknown.length) {
-      html += `<div style="font-size:0.72rem;color:#dc2626;margin-top:0.5rem;">Not found: ${json.data.unknown.join(', ')}</div>`;
-    }
-    if (json.data.wrong_region.length) {
-      html += `<div style="font-size:0.72rem;color:#b45309;margin-top:0.25rem;">Not in this region: ${json.data.wrong_region.join(', ')}</div>`;
-    }
-
     document.getElementById('dsa-resolved-list').innerHTML = html;
+  }
+
+  function dsaRemoveResolved(i) {
+    dsaResolved.splice(i, 1);
+    dsaRenderResolvedList();
+    dsaRenderSummary();
+  }
+
+  async function dsaResolveExceptions(directId) {
+    const input = document.getElementById('dsa-rel-exceptions');
+    const query = (directId || input.value).trim();
+    if (!query) return;
+
+    // If the typed text matches exactly one roster entry by name or ID, use it directly.
+    let id = directId;
+    if (!id) {
+      const q = query.toLowerCase();
+      const byId = dsaRelRoster.find(r => r.aruga_id.toLowerCase() === q);
+      const nameMatches = dsaRelRoster.filter(r => r.name.toLowerCase().includes(q));
+      if (byId) id = byId.aruga_id;
+      else if (nameMatches.length === 1) id = nameMatches[0].aruga_id;
+      else id = query; // fall back to treating it as a raw ARUGA ID for the resolver
+    }
+
+    if (dsaResolved.some(r => r.aruga_id.toUpperCase() === id.toUpperCase())) {
+      input.value = '';
+      document.getElementById('dsa-rel-suggestions').style.display = 'none';
+      return;
+    }
+
+    const res = await authFetch('/api/payroll-router.php?action=dsa-resolve-ids', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ region: document.getElementById('dsa-rel-region').value, aruga_ids: [id] })
+    });
+    const json = await res.json();
+    if (!json.success) { alert(json.message || 'Lookup failed.'); return; }
+
+    if (json.data.found.length) {
+      dsaResolved.push({ ...json.data.found[0], reason: 'not_claimed' });
+    } else if (json.data.wrong_region.length) {
+      alert('Not in this region: ' + json.data.wrong_region.join(', '));
+    } else {
+      alert('Not found: ' + id);
+    }
+
+    input.value = '';
+    document.getElementById('dsa-rel-suggestions').style.display = 'none';
+    dsaRenderResolvedList();
     dsaRenderSummary();
   }
 
