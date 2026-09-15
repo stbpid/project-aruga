@@ -74,12 +74,12 @@
       width: 1.1rem;
       height: 1.1rem;
       border-radius: 50%;
-      border: 1.5px solid #d1d5db;
-      background: #fff;
+      border: none;
+      background: #e5e7eb;
       vertical-align: middle;
     }
-    .dsa-dot.on { background: var(--blue); border-color: var(--blue); }
-    .dsa-dot.missed { background: #e5e7eb; border-color: #9ca3af; }
+    .dsa-dot.on { background: var(--blue); }
+    .dsa-dot.missed { background: #9ca3af; }
     .dsa-reason-select {
       outline: none;
       transition: border-color 0.15s, box-shadow 0.15s;
@@ -448,75 +448,56 @@
         </div>
       </div><!-- /dsa-list-view -->
 
-      <!-- Record DSA Release Modal -->
+      <!-- Record DSA Release Panel -->
       <div id="dsa-release-modal" style="display:none;">
-        <div style="background:white;border-radius:1rem;width:100%;max-width:640px;box-shadow:0 2px 8px rgba(0,0,0,0.06);overflow:hidden;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="closeDsaReleaseModal()" style="display:flex;align-items:center;gap:0.3rem;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>Back</button>
+          <div style="flex:1;min-width:0;">
+            <div class="page-title" style="margin:0;">Record DSA Release</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;">
+            <button class="btn btn-primary btn-sm" id="dsa-save-btn" onclick="dsaSaveRelease()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save</button>
+          </div>
+        </div>
 
-          <!-- Header -->
-          <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:0.75rem;">
-            <button onclick="closeDsaReleaseModal()" class="btn btn-secondary btn-sm" style="display:flex;align-items:center;gap:0.3rem;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>Back</button>
-            <div>
-              <div style="font-size:1rem;font-weight:800;color:var(--dark);">Record DSA Release</div>
-              <div style="font-size:0.75rem;color:var(--gray-400);margin-top:0.1rem;" id="dsa-modal-step-label">Step 1 of 2 — Release details</div>
+        <div class="card">
+          <div style="margin-bottom:0.9rem;">
+            <label class="settings-label">Region</label>
+            <div style="position:relative;">
+              <select id="dsa-rel-region" class="settings-input" style="appearance:none;-webkit-appearance:none;padding-right:2.25rem;"></select>
+              <span class="material-symbols-outlined" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
             </div>
           </div>
 
-          <!-- Body -->
-          <div style="padding:1.25rem 1.5rem;">
-
-            <!-- Step 1 -->
-            <div id="dsa-step-1">
-              <div style="margin-bottom:0.9rem;">
-                <label class="settings-label">Region</label>
-                <div style="position:relative;">
-                  <select id="dsa-rel-region" class="settings-input" style="appearance:none;-webkit-appearance:none;padding-right:2.25rem;"></select>
-                  <span class="material-symbols-outlined" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
-                </div>
-              </div>
-
-              <div style="margin-bottom:0.9rem;">
-                <label class="settings-label">Payout Date</label>
-                <input type="date" id="dsa-rel-date" class="settings-input">
-              </div>
-
-              <div style="margin-bottom:0.9rem;">
-                <label class="settings-label">Months covered</label>
-                <div id="dsa-rel-months" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;padding:0.75rem;background:var(--gray-50);border-radius:0.5rem;"></div>
-              </div>
-
-              <div style="margin-bottom:0.5rem;">
-                <label class="settings-label">Amount per beneficiary per month</label>
-                <input type="number" id="dsa-rel-amount" class="settings-input" value="2000" readonly disabled style="background:var(--gray-50);color:var(--gray-500);cursor:not-allowed;">
-                <div class="settings-hint" style="margin-top:0.3rem;">Fixed rate — set by DSWD policy, not editable here.</div>
-              </div>
-
-              <div id="dsa-step1-error" style="display:none;font-size:0.75rem;color:#dc2626;font-weight:600;padding-top:0.5rem;"></div>
-            </div>
-
-            <!-- Step 2 -->
-            <div id="dsa-step-2" style="display:none;">
-              <div style="font-size:0.8125rem;color:var(--gray-600);margin-bottom:0.75rem;">Everyone in this region is marked <strong>paid</strong>. Add those who did <strong>not</strong> receive it, by name or ARUGA ID.</div>
-              <div style="display:flex;gap:0.5rem;position:relative;">
-                <input type="text" id="dsa-rel-exceptions" class="settings-input" placeholder="Search name or ARUGA ID…" autocomplete="off" style="flex:1;" oninput="dsaFilterRosterSuggestions()" onkeydown="if(event.key==='Enter'){event.preventDefault();dsaResolveExceptions();}" onblur="setTimeout(() => document.getElementById('dsa-rel-suggestions').style.display='none', 150)">
-                <ul id="dsa-rel-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;max-height:200px;overflow-y:auto;z-index:20;background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.1);list-style:none;margin:0;padding:0.25rem 0;"></ul>
-              </div>
-              <div style="border-bottom:1px solid var(--gray-100);margin-bottom:0.75rem;"></div>
-              <div id="dsa-resolved-list" style="margin-bottom:0.75rem;"></div>
-              <div id="dsa-rel-summary" style="background:var(--gray-50);border-radius:0.5rem;padding:0.75rem;font-size:0.8125rem;margin-bottom:0.9rem;"></div>
-              <div style="border-bottom:1px solid var(--gray-100);margin-bottom:0.9rem;"></div>
-              <div id="dsa-step2-error" style="display:none;font-size:0.75rem;color:#dc2626;font-weight:600;padding-top:0.25rem;"></div>
-            </div>
+          <div style="margin-bottom:0.9rem;">
+            <label class="settings-label">Payout Date</label>
+            <input type="date" id="dsa-rel-date" class="settings-input">
           </div>
 
-          <!-- Footer -->
-          <div id="dsa-step1-footer" style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);">
-            <button onclick="closeDsaReleaseModal()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
-            <button onclick="dsaGotoStep2()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1rem 0;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Next</button>
+          <div style="margin-bottom:0.9rem;">
+            <label class="settings-label">Months covered</label>
+            <div id="dsa-rel-months" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;padding:0.75rem;background:var(--gray-50);border-radius:0.5rem;"></div>
           </div>
-          <div id="dsa-step2-footer" style="display:none;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);">
-            <button onclick="dsaBackToStep1()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Back</button>
-            <button onclick="dsaSaveRelease()" id="dsa-save-btn" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1rem 0;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Save</button>
+
+          <div style="margin-bottom:0.9rem;">
+            <label class="settings-label">Amount per beneficiary per month</label>
+            <input type="number" id="dsa-rel-amount" class="settings-input" value="2000" readonly disabled style="background:var(--gray-50);color:var(--gray-500);cursor:not-allowed;">
+            <div class="settings-hint" style="margin-top:0.3rem;">Fixed rate — set by DSWD policy, not editable here.</div>
           </div>
+
+          <div id="dsa-step1-error" style="display:none;font-size:0.75rem;color:#dc2626;font-weight:600;margin-bottom:0.9rem;"></div>
+
+          <div style="border-top:1px solid var(--gray-100);margin:1.25rem 0;"></div>
+
+          <div style="font-size:0.8125rem;color:var(--gray-600);margin-bottom:0.75rem;">Everyone in this region is marked <strong>paid</strong>. Add those who did <strong>not</strong> receive it, by name or ARUGA ID.</div>
+          <div style="display:flex;gap:0.5rem;position:relative;">
+            <input type="text" id="dsa-rel-exceptions" class="settings-input" placeholder="Search name or ARUGA ID…" autocomplete="off" style="flex:1;" oninput="dsaFilterRosterSuggestions()" onkeydown="if(event.key==='Enter'){event.preventDefault();dsaResolveExceptions();}" onblur="setTimeout(() => document.getElementById('dsa-rel-suggestions').style.display='none', 150)">
+            <ul id="dsa-rel-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;max-height:200px;overflow-y:auto;z-index:20;background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.1);list-style:none;margin:0;padding:0.25rem 0;"></ul>
+          </div>
+          <div style="border-bottom:1px solid var(--gray-100);margin:0.75rem 0;"></div>
+          <div id="dsa-resolved-list" style="margin-bottom:0.75rem;"></div>
+          <div id="dsa-rel-summary" style="background:var(--gray-50);border-radius:0.5rem;padding:0.75rem;font-size:0.8125rem;margin-bottom:0.5rem;"></div>
+          <div id="dsa-step2-error" style="display:none;font-size:0.75rem;color:#dc2626;font-weight:600;padding-top:0.25rem;"></div>
         </div>
       </div><!-- /dsa-release-modal -->
 
@@ -3244,7 +3225,11 @@
 
   async function loadAllBeneficiaries() {
     if (allBenLoaded) return;
-    document.getElementById('all-ben-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    document.getElementById('all-ben-tbody').innerHTML =
+      `<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">
+        <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
+        &nbsp;Loading beneficiaries…
+      </td></tr>`;
     try {
       const json = await (await authFetch('/api/beneficiaries-router.php?action=all&limit=10000&offset=0')).json();
       allBenData = json.success ? json.data : [];
@@ -3476,15 +3461,18 @@
     document.getElementById('dsa-rel-summary').innerHTML = '';
     document.getElementById('dsa-rel-suggestions').style.display = 'none';
     dsaResolved = [];
+    document.getElementById('dsa-step1-error').style.display = 'none';
+    document.getElementById('dsa-step2-error').style.display = 'none';
     dsaBuildMonthChecklist();
     dsaLoadRelRoster();
-    // The checklist reflects one specific region's coverage, so it must
-    // rebuild whenever the officer picks a different region here — it
-    // cannot reuse whatever region happened to be loaded on the grid behind it.
-    regionSel.onchange = () => { dsaBuildMonthChecklist(); dsaLoadRelRoster(); };
+    dsaRefreshRosterCount();
+    // The checklist and roster reflect one specific region's coverage, so
+    // they must rebuild whenever the officer picks a different region here —
+    // they cannot reuse whatever region happened to be loaded on the grid
+    // behind this panel.
+    regionSel.onchange = () => { dsaBuildMonthChecklist(); dsaLoadRelRoster(); dsaRefreshRosterCount(); };
     document.getElementById('dsa-rel-amount').oninput = dsaRenderSummary;
     document.getElementById('dsa-rel-months').onchange = dsaRenderSummary;
-    dsaBackToStep1();
     document.getElementById('dsa-list-view').style.display = 'none';
     document.getElementById('dsa-release-modal').style.display = 'block';
   }
@@ -3538,42 +3526,11 @@
     return Array.from(document.querySelectorAll('#dsa-rel-months input:checked')).map(i => i.value);
   }
 
-  function dsaBackToStep1() {
-    document.getElementById('dsa-step-1').style.display = 'block';
-    document.getElementById('dsa-step-2').style.display = 'none';
-    document.getElementById('dsa-step1-footer').style.display = 'grid';
-    document.getElementById('dsa-step2-footer').style.display = 'none';
-    document.getElementById('dsa-modal-step-label').textContent = 'Step 1 of 2 — Release details';
-  }
-
-  async function dsaGotoStep2() {
-    const err = document.getElementById('dsa-step1-error');
+  // Roster count must reflect the region selected in THIS panel, not
+  // whichever region happens to be loaded on the grid behind it.
+  async function dsaRefreshRosterCount() {
     const region = document.getElementById('dsa-rel-region').value;
-    const months = dsaSelectedMonths();
-    if (!region) {
-      err.textContent = 'Select a region.';
-      err.style.display = 'block';
-      return;
-    }
-    if (!months.length) {
-      err.textContent = 'Select at least one month.';
-      err.style.display = 'block';
-      return;
-    }
-    if (!document.getElementById('dsa-rel-date').value) {
-      err.textContent = 'Enter the release date.';
-      err.style.display = 'block';
-      return;
-    }
-    err.style.display = 'none';
-    document.getElementById('dsa-step-1').style.display = 'none';
-    document.getElementById('dsa-step-2').style.display = 'block';
-    document.getElementById('dsa-step1-footer').style.display = 'none';
-    document.getElementById('dsa-step2-footer').style.display = 'grid';
-    document.getElementById('dsa-modal-step-label').textContent = 'Step 2 of 2 — Who did not receive it';
-
-    // Roster count must reflect the region selected in THIS modal, not
-    // whichever region happens to be loaded on the grid behind it.
+    if (!region) { dsaRosterCount = 0; dsaRenderSummary(); return; }
     const res = await authFetch('/api/payroll-router.php?action=dsa-grid&year=' + dsaYear
       + '&region=' + encodeURIComponent(region));
     const json = await res.json();
@@ -3663,12 +3620,20 @@
 
   async function dsaSaveRelease() {
     const btn = document.getElementById('dsa-save-btn');
+    const err1 = document.getElementById('dsa-step1-error');
     const err = document.getElementById('dsa-step2-error');
+    const region = document.getElementById('dsa-rel-region').value;
     const months = dsaSelectedMonths();
+
+    err1.style.display = 'none';
+    err.style.display = 'none';
+    if (!region) { err1.textContent = 'Select a region.'; err1.style.display = 'block'; return; }
+    if (!months.length) { err1.textContent = 'Select at least one month.'; err1.style.display = 'block'; return; }
+    if (!document.getElementById('dsa-rel-date').value) { err1.textContent = 'Enter the payout date.'; err1.style.display = 'block'; return; }
+
     if (!confirm(`Save and lock this release? ${months.length} month(s) will be closed for editing.`)) return;
 
     btn.disabled = true; btn.textContent = 'Saving…';
-    err.style.display = 'none';
     try {
       const res = await authFetch('/api/payroll-router.php?action=dsa-record-release', {
         method: 'POST',
@@ -3693,7 +3658,7 @@
       await loadDsaRegionSummary();
       alert(`Release saved. ${json.data.paid_count} paid, ${json.data.missed_count} not paid. Total ₱${json.data.total_amount.toLocaleString()}.`);
     } finally {
-      btn.disabled = false; btn.textContent = 'Save & Lock';
+      btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save';
     }
   }
 
