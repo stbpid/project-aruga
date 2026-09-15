@@ -410,7 +410,14 @@
             <button class="btn btn-primary btn-sm" onclick="window.print()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">print</span>Print</button>
           </div>
         </div>
-        <div id="payroll-print-body"></div>
+        <div id="payroll-print-scroll" style="position:relative;overflow:auto;">
+          <div id="payroll-print-body"></div>
+          <div id="payroll-zoom-controls" style="position:sticky;bottom:1rem;left:100%;transform:translateX(-100%);display:flex;align-items:center;gap:0.25rem;background:#fff;border:1px solid #e5e7eb;border-radius:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.15);padding:0.25rem;width:fit-content;z-index:10;">
+            <button class="btn btn-secondary btn-sm" onclick="payrollZoomOut()" style="padding:0.3rem 0.5rem;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:1.1rem;">zoom_out</span></button>
+            <span id="payroll-zoom-label" style="font-size:0.72rem;color:var(--gray-500);min-width:2.5rem;text-align:center;">100%</span>
+            <button class="btn btn-secondary btn-sm" onclick="payrollZoomIn()" style="padding:0.3rem 0.5rem;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:1.1rem;">zoom_in</span></button>
+          </div>
+        </div>
       </div>
 
     </div><!-- /view-beneficiaries -->
@@ -9437,10 +9444,44 @@
   }
 
   // ── Payroll Print (Text) View ──────────────────────────────────
+  let payrollZoomLevel = 1;
+  const PAYROLL_ZOOM_MIN = 0.5;
+  const PAYROLL_ZOOM_MAX = 2;
+
   function closePayrollPrintView() {
     document.getElementById('adm-ben-list-view').style.display = '';
     document.getElementById('adm-payroll-print-view').style.display = 'none';
     document.getElementById('payroll-print-body').innerHTML = '';
+  }
+
+  function applyPayrollZoom() {
+    const scroll = document.getElementById('payroll-print-scroll');
+    const body = document.getElementById('payroll-print-body');
+    if (!scroll || !body) return;
+    const wraps = body.querySelectorAll('.pp-scale-wrap');
+    wraps.forEach(wrap => {
+      const sheet = wrap.querySelector('.pp-sheet');
+      if (!sheet) return;
+      const availableWidth = scroll.clientWidth - 1;
+      const sheetWidthPx = sheet.offsetWidth;
+      const fitScale = Math.min(1, availableWidth / sheetWidthPx);
+      const scale = fitScale * payrollZoomLevel;
+      sheet.style.transform = `scale(${scale})`;
+      wrap.style.width = (sheetWidthPx * scale) + 'px';
+      wrap.style.height = (sheet.offsetHeight * scale) + 'px';
+    });
+    const label = document.getElementById('payroll-zoom-label');
+    if (label) label.textContent = Math.round(payrollZoomLevel * 100) + '%';
+  }
+
+  function payrollZoomIn() {
+    payrollZoomLevel = Math.min(PAYROLL_ZOOM_MAX, payrollZoomLevel + 0.1);
+    applyPayrollZoom();
+  }
+
+  function payrollZoomOut() {
+    payrollZoomLevel = Math.max(PAYROLL_ZOOM_MIN, payrollZoomLevel - 0.1);
+    applyPayrollZoom();
   }
 
   async function openPayrollPrintView() {
@@ -9575,6 +9616,7 @@
       const sheetsHtml = pages.map((pg, idx) => {
         const isLast = idx === pages.length - 1;
         return `
+        <div class="pp-scale-wrap">
         <div class="pp-sheet">
           <div class="hdr-inner">
             <div class="hdr-logo">
@@ -9602,13 +9644,16 @@
             </tbody>
           </table>
           ${buildFooterHtml(idx + 1, totalPages)}
+        </div>
         </div>`;
       }).join('<div class="pp-sheet-gap"></div>');
 
       body.innerHTML = `
         <style>
+          #payroll-print-body { width:100%; overflow-x:hidden; box-sizing:border-box; padding:0 1.5rem; }
           #payroll-print-body .pp-sheet-gap { height:10mm; }
-          #payroll-print-body .pp-sheet { background:#fff; width:297mm; min-height:210mm; margin:0 auto; padding:12mm; box-shadow:0 1px 4px rgba(0,0,0,0.15); font-family:Arial, sans-serif; font-size:9pt; color:#000; display:flex; flex-direction:column; box-sizing:border-box; }
+          #payroll-print-body .pp-scale-wrap { margin:0 auto; overflow:visible; }
+          #payroll-print-body .pp-sheet { background:#fff; width:297mm; min-height:210mm; flex-shrink:0; padding:12mm; box-shadow:0 1px 4px rgba(0,0,0,0.15); font-family:Arial, sans-serif; font-size:9pt; color:#000; display:flex; flex-direction:column; box-sizing:border-box; transform-origin:top center; }
           #payroll-print-body .hdr-inner { display:flex; align-items:center; gap:10px; }
           #payroll-print-body .hdr-logo { display:flex; align-items:center; gap:10px; }
           #payroll-print-body .hdr-logo img { height:50px; width:auto; object-fit:contain; }
@@ -9624,14 +9669,18 @@
           @media print {
             body * { visibility:hidden; }
             #payroll-print-body, #payroll-print-body * { visibility:visible; }
-            #payroll-print-body { position:absolute; top:0; left:0; width:100%; margin:0; padding:0; }
+            #payroll-print-body { position:absolute; top:0; left:0; width:100%; margin:0; padding:0 !important; overflow:visible; }
             #payroll-print-body .pp-sheet-gap { display:none; }
-            #payroll-print-body .pp-sheet { box-shadow:none; margin:0; width:auto; break-after:page; page-break-after:always; }
+            #payroll-print-body .pp-scale-wrap { overflow:visible; width:auto !important; height:auto !important; }
+            #payroll-print-body .pp-sheet { box-shadow:none; margin:0; width:auto; transform:none !important; break-after:page; page-break-after:always; }
             #payroll-print-body .pp-sheet:last-child { break-after:auto; page-break-after:auto; }
             @page { size: A4 landscape; margin:0; }
           }
         </style>
         ${sheetsHtml}`;
+
+      payrollZoomLevel = 1;
+      requestAnimationFrame(applyPayrollZoom);
     } catch(e) {
       console.error('Print as text error:', e);
       body.innerHTML = `<div style="text-align:center;padding:3rem;color:#dc2626;font-size:0.875rem;">Failed to load: ${e.message}</div>`;
