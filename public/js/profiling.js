@@ -45,6 +45,8 @@ const SLUG_TO_STEP = Object.fromEntries(Object.entries(STEP_SLUGS).map(([n, s]) 
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', async function() {
+  applyStaticI18n();
+
   // Set max date on DOB to today
   const dobEl = document.getElementById('child-dob');
   if (dobEl) dobEl.max = new Date().toISOString().split('T')[0];
@@ -233,26 +235,26 @@ function updateProgress(step) {
   const bar = document.getElementById('progress-bar');
   const indicator = document.getElementById('step-indicator');
   const label = document.getElementById('step-label');
-  
+
   const stepLabels = {
-    1: 'Pre-Qualification',
-    2: 'Respondent Profile',
-    3: 'Child Profile',
-    4: 'Family Profile',
-    5: 'Socio Economic',
-    6: 'Health',
-    7: 'Education',
-    8: 'Economic Capacity',
-    9: 'Service Availment',
-    10: 'Assessment',
-    11: 'Review'
+    1: t('steplabel_1'),
+    2: t('steplabel_2'),
+    3: t('steplabel_3'),
+    4: t('steplabel_4'),
+    5: t('steplabel_5'),
+    6: t('steplabel_6'),
+    7: t('steplabel_7'),
+    8: t('steplabel_8'),
+    9: t('steplabel_9'),
+    10: t('steplabel_10'),
+    11: t('steplabel_11')
   };
-  
+
   let percent = (step / 11) * 100;
   if (step === 11) percent = 100;
-  
+
   bar.style.width = percent + '%';
-  indicator.innerText = `STEP ${step === 11 ? 'REVIEW' : step} OF 10`;
+  indicator.innerText = step === 11 ? t('step_of_review') : t('step_of', { n: step });
   label.innerText = stepLabels[step] || '';
 }
 
@@ -324,52 +326,52 @@ function getStep1HTML() {
   return `
     <div id="step-1" class="step-section w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Pre-Qualification</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Confirm 4Ps membership to help us coordinate your benefits.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step1_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step1_subtext')}</p>
       </div>
-      
+
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-start gap-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">assignment_ind</span>
           </div>
           <div>
-            <h2 class="font-bold text-brand-dark text-base sm:text-lg leading-tight">4Ps Membership</h2>
-            <p class="text-gray-500 text-xs sm:text-sm mt-0.5">Are you a member of the Pantawid Pamilyang Pilipino Program?</p>
+            <h2 class="font-bold text-brand-dark text-base sm:text-lg leading-tight">${t('step1_sec_heading')}</h2>
+            <p class="text-gray-500 text-xs sm:text-sm mt-0.5">${t('step1_sec_subtext')}</p>
           </div>
         </div>
-        
+
         <fieldset class="space-y-3 mb-5">
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-1 cursor-pointer hover:border-blue-300 transition-all select-none">
             <input type="radio" id="membership-yes" name="membership" value="Yes" class="peer sr-only" onchange="toggleId(true)" checked>
             <div class="p-2 flex flex-col border-transparent transition-all">
-              <span class="font-bold text-brand-dark block text-xs sm:text-sm">Yes</span>
-              <span class="text-[10px] sm:text-xs text-gray-500">I am a member of the 4Ps Program</span>
+              <span class="font-bold text-brand-dark block text-xs sm:text-sm">${t('step1_opt_yes_title')}</span>
+              <span class="text-[10px] sm:text-xs text-gray-500">${t('step1_opt_yes_sub')}</span>
             </div>
           </label>
-          
+
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-1 cursor-pointer hover:border-blue-300 transition-all select-none">
             <input type="radio" id="membership-no" name="membership" value="No" class="peer sr-only" onchange="toggleId(false)">
             <div class="p-2 flex flex-col border-transparent transition-all">
-              <span class="font-bold text-brand-dark block text-xs sm:text-sm">No</span>
-              <span class="text-[10px] sm:text-xs text-gray-500">I am not a 4Ps member</span>
+              <span class="font-bold text-brand-dark block text-xs sm:text-sm">${t('step1_opt_no_title')}</span>
+              <span class="text-[10px] sm:text-xs text-gray-500">${t('step1_opt_no_sub')}</span>
             </div>
           </label>
         </fieldset>
-        
+
         <div id="id-container" class="transition-opacity duration-300">
-          <label for="household-id" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Household ID <span class="text-red-500">*</span></label>
+          <label for="household-id" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step1_lbl_household_id')} <span class="text-red-500">*</span></label>
           <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-1.5 h-9 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
             <span class="material-symbols-outlined text-[16px] text-gray-400">badge</span>
-            <input id="household-id" name="household-id" type="text" maxlength="18" oninput="this.value=this.value.slice(0,18)" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" placeholder="Enter 13-18 character ID">
+            <input id="household-id" name="household-id" type="text" maxlength="18" oninput="this.value=this.value.slice(0,18)" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" placeholder="${t('step1_ph_household_id')}">
           </div>
-          <p class="text-[10px] sm:text-xs text-brand-blue mt-1">Found on your 4Ps ID card.</p>
+          <p class="text-[10px] sm:text-xs text-brand-blue mt-1">${t('step1_helper_household_id')}</p>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-end pb-6">
         <button onclick="if(validateStep(1)) goToStep(2)" class="w-full sm:w-auto px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover shadow-md transition-all flex items-center justify-center gap-2">
-          Next: Respondent Profile
+          ${t('step1_btn_next')}
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -385,36 +387,36 @@ function getStep2HTML() {
   return `
     <div id="step-2" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Respondent Profile</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Provide your personal details as the individual completing this assessment.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step2_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step2_subtext')}</p>
       </div>
-      
+
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-8 flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">account_circle</span>
           </div>
-          <h2 class="font-bold text-brand-dark text-base sm:text-lg">Respondent Profile</h2>
+          <h2 class="font-bold text-brand-dark text-base sm:text-lg">${t('step2_sec_heading')}</h2>
         </div>
-        
+
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="resp-name" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Name of Respondent <span class="text-red-500">*</span></label>
+              <label for="resp-name" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step2_lbl_name')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">person</span>
                 </div>
-                <input type="text" id="resp-name" name="resp-name" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter full name">
+                <input type="text" id="resp-name" name="resp-name" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step2_ph_name')}">
               </div>
             </div>
-            
+
             <div>
-              <label for="dd-relationship-input" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Relationship to the Child <span class="text-red-500">*</span></label>
+              <label for="dd-relationship-input" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step2_lbl_relationship')} <span class="text-red-500">*</span></label>
               <div class="relative" id="relationship-combobox">
                 <input type="text" id="dd-relationship-input" name="dd-relationship-input" autocomplete="off"
                   class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400"
-                  placeholder="Relationship to the Child">
+                  placeholder="${t('step2_ph_relationship')}">
                 <input type="hidden" id="dd-relationship" name="dd-relationship">
                 <span class="material-symbols-outlined pointer-events-none select-none" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:18px;color:#9ca3af;">expand_more</span>
                 <ul id="dd-relationship-list"
@@ -423,37 +425,37 @@ function getStep2HTML() {
               </div>
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="resp-email" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Email Address</label>
+              <label for="resp-email" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step2_lbl_email')}</label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">mail</span>
                 </div>
-                <input type="email" id="resp-email" name="resp-email" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="name@example.com">
+                <input type="email" id="resp-email" name="resp-email" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step2_ph_email')}">
               </div>
             </div>
-            
+
             <div>
-              <label for="resp-contact" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">Contact Number</label>
+              <label for="resp-contact" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step2_lbl_contact')}</label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-symbols-outlined text-[16px] text-gray-400">phone</span>
                 </div>
-                <input type="tel" id="resp-contact" name="resp-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="0912 345 6789">
+                <input type="tel" id="resp-contact" name="resp-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step2_ph_contact')}">
               </div>
             </div>
           </div>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(1)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(2)) goToStep(3)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          Next: Child Profile
+          ${t('step2_btn_next')}
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -469,201 +471,201 @@ function getStep3HTML() {
   return `
     <div id="step-3" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Child Profile</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Provide the child's personal details, demographics, and specific health conditions.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step3_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step3_subtext')}</p>
       </div>
-      
+
       <!-- Personal Information -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-8 flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">face</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base sm:text-lg">Personal Information</h3>
+          <h3 class="font-bold text-brand-dark text-base sm:text-lg">${t('step3_sec_personal')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
-              <label for="child-fname" class="block text-xs font-bold text-brand-dark mb-1">First Name <span class="text-red-500">*</span></label>
-              <input type="text" id="child-fname" name="child-fname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="First Name">
+              <label for="child-fname" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_fname')} <span class="text-red-500">*</span></label>
+              <input type="text" id="child-fname" name="child-fname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_lbl_fname')}">
             </div>
             <div>
-              <label for="child-mname" class="block text-xs font-bold text-brand-dark mb-1">Middle Name</label>
-              <input type="text" id="child-mname" name="child-mname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Middle Name">
+              <label for="child-mname" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_mname')}</label>
+              <input type="text" id="child-mname" name="child-mname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_lbl_mname')}">
             </div>
             <div>
-              <label for="child-lname" class="block text-xs font-bold text-brand-dark mb-1">Last Name <span class="text-red-500">*</span></label>
-              <input type="text" id="child-lname" name="child-lname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Last Name">
+              <label for="child-lname" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_lname')} <span class="text-red-500">*</span></label>
+              <input type="text" id="child-lname" name="child-lname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_lbl_lname')}">
             </div>
             <div>
-              <label for="dd-extension" class="block text-xs font-bold text-brand-dark mb-1">Extension</label>
+              <label for="dd-extension" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_extension')}</label>
               <div class="relative">
                 <select id="dd-extension" name="dd-extension" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
-                  <option value="" disabled selected>Loading...</option>
+                  <option value="" disabled selected>${t('ph_loading')}</option>
                 </select>
               </div>
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="child-region" class="block text-xs font-bold text-brand-dark mb-1">Region <span class="text-red-500">*</span></label>
+              <label for="child-region" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_region')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-region" name="child-region" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateProvinces()">
-                  <option value="" disabled selected>Select Region</option>
+                  <option value="" disabled selected>${t('ph_select_region')}</option>
                 </select>
               </div>
             </div>
             <div>
-              <label for="child-province" class="block text-xs font-bold text-brand-dark mb-1">Province <span class="text-red-500">*</span></label>
+              <label for="child-province" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_province')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-province" name="child-province" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateCities()" disabled>
-                  <option value="" disabled selected>Select Province</option>
+                  <option value="" disabled selected>${t('ph_select_province')}</option>
                 </select>
               </div>
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="child-city" class="block text-xs font-bold text-brand-dark mb-1">City/Municipality <span class="text-red-500">*</span></label>
+              <label for="child-city" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_city')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-city" name="child-city" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateBarangays()" disabled>
-                  <option value="" disabled selected>Select City</option>
+                  <option value="" disabled selected>${t('ph_select_city')}</option>
                 </select>
               </div>
             </div>
             <div>
-              <label for="child-barangay" class="block text-xs font-bold text-brand-dark mb-1">Barangay <span class="text-red-500">*</span></label>
+              <label for="child-barangay" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_barangay')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="child-barangay" name="child-barangay" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" disabled>
-                  <option value="" disabled selected>Select Barangay</option>
+                  <option value="" disabled selected>${t('ph_select_barangay')}</option>
                 </select>
               </div>
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="child-street" class="block text-xs font-bold text-brand-dark mb-1">Street Address <span class="text-red-500">*</span></label>
-              <input type="text" id="child-street" name="child-street" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="House No., Street">
+              <label for="child-street" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_street')} <span class="text-red-500">*</span></label>
+              <input type="text" id="child-street" name="child-street" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_ph_street')}">
             </div>
             <div>
-              <label for="resp-contact" class="block text-xs font-bold text-brand-dark mb-1">Contact Number</label>
-              <input type="tel" id="child-contact" name="child-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="09XX XXX XXXX">
+              <label for="resp-contact" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_contact')}</label>
+              <input type="tel" id="child-contact" name="child-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_ph_contact_alt')}">
             </div>
           </div>
         </div>
       </section>
-      
+
       <!-- Demographics -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-8 flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">manage_accounts</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base sm:text-lg">Demographics</h3>
+          <h3 class="font-bold text-brand-dark text-base sm:text-lg">${t('step3_sec_demographics')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="child-dob" class="block text-xs font-bold text-brand-dark mb-1">Date of Birth <span class="text-red-500">*</span></label>
+              <label for="child-dob" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_dob')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <input type="date" id="child-dob" name="child-dob" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none text-gray-600">
               </div>
             </div>
             <div>
-              <label for="sex-male" class="block text-xs font-bold text-brand-dark mb-1">Sex</label>
+              <label for="sex-male" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_sex')}</label>
               <div class="slide-toggle-container h-9 w-full sm:w-2/3">
                 <div class="slide-toggle-slider"></div>
                 <label for="sex-male" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                  <input type="radio" id="sex-male" name="sex" value="Male" class="hidden" checked> 
-                  <span>Male</span>
+                  <input type="radio" id="sex-male" name="sex" value="Male" class="hidden" checked>
+                  <span>${t('opt_male')}</span>
                 </label>
                 <label for="sex-female" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                  <input type="radio" id="sex-female" name="sex" value="Female" class="hidden"> 
-                  <span>Female</span>
+                  <input type="radio" id="sex-female" name="sex" value="Female" class="hidden">
+                  <span>${t('opt_female')}</span>
                 </label>
               </div>
             </div>
           </div>
-          
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="dd-religion" class="block text-xs font-bold text-brand-dark mb-1">Religion <span class="text-red-500">*</span></label>
+              <label for="dd-religion" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_religion')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-religion" name="dd-religion" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'rel-other')">
-                  <option value="" disabled selected>Loading...</option>
+                  <option value="" disabled selected>${t('ph_loading')}</option>
                 </select>
               </div>
-              <input id="rel-other" name="rel-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+              <input id="rel-other" name="rel-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
             </div>
             <div>
-              <label for="dd-ip" class="block text-xs font-bold text-brand-dark mb-1">IP Membership <span class="text-red-500">*</span></label>
+              <label for="dd-ip" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_ip')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-ip" name="dd-ip" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'ip-other')">
-                  <option value="" disabled selected>Loading...</option>
+                  <option value="" disabled selected>${t('ph_loading')}</option>
                 </select>
               </div>
-              <input id="ip-other" name="ip-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+              <input id="ip-other" name="ip-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
             </div>
           </div>
         </div>
       </section>
-      
+
       <!-- Condition & Education -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-8 flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">school</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base sm:text-lg">Condition & Education</h3>
+          <h3 class="font-bold text-brand-dark text-base sm:text-lg">${t('step3_sec_condition_edu')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
-            <label for="dd-education" class="block text-xs font-bold text-brand-dark mb-1">Highest Educational Attainment <span class="text-red-500">*</span></label>
+            <label for="dd-education" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_education')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-education" name="dd-education" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'edu-other')">
-                <option value="" disabled selected>Loading...</option>
+                <option value="" disabled selected>${t('ph_loading')}</option>
               </select>
             </div>
-            <input id="edu-other" name="edu-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="edu-other" name="edu-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div class="relative">
-            <label for="dd-disability-btn" class="block text-xs font-bold text-brand-dark mb-1">Disability or Special Needs (Select all that apply)</label>
+            <label for="dd-disability-btn" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_disability')}</label>
             <button id="dd-disability-btn" type="button" onclick="toggleDropdown('dd-disability')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
-              <span id="disability-display" class="truncate text-gray-400">Select options...</span>
+              <span id="disability-display" class="truncate text-gray-400">${t('txt_select_options_ellipsis')}</span>
               <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-disability" class="hidden absolute z-10 w-full google-menu mt-1 max-h-60 overflow-y-auto dropdown-scroll">
               <!-- Will be populated by JavaScript -->
             </div>
           </div>
-          
+
           <div class="relative">
-            <label for="dd-illness-btn" class="block text-xs font-bold text-brand-dark mb-1">Critical Illness (Select all that apply)</label>
+            <label for="dd-illness-btn" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_illness')}</label>
             <button id="dd-illness-btn" type="button" onclick="toggleDropdown('dd-illness')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
-              <span id="illness-display" class="truncate text-gray-400">Select options...</span>
+              <span id="illness-display" class="truncate text-gray-400">${t('txt_select_options_ellipsis')}</span>
               <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-illness" class="hidden absolute z-10 w-full google-menu mt-1 max-h-60 overflow-y-auto dropdown-scroll">
               <!-- Will be populated by JavaScript -->
             </div>
-            <input id="illness-other-input" name="illness-other-input" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="illness-other-input" name="illness-other-input" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(2)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(3)) goToStep(4)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          Next: Family Profile
+          ${t('step3_btn_next')}
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -679,35 +681,35 @@ function getStep4HTML() {
   return `
     <div id="step-4" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Family Profile</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Provide details regarding family members living in the household.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step4_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step4_subtext')}</p>
       </div>
-      
+
       <section class="w-full bg-blue-50 rounded-xl border border-blue-200 shadow-sm p-5 sm:p-6 flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-brand-dark text-base sm:text-lg">Current Family Size</h3>
-          <p class="text-xs text-gray-500">Auto-calculated based on listed members.</p>
+          <h3 class="font-bold text-brand-dark text-base sm:text-lg">${t('step4_sec_family_size')}</h3>
+          <p class="text-xs text-gray-500">${t('step4_helper_family_size')}</p>
         </div>
         <div class="w-20">
           <input id="total-family-size" name="total-family-size" type="number" readonly value="1" class="w-full h-12 text-center text-xl font-bold text-brand-blue bg-white rounded-lg border border-blue-100 outline-none">
         </div>
       </section>
-      
+
       <div id="family-members-container" class="space-y-5">
         <!-- Family member cards will be added here -->
       </div>
-      
+
       <button onclick="addFamilyMember()" class="w-full py-3 border-2 border-dashed border-brand-blue text-brand-blue rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
         <span class="material-symbols-outlined text-[20px]">person_add</span>
-        Add Another Family Member
+        ${t('step4_btn_add_member')}
       </button>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(3)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(4)) goToStep(5)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Socio Economic</span>
+          <span>${t('step4_btn_next')}</span>
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -723,142 +725,142 @@ function getStep5HTML() {
   return `
     <div id="step-5" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Socio Economic</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Detail the household's living conditions, assets, and financial resources.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step5_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step5_subtext')}</p>
       </div>
-      
+
       <!-- Housing Condition -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">home</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Housing Condition</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step5_sec_housing')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
-            <label for="dd-materials" class="block text-xs font-bold text-brand-dark mb-1">What type of construction materials are the roofs and outer walls made of? <span class="text-red-500">*</span></label>
+            <label for="dd-materials" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_materials')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-materials" name="dd-materials" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'mat-other')">
-                <option value="" disabled selected>Select Materials</option>
+                <option value="" disabled selected>${t('ph_select_materials')}</option>
               </select>
             </div>
-            <input id="mat-other" name="mat-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="mat-other" name="mat-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div>
-            <label for="dd-tenure" class="block text-xs font-bold text-brand-dark mb-1">What is the tenure status of the house and lot does the family have? <span class="text-red-500">*</span></label>
+            <label for="dd-tenure" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_tenure')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-tenure" name="dd-tenure" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'tenure-other')">
-                <option value="" disabled selected>Select Status</option>
+                <option value="" disabled selected>${t('ph_select_tenure')}</option>
               </select>
             </div>
-            <input id="tenure-other" name="tenure-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="tenure-other" name="tenure-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div>
-            <label for="modifications-yes" class="block text-xs font-bold text-brand-dark mb-1">Are there any modifications in the house to accommodate the child's disability?</label>
+            <label for="modifications-yes" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_modifications')}</label>
             <div class="slide-toggle-container h-8 w-full sm:w-1/3 mb-2">
               <div class="slide-toggle-slider"></div>
               <label for="modifications-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.remove('hidden')">
-                <input type="radio" id="modifications-yes" name="modifications" value="Yes" class="hidden"> 
-                <span>Yes</span>
+                <input type="radio" id="modifications-yes" name="modifications" value="Yes" class="hidden">
+                ${t('step5_opt_mod_yes')}
               </label>
               <label for="modifications-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.add('hidden')">
-                <input type="radio" id="modifications-no" name="modifications" value="No" class="hidden" checked> 
-                <span>No</span>
+                <input type="radio" id="modifications-no" name="modifications" value="No" class="hidden" checked>
+                ${t('step5_opt_mod_no')}
               </label>
             </div>
-            <input id="mod-specify" name="mod-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="mod-specify" name="mod-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div>
-            <label for="dd-electricity" class="block text-xs font-bold text-brand-dark mb-1">What is the main source of electricity in the dwelling place? <span class="text-red-500">*</span></label>
+            <label for="dd-electricity" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_electricity')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-electricity" name="dd-electricity" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'elec-other')">
-                <option value="" disabled selected>Select Source</option>
+                <option value="" disabled selected>${t('ph_select_electricity')}</option>
               </select>
             </div>
-            <input id="elec-other" name="elec-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="elec-other" name="elec-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
-      
+
       <!-- Water Supply -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">water_drop</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Water Supply</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step5_sec_water')}</h3>
         </div>
-        
+
         <div>
-          <label for="dd-water" class="block text-xs font-bold text-brand-dark mb-1">What is your family's main source of water supply? <span class="text-red-500">*</span></label>
+          <label for="dd-water" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_water')} <span class="text-red-500">*</span></label>
           <div class="relative">
             <select id="dd-water" name="dd-water" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'water-other')">
-              <option value="" disabled selected>Select Water Source</option>
+              <option value="" disabled selected>${t('ph_select_water')}</option>
             </select>
           </div>
-          <input id="water-other" name="water-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+          <input id="water-other" name="water-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
         </div>
       </section>
-      
+
       <!-- Sanitation -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">recycling</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Sanitation</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step5_sec_sanitation')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="dd-toilet" class="block text-xs font-bold text-brand-dark mb-1">Main type of toilet facility <span class="text-red-500">*</span></label>
+              <label for="dd-toilet" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_toilet')} <span class="text-red-500">*</span></label>
               <div class="relative">
                 <select id="dd-toilet" name="dd-toilet" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'toilet-other')">
-                  <option value="" disabled selected>Select Toilet Type</option>
+                  <option value="" disabled selected>${t('ph_select_toilet')}</option>
                 </select>
               </div>
-              <input id="toilet-other" name="toilet-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+              <input id="toilet-other" name="toilet-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
             </div>
             <div>
-              <label for="toilet-access-yes" class="block text-xs font-bold text-brand-dark mb-1">Is the toilet accessible for the child?</label>
+              <label for="toilet-access-yes" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_toilet_access')}</label>
               <div class="slide-toggle-container h-9 w-full">
                 <div class="slide-toggle-slider"></div>
                 <label for="toilet-access-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                  <input type="radio" id="toilet-access-yes" name="toilet-access" value="Yes" class="hidden" checked> 
-                  <span>Yes</span>
+                  <input type="radio" id="toilet-access-yes" name="toilet-access" value="Yes" class="hidden" checked>
+                  ${t('btn_yes')}
                 </label>
                 <label for="toilet-access-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                  <input type="radio" id="toilet-access-no" name="toilet-access" value="No" class="hidden"> 
-                  <span>No</span>
+                  <input type="radio" id="toilet-access-no" name="toilet-access" value="No" class="hidden">
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
           </div>
-          
+
           <div>
-            <label for="dd-garbage" class="block text-xs font-bold text-brand-dark mb-1">Main system of garbage disposal <span class="text-red-500">*</span></label>
+            <label for="dd-garbage" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_garbage')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-garbage" name="dd-garbage" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'garbage-other')">
-                <option value="" disabled selected>Select System</option>
+                <option value="" disabled selected>${t('ph_select_garbage')}</option>
               </select>
             </div>
-            <input id="garbage-other" name="garbage-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="garbage-other" name="garbage-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(4)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(5)) goToStep(6)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Health</span>
+          <span>${t('step5_btn_next')}</span>
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -874,114 +876,114 @@ function getStep6HTML() {
   return `
     <div id="step-6" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Health</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Provide information on the child's medical condition and healthcare accessibility.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step6_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step6_subtext')}</p>
       </div>
-      
+
       <!-- General Health -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">health_and_safety</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">General Health</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step6_sec_general')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <label for="vaccines-yes" class="text-xs font-bold text-brand-dark flex-1">Has the child received all recommended vaccinations?</label>
+            <label for="vaccines-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_vaccinations')}</label>
             <div class="slide-toggle-container h-8 w-32">
               <div class="slide-toggle-slider"></div>
               <label for="vaccines-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                <input type="radio" id="vaccines-yes" name="vaccines" value="Yes" class="hidden" checked> 
-                <span>Yes</span>
+                <input type="radio" id="vaccines-yes" name="vaccines" value="Yes" class="hidden" checked>
+                ${t('btn_yes')}
               </label>
               <label for="vaccines-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                <input type="radio" id="vaccines-no" name="vaccines" value="No" class="hidden"> 
-                <span>No</span>
+                <input type="radio" id="vaccines-no" name="vaccines" value="No" class="hidden">
+                ${t('btn_no')}
               </label>
             </div>
           </div>
-          
+
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="health_cond-yes" class="text-xs font-bold text-brand-dark flex-1">Does the child have any ongoing health conditions?</label>
+              <label for="health_cond-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_ongoing_condition')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="health_cond-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.remove('hidden')">
-                  <input type="radio" id="health_cond-yes" name="health_cond" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  <input type="radio" id="health_cond-yes" name="health_cond" value="Yes" class="hidden">
+                  ${t('btn_yes')}
                 </label>
                 <label for="health_cond-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.add('hidden')">
-                  <input type="radio" id="health_cond-no" name="health_cond" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  <input type="radio" id="health_cond-no" name="health_cond" value="No" class="hidden" checked>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
-            <input id="health-cond-specify" name="health-cond-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="health-cond-specify" name="health-cond-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
-      
+
       <!-- Monthly Health Expenses -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">monetization_on</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Monthly Health Expenses</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step6_sec_expenses')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
-              <label for="exp-food" class="block text-[10px] font-bold text-gray-500 mb-1">Food</label>
+              <label for="exp-food" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_food')}</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
                 <input type="text" id="exp-food" name="exp-food" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label for="exp-med" class="block text-[10px] font-bold text-gray-500 mb-1">Medication</label>
+              <label for="exp-med" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_medication')}</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
                 <input type="text" id="exp-med" name="exp-med" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label for="exp-therapy" class="block text-[10px] font-bold text-gray-500 mb-1">Therapy</label>
+              <label for="exp-therapy" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_therapy')}</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
                 <input type="text" id="exp-therapy" name="exp-therapy" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label for="exp-hygiene" class="block text-[10px] font-bold text-gray-500 mb-1">Hygiene-related needs</label>
+              <label for="exp-hygiene" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_hygiene')}</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
                 <input type="text" id="exp-hygiene" name="exp-hygiene" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label for="exp-assist" class="block text-[10px] font-bold text-gray-500 mb-1">Assistive Device Maint.</label>
+              <label for="exp-assist" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_assistive')}</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
                 <input type="text" id="exp-assist" name="exp-assist" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
             <div>
-              <label for="exp-other" class="block text-[10px] font-bold text-gray-500 mb-1">Other health needs</label>
+              <label for="exp-other" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_other_health')}</label>
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
                 <input type="text" id="exp-other" name="exp-other" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
               </div>
             </div>
           </div>
-          
+
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex justify-between items-center">
             <div>
-              <h4 class="font-bold text-brand-dark text-sm">Total Health Expense</h4>
-              <p class="text-[10px] text-gray-500">Sum of all monthly costs</p>
+              <h4 class="font-bold text-brand-dark text-sm">${t('step6_sec_total_expense')}</h4>
+              <p class="text-[10px] text-gray-500">${t('step6_helper_total_expense')}</p>
             </div>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-brand-blue font-bold pointer-events-none text-lg">₱</span>
@@ -990,76 +992,76 @@ function getStep6HTML() {
           </div>
         </div>
       </section>
-      
+
       <!-- Access to Health Services -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">local_hospital</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Access to Health Services</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step6_sec_access')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="avail_services-yes" class="text-xs font-bold text-brand-dark flex-1">Has the child availed health services in the past 6 months?</label>
+              <label for="avail_services-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_availed_6mo')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="avail_services-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.remove('hidden')">
-                  <input type="radio" id="avail_services-yes" name="avail_services" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  <input type="radio" id="avail_services-yes" name="avail_services" value="Yes" class="hidden">
+                  ${t('btn_yes')}
                 </label>
                 <label for="avail_services-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.add('hidden')">
-                  <input type="radio" id="avail_services-no" name="avail_services" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  <input type="radio" id="avail_services-no" name="avail_services" value="No" class="hidden" checked>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
-            <input id="avail-specify" name="avail-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="avail-specify" name="avail-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <label for="facility_access-yes" class="text-xs font-bold text-brand-dark flex-1">Is the health facility accessible for the child?</label>
+            <label for="facility_access-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_facility_accessible')}</label>
             <div class="slide-toggle-container h-8 w-32">
               <div class="slide-toggle-slider"></div>
               <label for="facility_access-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
-                <input type="radio" id="facility_access-yes" name="facility_access" value="Yes" class="hidden"> 
-                <span>Yes</span>
+                <input type="radio" id="facility_access-yes" name="facility_access" value="Yes" class="hidden">
+                ${t('btn_yes')}
               </label>
               <label for="facility_access-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
-                <input type="radio" id="facility_access-no" name="facility_access" value="No" class="hidden" checked> 
-                <span>No</span>
+                <input type="radio" id="facility_access-no" name="facility_access" value="No" class="hidden" checked>
+                ${t('btn_no')}
               </label>
             </div>
           </div>
-          
+
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="barriers-yes" class="text-xs font-bold text-brand-dark flex-1">Are there any barriers to accessing health care services?</label>
+              <label for="barriers-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_barriers')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="barriers-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.remove('hidden')">
-                  <input type="radio" id="barriers-yes" name="barriers" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  <input type="radio" id="barriers-yes" name="barriers" value="Yes" class="hidden">
+                  ${t('step6_opt_barriers_yes')}
                 </label>
                 <label for="barriers-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.add('hidden')">
-                  <input type="radio" id="barriers-no" name="barriers" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  <input type="radio" id="barriers-no" name="barriers" value="No" class="hidden" checked>
+                  ${t('step6_opt_barriers_no')}
                 </label>
               </div>
             </div>
-            <input id="barrier-specify" name="barrier-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="barrier-specify" name="barrier-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(5)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(6)) goToStep(7)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Education</span>
+          <span>${t('step6_btn_next')}</span>
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -1075,120 +1077,120 @@ function getStep7HTML() {
   return `
     <div id="step-7" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Education</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Identify the child's schooling status and the physical accessibility of their learning environment.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step7_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step7_subtext')}</p>
       </div>
-      
+
       <!-- Educational Status -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">school</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Educational Status</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step7_sec_status')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="enrolled-yes" class="text-xs font-bold text-brand-dark flex-1">Is the child currently enrolled in school?</label>
+              <label for="enrolled-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step7_lbl_enrolled')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="enrolled-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this); toggleEnrollment(true)">
-                  <input type="radio" id="enrolled-yes" name="enrolled" value="Yes" class="hidden" checked> 
-                  <span>Yes</span>
+                  <input type="radio" id="enrolled-yes" name="enrolled" value="Yes" class="hidden" checked>
+                  ${t('btn_yes')}
                 </label>
                 <label for="enrolled-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); toggleEnrollment(false)">
-                  <input type="radio" id="enrolled-no" name="enrolled" value="No" class="hidden"> 
-                  <span>No</span>
+                  <input type="radio" id="enrolled-no" name="enrolled" value="No" class="hidden">
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
-            
+
             <div id="enrollment-yes" class="">
-              <label for="grade-level" class="block text-xs font-bold text-brand-dark mb-1">Grade/Year Level <span class="text-red-500">*</span></label>
-              <input type="text" id="grade-level" name="grade-level" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Grade/Year Level">
+              <label for="grade-level" class="block text-xs font-bold text-brand-dark mb-1">${t('step7_lbl_grade')} <span class="text-red-500">*</span></label>
+              <input type="text" id="grade-level" name="grade-level" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step7_ph_grade')}">
             </div>
             <div id="enrollment-no" class="hidden">
-              <label for="not-enrolled-reason" class="block text-xs font-bold text-brand-dark mb-1">Why not? <span class="text-red-500">*</span></label>
-              <input type="text" id="not-enrolled-reason" name="not-enrolled-reason" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+              <label for="not-enrolled-reason" class="block text-xs font-bold text-brand-dark mb-1">${t('step7_lbl_why_not')} <span class="text-red-500">*</span></label>
+              <input type="text" id="not-enrolled-reason" name="not-enrolled-reason" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
             </div>
           </div>
         </div>
       </section>
-      
+
       <!-- School Accessibility -->
       <section id="form-school-access" class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6 transition-all duration-300">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">accessible</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">School Accessibility</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step7_sec_accessibility')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="school_features-yes" class="text-xs font-bold text-brand-dark flex-1">Is the school equipped with physically accessibility features?</label>
+              <label for="school_features-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step7_lbl_school_accessible')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="school_features-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.remove('hidden')">
-                  <input type="radio" id="school_features-yes" name="school_features" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  <input type="radio" id="school_features-yes" name="school_features" value="Yes" class="hidden">
+                  ${t('btn_yes')}
                 </label>
                 <label for="school_features-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.add('hidden')">
-                  <input type="radio" id="school_features-no" name="school_features" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  <input type="radio" id="school_features-no" name="school_features" value="No" class="hidden" checked>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
-            <input id="school-access-specify" name="school-access-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="school-access-specify" name="school-access-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="sped_prog-yes" class="text-xs font-bold text-brand-dark flex-1">Are there special education programs available?</label>
+              <label for="sped_prog-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step7_lbl_sped')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="sped_prog-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.remove('hidden')">
-                  <input type="radio" id="sped_prog-yes" name="sped_prog" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  <input type="radio" id="sped_prog-yes" name="sped_prog" value="Yes" class="hidden">
+                  ${t('btn_yes')}
                 </label>
                 <label for="sped_prog-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.add('hidden')">
-                  <input type="radio" id="sped_prog-no" name="sped_prog" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  <input type="radio" id="sped_prog-no" name="sped_prog" value="No" class="hidden" checked>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
-            <input id="sped-specify" name="sped-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="sped-specify" name="sped-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
-          
+
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="learning_support-yes" class="text-xs font-bold text-brand-dark flex-1">Does the child receive any learning support?</label>
+              <label for="learning_support-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step7_lbl_learning_support')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="learning_support-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.remove('hidden')">
-                  <input type="radio" id="learning_support-yes" name="learning_support" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  <input type="radio" id="learning_support-yes" name="learning_support" value="Yes" class="hidden">
+                  ${t('btn_yes')}
                 </label>
                 <label for="learning_support-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.add('hidden')">
-                  <input type="radio" id="learning_support-no" name="learning_support" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  <input type="radio" id="learning_support-no" name="learning_support" value="No" class="hidden" checked>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
-            <input id="learn-supp-specify" name="learn-supp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="learn-supp-specify" name="learn-supp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(6)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(7)) goToStep(8)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Economic Capacity</span>
+          <span>${t('step7_btn_next')}</span>
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -1204,66 +1206,66 @@ function getStep8HTML() {
   return `
     <div id="step-8" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Economic Capacity</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Assess the household's financial resources and the employment status of family members.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step8_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step8_subtext')}</p>
       </div>
-      
+
       <!-- Financial Information -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">account_balance_wallet</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Financial Information</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step8_sec_financial')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
-            <label for="income-source" class="block text-xs font-bold text-brand-dark mb-1">What is the primary source of income for the family? <span class="text-red-500">*</span></label>
-            <input type="text" id="income-source" name="income-source" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="e.g., Employment, Business, Remittance">
+            <label for="income-source" class="block text-xs font-bold text-brand-dark mb-1">${t('step8_lbl_income_source')} <span class="text-red-500">*</span></label>
+            <input type="text" id="income-source" name="income-source" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step8_ph_income_source')}">
           </div>
-          
+
           <div>
-            <label for="monthly-income" class="block text-xs font-bold text-brand-dark mb-1">How much is the approximate monthly income of the family? <span class="text-red-500">*</span></label>
+            <label for="monthly-income" class="block text-xs font-bold text-brand-dark mb-1">${t('step8_lbl_monthly_income')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
               <input type="text" id="monthly-income" name="monthly-income" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="0" oninput="calculateIncomeClass(this)">
             </div>
           </div>
-          
+
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <h4 class="font-bold text-brand-dark text-xs mb-1">Income Classification</h4>
-            <p id="income-class-display" class="text-sm font-semibold text-brand-blue">Enter income to see classification</p>
+            <h4 class="font-bold text-brand-dark text-xs mb-1">${t('step8_sec_income_class')}</h4>
+            <p id="income-class-display" class="text-sm font-semibold text-brand-blue">${t('step8_ph_income_class_initial')}</p>
           </div>
         </div>
       </section>
-      
+
       <!-- Employment -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">work</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Employment</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step8_sec_employment')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="employed-yes" class="text-xs font-bold text-brand-dark flex-1">Are the parents/guardians employed or have entrepreneurial activities?</label>
+              <label for="employed-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step8_lbl_employed')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="employed-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.remove('hidden')">
-                  <input type="radio" id="employed-yes" name="employed" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  <input type="radio" id="employed-yes" name="employed" value="Yes" class="hidden">
+                  ${t('step8_opt_employed_yes')}
                 </label>
                 <label for="employed-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.add('hidden')">
-                  <input type="radio" id="employed-no" name="employed" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  <input type="radio" id="employed-no" name="employed" value="No" class="hidden" checked>
+                  ${t('step8_opt_employed_no')}
                 </label>
               </div>
             </div>
-            <input id="emp-specify" name="emp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="emp-specify" name="emp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
@@ -1273,7 +1275,7 @@ function getStep8HTML() {
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
         <button onclick="if(validateStep(8)) goToStep(9)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Service Availment</span>
+          <span>${t('step8_btn_next')}</span>
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -1289,72 +1291,72 @@ function getStep9HTML() {
   return `
     <div id="step-9" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Service Availment</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Identify the government or private sector services the child has previously accessed.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step9_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step9_subtext')}</p>
       </div>
-      
+
       <!-- Social Services -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">handshake</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Social Services</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step9_sec_social')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="fin_assist-yes" class="text-xs font-bold text-brand-dark flex-1">Does the family receive any form of financial assistance?</label>
+              <label for="fin_assist-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step9_lbl_financial_assistance')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="fin_assist-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('fin-assist-specify').classList.remove('hidden')">
                   <input type="radio" id="fin_assist-yes" name="fin_assist" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="fin_assist-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('fin-assist-specify').classList.add('hidden')">
                   <input type="radio" id="fin_assist-no" name="fin_assist" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
-            <input id="fin-assist-specify" name="fin-assist-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="fin-assist-specify" name="fin-assist-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
           
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="aware_services-yes" class="text-xs font-bold text-brand-dark flex-1">Is the family aware of available social services for children with disabilities?</label>
+              <label for="aware_services-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step9_lbl_aware_services')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="aware_services-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('aware-specify').classList.remove('hidden')">
                   <input type="radio" id="aware_services-yes" name="aware_services" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="aware_services-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('aware-specify').classList.add('hidden')">
                   <input type="radio" id="aware_services-no" name="aware_services" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
-            <input id="aware-specify" name="aware-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="aware-specify" name="aware-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
           
           <div>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
-              <label for="availed_any-yes" class="text-xs font-bold text-brand-dark flex-1">Has the family availed of any services?</label>
+              <label for="availed_any-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step9_lbl_availed_services')}</label>
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="availed_any-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('availed-specify').classList.remove('hidden')">
                   <input type="radio" id="availed_any-yes" name="availed_any" value="Yes" class="hidden"> 
-                  <span>Yes</span>
+                  ${t('btn_yes')}
                 </label>
                 <label for="availed_any-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('availed-specify').classList.add('hidden')">
                   <input type="radio" id="availed_any-no" name="availed_any" value="No" class="hidden" checked> 
-                  <span>No</span>
+                  ${t('btn_no')}
                 </label>
               </div>
             </div>
-            <input id="availed-specify" name="availed-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="availed-specify" name="availed-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
@@ -1365,24 +1367,24 @@ function getStep9HTML() {
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">warning</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Barriers to Service Availment</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step9_sec_barriers')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
-            <label for="service-challenges" class="block text-xs font-bold text-brand-dark mb-1">What are the challenges faced in availing these services? <span class="text-red-500">*</span></label>
+            <label for="service-challenges" class="block text-xs font-bold text-brand-dark mb-1">${t('step9_lbl_challenges')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="service-challenges" name="service-challenges" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'barrier-other')">
-                <option value="" disabled selected>Select Challenge</option>
-                <option>Lack of awareness</option>
-                <option>Financial constraints</option>
-                <option>Distance/Transportation</option>
-                <option>Requirements/Documents</option>
-                <option value="Others">Others (Specify)</option>
-                <option>None</option>
+                <option value="" disabled selected>${t('ph_select_challenge')}</option>
+                <option value="Lack of awareness">${t('challenge_lack_awareness')}</option>
+                <option value="Financial constraints">${t('challenge_financial')}</option>
+                <option value="Distance/Transportation">${t('challenge_distance')}</option>
+                <option value="Requirements/Documents">${t('challenge_requirements')}</option>
+                <option value="Others">${t('option_others_specify')}</option>
+                <option value="None">${t('challenge_none')}</option>
               </select>
             </div>
-            <input id="barrier-other" name="barrier-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Please specify">
+            <input id="barrier-other" name="barrier-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
           </div>
         </div>
       </section>
@@ -1392,7 +1394,7 @@ function getStep9HTML() {
           <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
         </button>
         <button onclick="if(validateStep(9)) goToStep(10)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
-          <span>Next: Assessment</span>
+          <span>${t('step9_btn_next')}</span>
           <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
         </button>
       </div>
@@ -1408,97 +1410,97 @@ function getStep10HTML() {
   return `
     <div id="step-10" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">General Observations and Recommendations</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Provide a summary of the child's situation and specific steps for intervention.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step10_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step10_subtext')}</p>
       </div>
-      
+
       <!-- Assessment Notes -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">edit_note</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Assessment Notes</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step10_sec_notes')}</h3>
         </div>
-        
+
         <div class="space-y-4">
           <div>
-            <label for="strengths" class="block text-xs font-bold text-brand-dark mb-1">Strengths <span class="text-red-500">*</span></label>
-            <textarea id="strengths" name="strengths" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Enter key strengths..."></textarea>
+            <label for="strengths" class="block text-xs font-bold text-brand-dark mb-1">${t('step10_lbl_strengths')} <span class="text-red-500">*</span></label>
+            <textarea id="strengths" name="strengths" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="${t('step10_ph_strengths')}"></textarea>
           </div>
           <div>
-            <label for="assessment" class="block text-xs font-bold text-brand-dark mb-1">Assessment <span class="text-red-500">*</span></label>
-            <textarea id="assessment" name="assessment" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Provide assessment details..."></textarea>
+            <label for="assessment" class="block text-xs font-bold text-brand-dark mb-1">${t('step10_lbl_assessment')} <span class="text-red-500">*</span></label>
+            <textarea id="assessment" name="assessment" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="${t('step10_ph_assessment')}"></textarea>
           </div>
           <div>
-            <label for="recommendations" class="block text-xs font-bold text-brand-dark mb-1">Recommended Actions/Interventions <span class="text-red-500">*</span></label>
-            <textarea id="recommendations" name="recommendations" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="Suggest interventions..."></textarea>
+            <label for="recommendations" class="block text-xs font-bold text-brand-dark mb-1">${t('step10_lbl_recommendations')} <span class="text-red-500">*</span></label>
+            <textarea id="recommendations" name="recommendations" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="${t('step10_ph_recommendations')}"></textarea>
           </div>
         </div>
       </section>
-      
+
       <!-- Readiness Score -->
       <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
         <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
           <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
             <span class="material-symbols-outlined text-[18px] text-brand-blue">speed</span>
           </div>
-          <h3 class="font-bold text-brand-dark text-base">Readiness Score</h3>
+          <h3 class="font-bold text-brand-dark text-base">${t('step10_sec_readiness')}</h3>
         </div>
-        
+
         <div class="space-y-3">
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
             <input type="radio" id="readiness-severe" name="readiness" value="severe" class="peer sr-only">
             <div class="flex flex-col">
               <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold">1</span>
-                Severe: Immediate intervention needed
+                ${t('readiness_severe_title')}
               </h3>
-              <p class="text-xs text-gray-500 mt-1 pl-7">The well-being of the child and family is at a critical level, requiring urgent and immediate intervention.</p>
+              <p class="text-xs text-gray-500 mt-1 pl-7">${t('readiness_severe_desc')}</p>
             </div>
           </label>
-          
+
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
             <input type="radio" id="readiness-moderate" name="readiness" value="moderate" class="peer sr-only">
             <div class="flex flex-col">
               <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold">2</span>
-                Moderate: Address within a short period
+                ${t('readiness_moderate_title')}
               </h3>
-              <p class="text-xs text-gray-500 mt-1 pl-7">The well-being shows significant areas of concern that need to be addressed in the short term.</p>
+              <p class="text-xs text-gray-500 mt-1 pl-7">${t('readiness_moderate_desc')}</p>
             </div>
           </label>
-          
+
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
             <input type="radio" id="readiness-low" name="readiness" value="low" class="peer sr-only">
             <div class="flex flex-col">
               <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xs font-bold">3</span>
-                Low: No immediate action needed, but regular monitoring
+                ${t('readiness_low_title')}
               </h3>
-              <p class="text-xs text-gray-500 mt-1 pl-7">The child and family's well-being is generally adequate, with some minor issues requiring attention.</p>
+              <p class="text-xs text-gray-500 mt-1 pl-7">${t('readiness_low_desc')}</p>
             </div>
           </label>
-          
+
           <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
             <input type="radio" id="readiness-stable" name="readiness" value="stable" class="peer sr-only">
             <div class="flex flex-col">
               <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">4</span>
-                Stable: Meets all needs effectively
+                ${t('readiness_stable_title')}
               </h3>
-              <p class="text-xs text-gray-500 mt-1 pl-7">The child and family's well-being is satisfactory and functioning as expected.</p>
+              <p class="text-xs text-gray-500 mt-1 pl-7">${t('readiness_stable_desc')}</p>
             </div>
           </label>
         </div>
       </section>
-      
+
       <div class="w-full flex justify-between pb-6">
         <button onclick="goToStep(9)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
-          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
         </button>
         <button onclick="if(validateStep(10)) generateReview()" class="px-6 h-10 bg-green-600 rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-green-700 flex items-center gap-2 shadow-md transition-all">
-          <span class="material-symbols-outlined text-[16px]">check</span> Review Assessment
+          <span class="material-symbols-outlined text-[16px]">check</span> ${t('step10_btn_review')}
         </button>
       </div>
     </div>
@@ -1513,17 +1515,17 @@ function getStep11HTML() {
   return `
     <div id="step-11" class="step-section hidden-step w-full space-y-5">
       <div class="w-full text-left space-y-0.5">
-        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">Review Assessment</h1>
-        <p class="text-gray-500 text-xs sm:text-sm">Please verify all information before final submission.</p>
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step11_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step11_subtext')}</p>
       </div>
-      
+
       <div id="review-content" class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-6 space-y-6">
         <!-- Review content will be generated here -->
       </div>
-      
+
       <div class="w-full flex justify-between pb-6">
-        <button onclick="goToStep(10)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">Edit Forms</button>
-        <button onclick="submitAssessment()" class="px-6 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">Submit Assessment</button>
+        <button onclick="goToStep(10)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">${t('step11_btn_edit')}</button>
+        <button onclick="submitAssessment()" class="px-6 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">${t('step11_btn_submit')}</button>
       </div>
     </div>
   `;
@@ -1592,23 +1594,26 @@ function initRelationshipCombobox(options) {
 
   function renderList(filter) {
     const q = (filter || '').toLowerCase();
-    const matched = q ? options.filter(o => o.toLowerCase().includes(q)) : options.slice();
+    const matched = q
+      ? options.filter(o => o.toLowerCase().includes(q) || translateOption('List_Relationship', o).toLowerCase().includes(q))
+      : options.slice();
     activeIndex = -1;
     list.innerHTML = '';
     if (matched.length === 0) {
       const li = document.createElement('li');
       li.className = 'px-3 py-2 text-gray-400 italic';
-      li.textContent = 'No match found';
+      li.textContent = t('txt_no_match_found');
       list.appendChild(li);
     } else {
       matched.forEach(o => {
+        const label = translateOption('List_Relationship', o);
         const li = document.createElement('li');
         li.className = 'px-3 py-2 cursor-pointer hover:bg-blue-50';
         li.dataset.option = o;
-        li.textContent = o;
+        li.textContent = label;
         li.addEventListener('mousedown', e => {
           e.preventDefault();
-          input.value = o;
+          input.value = label;
           hidden.value = o;
           list.classList.add('hidden');
         });
@@ -1642,7 +1647,7 @@ function initRelationshipCombobox(options) {
       e.preventDefault();
       if (activeIndex >= 0 && items[activeIndex]) {
         const val = items[activeIndex].dataset.option;
-        input.value = val;
+        input.value = translateOption('List_Relationship', val);
         hidden.value = val;
         list.classList.add('hidden');
       }
@@ -1670,58 +1675,58 @@ function populateAllDropdowns() {
   initRelationshipCombobox(globalData.List_Relationship);
   
   // Step 3
-  populateSelect('dd-extension', globalData.List_Extension, "None");
-  populateSelect('dd-religion', globalData.List_Religion, "Select Religion");
-  populateSelect('dd-ip', globalData.List_IP, "Select IP Group");
-  populateSelect('dd-education', globalData.List_Education, "Select Education");
-  populateMulti('dd-disability', globalData.List_Disability, 'disability-display');
-  populateMulti('dd-illness', globalData.List_Illness, 'illness-display', 'illness-other-input');
+  populateSelect('dd-extension', globalData.List_Extension, t('ph_none'));
+  populateSelect('dd-religion', globalData.List_Religion, t('ph_select_religion'), 'List_Religion');
+  populateSelect('dd-ip', globalData.List_IP, t('ph_select_ip'), 'List_IP');
+  populateSelect('dd-education', globalData.List_Education, t('ph_select_education'), 'List_Education');
+  populateMulti('dd-disability', globalData.List_Disability, 'disability-display', null, 'List_Disability');
+  populateMulti('dd-illness', globalData.List_Illness, 'illness-display', 'illness-other-input', 'List_Illness');
   
   // Step 5
-  populateSelect('dd-materials', globalData.List_Materials, "Select Materials");
-  populateSelect('dd-tenure', globalData.List_Tenure, "Select Status");
-  populateSelect('dd-electricity', globalData.List_Electricity, "Select Source");
-  populateSelect('dd-water', globalData.List_Water, "Select Water Source");
-  populateSelect('dd-toilet', globalData.List_Toilet, "Select Toilet Type");
-  populateSelect('dd-garbage', globalData.List_Garbage, "Select System");
+  populateSelect('dd-materials', globalData.List_Materials, t('ph_select_materials'), 'List_Materials');
+  populateSelect('dd-tenure', globalData.List_Tenure, t('ph_select_tenure'), 'List_Tenure');
+  populateSelect('dd-electricity', globalData.List_Electricity, t('ph_select_electricity'), 'List_Electricity');
+  populateSelect('dd-water', globalData.List_Water, t('ph_select_water'), 'List_Water');
+  populateSelect('dd-toilet', globalData.List_Toilet, t('ph_select_toilet'), 'List_Toilet');
+  populateSelect('dd-garbage', globalData.List_Garbage, t('ph_select_garbage'), 'List_Garbage');
 }
 
-function populateSelect(id, items, placeholder) {
+function populateSelect(id, items, placeholder, listKey) {
   const s = document.getElementById(id);
   if (!s) {
     return;
   }
 
   if (!items || items.length === 0) {
-    s.innerHTML = `<option value="" disabled selected>${placeholder} (No data)</option>`;
+    s.innerHTML = `<option value="" disabled selected>${placeholder} (${t('ph_no_data')})</option>`;
     return;
   }
 
   s.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
   let hasOthers = false;
-  
+
   (items || []).forEach(i => {
     const o = document.createElement('option');
     if (i === "Others" || i === "Other" || i === "Others (Specify)") {
       o.value = "Others";
-      o.innerText = "Others (Specify)";
+      o.innerText = t('option_others_specify');
       hasOthers = true;
     } else {
       o.value = i;
-      o.innerText = i;
+      o.innerText = listKey ? translateOption(listKey, i) : i;
     }
     s.appendChild(o);
   });
-  
+
   if (!hasOthers && id !== 'dd-extension' && id !== 'dd-relationship') {
     const o = document.createElement('option');
     o.value = "Others";
-    o.innerText = "Others (Specify)";
+    o.innerText = t('option_others_specify');
     s.appendChild(o);
   }
 }
 
-function populateMulti(cid, items, did, oid = null) {
+function populateMulti(cid, items, did, oid = null, listKey) {
   let c = document.getElementById(cid);
   if (!c) return;
 
@@ -1734,6 +1739,7 @@ function populateMulti(cid, items, did, oid = null) {
   c.innerHTML = "";
   c.className = "hidden fixed google-menu dropdown-scroll overflow-y-auto";
   c.style.zIndex = '9999';
+  if (listKey) c.dataset.listKey = listKey; else delete c.dataset.listKey;
   let hasOthers = false;
 
   (items || []).forEach(x => {
@@ -1749,7 +1755,7 @@ function populateMulti(cid, items, did, oid = null) {
     cb.value = x;
     cb.onchange = function() { updateMultiSelect(cid, did) };
     const s = document.createElement('span');
-    s.innerText = x;
+    s.innerText = listKey ? translateOption(listKey, x) : x;
     l.appendChild(cb);
     l.appendChild(s);
     c.appendChild(l);
@@ -1770,7 +1776,7 @@ function populateMulti(cid, items, did, oid = null) {
       }
     };
     const s = document.createElement('span');
-    s.innerText = "Others (Specify)";
+    s.innerText = t('option_others_specify');
     l.appendChild(cb);
     l.appendChild(s);
     c.appendChild(l);
@@ -1781,7 +1787,7 @@ function initializeLocationDropdowns() {
   const regionSelect = getLocationSelect('child-region');
   if (!regionSelect) return;
 
-  regionSelect.innerHTML = '<option value="" disabled selected>Select Region</option>';
+  regionSelect.innerHTML = `<option value="" disabled selected>${t('ph_select_region')}</option>`;
   Object.keys(locationData).forEach(region => {
     const opt = document.createElement('option');
     opt.value = region;
@@ -1807,9 +1813,9 @@ function updateProvinces() {
   const citySelect = getLocationSelect('child-city');
   const brgySelect = getLocationSelect('child-barangay');
 
-  provSelect.innerHTML = '<option value="" disabled selected>Select Province</option>';
-  citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
-  brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>';
+  provSelect.innerHTML = `<option value="" disabled selected>${t('ph_select_province')}</option>`;
+  citySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_city')}</option>`;
+  brgySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_barangay')}</option>`;
   provSelect.disabled = true;
   citySelect.disabled = true;
   brgySelect.disabled = true;
@@ -1836,8 +1842,8 @@ function updateCities() {
   const citySelect = getLocationSelect('child-city');
   const brgySelect = getLocationSelect('child-barangay');
 
-  citySelect.innerHTML = '<option value="" disabled selected>Select City</option>';
-  brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>';
+  citySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_city')}</option>`;
+  brgySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_barangay')}</option>`;
   citySelect.disabled = true;
   brgySelect.disabled = true;
   citySelect.dispatchEvent(new Event('change'));
@@ -1862,7 +1868,7 @@ function updateBarangays() {
   const city = getLocationValue('child-city');
   const brgySelect = getLocationSelect('child-barangay');
 
-  brgySelect.innerHTML = '<option value="" disabled selected>Select Barangay</option>';
+  brgySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_barangay')}</option>`;
   brgySelect.disabled = true;
   brgySelect.dispatchEvent(new Event('change'));
 
@@ -1986,11 +1992,12 @@ function updateMultiSelect(cid, did) {
   const d = document.getElementById(did);
   
   if (chk.length === 0) {
-    d.innerText = "Select options...";
+    d.innerText = t('txt_select_options_ellipsis');
     d.classList.add("text-gray-400");
     d.classList.remove("text-gray-900");
   } else {
-    const v = Array.from(chk).map(x => x.value).join(', ');
+    const lk = c.dataset.listKey || '';
+    const v = Array.from(chk).map(x => lk ? translateOption(lk, x.value) : x.value).join(', ');
     d.innerText = v;
     d.classList.remove("text-gray-400");
     d.classList.add("text-gray-900");
@@ -2038,15 +2045,23 @@ function calculateIncomeClass(input) {
   const numVal = parseInt(val || 0);
   const display = document.getElementById('income-class-display');
   
+  // Canonical (English) classification key; the display text may be translated,
+  // but the value submitted to the backend must always be canonical English.
+  let canonicalKey = null;
   if (numVal === 0) {
-    display.innerText = "Enter income to see classification";
+    canonicalKey = null;
   } else if (numVal <= 24000) {
-    display.innerText = "Below Minimum / Low Income";
+    canonicalKey = 'step8_income_class_low';
   } else if (numVal <= 76000) {
-    display.innerText = "Middle Income";
+    canonicalKey = 'step8_income_class_middle';
   } else {
-    display.innerText = "Above Moderate / Upper Income";
+    canonicalKey = 'step8_income_class_high';
   }
+
+  display.innerText = canonicalKey ? t(canonicalKey) : t('step8_ph_income_class_initial');
+  display.dataset.canonicalClass = canonicalKey
+    ? ((window.I18N_EN && window.I18N_EN[canonicalKey]) || t(canonicalKey))
+    : '';
 }
 
 // Close dropdowns when clicking outside
@@ -2071,7 +2086,7 @@ function initGoogleSelects() {
 
     // Placeholder text from the disabled option
     const placeholderOpt = Array.from(select.options).find(o => o.disabled);
-    const placeholderText = placeholderOpt ? placeholderOpt.text : 'Select...';
+    const placeholderText = placeholderOpt ? placeholderOpt.text : t('ph_select_ellipsis');
 
     // Text input acts as the visible field
     const input = document.createElement('input');
@@ -2136,7 +2151,7 @@ function initGoogleSelects() {
       if (opts.length === 0) {
         const li = document.createElement('li');
         li.className = 'px-3 py-2 text-xs text-gray-400 italic';
-        li.textContent = 'No match found';
+        li.textContent = t('txt_no_match_found');
         list.appendChild(li);
       } else {
         opts.forEach(opt => {
@@ -2241,10 +2256,10 @@ function addFirstFamilyMember() {
   
   // Populate dropdowns for first member
   setTimeout(() => {
-    populateSelect('dd-fam-occ-1', globalData.List_Occupation, "Select Occupation");
-    populateSelect('dd-fam-class-1', globalData.List_Occupation_Class, "Select Class");
-    populateMulti('dd-fam-dis-1', globalData.List_Disability, 'disp-fam-dis-1');
-    populateMulti('dd-fam-ill-1', globalData.List_Illness, 'disp-fam-ill-1');
+    populateSelect('dd-fam-occ-1', globalData.List_Occupation, t('ph_select_occupation'), 'List_Occupation');
+    populateSelect('dd-fam-class-1', globalData.List_Occupation_Class, t('ph_select_class'), 'List_Occupation_Class');
+    populateMulti('dd-fam-dis-1', globalData.List_Disability, 'disp-fam-dis-1', null, 'List_Disability');
+    populateMulti('dd-fam-ill-1', globalData.List_Illness, 'disp-fam-ill-1', null, 'List_Illness');
     initToggles();
     initGoogleSelects();
   }, 100);
@@ -2262,77 +2277,77 @@ function addFamilyMember() {
   
   // Populate dropdowns for new member
   setTimeout(() => {
-    populateSelect(`dd-fam-occ-${memberCount}`, globalData.List_Occupation, "Select Occupation");
-    populateSelect(`dd-fam-class-${memberCount}`, globalData.List_Occupation_Class, "Select Class");
-    populateMulti(`dd-fam-dis-${memberCount}`, globalData.List_Disability, `disp-fam-dis-${memberCount}`);
-    populateMulti(`dd-fam-ill-${memberCount}`, globalData.List_Illness, `disp-fam-ill-${memberCount}`);
+    populateSelect(`dd-fam-occ-${memberCount}`, globalData.List_Occupation, t('ph_select_occupation'), 'List_Occupation');
+    populateSelect(`dd-fam-class-${memberCount}`, globalData.List_Occupation_Class, t('ph_select_class'), 'List_Occupation_Class');
+    populateMulti(`dd-fam-dis-${memberCount}`, globalData.List_Disability, `disp-fam-dis-${memberCount}`, null, 'List_Disability');
+    populateMulti(`dd-fam-ill-${memberCount}`, globalData.List_Illness, `disp-fam-ill-${memberCount}`, null, 'List_Illness');
     initToggles();
     initGoogleSelects();
   }, 100);
 }
 
 function getFamilyMemberCardHTML(num, isHead) {
-  const title = isHead ? `Member #${num} (Head of Family)` : `Member #${num}`;
+  const title = isHead ? t('member_title_head', { n: num }) : t('member_title', { n: num });
   const removeButton = !isHead ? `
-    <button onclick="removeMember(this)" class="text-xs bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors font-semibold">Remove</button>
+    <button onclick="removeMember(this)" class="text-xs bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors font-semibold">${t('member_btn_remove')}</button>
   ` : '';
-  
+
   return `
     <section class="member-card w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm relative" id="member-card-${num}">
       <div class="bg-gray-50 px-5 py-3 border-b border-gray-200 flex justify-between items-center rounded-t-xl h-14">
         <h3 class="font-bold text-brand-dark text-sm sm:text-base member-title">${title}</h3>
         <div class="flex items-center gap-2 remove-btn-container">
-          <button onclick="toggleMemberVisibility(this)" class="text-[10px] text-gray-400 font-semibold hover:text-brand-blue transition-colors">Hide</button>
+          <button onclick="toggleMemberVisibility(this)" class="text-[10px] text-gray-400 font-semibold hover:text-brand-blue transition-colors">${t('member_btn_hide')}</button>
           ${removeButton}
         </div>
       </div>
-      
+
       <div class="p-5 sm:p-6 space-y-4 member-content">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="sm:col-span-2">
-            <label for="fam-full-name-${num}" class="block text-xs font-bold text-brand-dark mb-1">Full Name <span class="text-red-500">*</span></label>
-            <input type="text" id="fam-full-name-${num}" name="fam-full-name-${num}" data-field="full_name" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Enter Full Name">
+            <label for="fam-full-name-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_fullname')} <span class="text-red-500">*</span></label>
+            <input type="text" id="fam-full-name-${num}" name="fam-full-name-${num}" data-field="full_name" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('member_ph_fullname')}">
           </div>
           <div>
-            <label for="fam-rel-${num}" class="block text-xs font-bold text-brand-dark mb-1">Relationship to Head</label>
+            <label for="fam-rel-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_relationship')}</label>
             <div class="relative">
               <select id="fam-rel-${num}" name="fam-rel-${num}" data-field="relationship_to_head" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
-                <option>${isHead ? 'Head' : 'Spouse'}</option>
-                <option>Spouse</option>
-                <option>Child</option>
-                <option>Parent</option>
-                <option>Sibling</option>
-                <option>Grandparent</option>
-                <option>Grandchild</option>
-                <option>Other Relative</option>
+                <option value="${isHead ? 'Head' : 'Spouse'}">${translateOption('List_RelationshipToHead', isHead ? 'Head' : 'Spouse')}</option>
+                <option value="Spouse">${translateOption('List_RelationshipToHead', 'Spouse')}</option>
+                <option value="Child">${translateOption('List_RelationshipToHead', 'Child')}</option>
+                <option value="Parent">${translateOption('List_RelationshipToHead', 'Parent')}</option>
+                <option value="Sibling">${translateOption('List_RelationshipToHead', 'Sibling')}</option>
+                <option value="Grandparent">${translateOption('List_RelationshipToHead', 'Grandparent')}</option>
+                <option value="Grandchild">${translateOption('List_RelationshipToHead', 'Grandchild')}</option>
+                <option value="Other Relative">${translateOption('List_RelationshipToHead', 'Other Relative')}</option>
               </select>
             </div>
           </div>
           <div>
-            <label for="solo-${num}-yes" class="block text-xs font-bold text-brand-dark mb-1">Solo Parent</label>
+            <label for="solo-${num}-yes" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_solo_parent')}</label>
             <div class="slide-toggle-container h-9 w-full">
               <div class="slide-toggle-slider"></div>
               <label for="solo-${num}-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
                 <input type="radio" name="solo-${num}" id="solo-${num}-yes" value="Yes" data-field="is_solo_parent" class="hidden">
-                <span>Yes</span>
+                ${t('btn_yes')}
               </label>
               <label for="solo-${num}-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
                 <input type="radio" name="solo-${num}" id="solo-${num}-no" value="No" data-field="is_solo_parent" class="hidden" checked>
-                <span>No</span>
+                ${t('btn_no')}
               </label>
             </div>
           </div>
           <div>
-            <label for="claimant-${num}-yes" class="block text-xs font-bold text-brand-dark mb-1">Authorized Claimant</label>
+            <label for="claimant-${num}-yes" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_claimant')}</label>
             <div class="slide-toggle-container h-9 w-full">
               <div class="slide-toggle-slider"></div>
               <label for="claimant-${num}-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
                 <input type="radio" name="claimant-${num}" id="claimant-${num}-yes" value="Yes" data-field="is_authorized_claimant" class="hidden">
-                <span>Yes</span>
+                ${t('btn_yes')}
               </label>
               <label for="claimant-${num}-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
                 <input type="radio" name="claimant-${num}" id="claimant-${num}-no" value="No" data-field="is_authorized_claimant" class="hidden" checked>
-                <span>No</span>
+                ${t('btn_no')}
               </label>
             </div>
           </div>
@@ -2340,33 +2355,33 @@ function getFamilyMemberCardHTML(num, isHead) {
 
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
-            <label for="fam-civil-${num}" class="block text-xs font-bold text-brand-dark mb-1">Civil Status <span class="text-red-500">*</span></label>
+            <label for="fam-civil-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_civil_status')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="fam-civil-${num}" name="fam-civil-${num}" data-field="civil_status" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
-                <option value="" disabled selected>Select Status</option>
-                <option>Single</option>
-                <option>Married</option>
-                <option>Widowed</option>
-                <option>Separated</option>
-                <option>Live-in</option>
+                <option value="" disabled selected>${t('ph_select_status')}</option>
+                <option value="Single">${translateOption('List_CivilStatus', 'Single')}</option>
+                <option value="Married">${translateOption('List_CivilStatus', 'Married')}</option>
+                <option value="Widowed">${translateOption('List_CivilStatus', 'Widowed')}</option>
+                <option value="Separated">${translateOption('List_CivilStatus', 'Separated')}</option>
+                <option value="Live-in">${translateOption('List_CivilStatus', 'Live-in')}</option>
               </select>
             </div>
           </div>
           <div>
-            <label for="fam-age-${num}" class="block text-xs font-bold text-brand-dark mb-1">Age <span class="text-red-500">*</span></label>
-            <input type="text" id="fam-age-${num}" name="fam-age-${num}" data-field="age" maxlength="3" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="Age" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <label for="fam-age-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_age')} <span class="text-red-500">*</span></label>
+            <input type="text" id="fam-age-${num}" name="fam-age-${num}" data-field="age" maxlength="3" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('member_ph_age')}" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
           </div>
           <div>
-            <label for="sex-${num}-male" class="block text-xs font-bold text-brand-dark mb-1">Sex</label>
+            <label for="sex-${num}-male" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_sex')}</label>
             <div class="slide-toggle-container h-9 w-full">
               <div class="slide-toggle-slider"></div>
               <label for="sex-${num}-male" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
                 <input type="radio" name="sex-${num}" id="sex-${num}-male" value="Male" data-field="member_sex" class="hidden" checked>
-                <span>Male</span>
+                <span>${t('opt_male')}</span>
               </label>
               <label for="sex-${num}-female" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
                 <input type="radio" name="sex-${num}" id="sex-${num}-female" value="Female" data-field="member_sex" class="hidden">
-                <span>Female</span>
+                <span>${t('opt_female')}</span>
               </label>
             </div>
           </div>
@@ -2374,18 +2389,18 @@ function getFamilyMemberCardHTML(num, isHead) {
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="dd-fam-occ-${num}" class="block text-xs font-bold text-brand-dark mb-1">Occupation <span class="text-red-500">*</span></label>
+            <label for="dd-fam-occ-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_occupation')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-fam-occ-${num}" name="dd-fam-occ-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
-                <option value="" disabled selected>Loading...</option>
+                <option value="" disabled selected>${t('ph_loading')}</option>
               </select>
             </div>
           </div>
           <div>
-            <label for="dd-fam-class-${num}" class="block text-xs font-bold text-brand-dark mb-1">Occupation Class <span class="text-red-500">*</span></label>
+            <label for="dd-fam-class-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_occ_class')} <span class="text-red-500">*</span></label>
             <div class="relative">
               <select id="dd-fam-class-${num}" name="dd-fam-class-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
-                <option value="" disabled selected>Loading...</option>
+                <option value="" disabled selected>${t('ph_loading')}</option>
               </select>
             </div>
           </div>
@@ -2393,23 +2408,23 @@ function getFamilyMemberCardHTML(num, isHead) {
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="relative">
-            <label for="dd-fam-dis-${num}-btn" class="block text-xs font-bold text-brand-dark mb-1">Disability/Special Needs</label>
+            <label for="dd-fam-dis-${num}-btn" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_disability')}</label>
             <button type="button" id="dd-fam-dis-${num}-btn" onclick="toggleDropdown('dd-fam-dis-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
-              <span id="disp-fam-dis-${num}" class="truncate text-gray-500">Select...</span>
+              <span id="disp-fam-dis-${num}" class="truncate text-gray-500">${t('ph_select_ellipsis')}</span>
               <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-fam-dis-${num}" class="hidden absolute z-10 w-full google-menu mt-1 max-h-40 overflow-y-auto dropdown-scroll">
-              <div class="p-2 text-gray-400 text-xs">Loading...</div>
+              <div class="p-2 text-gray-400 text-xs">${t('ph_loading')}</div>
             </div>
           </div>
           <div class="relative">
-            <label for="dd-fam-ill-${num}-btn" class="block text-xs font-bold text-brand-dark mb-1">Critical Illness</label>
+            <label for="dd-fam-ill-${num}-btn" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_illness')}</label>
             <button type="button" id="dd-fam-ill-${num}-btn" onclick="toggleDropdown('dd-fam-ill-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
-              <span id="disp-fam-ill-${num}" class="truncate text-gray-500">Select...</span>
+              <span id="disp-fam-ill-${num}" class="truncate text-gray-500">${t('ph_select_ellipsis')}</span>
               <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
             </button>
             <div id="dd-fam-ill-${num}" class="hidden absolute z-10 w-full google-menu mt-1 max-h-40 overflow-y-auto dropdown-scroll">
-              <div class="p-2 text-gray-400 text-xs">Loading...</div>
+              <div class="p-2 text-gray-400 text-xs">${t('ph_loading')}</div>
             </div>
           </div>
         </div>
@@ -2429,9 +2444,9 @@ function removeMember(btn) {
     c.id = `member-card-${currentCount}`;
     const title = c.querySelector('.member-title');
     if (currentCount === 1) {
-      title.innerText = "Member #1 (Head of Family)";
+      title.innerText = t('member_title_head', { n: 1 });
     } else {
-      title.innerText = `Member #${currentCount}`;
+      title.innerText = t('member_title', { n: currentCount });
     }
   });
   memberCount = currentCount;
@@ -2443,10 +2458,10 @@ function toggleMemberVisibility(btn) {
   const content = card.querySelector('.member-content');
   if (content.style.display === "none") {
     content.style.display = "block";
-    btn.innerText = "Hide";
+    btn.innerText = t('member_btn_hide');
   } else {
     content.style.display = "none";
-    btn.innerText = "Show";
+    btn.innerText = t('member_btn_show');
   }
 }
 
@@ -2516,7 +2531,7 @@ function validateStep(step) {
   const ok = fn();
   if (!ok) {
     scrollToFirstError();
-    if (typeof toast !== 'undefined') toast.warning('Please fix the highlighted errors before proceeding.', 'Validation Error');
+    if (typeof toast !== 'undefined') toast.warning(t('val_fix_errors'), t('val_fix_errors_title'));
   }
   return ok;
 }
@@ -2537,11 +2552,11 @@ function getMultiBtn(dropdownId) {
 
 function chkDropdownOther(selectId, otherId, label) {
   const v = getSelVal(selectId);
-  if (!v) { showFieldError(selectId, `Please select ${label}`); return false; }
+  if (!v) { showFieldError(selectId, t('val_please_select', { field: label })); return false; }
   if (v === 'Others' && otherId) {
     const o = (document.getElementById(otherId)?.value || '').trim();
-    if (!o) { showFieldError(otherId, `Please specify ${label}`); return false; }
-    if (o.length > 255) { showFieldError(otherId, `${label} must not exceed 255 characters`); return false; }
+    if (!o) { showFieldError(otherId, t('val_please_specify', { field: label })); return false; }
+    if (o.length > 255) { showFieldError(otherId, t('val_max_length', { field: label, n: 255 })); return false; }
   }
   return true;
 }
@@ -2549,8 +2564,8 @@ function chkDropdownOther(selectId, otherId, label) {
 function chkToggleSpecify(radioName, specifyId, label, maxLen = 500) {
   if (getRadioVal(radioName) === 'Yes' && specifyId) {
     const v = (document.getElementById(specifyId)?.value || '').trim();
-    if (!v) { showFieldError(specifyId, `Please specify ${label}`); return false; }
-    if (v.length > maxLen) { showFieldError(specifyId, `${label} must not exceed ${maxLen} characters`); return false; }
+    if (!v) { showFieldError(specifyId, t('val_please_specify', { field: label })); return false; }
+    if (v.length > maxLen) { showFieldError(specifyId, t('val_max_length', { field: label, n: maxLen })); return false; }
   }
   return true;
 }
@@ -2566,17 +2581,17 @@ function chkMulti(dropdownId, errId, label) {
 
 function chkName(id, label, min, max) {
   const v = (document.getElementById(id)?.value || '').trim();
-  if (!v)              { showFieldError(id, `${label} is required`); return false; }
-  if (v.length < min)  { showFieldError(id, `${label} must be at least ${min} characters`); return false; }
-  if (v.length > max)  { showFieldError(id, `${label} must not exceed ${max} characters`); return false; }
-  if (!isValidName(v)) { showFieldError(id, `${label} can only contain letters, spaces, hyphens, and apostrophes`); return false; }
+  if (!v)              { showFieldError(id, t('val_required', { field: label })); return false; }
+  if (v.length < min)  { showFieldError(id, t('val_min_length', { field: label, n: min })); return false; }
+  if (v.length > max)  { showFieldError(id, t('val_max_length', { field: label, n: max })); return false; }
+  if (!isValidName(v)) { showFieldError(id, t('val_letters_only', { field: label })); return false; }
   return true;
 }
 
 function chkPhone(id, label) {
   const v = (document.getElementById(id)?.value || '').trim();
-  if (!v)               { showFieldError(id, `${label} is required`); return false; }
-  if (!isValidPhone(v)) { showFieldError(id, `${label} must be in format: 09XX XXX XXXX`); return false; }
+  if (!v)               { showFieldError(id, t('val_required', { field: label })); return false; }
+  if (!isValidPhone(v)) { showFieldError(id, t('val_phone_format', { field: label })); return false; }
   return true;
 }
 
@@ -2584,85 +2599,91 @@ function chkPhone(id, label) {
 function validateStep1() {
   if (getRadioVal('membership') !== 'Yes') return true;
   const v = (document.getElementById('household-id')?.value || '').trim();
-  if (!v)               { showFieldError('household-id', 'Household ID is required for 4Ps members'); return false; }
-  if (!/^[A-Za-z0-9]{13,18}$/.test(v)) { showFieldError('household-id', 'Household ID must be 13 to 18 characters'); return false; }
+  if (!v)               { showFieldError('household-id', t('val_step1_hh_required')); return false; }
+  if (!/^[A-Za-z0-9]{13,18}$/.test(v)) { showFieldError('household-id', t('val_step1_hh_length')); return false; }
   return true;
 }
 
 // --- Step 2 ---
 function validateStep2() {
   let ok = true;
-  if (!chkName('resp-name', 'Name of Respondent', 2, 255)) ok = false;
-  if (!getSelVal('dd-relationship'))  { showFieldError('dd-relationship-input', 'Please select a relationship'); ok = false; }
+  if (!chkName('resp-name', t('fieldlbl_name'), 2, 255)) ok = false;
+  if (!getSelVal('dd-relationship'))  { showFieldError('dd-relationship-input', t('val_step2_relationship')); ok = false; }
 
   const email = (document.getElementById('resp-email')?.value || '').trim();
-  if (email && !isValidEmail(email)) { showFieldError('resp-email', 'Please enter a valid email (e.g., name@example.com)'); ok = false; }
-  else if (email && email.length > 255) { showFieldError('resp-email', 'Email must not exceed 255 characters'); ok = false; }
+  if (email && !isValidEmail(email)) { showFieldError('resp-email', t('val_step2_email_invalid')); ok = false; }
+  else if (email && email.length > 255) { showFieldError('resp-email', t('val_step2_email_length')); ok = false; }
 
   const respContact = (document.getElementById('resp-contact')?.value || '').trim();
-  if (respContact && !isValidPhone(respContact)) { showFieldError('resp-contact', 'Contact number must be 11 digits starting with 09'); ok = false; }
+  if (respContact && !isValidPhone(respContact)) { showFieldError('resp-contact', t('val_step2_contact_format')); ok = false; }
   return ok;
 }
 
 // --- Step 3 ---
 function validateStep3() {
   let ok = true;
-  if (!chkName('child-fname', 'First Name', 2, 100)) ok = false;
+  if (!chkName('child-fname', t('fieldlbl_first_name'), 2, 100)) ok = false;
   const mn = (document.getElementById('child-mname')?.value || '').trim();
-  if (mn && mn.length > 100)   { showFieldError('child-mname', 'Middle Name must not exceed 100 characters'); ok = false; }
-  else if (mn && !isValidName(mn)) { showFieldError('child-mname', 'Middle Name can only contain letters, spaces, and hyphens'); ok = false; }
-  if (!chkName('child-lname', 'Last Name', 2, 100)) ok = false;
+  if (mn && mn.length > 100)   { showFieldError('child-mname', t('val_step3_middle_name_length')); ok = false; }
+  else if (mn && !isValidName(mn)) { showFieldError('child-mname', t('val_step3_middle_name_letters')); ok = false; }
+  if (!chkName('child-lname', t('fieldlbl_last_name'), 2, 100)) ok = false;
 
-  ['child-region','child-province','child-city','child-barangay'].forEach(id => {
-    if (!getSelVal(id)) { showFieldError(id, `Please select a ${id.replace('child-','').replace('-',' ')}`); ok = false; }
+  const locationFieldLabelKeys = {
+    'child-region':   'fieldlbl_region',
+    'child-province': 'fieldlbl_province',
+    'child-city':     'fieldlbl_city',
+    'child-barangay': 'fieldlbl_barangay',
+  };
+  Object.keys(locationFieldLabelKeys).forEach(id => {
+    if (!getSelVal(id)) { showFieldError(id, t('val_please_select', { field: t(locationFieldLabelKeys[id]) })); ok = false; }
   });
 
   const st = (document.getElementById('child-street')?.value || '').trim();
-  if (!st)             { showFieldError('child-street', 'Street address is required'); ok = false; }
-  else if (st.length < 5)   { showFieldError('child-street', 'Street address must be at least 5 characters'); ok = false; }
-  else if (st.length > 255) { showFieldError('child-street', 'Street address must not exceed 255 characters'); ok = false; }
+  if (!st)             { showFieldError('child-street', t('val_step3_street_required')); ok = false; }
+  else if (st.length < 5)   { showFieldError('child-street', t('val_step3_street_min')); ok = false; }
+  else if (st.length > 255) { showFieldError('child-street', t('val_step3_street_max')); ok = false; }
 
   const childContact = (document.getElementById('child-contact')?.value || '').trim();
-  if (childContact && !isValidPhone(childContact)) { showFieldError('child-contact', 'Contact number must be 11 digits starting with 09'); ok = false; }
+  if (childContact && !isValidPhone(childContact)) { showFieldError('child-contact', t('val_step3_contact_format')); ok = false; }
 
   const dob = (document.getElementById('child-dob')?.value || '');
-  if (!dob) { showFieldError('child-dob', 'Date of birth is required'); ok = false; }
+  if (!dob) { showFieldError('child-dob', t('val_step3_dob_required')); ok = false; }
   else {
     const d = new Date(dob), today = new Date();
     today.setHours(0,0,0,0);
-    if (d > today) { showFieldError('child-dob', 'Date of birth cannot be in the future'); ok = false; }
+    if (d > today) { showFieldError('child-dob', t('val_step3_dob_future')); ok = false; }
   }
 
   const rel = getSelVal('dd-religion');
-  if (!rel) { showFieldError('dd-religion', 'Please select a religion'); ok = false; }
+  if (!rel) { showFieldError('dd-religion', t('val_please_select', { field: t('fieldlbl_religion') })); ok = false; }
   else if (rel === 'Others') {
     const v = (document.getElementById('rel-other')?.value || '').trim();
-    if (!v) { showFieldError('rel-other', 'Please specify religion'); ok = false; }
+    if (!v) { showFieldError('rel-other', t('val_please_specify', { field: t('fieldlbl_religion') })); ok = false; }
   }
 
   const ip = getSelVal('dd-ip');
-  if (!ip) { showFieldError('dd-ip', 'Please select IP membership status'); ok = false; }
+  if (!ip) { showFieldError('dd-ip', t('val_please_select', { field: t('fieldlbl_ip_status') })); ok = false; }
   else if (ip === 'Others') {
     const v = (document.getElementById('ip-other')?.value || '').trim();
-    if (!v) { showFieldError('ip-other', 'Please specify IP group'); ok = false; }
+    if (!v) { showFieldError('ip-other', t('val_please_specify', { field: t('fieldlbl_ip_group') })); ok = false; }
   }
 
   const edu = getSelVal('dd-education');
-  if (!edu) { showFieldError('dd-education', 'Please select educational attainment'); ok = false; }
+  if (!edu) { showFieldError('dd-education', t('val_please_select', { field: t('fieldlbl_education') })); ok = false; }
   else if (edu === 'Others') {
     const v = (document.getElementById('edu-other')?.value || '').trim();
-    if (!v) { showFieldError('edu-other', 'Please specify educational attainment'); ok = false; }
+    if (!v) { showFieldError('edu-other', t('val_please_specify', { field: t('fieldlbl_education') })); ok = false; }
   }
 
-  if (!chkMulti('dd-disability', 'err-dd-disability', 'Please select at least one disability/special need')) ok = false;
+  if (!chkMulti('dd-disability', 'err-dd-disability', t('val_step3_disability_required'))) ok = false;
 
   const illVals = getMultiVals('dd-illness');
   if (illVals.length === 0) {
-    showFieldError('dd-illness-btn', 'Please select at least one critical illness (or select "None")');
+    showFieldError('dd-illness-btn', t('val_step3_illness_required'));
     ok = false;
   } else if (illVals.includes('Others')) {
     const v = (document.getElementById('illness-other-input')?.value || '').trim();
-    if (!v) { showFieldError('illness-other-input', 'Please specify the critical illness'); ok = false; }
+    if (!v) { showFieldError('illness-other-input', t('val_step3_illness_specify')); ok = false; }
   }
 
   return ok;
@@ -2677,28 +2698,28 @@ function validateStep4() {
 
     const nameEl = card.querySelector('[data-field="full_name"]');
     const nameVal = (nameEl?.value || '').trim();
-    if (!nameVal)             { showElemError(nameEl, `err-fam-name-${n}`, `Member #${n}: Full name is required`); ok = false; }
-    else if (nameVal.length < 2) { showElemError(nameEl, `err-fam-name-${n}`, `Member #${n}: Name must be at least 2 characters`); ok = false; }
-    else if (!isValidName(nameVal)) { showElemError(nameEl, `err-fam-name-${n}`, `Member #${n}: Name can only contain letters, spaces, and hyphens`); ok = false; }
+    if (!nameVal)             { showElemError(nameEl, `err-fam-name-${n}`, t('val_step4_member_name_required', { n })); ok = false; }
+    else if (nameVal.length < 2) { showElemError(nameEl, `err-fam-name-${n}`, t('val_step4_member_name_min', { n })); ok = false; }
+    else if (!isValidName(nameVal)) { showElemError(nameEl, `err-fam-name-${n}`, t('val_step4_member_name_letters', { n })); ok = false; }
 
     const relEl = card.querySelector('[data-field="relationship_to_head"]');
-    if (!relEl?.value) { showElemError(relEl, `err-fam-rel-${n}`, `Member #${n}: Relationship is required`); ok = false; }
+    if (!relEl?.value) { showElemError(relEl, `err-fam-rel-${n}`, t('val_step4_member_relationship', { n })); ok = false; }
 
     const civEl = card.querySelector('[data-field="civil_status"]');
-    if (!civEl?.value) { showElemError(civEl, `err-fam-civ-${n}`, `Member #${n}: Civil status is required`); ok = false; }
+    if (!civEl?.value) { showElemError(civEl, `err-fam-civ-${n}`, t('val_step4_member_civil_status', { n })); ok = false; }
 
     const ageEl = card.querySelector('[data-field="age"]');
     const ageV  = parseInt(ageEl?.value || '');
-    if (!ageEl?.value.trim()) { showElemError(ageEl, `err-fam-age-${n}`, `Member #${n}: Age is required`); ok = false; }
-    else if (isNaN(ageV) || ageV < 0 || ageV > 150) { showElemError(ageEl, `err-fam-age-${n}`, `Member #${n}: Age must be 0–150`); ok = false; }
+    if (!ageEl?.value.trim()) { showElemError(ageEl, `err-fam-age-${n}`, t('val_step4_member_age_required', { n })); ok = false; }
+    else if (isNaN(ageV) || ageV < 0 || ageV > 150) { showElemError(ageEl, `err-fam-age-${n}`, t('val_step4_member_age_range', { n })); ok = false; }
 
     const occEl   = document.getElementById(`dd-fam-occ-${origNum}`);
     const classEl = document.getElementById(`dd-fam-class-${origNum}`);
-    if (!occEl?.value)   { if (occEl)   showFieldError(`dd-fam-occ-${origNum}`,   `Member #${n}: Occupation is required`);       ok = false; }
-    if (!classEl?.value) { if (classEl) showFieldError(`dd-fam-class-${origNum}`, `Member #${n}: Occupation class is required`); ok = false; }
+    if (!occEl?.value)   { if (occEl)   showFieldError(`dd-fam-occ-${origNum}`,   t('val_step4_member_occupation', { n })); ok = false; }
+    if (!classEl?.value) { if (classEl) showFieldError(`dd-fam-class-${origNum}`, t('val_step4_member_occ_class', { n })); ok = false; }
 
-    if (!chkMulti(`dd-fam-dis-${origNum}`, `err-fam-dis-${n}`, `Member #${n}: Select at least one disability/special need`)) ok = false;
-    if (!chkMulti(`dd-fam-ill-${origNum}`, `err-fam-ill-${n}`, `Member #${n}: Select at least one critical illness`)) ok = false;
+    if (!chkMulti(`dd-fam-dis-${origNum}`, `err-fam-dis-${n}`, t('val_step4_member_disability', { n }))) ok = false;
+    if (!chkMulti(`dd-fam-ill-${origNum}`, `err-fam-ill-${n}`, t('val_step4_member_illness', { n }))) ok = false;
   });
   return ok;
 }
@@ -2706,22 +2727,22 @@ function validateStep4() {
 // --- Step 5 ---
 function validateStep5() {
   let ok = true;
-  ok = chkDropdownOther('dd-materials',    'mat-other',    'housing materials')      && ok;
-  ok = chkDropdownOther('dd-tenure',       'tenure-other', 'tenure status')          && ok;
-  ok = chkToggleSpecify('modifications',   'mod-specify',  'modification details')   && ok;
-  ok = chkDropdownOther('dd-electricity',  'elec-other',   'electricity source')     && ok;
-  ok = chkDropdownOther('dd-water',        'water-other',  'water source')           && ok;
-  ok = chkDropdownOther('dd-toilet',       'toilet-other', 'toilet type')            && ok;
-  ok = chkDropdownOther('dd-garbage',      'garbage-other','garbage disposal system')&& ok;
+  ok = chkDropdownOther('dd-materials',    'mat-other',    t('fieldlbl_housing_materials'))     && ok;
+  ok = chkDropdownOther('dd-tenure',       'tenure-other', t('fieldlbl_tenure_status'))         && ok;
+  ok = chkToggleSpecify('modifications',   'mod-specify',  t('fieldlbl_modification_details'))  && ok;
+  ok = chkDropdownOther('dd-electricity',  'elec-other',   t('fieldlbl_electricity_source'))    && ok;
+  ok = chkDropdownOther('dd-water',        'water-other',  t('fieldlbl_water_source'))          && ok;
+  ok = chkDropdownOther('dd-toilet',       'toilet-other', t('fieldlbl_toilet_type'))           && ok;
+  ok = chkDropdownOther('dd-garbage',      'garbage-other',t('fieldlbl_garbage_system'))        && ok;
   return ok;
 }
 
 // --- Step 6 ---
 function validateStep6() {
   let ok = true;
-  ok = chkToggleSpecify('health_cond',    'health-cond-specify', 'health condition details')    && ok;
-  ok = chkToggleSpecify('avail_services', 'avail-specify',       'services availed in 6 months') && ok;
-  ok = chkToggleSpecify('barriers',       'barrier-specify',     'healthcare barrier details')   && ok;
+  ok = chkToggleSpecify('health_cond',    'health-cond-specify', t('fieldlbl_health_condition_details')) && ok;
+  ok = chkToggleSpecify('avail_services', 'avail-specify',       t('fieldlbl_services_availed_6mo'))     && ok;
+  ok = chkToggleSpecify('barriers',       'barrier-specify',     t('fieldlbl_healthcare_barrier_details')) && ok;
   return ok;
 }
 
@@ -2731,15 +2752,15 @@ function validateStep7() {
   const enrolled = getRadioVal('enrolled');
   if (enrolled === 'Yes') {
     const grade = (document.getElementById('grade-level')?.value || '').trim();
-    if (!grade)            { showFieldError('grade-level', 'Grade/Year level is required for enrolled children'); ok = false; }
-    else if (grade.length > 50) { showFieldError('grade-level', 'Grade/Year level must not exceed 50 characters'); ok = false; }
-    ok = chkToggleSpecify('school_features',  'school-access-specify', 'accessibility feature details') && ok;
-    ok = chkToggleSpecify('sped_prog',        'sped-specify',          'SPED program details')          && ok;
-    ok = chkToggleSpecify('learning_support', 'learn-supp-specify',    'learning support details')      && ok;
+    if (!grade)            { showFieldError('grade-level', t('val_step7_grade_required')); ok = false; }
+    else if (grade.length > 50) { showFieldError('grade-level', t('val_step7_grade_max')); ok = false; }
+    ok = chkToggleSpecify('school_features',  'school-access-specify', t('fieldlbl_accessibility_feature_details')) && ok;
+    ok = chkToggleSpecify('sped_prog',        'sped-specify',          t('fieldlbl_sped_details'))                  && ok;
+    ok = chkToggleSpecify('learning_support', 'learn-supp-specify',    t('fieldlbl_learning_support_details'))      && ok;
   } else if (enrolled === 'No') {
     const r = (document.getElementById('not-enrolled-reason')?.value || '').trim();
-    if (!r)           { showFieldError('not-enrolled-reason', 'Please provide a reason for not being enrolled'); ok = false; }
-    else if (r.length > 500) { showFieldError('not-enrolled-reason', 'Reason must not exceed 500 characters'); ok = false; }
+    if (!r)           { showFieldError('not-enrolled-reason', t('val_step7_reason_required')); ok = false; }
+    else if (r.length > 500) { showFieldError('not-enrolled-reason', t('val_step7_reason_max')); ok = false; }
   }
   return ok;
 }
@@ -2748,36 +2769,37 @@ function validateStep7() {
 function validateStep8() {
   let ok = true;
   const src = (document.getElementById('income-source')?.value || '').trim();
-  if (!src)             { showFieldError('income-source', 'Primary income source is required'); ok = false; }
-  else if (src.length < 3)   { showFieldError('income-source', 'Income source must be at least 3 characters'); ok = false; }
-  else if (src.length > 255) { showFieldError('income-source', 'Income source must not exceed 255 characters'); ok = false; }
+  if (!src)             { showFieldError('income-source', t('val_step8_income_source_required')); ok = false; }
+  else if (src.length < 3)   { showFieldError('income-source', t('val_step8_income_source_min')); ok = false; }
+  else if (src.length > 255) { showFieldError('income-source', t('val_step8_income_source_max')); ok = false; }
 
   const inc = (document.getElementById('monthly-income')?.value || '').trim();
-  if (!inc)                  { showFieldError('monthly-income', 'Monthly income is required'); ok = false; }
-  else if (!/^\d+$/.test(inc)) { showFieldError('monthly-income', 'Monthly income must be a whole number'); ok = false; }
+  if (!inc)                  { showFieldError('monthly-income', t('val_step8_income_required')); ok = false; }
+  else if (!/^\d+$/.test(inc)) { showFieldError('monthly-income', t('val_step8_income_whole_number')); ok = false; }
 
-  ok = chkToggleSpecify('employed', 'emp-specify', 'employment details') && ok;
+  ok = chkToggleSpecify('employed', 'emp-specify', t('fieldlbl_employment_details')) && ok;
   return ok;
 }
 
 // --- Step 9 ---
 function validateStep9() {
   let ok = true;
-  ok = chkToggleSpecify('fin_assist',    'fin-assist-specify', 'financial assistance details') && ok;
-  ok = chkToggleSpecify('aware_services','aware-specify',       'service awareness details')   && ok;
-  ok = chkToggleSpecify('availed_any',   'availed-specify',     'availed services details')    && ok;
-  if (!chkDropdownOther('service-challenges', 'barrier-other', 'service challenge')) ok = false;
+  ok = chkToggleSpecify('fin_assist',    'fin-assist-specify', t('fieldlbl_financial_assistance_details')) && ok;
+  ok = chkToggleSpecify('aware_services','aware-specify',       t('fieldlbl_service_awareness_details'))   && ok;
+  ok = chkToggleSpecify('availed_any',   'availed-specify',     t('fieldlbl_availed_services_details'))    && ok;
+  if (!chkDropdownOther('service-challenges', 'barrier-other', t('fieldlbl_service_challenge'))) ok = false;
   return ok;
 }
 
 // --- Step 10 ---
 function validateStep10() {
   let ok = true;
-  [['strengths','Strengths'],['assessment','Assessment'],['recommendations','Recommendations']].forEach(([id, label]) => {
+  [['strengths','fieldlbl_strengths'],['assessment','fieldlbl_assessment'],['recommendations','fieldlbl_recommendations']].forEach(([id, labelKey]) => {
+    const label = t(labelKey);
     const v = (document.getElementById(id)?.value || '').trim();
-    if (!v)              { showFieldError(id, `${label} is required`); ok = false; }
-    else if (v.length < 10)   { showFieldError(id, `${label} must be at least 10 characters`); ok = false; }
-    else if (v.length > 2000) { showFieldError(id, `${label} must not exceed 2000 characters`); ok = false; }
+    if (!v)              { showFieldError(id, t('val_required', { field: label })); ok = false; }
+    else if (v.length < 10)   { showFieldError(id, t('val_step10_min_length_10', { field: label })); ok = false; }
+    else if (v.length > 2000) { showFieldError(id, t('val_step10_max_length_2000', { field: label })); ok = false; }
   });
   if (!getRadioVal('readiness')) {
     const section = document.querySelector('input[name="readiness"]')?.closest('section');
@@ -2785,7 +2807,7 @@ function validateStep10() {
       document.getElementById('err-readiness')?.remove();
       const p = document.createElement('p');
       p.id = 'err-readiness'; p.className = 'field-error mt-2';
-      p.textContent = 'Please select a readiness score';
+      p.textContent = t('val_step10_readiness_required');
       section.querySelector('.space-y-3')?.appendChild(p);
     }
     ok = false;
@@ -2817,17 +2839,25 @@ function generateReview() {
     return el ? el.value : '-';
   };
   
+  // Readiness wording is sourced from the same readiness_*_title keys used by
+  // Step 10's cards, so the review screen can never drift out of sync with them.
   const readinessMap = {
-    severe:   { label: 'Severe: Immediate intervention needed',              color: 'bg-red-50 border-red-200 text-red-700' },
-    moderate: { label: 'Moderate: Address within a short period',            color: 'bg-orange-50 border-orange-200 text-orange-700' },
-    low:      { label: 'Low: No immediate action needed, but monitor regularly', color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
-    stable:   { label: 'Stable: Meets all needs effectively',               color: 'bg-green-50 border-green-200 text-green-700' },
+    severe:   { label: t('readiness_severe_title'),   color: 'bg-red-50 border-red-200 text-red-700' },
+    moderate: { label: t('readiness_moderate_title'), color: 'bg-orange-50 border-orange-200 text-orange-700' },
+    low:      { label: t('readiness_low_title'),      color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+    stable:   { label: t('readiness_stable_title'),   color: 'bg-green-50 border-green-200 text-green-700' },
   };
+
+  // 'Yes - <detail>' / 'No' pattern used throughout the review screen.
+  const yesNo = (radioName, detailId) =>
+    getRadio(radioName) === 'Yes'
+      ? t('review_yes_prefix', { detail: getVal(detailId) })
+      : t('review_no_fallback');
   const readinessVal   = getRadio('readiness') || '';
   const readinessInfo  = readinessMap[readinessVal] || { label: readinessVal || '-', color: 'bg-gray-50 border-gray-200 text-gray-700' };
 
   const incomeClassTxt = document.getElementById('income-class-display')?.innerText || '';
-  const incomeDisplay  = (incomeClassTxt && incomeClassTxt !== 'Enter income to see classification') ? incomeClassTxt : '-';
+  const incomeDisplay  = (incomeClassTxt && incomeClassTxt !== t('step8_ph_income_class_initial')) ? incomeClassTxt : '-';
 
   let html = `
     <!-- REVIEW INTRODUCTION -->
@@ -2837,8 +2867,8 @@ function generateReview() {
           <span class="material-symbols-outlined text-[24px] sm:text-[28px]">fact_check</span>
         </div>
         <div>
-          <h2 class="text-xl sm:text-2xl font-extrabold">Assessment Review</h2>
-          <p class="text-xs sm:text-sm opacity-90 mt-0.5">Please verify all information before final submission</p>
+          <h2 class="text-xl sm:text-2xl font-extrabold">${t('review_heading')}</h2>
+          <p class="text-xs sm:text-sm opacity-90 mt-0.5">${t('review_subtext')}</p>
         </div>
       </div>
     </div>
@@ -2849,15 +2879,15 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">assignment_ind</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">1. Pre-Qualification</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_1')}</h3>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-0 sm:ml-12">
         <div>
-          <p class="text-xs font-bold text-gray-500 uppercase mb-1">4Ps Member</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_4ps_member')}</p>
           <p class="text-sm font-semibold text-gray-900">${getRadio('membership')}</p>
         </div>
         <div>
-          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Household ID</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('step1_lbl_household_id')}</p>
           <p class="text-sm font-semibold text-gray-900">${getVal('household-id')}</p>
         </div>
       </div>
@@ -2869,23 +2899,23 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">account_circle</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">2. Respondent Profile</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_2')}</h3>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-0 sm:ml-12">
         <div>
-          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Name</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_name')}</p>
           <p class="text-sm font-semibold text-gray-900">${getVal('resp-name')}</p>
         </div>
         <div>
-          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Relationship</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_relationship')}</p>
           <p class="text-sm font-semibold text-gray-900">${getVal('dd-relationship')}</p>
         </div>
         <div>
-          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Email</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_email')}</p>
           <p class="text-sm font-semibold text-gray-900 break-all">${getVal('resp-email')}</p>
         </div>
         <div>
-          <p class="text-xs font-bold text-gray-500 uppercase mb-1">Contact</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_contact')}</p>
           <p class="text-sm font-semibold text-gray-900">${getVal('resp-contact')}</p>
         </div>
       </div>
@@ -2897,19 +2927,19 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">face</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">3. Child Profile</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_3')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-4">
         <!-- Personal Information -->
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Personal Information</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step3_sec_personal')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Full Name</p>
+              <p class="text-xs text-gray-500 mb-1">${t('member_lbl_fullname')}</p>
               <p class="text-sm font-semibold text-gray-900">${[document.getElementById('child-fname')?.value?.trim(), document.getElementById('child-mname')?.value?.trim(), document.getElementById('child-lname')?.value?.trim(), document.getElementById('dd-extension')?.value?.trim()].filter(Boolean).join(' ') || '-'}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Date of Birth / Sex</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_dob_sex')}</p>
               <p class="text-sm font-semibold text-gray-900">${(() => { const d = document.getElementById('child-dob')?.value; if (!d) return '-'; const dt = new Date(d + 'T00:00:00'); return dt.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }); })()} / ${getRadio('sex')}</p>
             </div>
           </div>
@@ -2917,30 +2947,30 @@ function generateReview() {
 
         <!-- Address -->
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Address</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('review_lbl_address')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Street Address</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_street')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('child-street')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Barangay</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_barangay')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('child-barangay')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">City/Municipality</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_city')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('child-city')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Province</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_province')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('child-province')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Region</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_region')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('child-region')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Contact Number</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_contact_number')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('child-contact')}</p>
             </div>
           </div>
@@ -2948,14 +2978,14 @@ function generateReview() {
 
         <!-- Demographics -->
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Demographics</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step3_sec_demographics')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Religion</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_religion')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-religion') === 'Others' ? getVal('rel-other') : getVal('dd-religion')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">IP Membership</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_ip')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-ip') === 'Others' ? getVal('ip-other') : getVal('dd-ip')}</p>
             </div>
           </div>
@@ -2963,18 +2993,18 @@ function generateReview() {
 
         <!-- Condition & Education -->
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Condition & Education</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step3_sec_condition_edu')}</p>
           <div class="grid grid-cols-1 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Highest Educational Attainment</p>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_education')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-education') === 'Others' ? getVal('edu-other') : getVal('dd-education')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Disability or Special Needs</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_disability')}</p>
               <p class="text-sm font-semibold text-gray-900">${document.getElementById('disability-display') ? document.getElementById('disability-display').innerText : '-'}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Critical Illness</p>
+              <p class="text-xs text-gray-500 mb-1">${t('member_lbl_illness')}</p>
               <p class="text-sm font-semibold text-gray-900">${document.getElementById('illness-display') ? document.getElementById('illness-display').innerText : '-'}</p>
             </div>
           </div>
@@ -2988,12 +3018,12 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">family_restroom</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">4. Family Profile</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_4')}</h3>
       </div>
       <div class="ml-0 sm:ml-12">
         <div class="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-4">
           <div class="flex justify-between items-center">
-            <p class="text-sm font-bold text-brand-dark">Total Family Size</p>
+            <p class="text-sm font-bold text-brand-dark">${t('review_lbl_total_family_size')}</p>
             <p class="text-2xl font-extrabold text-brand-blue">${getVal('total-family-size')}</p>
           </div>
         </div>
@@ -3003,14 +3033,14 @@ function generateReview() {
   if (cards.length === 0) {
     html += `
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
-          <p class="text-sm text-gray-500">No family members added</p>
+          <p class="text-sm text-gray-500">${t('review_no_members')}</p>
         </div>
     `;
   } else {
     html += `<div class="space-y-3">`;
     cards.forEach((card, index) => {
       const inputs = card.querySelectorAll('input[type="text"]');
-      let name = "Member " + (index + 1);
+      let name = t('review_member_fallback', { n: index + 1 });
       if (inputs.length > 0 && inputs[0].value) {
         name = inputs[0].value;
       }
@@ -3035,48 +3065,48 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">home</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">5. Socio Economic</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_5')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Housing Condition</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step5_sec_housing')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Construction Materials</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_construction_materials')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-materials') === 'Others' ? getVal('mat-other') : getVal('dd-materials')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Tenure Status</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_tenure_status')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-tenure') === 'Others' ? getVal('tenure-other') : getVal('dd-tenure')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Electricity Source</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_electricity_source')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-electricity') === 'Others' ? getVal('elec-other') : getVal('dd-electricity')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Modifications for Child</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('modifications') === 'Yes' ? 'Yes - ' + getVal('mod-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_modifications')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('modifications', 'mod-specify')}</p>
             </div>
           </div>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Water & Sanitation</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('review_sec_water_sanitation')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Water Source</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_water_source')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-water') === 'Others' ? getVal('water-other') : getVal('dd-water')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Toilet Facility</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_toilet_facility')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-toilet') === 'Others' ? getVal('toilet-other') : getVal('dd-toilet')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Toilet Accessible</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_toilet_accessible')}</p>
               <p class="text-sm font-semibold text-gray-900">${getRadio('toilet-access')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Garbage Disposal</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_garbage_disposal')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('dd-garbage') === 'Others' ? getVal('garbage-other') : getVal('dd-garbage')}</p>
             </div>
           </div>
@@ -3090,19 +3120,19 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">health_and_safety</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">6. Health</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_6')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">General Health</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step6_sec_general')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Vaccinations Complete</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_vaccinations')}</p>
               <p class="text-sm font-semibold text-gray-900">${getRadio('vaccines')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Ongoing Health Conditions</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('health_cond') === 'Yes' ? 'Yes - ' + getVal('health-cond-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_ongoing_conditions')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('health_cond', 'health-cond-specify')}</p>
             </div>
           </div>
         </div>
@@ -3110,27 +3140,27 @@ function generateReview() {
         <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
           <div class="flex justify-between items-center">
             <div>
-              <p class="text-xs font-bold text-gray-700 uppercase mb-1">Total Monthly Health Expense</p>
-              <p class="text-xs text-gray-500">Sum of all health-related costs</p>
+              <p class="text-xs font-bold text-gray-700 uppercase mb-1">${t('review_lbl_total_health_expense')}</p>
+              <p class="text-xs text-gray-500">${t('review_helper_total_health_expense')}</p>
             </div>
             <p class="text-2xl font-extrabold text-brand-blue"><span style="font-family:'Poppins',sans-serif">₱</span>${getVal('exp-total')}</p>
           </div>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Access to Health Services</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step6_sec_access')}</p>
           <div class="grid grid-cols-1 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Availed Services (Past 6 Months)</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('avail_services') === 'Yes' ? 'Yes - ' + getVal('avail-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_availed_6mo')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('avail_services', 'avail-specify')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Health Facility Accessible</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_facility_accessible')}</p>
               <p class="text-sm font-semibold text-gray-900">${getRadio('facility_access')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Barriers to Healthcare</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('barriers') === 'Yes' ? 'Yes - ' + getVal('barrier-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_barriers')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('barriers', 'barrier-specify')}</p>
             </div>
           </div>
         </div>
@@ -3143,33 +3173,33 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">school</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">7. Education</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_7')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Educational Status</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step7_sec_status')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Currently Enrolled</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('enrolled') === 'Yes' ? 'Yes - Grade/Year: ' + getVal('grade-level') : 'No - Reason: ' + getVal('not-enrolled-reason')}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_currently_enrolled')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('enrolled') === 'Yes' ? t('review_enrolled_yes', { grade: getVal('grade-level') }) : t('review_enrolled_no', { reason: getVal('not-enrolled-reason') })}</p>
             </div>
           </div>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">School Accessibility</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step7_sec_accessibility')}</p>
           <div class="grid grid-cols-1 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Physical Accessibility Features</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('school_features') === 'Yes' ? 'Yes - ' + getVal('school-access-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_accessibility_features')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('school_features', 'school-access-specify')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Special Education Programs</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('sped_prog') === 'Yes' ? 'Yes - ' + getVal('sped-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_sped')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('sped_prog', 'sped-specify')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Learning Support</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('learning_support') === 'Yes' ? 'Yes - ' + getVal('learn-supp-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_learning_support')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('learning_support', 'learn-supp-specify')}</p>
             </div>
           </div>
         </div>
@@ -3182,33 +3212,33 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">account_balance_wallet</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">8. Economic Capacity</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_8')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Financial Information</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step8_sec_financial')}</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Primary Income Source</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_income_source')}</p>
               <p class="text-sm font-semibold text-gray-900">${getVal('income-source')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Monthly Income</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_monthly_income')}</p>
               <p class="text-sm font-semibold text-gray-900">₱${getVal('monthly-income')}</p>
             </div>
           </div>
         </div>
 
         <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-2">Income Classification</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">${t('review_lbl_income_classification')}</p>
           <p class="text-sm font-bold ${incomeDisplay.includes('Below') || incomeDisplay.includes('Low') ? 'text-red-600' : 'text-brand-blue'}">${incomeDisplay}</p>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Employment</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step8_sec_employment')}</p>
           <div>
-            <p class="text-xs text-gray-500 mb-1">Parents/Guardians Employed</p>
-            <p class="text-sm font-semibold text-gray-900">${getRadio('employed') === 'Yes' ? 'Yes - ' + getVal('emp-specify') : 'No'}</p>
+            <p class="text-xs text-gray-500 mb-1">${t('review_lbl_employed')}</p>
+            <p class="text-sm font-semibold text-gray-900">${yesNo('employed', 'emp-specify')}</p>
           </div>
         </div>
       </div>
@@ -3220,31 +3250,31 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">handshake</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">9. Service Availment</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_9')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Social Services</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step9_sec_social')}</p>
           <div class="grid grid-cols-1 gap-3">
             <div>
-              <p class="text-xs text-gray-500 mb-1">Financial Assistance</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('fin_assist') === 'Yes' ? 'Yes - ' + getVal('fin-assist-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_fin_assist')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('fin_assist', 'fin-assist-specify')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Aware of Social Services</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('aware_services') === 'Yes' ? 'Yes - ' + getVal('aware-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_aware_services')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('aware_services', 'aware-specify')}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 mb-1">Availed Services</p>
-              <p class="text-sm font-semibold text-gray-900">${getRadio('availed_any') === 'Yes' ? 'Yes - ' + getVal('availed-specify') : 'No'}</p>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_availed_services')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('availed_any', 'availed-specify')}</p>
             </div>
           </div>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-3">Barriers</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step9_sec_barriers')}</p>
           <div>
-            <p class="text-xs text-gray-500 mb-1">Challenges in Availing Services</p>
+            <p class="text-xs text-gray-500 mb-1">${t('review_lbl_challenges')}</p>
             <p class="text-sm font-semibold text-gray-900">${document.getElementById('service-challenges').value === 'Others' ? getVal('barrier-other') : document.getElementById('service-challenges').value}</p>
           </div>
         </div>
@@ -3257,26 +3287,26 @@ function generateReview() {
         <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
           <span class="material-symbols-outlined text-brand-blue text-[22px]">edit_note</span>
         </div>
-        <h3 class="text-lg font-bold text-brand-dark">10. Assessment Notes</h3>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_10')}</h3>
       </div>
       <div class="ml-0 sm:ml-12 space-y-3">
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-2">Strengths</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">${t('step10_lbl_strengths')}</p>
           <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('strengths')}</p>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-2">Assessment</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">${t('step10_lbl_assessment')}</p>
           <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('assessment')}</p>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <p class="text-xs font-bold text-gray-500 uppercase mb-2">Recommended Actions/Interventions</p>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">${t('step10_lbl_recommendations')}</p>
           <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('recommendations')}</p>
         </div>
 
         <div class="rounded-lg p-4 border ${readinessInfo.color}">
-          <p class="text-xs font-bold uppercase mb-2" style="opacity:0.7">Readiness Score</p>
+          <p class="text-xs font-bold uppercase mb-2" style="opacity:0.7">${t('step10_sec_readiness')}</p>
           <p class="text-sm font-bold">${readinessInfo.label}</p>
         </div>
       </div>
@@ -3336,8 +3366,9 @@ function collectFormData() {
   const serviceChalVal = serviceChalEl ? (serviceChalEl.value || null) : null;
 
   const incomeClassEl  = document.getElementById('income-class-display');
-  const incomeClassTxt = incomeClassEl ? incomeClassEl.innerText : '';
-  const incomeClass    = (incomeClassTxt && incomeClassTxt !== 'Enter income to see classification') ? incomeClassTxt : null;
+  // Read the canonical (English) classification stored by calculateIncomeClass(),
+  // never the displayed text, which may be translated.
+  const incomeClass    = (incomeClassEl && incomeClassEl.dataset.canonicalClass) || null;
 
   // Collect family members by DOM order, using data-field attributes
   const familyMembers = [];
@@ -3525,13 +3556,13 @@ async function submitAssessment() {
       sessionStorage.clear();
       window.location.href = '/success?' + params.toString();
     } else {
-      throw new Error(result.message || 'Submission failed');
+      throw new Error(result.message || t('val_submission_failed'));
     }
   } catch (error) {
-    window.toast.error(error.message || 'Could not reach the server. Please try again.', 'Submission Error');
+    window.toast.error(error.message || t('val_submission_error_body'), t('val_submission_error_title'));
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.innerHTML = 'Submit Assessment';
+      submitBtn.innerHTML = t('step11_btn_submit');
     }
   }
 }
