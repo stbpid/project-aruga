@@ -436,15 +436,31 @@
           </div>
         </div>
 
-        <div id="dsa-region-summary-panel" style="display:none;margin-top:1rem;background:white;border-radius:0.75rem;padding:1rem;">
-          <div style="font-weight:700;font-size:0.875rem;margin-bottom:0.5rem;">Regional DSA Status</div>
-          <div style="font-size:0.7rem;color:#6b7280;margin-bottom:0.5rem;">Longest since last release first.</div>
-          <div id="dsa-region-summary-list" style="font-size:0.75rem;"></div>
+        <div id="dsa-region-summary-panel" style="display:none;background:white;border:1px solid var(--gray-100);border-radius:0.875rem;margin-top:1rem;overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:0.625rem;padding:1rem 1.25rem;cursor:pointer;user-select:none;" onclick="benToggleSection('dsa-region-summary-body')">
+            <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">map</span>
+            </div>
+            <div style="font-size:0.875rem;font-weight:800;color:var(--dark);flex:1;min-width:0;">Regional DSA Status</div>
+            <span class="material-symbols-outlined" id="dsa-region-summary-body-chev" style="font-size:1.15rem;color:var(--gray-400);flex-shrink:0;transition:transform 0.15s;transform:rotate(180deg);">expand_more</span>
+          </div>
+          <div id="dsa-region-summary-body" style="padding:0 1.25rem 1.25rem;">
+            <div style="font-size:0.7rem;color:#6b7280;margin-bottom:0.5rem;">Longest since last release first.</div>
+            <div id="dsa-region-summary-list" style="font-size:0.75rem;"></div>
+          </div>
         </div>
 
-        <div id="dsa-releases-panel" style="margin-top:1rem;background:white;border-radius:0.75rem;padding:1rem;">
-          <div style="font-weight:700;font-size:0.875rem;margin-bottom:0.5rem;">Release History</div>
-          <div id="dsa-releases-list" style="font-size:0.75rem;"></div>
+        <div id="dsa-releases-panel" style="background:white;border:1px solid var(--gray-100);border-radius:0.875rem;margin-top:1rem;overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:0.625rem;padding:1rem 1.25rem;cursor:pointer;user-select:none;" onclick="benToggleSection('dsa-releases-body')">
+            <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">history</span>
+            </div>
+            <div style="font-size:0.875rem;font-weight:800;color:var(--dark);flex:1;min-width:0;">Release History</div>
+            <span class="material-symbols-outlined" id="dsa-releases-body-chev" style="font-size:1.15rem;color:var(--gray-400);flex-shrink:0;transition:transform 0.15s;transform:rotate(180deg);">expand_more</span>
+          </div>
+          <div id="dsa-releases-body" style="padding:0 1.25rem 1.25rem;">
+            <div id="dsa-releases-list" style="font-size:0.75rem;"></div>
+          </div>
         </div>
       </div><!-- /dsa-list-view -->
 
@@ -461,7 +477,9 @@
         </div>
 
         <!-- Summary Banner -->
-        <div style="background:linear-gradient(135deg,#1152d4,#3730a3);border-radius:0.875rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;color:white;" id="dsa-rel-summary-banner"></div>
+        <div style="background:linear-gradient(135deg,#1152d4,#3730a3);border-radius:0.875rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;color:white;" id="dsa-rel-summary-banner">
+          <div style="font-size:0.875rem;opacity:0.85;">Select a region and month(s) to see the payout summary.</div>
+        </div>
 
         <!-- Section 1: Release Details -->
         <div style="background:white;border:1px solid var(--gray-100);border-radius:0.875rem;margin-bottom:0.875rem;overflow:hidden;">
@@ -516,7 +534,7 @@
             <div style="font-size:0.8125rem;color:var(--gray-600);margin-bottom:0.75rem;">Everyone in this region is marked <strong>paid</strong>. Add those who did <strong>not</strong> receive DSA, by name or ARUGA ID.</div>
             <div style="display:flex;gap:0.5rem;position:relative;">
               <input type="text" id="dsa-rel-exceptions" class="settings-input" placeholder="Search name or ARUGA ID…" autocomplete="off" style="flex:1;" oninput="dsaFilterRosterSuggestions()" onkeydown="if(event.key==='Enter'){event.preventDefault();dsaResolveExceptions();}" onblur="setTimeout(() => document.getElementById('dsa-rel-suggestions').style.display='none', 150)">
-              <ul id="dsa-rel-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;max-height:200px;overflow-y:auto;z-index:20;background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.1);list-style:none;margin:0;padding:0.25rem 0;"></ul>
+              <ul id="dsa-rel-suggestions" style="display:none;position:fixed;max-height:200px;overflow-y:auto;z-index:9999;background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);list-style:none;margin:0;padding:0.25rem 0;"></ul>
             </div>
             <div style="border-bottom:1px solid var(--gray-100);margin:0.75rem 0;"></div>
             <div id="dsa-resolved-list" style="margin-bottom:0.75rem;"></div>
@@ -3449,6 +3467,22 @@
       + text.slice(idx + q.length);
   }
 
+  function dsaPositionSuggestions() {
+    const list = document.getElementById('dsa-rel-suggestions');
+    const input = document.getElementById('dsa-rel-exceptions');
+    const rect = input.getBoundingClientRect();
+    list.style.left = rect.left + 'px';
+    list.style.width = rect.width + 'px';
+    const spaceBelow = window.innerHeight - rect.bottom;
+    if (spaceBelow < 220 && rect.top > 220) {
+      list.style.top = '';
+      list.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+    } else {
+      list.style.bottom = '';
+      list.style.top = (rect.bottom + 4) + 'px';
+    }
+  }
+
   function dsaFilterRosterSuggestions() {
     const list = document.getElementById('dsa-rel-suggestions');
     const q = document.getElementById('dsa-rel-exceptions').value.trim().toLowerCase();
@@ -3459,6 +3493,7 @@
       .slice(0, 8);
     if (!matches.length) {
       list.innerHTML = `<li style="padding:0.6rem 0.75rem;font-size:0.75rem;color:#9ca3af;font-style:italic;">No matching beneficiary found.</li>`;
+      dsaPositionSuggestions();
       list.style.display = 'block';
       return;
     }
@@ -3467,6 +3502,7 @@
         <div style="font-weight:700;text-transform:uppercase;color:var(--dark,#111827);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${dsaHighlightMatch(r.name, q)}</div>
         <div style="color:#9ca3af;font-size:0.7rem;">${dsaHighlightMatch(r.aruga_id, q)}</div>
       </li>`).join('');
+    dsaPositionSuggestions();
     list.style.display = 'block';
   }
 
@@ -3482,7 +3518,7 @@
     document.getElementById('dsa-rel-amount').value = 2000;
     document.getElementById('dsa-rel-exceptions').value = '';
     document.getElementById('dsa-resolved-list').innerHTML = '';
-    document.getElementById('dsa-rel-summary-banner').innerHTML = '';
+    document.getElementById('dsa-rel-summary-banner').innerHTML = '<div style="font-size:0.875rem;opacity:0.85;">Select a region and month(s) to see the payout summary.</div>';
     document.getElementById('dsa-rel-suggestions').style.display = 'none';
     dsaResolved = [];
     document.getElementById('dsa-step1-error').style.display = 'none';
@@ -4482,7 +4518,11 @@
 
   async function loadAuditLogs() {
     if (auditLoaded) return;
-    document.getElementById('audit-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    document.getElementById('audit-tbody').innerHTML =
+      `<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">
+        <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
+        &nbsp;Loading audit logs…
+      </td></tr>`;
     try {
       const json = await (await authFetch('/api/admin-router.php?action=audit-logs&limit=40')).json();
       auditData = json.success ? json.data : [];
@@ -7812,7 +7852,11 @@
   function loadDocuments(force) {
     if (documentsData.length && !force) { renderDocuments(); return; }
     const tbody = document.getElementById('documents-tbody');
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading documents...</td></tr>';
+    tbody.innerHTML =
+      `<tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">
+        <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
+        &nbsp;Loading documents…
+      </td></tr>`;
     authFetch('/api/admin-router.php?action=get-documents')
       .then(r => r.json())
       .then(json => {

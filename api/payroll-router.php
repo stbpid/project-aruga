@@ -268,12 +268,14 @@ switch ($action) {
             $months = $payMap[$arugaId] ?? [];
             $behind = 0;
             $paidCount = 0;
-            if (!isset($standing[$arugaId])) {
-                for ($m = 1; $m <= $lastMonth; $m++) {
-                    $key = sprintf('%04d-%02d', $year, $m);
-                    if (($months[$key] ?? '') === 'paid') $paidCount++;
-                    else $behind++;
-                }
+            // Paid-month history is real regardless of current standing (a
+            // transferred/deceased beneficiary can still have prior paid
+            // months, and the Total column must reflect that). "Behind"
+            // only applies to beneficiaries still actively expected to be paid.
+            for ($m = 1; $m <= $lastMonth; $m++) {
+                $key = sprintf('%04d-%02d', $year, $m);
+                if (($months[$key] ?? '') === 'paid') $paidCount++;
+                elseif (!isset($standing[$arugaId])) $behind++;
             }
 
             $rows[] = [
