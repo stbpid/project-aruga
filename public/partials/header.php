@@ -90,6 +90,9 @@ $headerStickyClass = $interactiveSwitch ? 'sticky top-0 z-50' : '';
       menu.classList.toggle('hidden', !isHidden);
       iconOpen.classList.toggle('hidden', isHidden);
       iconClose.classList.toggle('hidden', !isHidden);
+      if (isHidden) {
+        window.dispatchEvent(new Event('mobile-menu-opened'));
+      }
     }
 
     function updateHeaderPillOnScroll() {
