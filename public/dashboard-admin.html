@@ -9350,7 +9350,7 @@
     .hdr-inner { display: flex; align-items: center; gap: 10px; }
     .hdr-logo { display: flex; align-items: center; gap: 10px; }
     .hdr-logo img { height: 50px; width: auto; object-fit: contain; }
-    .hdr-logo img.bp-logo { height: 62px; }
+    .hdr-logo img.bp-logo { height: 42px; }
     .hdr-logo img.dswd-logo { margin-left: -8px; }
     .hdr-text-wrap { flex: 1; display: flex; align-items: center; justify-content: flex-end; text-align: right; }
     .hdr-text { text-align: center; font-size: 9pt; line-height: 1.4; margin-left: auto; }
@@ -9449,6 +9449,7 @@
   let payrollZoomLevel = 1;
   const PAYROLL_ZOOM_MIN = 0.5;
   const PAYROLL_ZOOM_MAX = 2;
+  const PAYROLL_BASE_ZOOM = 0.9;
 
   function closePayrollPrintView() {
     document.getElementById('adm-ben-list-view').style.display = '';
@@ -9468,7 +9469,7 @@
       const availableWidth = scroll.clientWidth - 1;
       const sheetWidthPx = sheet.offsetWidth;
       const sheetHeightPx = sheet.offsetHeight;
-      const fitScale = Math.min(1, availableWidth / sheetWidthPx);
+      const fitScale = Math.min(1, availableWidth / sheetWidthPx) * PAYROLL_BASE_ZOOM;
       const scale = fitScale * payrollZoomLevel;
       sheet.style.transform = `scale(${scale})`;
       wrap.style.width = (sheetWidthPx * scale) + 'px';
@@ -9661,7 +9662,7 @@
           #payroll-print-body .hdr-inner { display:flex; align-items:center; gap:10px; }
           #payroll-print-body .hdr-logo { display:flex; align-items:center; gap:10px; }
           #payroll-print-body .hdr-logo img { height:50px; width:auto; object-fit:contain; }
-          #payroll-print-body .hdr-logo img.bp-logo { height:62px; }
+          #payroll-print-body .hdr-logo img.bp-logo { height:42px; }
           #payroll-print-body .hdr-logo img.dswd-logo { margin-left:-8px; }
           #payroll-print-body .hdr-text-wrap { flex:1; display:flex; align-items:center; justify-content:flex-end; text-align:right; }
           #payroll-print-body .hdr-text { text-align:center; font-size:9pt; line-height:1.4; margin-left:auto; }
@@ -9676,6 +9677,7 @@
             body * { visibility:hidden; }
             #payroll-zoom-controls { display:none !important; }
             #payroll-print-body, #payroll-print-body * { visibility:visible; }
+            #payroll-print-scroll { overflow:visible !important; height:auto !important; position:static !important; }
             #payroll-print-body { position:absolute; top:0; left:0; width:100%; margin:0; padding:0 !important; overflow:visible; }
             #payroll-print-body .pp-sheet-gap { display:none; }
             #payroll-print-body .pp-scale-wrap { overflow:visible; width:auto !important; height:auto !important; }
