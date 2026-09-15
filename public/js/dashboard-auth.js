@@ -81,12 +81,17 @@ function dashPopulateUser() {
   if (headerTitleEl) headerTitleEl.textContent = user.name;
 }
 
-// Block back navigation after logout
+// Block back navigation after logout, and confirm logout when navigating
+// back to the login page while still signed in.
 function dashBlockBack() {
+  history.pushState(null, '', location.href);
   window.addEventListener('popstate', () => {
     if (!sessionStorage.getItem('session_id')) {
       window.location.replace('/dashboard');
+      return;
     }
+    history.pushState(null, '', location.href);
+    showLogoutModal();
   });
 }
 

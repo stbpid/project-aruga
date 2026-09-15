@@ -124,6 +124,9 @@
       <a href="#" class="nav-item" id="nav-beneficiaries" title="Beneficiaries" onclick="showView('beneficiaries');return false;">
         <span class="material-symbols-outlined">group</span><span class="nav-label">Beneficiaries</span>
       </a>
+      <a href="#" class="nav-item" id="nav-manage-dsa" title="Manage DSA" onclick="showView('manage-dsa');return false;">
+        <span class="material-symbols-outlined">payments</span><span class="nav-label">Manage DSA</span>
+      </a>
       <a href="#" class="nav-item" id="nav-assessments" title="Assessments" onclick="showView('assessments');return false;">
         <span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span>
       </a>
@@ -317,8 +320,8 @@
       <div id="adm-ben-list-view">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
           <div>
-            <div class="page-title" id="all-ben-page-title" style="margin:0;">Beneficiaries</div>
-            <div class="page-subtitle" id="all-ben-page-subtitle" style="margin:0;">All submitted assessments across all regions</div>
+            <div class="page-title" style="margin:0;">Beneficiaries</div>
+            <div class="page-subtitle" style="margin:0;">All submitted assessments across all regions</div>
           </div>
         </div>
         <!-- Filters -->
@@ -352,8 +355,6 @@
             <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="all-ben-count"></span>
             <div style="display:flex;align-items:center;gap:0.5rem;margin-left:auto;">
               <button class="btn btn-primary btn-sm" id="all-ben-payout-btn" onclick="openPayrollTypeModal()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll</button>
-              <button class="btn btn-sm" id="all-ben-manage-dsa-btn" onclick="toggleDsaView()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;background:white;color:var(--blue);border:1.5px solid var(--blue);"><span class="material-symbols-outlined" style="font-size:0.875rem;" id="all-ben-dsa-icon">payments</span><span id="all-ben-dsa-label">Manage DSA</span></button>
-              <button class="btn btn-sm btn-primary" id="dsa-record-btn" onclick="openDsaReleaseModal()" style="display:none;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">add_card</span>Record Release</button>
             </div>
           </div>
         </div>
@@ -373,17 +374,6 @@
         </div>
       </div>
 
-      <div id="dsa-region-summary-panel" style="display:none;margin-top:1rem;background:white;border-radius:0.75rem;padding:1rem;">
-        <div style="font-weight:700;font-size:0.875rem;margin-bottom:0.5rem;">Regional DSA Status</div>
-        <div style="font-size:0.7rem;color:#6b7280;margin-bottom:0.5rem;">Longest since last release first.</div>
-        <div id="dsa-region-summary-list" style="font-size:0.75rem;"></div>
-      </div>
-
-      <div id="dsa-releases-panel" style="display:none;margin-top:1rem;background:white;border-radius:0.75rem;padding:1rem;">
-        <div style="font-weight:700;font-size:0.875rem;margin-bottom:0.5rem;">Release History</div>
-        <div id="dsa-releases-list" style="font-size:0.75rem;"></div>
-      </div>
-
       <!-- Detail / Edit View -->
       <div id="adm-ben-detail-view" style="display:none;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
@@ -401,6 +391,60 @@
       </div>
 
     </div><!-- /view-beneficiaries -->
+
+    <!-- Manage DSA View -->
+    <div class="dash-content" id="view-manage-dsa" style="display:none;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <div>
+          <div class="page-title" style="margin:0;">Manage DSA</div>
+          <div class="page-subtitle" style="margin:0;">Manage DSA entries for beneficiaries across all regions</div>
+        </div>
+      </div>
+      <!-- Filters -->
+      <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
+          <div class="search-bar" style="flex:1;min-width:140px;max-width:200px;height:1.875rem;">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" id="dsa-search" placeholder="Search name, ID..." aria-label="Search">
+          </div>
+          <select id="dsa-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;overflow:hidden;text-overflow:ellipsis;">
+            <option value="">All Regions</option>
+          </select>
+          <select id="dsa-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;">
+            <option value="">All Disabilities</option>
+          </select>
+          <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="dsa-count"></span>
+          <div style="display:flex;align-items:center;gap:0.5rem;margin-left:auto;">
+            <button class="btn btn-sm btn-primary" id="dsa-record-btn" onclick="openDsaReleaseModal()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">add_card</span>Record Release</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="dash-table">
+            <thead id="dsa-thead"></thead>
+            <tbody id="dsa-tbody">
+              <tr><td colspan="14" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <span style="font-size:0.75rem;color:#6b7280;" id="dsa-page-info">—</span>
+          <div class="pagination" id="dsa-pagination"></div>
+        </div>
+      </div>
+
+      <div id="dsa-region-summary-panel" style="display:none;margin-top:1rem;background:white;border-radius:0.75rem;padding:1rem;">
+        <div style="font-weight:700;font-size:0.875rem;margin-bottom:0.5rem;">Regional DSA Status</div>
+        <div style="font-size:0.7rem;color:#6b7280;margin-bottom:0.5rem;">Longest since last release first.</div>
+        <div id="dsa-region-summary-list" style="font-size:0.75rem;"></div>
+      </div>
+
+      <div id="dsa-releases-panel" style="margin-top:1rem;background:white;border-radius:0.75rem;padding:1rem;">
+        <div style="font-weight:700;font-size:0.875rem;margin-bottom:0.5rem;">Release History</div>
+        <div id="dsa-releases-list" style="font-size:0.75rem;"></div>
+      </div>
+    </div><!-- /view-manage-dsa -->
 
     <!-- Assessments View -->
     <div class="dash-content" id="view-assessments" style="display:none;">
@@ -3193,6 +3237,8 @@
     filterAllBen();
   }
 
+  const BEN_REGIONS = ['NCR (National Capital Region)','Region I (Ilocos Region)','Region II (Cagayan Valley)','Region III (Central Luzon)','Region IV-A (CALABARZON)','Region IV-B (MIMAROPA)','Region V (Bicol Region)','Region VI (Western Visayas)','Region XI (Davao Region)'];
+
   async function loadAllBeneficiaries() {
     if (allBenLoaded) return;
     document.getElementById('all-ben-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
@@ -3202,7 +3248,6 @@
       allBenLoaded = true;
 
       const rSel = document.getElementById('all-ben-region');
-      const BEN_REGIONS = ['NCR (National Capital Region)','Region I (Ilocos Region)','Region II (Cagayan Valley)','Region III (Central Luzon)','Region IV-A (CALABARZON)','Region IV-B (MIMAROPA)','Region V (Bicol Region)','Region VI (Western Visayas)','Region XI (Davao Region)'];
       BEN_REGIONS.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; rSel.appendChild(o); });
 
       const disSet = new Map();
@@ -3251,13 +3296,14 @@
   </tr>`;
 
   const DSA_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const ALL_BEN_THEAD_DSA = `<tr id="all-ben-thead-row">
+  const ALL_BEN_THEAD_DSA = `<tr id="dsa-thead-row">
     <th style="white-space:nowrap;">Beneficiary</th>
     ${DSA_MONTHS.map(m => `<th style="white-space:nowrap;text-align:center;">${m}</th>`).join('')}
     <th style="white-space:nowrap;text-align:center;">Total</th>
   </tr>`;
 
-  let allBenDsaMode = false;
+  // ── Manage DSA View ─────────────────────────────────────────────
+  let dsaData = [], dsaFiltered = [], dsaPage = 0, dsaViewLoaded = false;
 
   // Keyed by aruga_id -> { "YYYY-MM": "paid"|"not_claimed"|"deceased"|"transferred" }
   let dsaState = {};
@@ -3272,13 +3318,14 @@
   }
 
   async function loadDsaGrid() {
-    const region = document.getElementById('all-ben-region').value || '';
+    const region = document.getElementById('dsa-region').value || '';
     const url = '/api/payroll-router.php?action=dsa-grid&year=' + dsaYear
               + (region ? '&region=' + encodeURIComponent(region) : '');
     const res = await authFetch(url);
     const json = await res.json();
     if (!json.success) { alert(json.message || 'Failed to load DSA data.'); return; }
     dsaState = {}; dsaBehind = {}; dsaTotalPaid = {}; dsaStanding = {};
+    dsaData = json.data || [];
     json.data.forEach(r => {
       dsaState[r.aruga_id]     = r.months || {};
       dsaBehind[r.aruga_id]    = r.months_behind;
@@ -3286,7 +3333,7 @@
       dsaStanding[r.aruga_id]  = r.standing;
     });
     dsaLoaded = true;
-    renderAllBen();
+    filterDsa();
   }
 
   function dsaCircleHtml(arugaId, mi) {
@@ -3310,36 +3357,64 @@
     </tr>`;
   }
 
-  function toggleDsaView() {
-    allBenDsaMode = !allBenDsaMode;
-    const icon  = document.getElementById('all-ben-dsa-icon');
-    const label = document.getElementById('all-ben-dsa-label');
-    icon.textContent  = allBenDsaMode ? 'arrow_back' : 'payments';
-    label.textContent = allBenDsaMode ? 'Back to Beneficiaries' : 'Manage DSA';
-    document.getElementById('all-ben-payout-btn').style.display = allBenDsaMode ? 'none' : 'flex';
-    document.getElementById('dsa-record-btn').style.display = allBenDsaMode ? 'flex' : 'none';
-    document.getElementById('dsa-releases-panel').style.display = allBenDsaMode ? 'block' : 'none';
-    document.getElementById('all-ben-page-title').textContent = allBenDsaMode ? 'Manage DSA' : 'Beneficiaries';
-    document.getElementById('all-ben-page-subtitle').textContent = allBenDsaMode ? 'Manage DSA entries for beneficiaries across all regions' : 'All submitted assessments across all regions';
-    if (allBenDsaMode) {
-      if (!dsaLoaded) {
-        // Show a loading state immediately so the switch to Manage DSA
-        // doesn't look like a stalled click while the requests are in flight.
-        document.getElementById('all-ben-thead').innerHTML = ALL_BEN_THEAD_DSA;
-        document.getElementById('all-ben-tbody').innerHTML =
-          `<tr><td colspan="14" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">
-            <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
-            &nbsp;Loading DSA records…
-          </td></tr>`;
-      }
-      document.getElementById('dsa-releases-list').innerHTML = '<div style="color:#9ca3af;">Loading…</div>';
-      document.getElementById('dsa-region-summary-list').innerHTML = '<div style="color:#9ca3af;">Loading…</div>';
-      loadDsaReleases();
-      loadDsaRegionSummary();
-      if (!dsaLoaded) { loadDsaGrid(); } else { renderAllBen(); }
-    } else {
-      renderAllBen();
-    }
+  async function loadManageDsaView() {
+    if (dsaViewLoaded) return;
+    dsaViewLoaded = true;
+
+    document.getElementById('dsa-thead').innerHTML = ALL_BEN_THEAD_DSA;
+    document.getElementById('dsa-tbody').innerHTML =
+      `<tr><td colspan="14" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">
+        <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
+        &nbsp;Loading DSA records…
+      </td></tr>`;
+    document.getElementById('dsa-releases-list').innerHTML = '<div style="color:#9ca3af;">Loading…</div>';
+    document.getElementById('dsa-region-summary-list').innerHTML = '<div style="color:#9ca3af;">Loading…</div>';
+
+    const rSel = document.getElementById('dsa-region');
+    BEN_REGIONS.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; rSel.appendChild(o); });
+
+    try {
+      const json = await (await authFetch('/api/beneficiaries-router.php?action=all&limit=10000&offset=0')).json();
+      const benData = json.success ? json.data : [];
+      const disSet = new Map();
+      benData.forEach(r => {
+        (r.disabilities || []).forEach(d => { if (d) disSet.set(d, (disSet.get(d) || 0) + 1); });
+      });
+      const dSel = document.getElementById('dsa-disability');
+      [...disSet.entries()].sort((a,b) => b[1]-a[1]).forEach(([d, cnt]) => {
+        const o = document.createElement('option'); o.value = d; o.textContent = d; dSel.appendChild(o);
+      });
+    } catch(e) { /* disability filter options are non-critical */ }
+
+    await loadDsaGrid();
+    loadDsaReleases();
+    loadDsaRegionSummary();
+  }
+
+  function filterDsa() {
+    const q          = document.getElementById('dsa-search').value.toLowerCase();
+    const disability = document.getElementById('dsa-disability').value.toLowerCase();
+    dsaFiltered = dsaData.filter(r => {
+      if (q && !((r.name||'') + (r.aruga_id||'')).toLowerCase().includes(q)) return false;
+      if (disability && !(r.disabilities||[]).some(d => d.toLowerCase().includes(disability))) return false;
+      return true;
+    });
+    dsaPage = 0;
+    renderDsaGrid();
+  }
+
+  function renderDsaGrid() {
+    document.getElementById('dsa-thead').innerHTML = ALL_BEN_THEAD_DSA;
+    const total = dsaFiltered.length;
+    const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+    const start = dsaPage * PER_PAGE;
+    const end   = Math.min(start + PER_PAGE, total);
+    const page  = dsaFiltered.slice(start, end);
+    document.getElementById('dsa-tbody').innerHTML = page.length
+      ? page.map(r => dsaRow(r)).join('')
+      : `<tr><td colspan="14" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>`;
+    document.getElementById('dsa-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} beneficiaries` : 'No results';
+    buildPagination('dsa-pagination', dsaPage, totalPages, p => { dsaPage = p; renderDsaGrid(); });
   }
 
   // ── Record DSA Release modal ─────────────────────────────────────
@@ -3348,7 +3423,7 @@
 
   function openDsaReleaseModal() {
     const regionSel = document.getElementById('dsa-rel-region');
-    const src = document.getElementById('all-ben-region');
+    const src = document.getElementById('dsa-region');
     regionSel.innerHTML = Array.from(src.options)
       .filter(o => o.value)
       .map(o => `<option value="${o.value}">${o.text}</option>`).join('');
@@ -3552,7 +3627,7 @@
 
   // ── Release history + reopen ─────────────────────────────────────
   async function loadDsaReleases() {
-    const region = document.getElementById('all-ben-region').value || '';
+    const region = document.getElementById('dsa-region').value || '';
     const res = await authFetch('/api/payroll-router.php?action=dsa-releases'
       + (region ? '&region=' + encodeURIComponent(region) : ''));
     const json = await res.json();
@@ -3720,15 +3795,15 @@
   }
 
   function renderAllBen() {
-    document.getElementById('all-ben-thead').innerHTML = allBenDsaMode ? ALL_BEN_THEAD_DSA : ALL_BEN_THEAD_NORMAL;
+    document.getElementById('all-ben-thead').innerHTML = ALL_BEN_THEAD_NORMAL;
     const total = allBenFiltered.length;
     const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
     const start = allBenPage * PER_PAGE;
     const end   = Math.min(start + PER_PAGE, total);
     const page  = allBenFiltered.slice(start, end);
     document.getElementById('all-ben-tbody').innerHTML = page.length
-      ? page.map(r => allBenDsaMode ? dsaRow(r) : benRow(r)).join('')
-      : `<tr><td colspan="${allBenDsaMode ? 14 : 6}" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>`;
+      ? page.map(r => benRow(r)).join('')
+      : `<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>`;
     document.getElementById('all-ben-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} beneficiaries` : 'No results';
     buildPagination('all-ben-pagination', allBenPage, totalPages, p => { allBenPage = p; renderAllBen(); });
   }
@@ -3738,12 +3813,16 @@
     document.getElementById('all-ben-region').addEventListener('change', filterAllBen);
     document.getElementById('all-ben-readiness').addEventListener('change', filterAllBen);
     document.getElementById('all-ben-disability').addEventListener('change', filterAllBen);
+    document.getElementById('dsa-search').addEventListener('input', filterDsa);
+    document.getElementById('dsa-region').addEventListener('change', () => { loadDsaGrid(); loadDsaReleases(); loadDsaRegionSummary(); });
+    document.getElementById('dsa-disability').addEventListener('change', filterDsa);
     document.getElementById('int-search').addEventListener('input', filterInterviewers);
     document.getElementById('int-region').addEventListener('change', filterInterviewers);
     document.getElementById('int-role').addEventListener('change', filterInterviewers);
     document.getElementById('dd-new-item').addEventListener('keydown', e => { if (e.key === 'Enter') addDropdownItem(); });
 
     ['all-ben-region', 'all-ben-readiness', 'all-ben-disability',
+     'dsa-region', 'dsa-disability',
      'int-region', 'int-role',
      'an-f-range', 'an-f-region',
      'document-category-filter',
@@ -4201,7 +4280,7 @@
   });
 
   // ── View switcher ──────────────────────────────────────────────
-  const VIEWS = ['overview','beneficiaries','assessments','interviewers','analytics','report','documents','settings','audit'];
+  const VIEWS = ['overview','beneficiaries','manage-dsa','assessments','interviewers','analytics','report','documents','settings','audit'];
   function showView(view) {
     if (secDirty && !confirm('You have unsaved security settings. Leave anyway?')) return;
     VIEWS.forEach(v => {
@@ -4212,6 +4291,7 @@
     const navEl = document.getElementById('nav-' + view);
     if (navEl) navEl.classList.add('active');
     if (view === 'beneficiaries') loadAllBeneficiaries();
+    if (view === 'manage-dsa') loadManageDsaView();
     if (view === 'interviewers') loadInterviewers();
     if (view === 'audit') loadAuditLogs();
     if (view === 'settings') showSettingsTab('dropdowns');

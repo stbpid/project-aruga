@@ -49,10 +49,10 @@
 
         <h1 class="font-bold text-lg 2xl:text-xl mb-2 text-brand-dark">Project Aruga Profiling Tool</h1>
 
-        <div class="flex items-center gap-3 mb-4">
-           <input type="checkbox" id="agree" class="h-4 w-4 cursor-pointer accent-gray-900 rounded border-gray-300 focus:ring-gray-900 shrink-0">
+        <div class="flex items-start gap-3 mb-4">
+           <input type="checkbox" id="agree" class="h-4 w-4 mt-0.5 cursor-pointer accent-gray-900 rounded border-gray-300 focus:ring-gray-900 shrink-0">
            <label for="agree" class="text-[11px] 2xl:text-xs font-medium cursor-pointer text-brand-dark leading-tight select-none">
-             I understand the <a href="/privacy" target="_blank" rel="noopener noreferrer" class="underline hover:no-underline" style="color:#1152d4" onclick="event.stopPropagation()">Data Privacy Terms and Conditions</a> for data processing.
+             I understand the <a href="/privacy" class="underline hover:no-underline" style="color:#1152d4" onclick="event.stopPropagation()">Data Privacy Terms and Conditions</a> for data processing.
            </label>
         </div>
 
@@ -178,8 +178,8 @@
     <div class="aruga-modal-backdrop" onclick="closeGoogleUnavailableModal()"></div>
     <div class="aruga-modal-box">
       <div class="aruga-modal-top">
-        <div class="aruga-modal-icon">
-          <svg width="32" height="32" viewBox="0 0 48 48">
+        <div class="aruga-modal-icon" style="background:transparent;border:none;">
+          <svg width="40" height="40" viewBox="0 0 48 48">
             <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
             <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
             <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
