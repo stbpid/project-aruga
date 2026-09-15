@@ -88,6 +88,14 @@
       border-color: var(--blue);
       box-shadow: 0 0 0 3px rgba(17,82,212,0.1);
     }
+    #dsa-rel-suggestions {
+      scrollbar-width: thin;
+      scrollbar-color: var(--gray-200) transparent;
+    }
+    #dsa-rel-suggestions::-webkit-scrollbar { width: 5px; }
+    #dsa-rel-suggestions::-webkit-scrollbar-track { background: transparent; }
+    #dsa-rel-suggestions::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 10px; }
+    #dsa-rel-suggestions::-webkit-scrollbar-thumb:hover { background: var(--gray-300); }
   </style>
 </head>
 <body>
@@ -354,6 +362,7 @@
             </label>
             <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="all-ben-count"></span>
             <div style="display:flex;align-items:center;gap:0.5rem;margin-left:auto;">
+              <button class="btn btn-secondary btn-sm" id="all-ben-print-text-btn" onclick="openPayrollPrintView()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">description</span>Print as text</button>
               <button class="btn btn-primary btn-sm" id="all-ben-payout-btn" onclick="openPayrollTypeModal()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll</button>
             </div>
           </div>
@@ -388,6 +397,20 @@
         </div>
         <div id="ben-modal-body"></div>
         <div id="ben-idcard-body" style="display:none;"></div>
+      </div>
+
+      <!-- Payroll Print (Text) View -->
+      <div id="adm-payroll-print-view" style="display:none;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="closePayrollPrintView()" style="display:flex;align-items:center;gap:0.3rem;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>Back</button>
+          <div style="flex:1;min-width:0;">
+            <div class="page-title" style="margin:0;">Generate Payroll</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;">
+            <button class="btn btn-primary btn-sm" onclick="window.print()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">print</span>Print</button>
+          </div>
+        </div>
+        <div id="payroll-print-body"></div>
       </div>
 
     </div><!-- /view-beneficiaries -->
@@ -2177,10 +2200,7 @@
 
       <!-- Settings Tab Bar -->
       <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1.5rem;overflow-x:auto;">
-        <button class="settings-tab active" data-tab="dropdowns" onclick="showSettingsTab('dropdowns')">
-          <span class="material-symbols-outlined">list_alt</span>Dropdown Options
-        </button>
-        <button class="settings-tab" data-tab="regions" onclick="showSettingsTab('regions')">
+        <button class="settings-tab active" data-tab="regions" onclick="showSettingsTab('regions')">
           <span class="material-symbols-outlined">flag</span>Region Targets
         </button>
         <button class="settings-tab" data-tab="security" onclick="showSettingsTab('security')">
@@ -2194,51 +2214,8 @@
         </button>
       </div>
 
-      <!-- ── Tab: Dropdown Options ── -->
-      <div class="settings-panel" id="stab-dropdowns">
-        <div style="display:grid;grid-template-columns:260px 1fr;gap:1rem;">
-          <div class="card" style="margin:0;">
-            <div class="card-header">
-              <div class="card-title">Category</div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:0.25rem;">
-              <button class="dropdown-cat-btn active" onclick="selectDropdownCat('List_Disability',this)">Disability Types</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Occupation',this)">Occupations</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Education',this)">Education Level</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Relationship',this)">Relationship to Child</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Religion',this)">Religion</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Illness',this)">Illness Types</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Materials',this)">House Materials</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Tenure',this)">Housing Tenure</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Water',this)">Water Source</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Toilet',this)">Toilet Type</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Garbage',this)">Garbage Disposal</button>
-              <button class="dropdown-cat-btn" onclick="selectDropdownCat('List_Electricity',this)">Electricity Source</button>
-            </div>
-          </div>
-          <div class="card" style="margin:0;">
-            <div class="card-header">
-              <div>
-                <div class="card-title" id="dd-cat-title">Disability Types</div>
-                <div class="card-subtitle">Add, edit, or remove options for this dropdown</div>
-              </div>
-            </div>
-            <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
-              <input type="text" id="dd-new-item" class="settings-input" placeholder="New option label..." style="flex:1;">
-              <button class="btn btn-primary btn-sm" onclick="addDropdownItem()">
-                <span class="material-symbols-outlined">add</span>Add
-              </button>
-            </div>
-            <div id="dd-items-list" style="display:flex;flex-direction:column;gap:0.375rem;max-height:340px;overflow-y:auto;">
-              <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>
-            </div>
-          </div>
-        </div>
-        <div id="dropdowns-toast" class="settings-toast" style="display:none;"></div>
-      </div>
-
       <!-- ── Tab: Region Targets ── -->
-      <div class="settings-panel" id="stab-regions" style="display:none;">
+      <div class="settings-panel" id="stab-regions">
         <div class="card" style="margin:0;">
           <div class="card-header">
             <div>
@@ -2248,7 +2225,10 @@
           </div>
 
           <div id="region-targets-list" style="display:flex;flex-direction:column;gap:0.75rem;">
-            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading region targets...</div>
+            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">
+              <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
+              &nbsp;Loading region targets…
+            </div>
           </div>
         </div>
 
@@ -3490,6 +3470,7 @@
   window.addEventListener('scroll', () => {
     const list = document.getElementById('dsa-rel-suggestions');
     if (list && list.style.display === 'block') dsaPositionSuggestions();
+    document.querySelectorAll('[id^="dsa-reason-menu-"]').forEach(m => m.style.display = 'none');
   }, true);
 
   function dsaFilterRosterSuggestions() {
@@ -3603,9 +3584,7 @@
     const res = await authFetch('/api/payroll-router.php?action=dsa-grid&year=' + dsaYear
       + '&region=' + encodeURIComponent(region));
     const json = await res.json();
-    dsaRosterCount = json.success
-      ? json.data.filter(r => !r.standing).length
-      : 0;
+    dsaRosterCount = json.success ? json.data.length : 0;
     dsaRenderSummary();
   }
 
@@ -3618,9 +3597,11 @@
         <div style="position:relative;flex-shrink:0;">
           <button type="button" onclick="dsaToggleReasonMenu(event, ${i})" style="appearance:none;padding:0.4rem 1.85rem 0.4rem 0.65rem;border:1px solid var(--border);border-radius:0.5rem;font-family:inherit;font-size:0.72rem;font-weight:600;color:var(--dark);background:white;cursor:pointer;white-space:nowrap;">${DSA_REASON_LABELS[f.reason] || 'Did not claim'}</button>
           <span class="material-symbols-outlined" style="position:absolute;right:0.4rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
-          <ul id="dsa-reason-menu-${i}" style="display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:140px;z-index:20;background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.1);list-style:none;margin:0;padding:0.25rem 0;">
-            ${Object.entries(DSA_REASON_LABELS).map(([val, label]) => `
-              <li onclick="dsaSetReason(${i}, '${val}')" style="padding:0.5rem 0.75rem;font-size:0.75rem;font-weight:${f.reason === val ? '700' : '400'};cursor:pointer;background:${f.reason === val ? 'var(--blue);color:#fff' : 'transparent'};" onmouseover="if('${f.reason}'!=='${val}')this.style.background='var(--gray-50,#f9fafb)'" onmouseout="if('${f.reason}'!=='${val}')this.style.background='transparent'">${label}</li>`).join('')}
+          <ul id="dsa-reason-menu-${i}" style="display:none;position:fixed;min-width:140px;z-index:9999;background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.15);list-style:none;margin:0;padding:0.25rem 0;overflow:hidden;">
+            ${Object.entries(DSA_REASON_LABELS).map(([val, label]) => {
+              const active = f.reason === val;
+              return `<li onclick="dsaSetReason(${i}, '${val}')" style="padding:0.5rem 0.75rem;font-size:0.75rem;font-weight:${active ? '700' : '400'};cursor:pointer;background:${active ? 'var(--blue)' : 'transparent'};color:${active ? '#fff' : 'var(--dark)'};" onmouseover="if(!${active})this.style.background='var(--gray-50,#f9fafb)'" onmouseout="if(!${active})this.style.background='transparent'">${label}</li>`;
+            }).join('')}
           </ul>
         </div>
         <button type="button" onclick="dsaRemoveResolved(${i})" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;flex-shrink:0;padding:0.25rem;" title="Remove"><span class="material-symbols-outlined" style="font-size:1.1rem;">close</span></button>
@@ -3633,7 +3614,25 @@
     const menu = document.getElementById('dsa-reason-menu-' + i);
     const isOpen = menu.style.display === 'block';
     document.querySelectorAll('[id^="dsa-reason-menu-"]').forEach(m => m.style.display = 'none');
-    menu.style.display = isOpen ? 'none' : 'block';
+    if (isOpen) return;
+
+    const btn = event.currentTarget;
+    requestAnimationFrame(() => {
+      const rect = btn.getBoundingClientRect();
+      const menuHeight = menu.scrollHeight || 120;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      menu.style.right = (window.innerWidth - rect.right) + 'px';
+      menu.style.left = '';
+      if (spaceBelow < menuHeight && spaceAbove > spaceBelow) {
+        menu.style.top = '';
+        menu.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+      } else {
+        menu.style.bottom = '';
+        menu.style.top = (rect.bottom + 4) + 'px';
+      }
+      menu.style.display = 'block';
+    });
   }
 
   document.addEventListener('click', () => {
@@ -3730,7 +3729,7 @@
 
     openConfirmModal({
       title: 'Save DSA Payout?',
-      message: `${months.length} month(s) will be closed for editing.`,
+      message: `This will lock ${months.length} month(s) from further edits.`,
       onConfirm: () => dsaSaveReleaseConfirmed(months)
     });
   }
@@ -3961,7 +3960,6 @@
     document.getElementById('int-search').addEventListener('input', filterInterviewers);
     document.getElementById('int-region').addEventListener('change', filterInterviewers);
     document.getElementById('int-role').addEventListener('change', filterInterviewers);
-    document.getElementById('dd-new-item').addEventListener('keydown', e => { if (e.key === 'Enter') addDropdownItem(); });
 
     ['all-ben-region', 'all-ben-readiness', 'all-ben-disability',
      'dsa-region', 'dsa-disability',
@@ -4440,7 +4438,7 @@
     if (view === 'manage-dsa') loadManageDsaView();
     if (view === 'interviewers') loadInterviewers();
     if (view === 'audit') loadAuditLogs();
-    if (view === 'settings') showSettingsTab('dropdowns');
+    if (view === 'settings') showSettingsTab('regions');
     if (view === 'analytics') { loadAnalyticsView(); loadRegionsView(); }
     if (view === 'report')    { loadReportView(); }
     if (view === 'documents') { loadDocuments(); }
@@ -7529,7 +7527,6 @@
     document.querySelectorAll('.settings-panel').forEach(p => p.style.display = 'none');
     const panel = document.getElementById('stab-' + tab);
     if (panel) panel.style.display = '';
-    if (tab === 'dropdowns') loadDropdownOptions();
     if (tab === 'regions') loadRegionSettings();
     if (tab === 'signatories') loadSignatories();
     if (tab === 'export') populateExportRegions();
@@ -7659,74 +7656,6 @@
     showToast('codes-toast', `Code ${code} saved for ${name}.`, 'success');
   }
 
-  // ── Dropdown Options ───────────────────────────────────────────
-  const DD_LABELS = {
-    List_Disability:'Disability Types', List_Occupation:'Occupations', List_Education:'Education Level',
-    List_Relationship:'Relationship to Child', List_Religion:'Religion', List_Illness:'Illness Types',
-    List_Materials:'House Materials', List_Tenure:'Housing Tenure', List_Water:'Water Source',
-    List_Toilet:'Toilet Type', List_Garbage:'Garbage Disposal', List_Electricity:'Electricity Source',
-  };
-  let ddItems = {};
-  let ddLoaded = false;
-  let currentDDCat = 'List_Disability';
-
-  function loadDropdownOptions() {
-    if (ddLoaded) { renderDropdownItems(currentDDCat); return; }
-    document.getElementById('dd-items-list').innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading...</div>';
-    fetch('/api/admin-router.php?action=options')
-      .then(r => r.json())
-      .then(json => {
-        ddItems = json;
-        ddLoaded = true;
-        renderDropdownItems(currentDDCat);
-      })
-      .catch(() => {
-        document.getElementById('dd-items-list').innerHTML = '<div style="text-align:center;color:#dc2626;font-size:0.75rem;padding:2rem;">Failed to load options.</div>';
-      });
-  }
-
-  function selectDropdownCat(cat, btn) {
-    currentDDCat = cat;
-    document.querySelectorAll('.dropdown-cat-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('dd-cat-title').textContent = DD_LABELS[cat] || cat;
-    document.getElementById('dd-new-item').value = '';
-    if (!ddLoaded) { loadDropdownOptions(); return; }
-    renderDropdownItems(cat);
-  }
-
-  function renderDropdownItems(cat) {
-    const list = document.getElementById('dd-items-list');
-    const items = ddItems[cat] || [];
-    list.innerHTML = items.length
-      ? items.map((item, i) => `
-          <div class="dd-item-row">
-            <span>${item}</span>
-            <button onclick="removeDropdownItem(${i})" title="Remove">
-              <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
-            </button>
-          </div>`).join('')
-      : '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:1.5rem;">No items. Add one above.</div>';
-  }
-
-  function addDropdownItem() {
-    const val = document.getElementById('dd-new-item').value.trim();
-    if (!val) return;
-    if (!ddItems[currentDDCat]) ddItems[currentDDCat] = [];
-    if (ddItems[currentDDCat].includes(val)) { showToast('dropdowns-toast', 'That option already exists.', 'error'); return; }
-    ddItems[currentDDCat].push(val);
-    document.getElementById('dd-new-item').value = '';
-    renderDropdownItems(currentDDCat);
-    showToast('dropdowns-toast', `"${val}" added to ${DD_LABELS[currentDDCat]}.`, 'success');
-  }
-
-  function removeDropdownItem(index) {
-    const item = ddItems[currentDDCat][index];
-    ddItems[currentDDCat].splice(index, 1);
-    renderDropdownItems(currentDDCat);
-    showToast('dropdowns-toast', `"${item}" removed.`, 'info');
-  }
-
   // ── System Rules ───────────────────────────────────────────────
   function saveSystemRules() {
     const timeout = document.getElementById('rule-timeout').value;
@@ -7742,7 +7671,10 @@
   function loadRegionSettings(force) {
     if (regionTargetsData.length && !force) { renderRegionSettings(); return; }
     const list = document.getElementById('region-targets-list');
-    list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading region targets...</div>';
+    list.innerHTML = `<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">
+      <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
+      &nbsp;Loading region targets…
+    </div>`;
     authFetch('/api/admin-router.php?action=get-region-targets')
       .then(r => r.json())
       .then(json => {
@@ -8040,7 +7972,11 @@
 
   async function loadSignatories(force) {
     if (sigLoaded && !force) return;
-    document.getElementById('sig-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    document.getElementById('sig-tbody').innerHTML =
+      `<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">
+        <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
+        &nbsp;Loading signatories…
+      </td></tr>`;
     try {
       const json = await (await authFetch('/api/admin-router.php?action=get-signatories')).json();
       signatoriesData = json.success ? json.data : [];
@@ -9497,6 +9433,142 @@
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
+    }
+  }
+
+  // ── Payroll Print (Text) View ──────────────────────────────────
+  function closePayrollPrintView() {
+    document.getElementById('adm-ben-list-view').style.display = '';
+    document.getElementById('adm-payroll-print-view').style.display = 'none';
+    document.getElementById('payroll-print-body').innerHTML = '';
+  }
+
+  async function openPayrollPrintView() {
+    if (!allBenFiltered.length) { showGlobalToast('No beneficiaries match the current filter.', 'error'); return; }
+    document.getElementById('adm-ben-list-view').style.display = 'none';
+    document.getElementById('adm-payroll-print-view').style.display = '';
+    const body = document.getElementById('payroll-print-body');
+    body.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--gray-400);">
+      <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
+      &nbsp;Generating payroll preview…
+    </div>`;
+
+    try {
+      const region = document.getElementById('all-ben-region').value;
+      const params = new URLSearchParams();
+      if (region) params.set('region', region);
+      const res = await authFetch('/api/payroll-router.php?action=payout-data&' + params);
+      const json = await res.json();
+      const payoutMap = {};
+      if (json.success && json.data) {
+        json.data.forEach(r => { payoutMap[r.aruga_id] = r; });
+      }
+
+      const now = new Date();
+      const monthSelect = document.getElementById('payroll-month-select');
+      const selectedMonth = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : now.getMonth();
+      const monthYear = new Date(now.getFullYear(), selectedMonth, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
+      const ROMAN_TO_NUM = { I:'1', II:'2', III:'3', IV:'4', 'IV-A':'4-A', 'IV-B':'4-B', V:'5', VI:'6', VII:'7', VIII:'8', IX:'9', X:'10', XI:'11', XII:'12', XIII:'13' };
+      const regionLabel = (region || 'All Regions').replace(/^Region (IV-A|IV-B|[IVX]+)\b/, (m, roman) => 'Region ' + (ROMAN_TO_NUM[roman] || roman));
+
+      const seenArugaIds = new Set();
+      let uniqueBen = allBenFiltered.filter(r => {
+        if (!r.aruga_id || seenArugaIds.has(r.aruga_id)) return false;
+        seenArugaIds.add(r.aruga_id);
+        return true;
+      });
+      {
+        const lastName = r => {
+          const displayName = (payoutMap[r.aruga_id] || {}).beneficiary_name || r.name || '';
+          return displayName.split(',')[0].trim().toLowerCase();
+        };
+        uniqueBen = [...uniqueBen].sort((a, b) => lastName(a).localeCompare(lastName(b)));
+      }
+
+      const rowsHtml = uniqueBen.map((r, i) => {
+        const pd = payoutMap[r.aruga_id] || {};
+        const beneficiaryName = (pd.beneficiary_name || r.name || '').toUpperCase();
+        const claimantName = (pd.claimant_name || '').toUpperCase();
+        return `<tr>
+          <td style="text-align:center;">${i + 1}</td>
+          <td>${r.aruga_id || ''}</td>
+          <td>${beneficiaryName}</td>
+          <td>${claimantName}</td>
+          <td>2,000.00</td>
+          <td></td>
+          <td></td>
+        </tr>`;
+      }).join('');
+
+      const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const dswdLogoUrl = window.location.origin + '/images/form-logo.webp';
+      const bpLogoUrl = window.location.origin + '/images/bagong-pilipinas.webp';
+
+      body.innerHTML = `
+        <style>
+          #payroll-print-body .pp-sheet { background:#fff; width:297mm; min-height:210mm; margin:0 auto; padding:12mm; box-shadow:0 1px 4px rgba(0,0,0,0.15); font-family:Arial, sans-serif; font-size:9pt; color:#000; }
+          #payroll-print-body .hdr-inner { display:flex; align-items:center; gap:10px; }
+          #payroll-print-body .hdr-logo { display:flex; align-items:center; gap:10px; }
+          #payroll-print-body .hdr-logo img { height:50px; width:auto; object-fit:contain; }
+          #payroll-print-body .hdr-text-wrap { flex:1; display:flex; align-items:center; justify-content:flex-end; text-align:right; }
+          #payroll-print-body .hdr-text { text-align:center; font-size:9pt; line-height:1.4; margin-left:auto; }
+          #payroll-print-body .hdr-rule { border:none; border-top:2px solid #000; margin-top:3px; }
+          #payroll-print-body .hdr-subtitle { text-align:center; font-weight:bold; font-size:10pt; margin-top:8px; line-height:1.4; }
+          #payroll-print-body table { width:100%; border-collapse:collapse; margin-top:10px; }
+          #payroll-print-body th, #payroll-print-body td { border:1px solid #000; padding:3px 5px; font-size:8pt; vertical-align:middle; }
+          #payroll-print-body th { font-weight:bold; text-align:center; background:#fff; }
+          #payroll-print-body .pp-footer { display:flex; justify-content:space-between; align-items:center; margin-top:6mm; font-size:7.5pt; color:#555; }
+          @media print {
+            body * { visibility:hidden; }
+            #payroll-print-body, #payroll-print-body * { visibility:visible; }
+            #payroll-print-body { position:absolute; top:0; left:0; width:100%; }
+            #payroll-print-body .pp-sheet { box-shadow:none; margin:0; width:auto; }
+            @page { size: A4 landscape; margin:0; }
+          }
+        </style>
+        <div class="pp-sheet">
+          <div class="hdr-inner">
+            <div class="hdr-logo">
+              <img src="${dswdLogoUrl}" alt="DSWD" onerror="this.style.display='none'">
+              <img src="${bpLogoUrl}" alt="Bagong Pilipinas" onerror="this.style.display='none'">
+            </div>
+            <div class="hdr-text-wrap">
+              <div class="hdr-text">
+                <div>Republic of the Philippines</div>
+                <div>Department of Social Welfare and Development</div>
+                <div>Field Office - ${regionLabel}</div>
+              </div>
+            </div>
+          </div>
+          <hr class="hdr-rule">
+          <div class="hdr-subtitle">
+            <div>PROJECT ARUGA PAYROLL FOR DISABILITY SUPPORT ALLOWANCE</div>
+            <div>${monthYear}</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:5%;">NO.</th>
+                <th style="width:16%;">PROJECT ARUGA<br>ID NO.</th>
+                <th style="width:20%;">BENEFICIARY'S NAME</th>
+                <th style="width:20%;">AUTHORIZED CLAIMANT</th>
+                <th style="width:11%;">AMOUNT<br>RECEIVED</th>
+                <th style="width:14%;">DATE<br>RECEIVED</th>
+                <th style="width:14%;">CLAIMANT'S<br>SIGNATURE</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+          <div class="pp-footer">
+            <div>This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}</div>
+            <div>Page <strong>1</strong> of <strong>1</strong></div>
+          </div>
+        </div>`;
+    } catch(e) {
+      console.error('Print as text error:', e);
+      body.innerHTML = `<div style="text-align:center;padding:3rem;color:#dc2626;font-size:0.875rem;">Failed to load: ${e.message}</div>`;
     }
   }
 
