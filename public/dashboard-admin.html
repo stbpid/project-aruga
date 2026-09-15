@@ -673,9 +673,9 @@
           <select id="payroll-month-select" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.8rem;cursor:pointer;padding:0.4rem 0.6rem;margin-top:0.35rem;width:80%;"></select>
         </div>
         <div class="payroll-type-modal-actions">
-          <button id="payroll-complete-btn" onclick="closePayrollTypeModal(); generateBenPayoutList(null, false, true);">Complete Beneficiary</button>
+          <button id="payroll-complete-btn" onclick="closePayrollTypeModal(); openPayrollPrintView();">Complete Beneficiary</button>
           <button id="payroll-special-btn" onclick="closePayrollTypeModal(); openSpecialPayrollModal();">Special Payroll</button>
-          <button id="payroll-test-btn" style="display:none;" onclick="closePayrollTypeModal(); generateBenPayoutList(null, false, true);">Test Payroll</button>
+          <button id="payroll-test-btn" style="display:none;" onclick="closePayrollTypeModal(); openPayrollPrintView();">Test Payroll</button>
         </div>
       </div>
     </div>
@@ -9156,293 +9156,7 @@
       return;
     }
     closeSpecialPayrollModal();
-    generateBenPayoutList(specialPayrollIds, false, true);
-  }
-
-  async function generateBenPayoutList(arugaIdFilter, asDocx, testMode) {
-    if (!allBenFiltered.length) { showGlobalToast('No beneficiaries match the current filter.', 'error'); return; }
-    const btn = document.getElementById('all-ben-payout-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;animation:spin 1s linear infinite;">progress_activity</span>Generating...';
-
-    let win = null;
-    if (!asDocx) {
-      win = window.open('', '_blank');
-      if (!win) {
-        showGlobalToast('Pop-up blocked. Please allow pop-ups for this site and try again.', 'error');
-        btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
-        return;
-      }
-      win.document.write('<p style="font-family:sans-serif;padding:2rem;">Generating payroll, please wait...</p>');
-    }
-
-    try {
-      const region = document.getElementById('all-ben-region').value;
-      const params = new URLSearchParams();
-      if (region) params.set('region', region);
-      const res = await authFetch('/api/payroll-router.php?action=payout-data&' + params);
-      const json = await res.json();
-      const payoutMap = {};
-      if (json.success && json.data) {
-        json.data.forEach(r => { payoutMap[r.aruga_id] = r; });
-      }
-
-      const sigRes = await authFetch('/api/admin-router.php?action=get-signatories');
-      const sigJson = await sigRes.json();
-      const normRegion = s => (s || '').trim().toLowerCase();
-      const SIGNATORY_FUNCTION_ORDER = ['certified true and correct by', 'approved by'];
-      const normFunction = s => (s || '').trim().toLowerCase();
-      const matchedSignatories = (sigJson.success && sigJson.data ? sigJson.data : [])
-        .filter(s => s.signatory_status === 'active' && (!region || normRegion(s.signatory_region) === normRegion(region)))
-        .filter(s => SIGNATORY_FUNCTION_ORDER.includes(normFunction(s.signatory_function)))
-        .reduce((acc, s) => {
-          const fn = normFunction(s.signatory_function);
-          if (!acc.some(x => normFunction(x.signatory_function) === fn)) acc.push(s);
-          return acc;
-        }, [])
-        .sort((a, b) => SIGNATORY_FUNCTION_ORDER.indexOf(normFunction(a.signatory_function)) - SIGNATORY_FUNCTION_ORDER.indexOf(normFunction(b.signatory_function)));
-
-      const now = new Date();
-      const monthSelect = document.getElementById('payroll-month-select');
-      const selectedMonth = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : now.getMonth();
-      const monthYear = new Date(now.getFullYear(), selectedMonth, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
-      const ROMAN_TO_NUM = { I:'1', II:'2', III:'3', IV:'4', 'IV-A':'4-A', 'IV-B':'4-B', V:'5', VI:'6', VII:'7', VIII:'8', IX:'9', X:'10', XI:'11', XII:'12', XIII:'13' };
-      const regionLabel = (region || 'All Regions').replace(/^Region (IV-A|IV-B|[IVX]+)\b/, (m, roman) => 'Region ' + (ROMAN_TO_NUM[roman] || roman));
-
-      const seenArugaIds = new Set();
-      let uniqueBen = allBenFiltered.filter(r => {
-        if (!r.aruga_id || seenArugaIds.has(r.aruga_id)) return false;
-        seenArugaIds.add(r.aruga_id);
-        return true;
-      });
-
-      if (arugaIdFilter && arugaIdFilter.length) {
-        const wanted = new Set(arugaIdFilter.map(id => id.trim().toUpperCase()));
-        uniqueBen = uniqueBen.filter(r => wanted.has((r.aruga_id || '').trim().toUpperCase()));
-        if (!uniqueBen.length) {
-          showGlobalToast('None of the entered Aruga IDs match a beneficiary.', 'error');
-          win.close();
-          btn.disabled = false;
-          btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
-          return;
-        }
-      }
-
-      {
-        const lastName = r => {
-          const displayName = (payoutMap[r.aruga_id] || {}).beneficiary_name || r.name || '';
-          return displayName.split(',')[0].trim().toLowerCase();
-        };
-        uniqueBen = [...uniqueBen].sort((a, b) => lastName(a).localeCompare(lastName(b)));
-      }
-
-      const ROWS_PER_PAGE = testMode ? 12 : 20;
-      const rowHeightPx = testMode ? 40 : 22;
-      const allRows = uniqueBen.map((r, i) => {
-        const pd = payoutMap[r.aruga_id] || {};
-        const beneficiaryName = (pd.beneficiary_name || r.name || '').toUpperCase();
-        const claimantName = (pd.claimant_name || '').toUpperCase();
-        return `<tr>
-          <td style="text-align:center;">${i + 1}</td>
-          <td>${r.aruga_id || ''}</td>
-          <td>${beneficiaryName}</td>
-          <td>${claimantName}</td>
-          <td>2,000.00</td>
-          <td></td>
-          <td></td>
-        </tr>`;
-      });
-
-      const totalAmount = uniqueBen.length * 2000;
-      const totalRowHtml = testMode ? `<tr>
-          <td colspan="4" style="font-weight:bold;text-align:right;">TOTAL</td>
-          <td colspan="3" style="font-weight:bold;">${totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
-        </tr>` : '';
-
-      const tableHead = `
-        <thead>
-          <tr>
-            <th style="width:5%;">NO.</th>
-            <th style="width:16%;">PROJECT ARUGA<br>ID NO.</th>
-            <th style="width:20%;">BENEFICIARY'S NAME</th>
-            <th style="width:20%;">AUTHORIZED CLAIMANT</th>
-            <th style="width:11%;">AMOUNT<br>RECEIVED</th>
-            <th style="width:14%;">DATE<br>RECEIVED</th>
-            <th style="width:14%;">CLAIMANT'S<br>SIGNATURE</th>
-          </tr>
-        </thead>`;
-
-      const signatureRowHtml = matchedSignatories.length ? `
-        <tr style="height:auto;border:none;">
-          <td colspan="7" style="border:none;padding-top:0.5in;">
-            <div class="sig-block" style="display:flex;justify-content:space-around;">
-              ${matchedSignatories.map(s => `
-              <div class="sig-col" style="text-align:center;width:${normFunction(s.signatory_function) === 'certified true and correct by' ? 60 : 40}%;padding:0 10px;">
-                <div style="font-size:0.85em;height:0.9in;text-align:left;${normFunction(s.signatory_function) === 'certified true and correct by' ? 'width:78%;' : 'text-transform:uppercase;'}">${normFunction(s.signatory_function) === 'certified true and correct by' ? `I hereby certify on my official oath that this Report of Cash Disbursements is a full, true and correct statement of all cash disbursements during the period of <strong>${monthYear}</strong> actually made by me in payment for obligations shown in pertinent disbursement payroll.` : `${s.signatory_function}:`}</div>
-                <div style="width:2.5in;margin-left:0;margin-right:auto;">
-                  <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
-                  <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
-                  <div>${s.signatory_position}</div>
-                </div>
-              </div>`).join('')}
-            </div>
-          </td>
-        </tr>` : '';
-
-      const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-      const isNCR = normRegion(region) === normRegion('NCR (National Capital Region)');
-      const buildFooterHtml = (pageNum, totalPages) => `
-      <div class="page-footer-inline">
-        <div class="ftr-row">
-          <div class="ftr-text">${(isNCR && pageNum === totalPages) ? '' : `This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}`}</div>
-          <div class="ftr-page">Page <strong>${pageNum}</strong> of <strong>${totalPages}</strong></div>
-        </div>
-      </div>`;
-
-      const pages = [];
-      for (let p = 0; p < allRows.length; p += ROWS_PER_PAGE) {
-        const pageRows = allRows.slice(p, p + ROWS_PER_PAGE).join('');
-        pages.push(`
-    <div class="page-content">
-      <table>
-        ${tableHead}
-        <tbody>
-          ${pageRows}
-        </tbody>
-      </table>
-    </div>`);
-      }
-      if (!pages.length) {
-        pages.push(`
-    <div class="page-content">
-      <table>
-        ${tableHead}
-        <tbody></tbody>
-      </table>
-    </div>`);
-      }
-      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${totalRowHtml}${signatureRowHtml}\n        </tbody>`);
-      for (let i = 0; i < pages.length; i++) {
-        pages[i] = pages[i].replace('</div>', `${buildFooterHtml(i + 1, pages.length)}\n    </div>`);
-      }
-      const pagesHtml = pages.join('\n    <div class="page-break"></div>\n');
-
-      const dswdLogoUrl = window.location.origin + '/images/form-logo.webp';
-      const bpLogoUrl = window.location.origin + '/images/bagong-pilipinas.webp';
-      const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Project Aruga Payroll</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    @page { size: A4 landscape; margin: 0; }
-    body { font-family: Arial, sans-serif; font-size: 9pt; }
-
-    #page-header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      padding: 6mm 12mm 2mm 12mm;
-      background: #fff;
-    }
-    .hdr-inner { display: flex; align-items: center; gap: 10px; }
-    .hdr-logo { display: flex; align-items: center; gap: 10px; }
-    .hdr-logo img { height: 50px; width: auto; object-fit: contain; }
-    .hdr-logo img.bp-logo { height: 42px; }
-    .hdr-logo img.dswd-logo { margin-left: -8px; }
-    .hdr-text-wrap { flex: 1; display: flex; align-items: center; justify-content: flex-end; text-align: right; }
-    .hdr-text { text-align: center; font-size: 9pt; line-height: 1.4; margin-left: auto; }
-    .hdr-rule { border: none; border-top: 2px solid #000; margin-top: 3px; }
-    .hdr-subtitle { text-align: center; font-weight: bold; font-size: 10pt; margin-top: 8px; line-height: 1.4; }
-
-    .page-footer-inline {
-      position: absolute;
-      bottom: 50px;
-      left: 0;
-      right: 0;
-      padding: 1mm 12mm 0 12mm;
-    }
-    .ftr-row { display: flex; justify-content: space-between; align-items: center; }
-    .ftr-text { text-align: left; font-size: 7.5pt; color: #555; }
-    .ftr-page { text-align: right; font-size: 7.5pt; color: #555; white-space: nowrap; }
-
-    .page-content {
-      position: relative;
-      min-height: calc(210mm - 38mm - 12mm);
-      margin-top: 38mm;
-      margin-bottom: 12mm;
-      padding: 0 12mm;
-    }
-
-    table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-    th, td { border: 1px solid #000; padding: 3px 5px; font-size: 8pt; vertical-align: middle; }
-    th { font-weight: bold; text-align: center; background: #fff; }
-    tr { height: ${rowHeightPx}px; }
-
-    .page-break { break-after: page; page-break-after: always; }
-
-    @media print {
-      .page-content { margin-top: 38mm; margin-bottom: 12mm; }
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Header: repeated on every page -->
-  <div id="page-header">
-    <div class="hdr-inner">
-      <div class="hdr-logo">
-        <img class="dswd-logo" src="${dswdLogoUrl}" alt="DSWD" onerror="this.style.display='none'">
-        <img class="bp-logo" src="${bpLogoUrl}" alt="Bagong Pilipinas" onerror="this.style.display='none'">
-      </div>
-      <div class="hdr-text-wrap">
-        <div class="hdr-text">
-          <div>Republic of the Philippines</div>
-          <div>Department of Social Welfare and Development</div>
-          <div>Field Office - ${regionLabel}</div>
-        </div>
-      </div>
-    </div>
-    <hr class="hdr-rule">
-    <div class="hdr-subtitle">
-      <div>PROJECT ARUGA PAYROLL FOR DISABILITY SUPPORT ALLOWANCE</div>
-      <div>${monthYear}</div>
-    </div>
-  </div>
-
-  <!-- Content -->
-  ${pagesHtml}
-
-</body>
-</html>`;
-
-      if (asDocx) {
-        const converted = window.htmlDocx.asBlob(html, { orientation: 'landscape' });
-        const dlUrl = URL.createObjectURL(converted);
-        const a = document.createElement('a');
-        a.href = dlUrl;
-        a.download = `Test-Payroll-${monthYear.replace(/\s+/g, '-')}.docx`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(dlUrl);
-      } else {
-        win.document.open();
-        win.document.write(html);
-        win.document.close();
-        win.focus();
-        setTimeout(() => { win.print(); }, 500);
-      }
-    } catch(e) {
-      console.error('Generate Payroll error:', e);
-      showGlobalToast('Error generating payout list: ' + (e?.message || e), 'error');
-      if (win && !win.closed) win.close();
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
-    }
+    openPayrollPrintView(specialPayrollIds);
   }
 
   // ── Payroll Print (Text) View ──────────────────────────────────
@@ -9489,7 +9203,7 @@
     applyPayrollZoom();
   }
 
-  async function openPayrollPrintView() {
+  async function openPayrollPrintView(arugaIdFilter) {
     if (!allBenFiltered.length) { showGlobalToast('No beneficiaries match the current filter.', 'error'); return; }
     document.getElementById('adm-ben-list-view').style.display = 'none';
     document.getElementById('adm-payroll-print-view').style.display = '';
@@ -9538,6 +9252,16 @@
         seenArugaIds.add(r.aruga_id);
         return true;
       });
+
+      if (arugaIdFilter && arugaIdFilter.length) {
+        const wanted = new Set(arugaIdFilter.map(id => id.trim().toUpperCase()));
+        uniqueBen = uniqueBen.filter(r => wanted.has((r.aruga_id || '').trim().toUpperCase()));
+        if (!uniqueBen.length) {
+          showGlobalToast('None of the entered Aruga IDs match a beneficiary.', 'error');
+          closePayrollPrintView();
+          return;
+        }
+      }
       {
         const lastName = r => {
           const displayName = (payoutMap[r.aruga_id] || {}).beneficiary_name || r.name || '';
