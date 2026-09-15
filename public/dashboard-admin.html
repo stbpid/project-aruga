@@ -442,9 +442,9 @@
               <span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">map</span>
             </div>
             <div style="font-size:0.875rem;font-weight:800;color:var(--dark);flex:1;min-width:0;">Regional DSA Status</div>
-            <span class="material-symbols-outlined" id="dsa-region-summary-body-chev" style="font-size:1.15rem;color:var(--gray-400);flex-shrink:0;transition:transform 0.15s;transform:rotate(180deg);">expand_more</span>
+            <span class="material-symbols-outlined" id="dsa-region-summary-body-chev" style="font-size:1.15rem;color:var(--gray-400);flex-shrink:0;transition:transform 0.15s;transform:rotate(0deg);">expand_more</span>
           </div>
-          <div id="dsa-region-summary-body" style="padding:0 1.25rem 1.25rem;">
+          <div id="dsa-region-summary-body" style="display:none;padding:0 1.25rem 1.25rem;">
             <div style="font-size:0.7rem;color:#6b7280;margin-bottom:0.5rem;">Longest since last release first.</div>
             <div id="dsa-region-summary-list" style="font-size:0.75rem;"></div>
           </div>
@@ -456,9 +456,9 @@
               <span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">history</span>
             </div>
             <div style="font-size:0.875rem;font-weight:800;color:var(--dark);flex:1;min-width:0;">Release History</div>
-            <span class="material-symbols-outlined" id="dsa-releases-body-chev" style="font-size:1.15rem;color:var(--gray-400);flex-shrink:0;transition:transform 0.15s;transform:rotate(180deg);">expand_more</span>
+            <span class="material-symbols-outlined" id="dsa-releases-body-chev" style="font-size:1.15rem;color:var(--gray-400);flex-shrink:0;transition:transform 0.15s;transform:rotate(0deg);">expand_more</span>
           </div>
-          <div id="dsa-releases-body" style="padding:0 1.25rem 1.25rem;">
+          <div id="dsa-releases-body" style="display:none;padding:0 1.25rem 1.25rem;">
             <div id="dsa-releases-list" style="font-size:0.75rem;"></div>
           </div>
         </div>
@@ -3470,18 +3470,27 @@
   function dsaPositionSuggestions() {
     const list = document.getElementById('dsa-rel-suggestions');
     const input = document.getElementById('dsa-rel-exceptions');
-    const rect = input.getBoundingClientRect();
-    list.style.left = rect.left + 'px';
-    list.style.width = rect.width + 'px';
-    const spaceBelow = window.innerHeight - rect.bottom;
-    if (spaceBelow < 220 && rect.top > 220) {
-      list.style.top = '';
-      list.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
-    } else {
-      list.style.bottom = '';
-      list.style.top = (rect.bottom + 4) + 'px';
-    }
+    requestAnimationFrame(() => {
+      const rect = input.getBoundingClientRect();
+      list.style.left = rect.left + 'px';
+      list.style.width = rect.width + 'px';
+      const menuHeight = Math.min(200, list.scrollHeight || 200);
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      if (spaceBelow < menuHeight && spaceAbove > spaceBelow) {
+        list.style.top = '';
+        list.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+      } else {
+        list.style.bottom = '';
+        list.style.top = (rect.bottom + 4) + 'px';
+      }
+    });
   }
+
+  window.addEventListener('scroll', () => {
+    const list = document.getElementById('dsa-rel-suggestions');
+    if (list && list.style.display === 'block') dsaPositionSuggestions();
+  }, true);
 
   function dsaFilterRosterSuggestions() {
     const list = document.getElementById('dsa-rel-suggestions');
@@ -3720,7 +3729,7 @@
     if (!document.getElementById('dsa-rel-date').value) { err1.textContent = 'Enter the payout date.'; err1.style.display = 'block'; return; }
 
     openConfirmModal({
-      title: 'Save and Lock Release?',
+      title: 'Save DSA Payout?',
       message: `${months.length} month(s) will be closed for editing.`,
       onConfirm: () => dsaSaveReleaseConfirmed(months)
     });
