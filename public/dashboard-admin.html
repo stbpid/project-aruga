@@ -2131,20 +2131,22 @@
           </div>
         </div>
 
-        <div class="card table-wrap" style="margin:0;padding:0;">
-          <table class="dash-table">
-            <thead>
-              <tr>
-                <th onclick="sortDocuments('file_name')" style="cursor:pointer;user-select:none;white-space:nowrap;">File Name <span id="doc-sort-icon-file_name" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                <th onclick="sortDocuments('description')" style="cursor:pointer;user-select:none;white-space:nowrap;">Description <span id="doc-sort-icon-description" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                <th onclick="sortDocuments('category')" style="cursor:pointer;user-select:none;white-space:nowrap;">Category <span id="doc-sort-icon-category" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                <th style="text-align:right;">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="documents-tbody">
-              <tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading documents...</td></tr>
-            </tbody>
-          </table>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th onclick="sortDocuments('file_name')" style="cursor:pointer;user-select:none;white-space:nowrap;">File Name <span id="doc-sort-icon-file_name" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                  <th onclick="sortDocuments('description')" style="cursor:pointer;user-select:none;white-space:nowrap;">Description <span id="doc-sort-icon-description" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                  <th onclick="sortDocuments('category')" style="cursor:pointer;user-select:none;white-space:nowrap;">Category <span id="doc-sort-icon-category" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="documents-tbody">
+                <tr><td colspan="4" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">Loading documents...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
