@@ -412,11 +412,11 @@
         </div>
         <div id="payroll-print-scroll" style="position:relative;overflow:auto;">
           <div id="payroll-print-body"></div>
-          <div id="payroll-zoom-controls" style="position:sticky;bottom:1rem;left:100%;transform:translateX(-100%);display:flex;align-items:center;gap:0.25rem;background:#fff;border:1px solid #e5e7eb;border-radius:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.15);padding:0.25rem;width:fit-content;z-index:10;">
-            <button class="btn btn-secondary btn-sm" onclick="payrollZoomOut()" style="padding:0.3rem 0.5rem;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:1.1rem;">zoom_out</span></button>
-            <span id="payroll-zoom-label" style="font-size:0.72rem;color:var(--gray-500);min-width:2.5rem;text-align:center;">100%</span>
-            <button class="btn btn-secondary btn-sm" onclick="payrollZoomIn()" style="padding:0.3rem 0.5rem;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:1.1rem;">zoom_in</span></button>
-          </div>
+        </div>
+        <div id="payroll-zoom-controls" style="position:fixed;bottom:1.5rem;right:1.5rem;display:flex;align-items:center;gap:0.25rem;background:#fff;border:1px solid #e5e7eb;border-radius:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.15);padding:0.25rem;width:fit-content;z-index:50;opacity:0.35;transition:opacity 0.2s ease;" onmouseenter="this.style.opacity='1';" onmouseleave="this.style.opacity='0.35';">
+          <button class="btn btn-secondary btn-sm" onclick="payrollZoomOut()" style="padding:0.3rem 0.5rem;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:1.1rem;">zoom_out</span></button>
+          <span id="payroll-zoom-label" style="font-size:0.72rem;color:var(--gray-500);min-width:2.5rem;text-align:center;">100%</span>
+          <button class="btn btn-secondary btn-sm" onclick="payrollZoomIn()" style="padding:0.3rem 0.5rem;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:1.1rem;">zoom_in</span></button>
         </div>
       </div>
 
@@ -9462,13 +9462,15 @@
     wraps.forEach(wrap => {
       const sheet = wrap.querySelector('.pp-sheet');
       if (!sheet) return;
+      sheet.style.transform = 'none';
       const availableWidth = scroll.clientWidth - 1;
       const sheetWidthPx = sheet.offsetWidth;
+      const sheetHeightPx = sheet.offsetHeight;
       const fitScale = Math.min(1, availableWidth / sheetWidthPx);
       const scale = fitScale * payrollZoomLevel;
       sheet.style.transform = `scale(${scale})`;
       wrap.style.width = (sheetWidthPx * scale) + 'px';
-      wrap.style.height = (sheet.offsetHeight * scale) + 'px';
+      wrap.style.height = (sheetHeightPx * scale) + 'px';
     });
     const label = document.getElementById('payroll-zoom-label');
     if (label) label.textContent = Math.round(payrollZoomLevel * 100) + '%';
@@ -9652,8 +9654,8 @@
         <style>
           #payroll-print-body { width:100%; overflow-x:hidden; box-sizing:border-box; padding:0 1.5rem; }
           #payroll-print-body .pp-sheet-gap { height:10mm; }
-          #payroll-print-body .pp-scale-wrap { margin:0 auto; overflow:visible; }
-          #payroll-print-body .pp-sheet { background:#fff; width:297mm; min-height:210mm; flex-shrink:0; padding:12mm; box-shadow:0 1px 4px rgba(0,0,0,0.15); font-family:Arial, sans-serif; font-size:9pt; color:#000; display:flex; flex-direction:column; box-sizing:border-box; transform-origin:top center; }
+          #payroll-print-body .pp-scale-wrap { margin:0 auto; overflow:hidden; }
+          #payroll-print-body .pp-sheet { background:#fff; width:297mm; min-height:210mm; flex-shrink:0; padding:12mm; box-shadow:0 1px 4px rgba(0,0,0,0.15); font-family:Arial, sans-serif; font-size:9pt; color:#000; display:flex; flex-direction:column; box-sizing:border-box; transform-origin:top left; }
           #payroll-print-body .hdr-inner { display:flex; align-items:center; gap:10px; }
           #payroll-print-body .hdr-logo { display:flex; align-items:center; gap:10px; }
           #payroll-print-body .hdr-logo img { height:50px; width:auto; object-fit:contain; }
@@ -9668,6 +9670,7 @@
           #payroll-print-body .pp-footer { display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:6mm; font-size:7.5pt; color:#555; }
           @media print {
             body * { visibility:hidden; }
+            #payroll-zoom-controls { display:none !important; }
             #payroll-print-body, #payroll-print-body * { visibility:visible; }
             #payroll-print-body { position:absolute; top:0; left:0; width:100%; margin:0; padding:0 !important; overflow:visible; }
             #payroll-print-body .pp-sheet-gap { display:none; }
