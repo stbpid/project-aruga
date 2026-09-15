@@ -3540,21 +3540,41 @@
     dsaRenderSummary();
   }
 
+  const DSA_REASON_LABELS = { not_claimed: 'Did not claim', deceased: 'Deceased', transferred: 'Moved away' };
+
   function dsaRenderResolvedList() {
     let html = dsaResolved.map((f, i) => `
       <div style="display:flex;align-items:center;gap:0.5rem;padding:0.55rem 0;border-bottom:1px solid var(--gray-100);font-size:0.75rem;">
         <div style="flex:1;"><strong style="text-transform:uppercase;">${f.name}</strong><br><span style="color:#9ca3af;">${f.aruga_id}</span></div>
         <div style="position:relative;flex-shrink:0;">
-          <select class="dsa-reason-select" onchange="dsaResolved[${i}].reason=this.value;dsaRenderSummary();" style="appearance:none;-webkit-appearance:none;padding:0.4rem 1.85rem 0.4rem 0.65rem;border:1px solid var(--border);border-radius:0.5rem;font-family:inherit;font-size:0.72rem;font-weight:600;color:var(--dark);background:white;cursor:pointer;">
-            <option value="not_claimed">Did not claim</option>
-            <option value="deceased">Deceased</option>
-            <option value="transferred">Moved away</option>
-          </select>
+          <button type="button" onclick="dsaToggleReasonMenu(event, ${i})" style="appearance:none;padding:0.4rem 1.85rem 0.4rem 0.65rem;border:1px solid var(--border);border-radius:0.5rem;font-family:inherit;font-size:0.72rem;font-weight:600;color:var(--dark);background:white;cursor:pointer;white-space:nowrap;">${DSA_REASON_LABELS[f.reason] || 'Did not claim'}</button>
           <span class="material-symbols-outlined" style="position:absolute;right:0.4rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--gray-400);pointer-events:none;">expand_more</span>
+          <ul id="dsa-reason-menu-${i}" style="display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:140px;z-index:20;background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.1);list-style:none;margin:0;padding:0.25rem 0;">
+            ${Object.entries(DSA_REASON_LABELS).map(([val, label]) => `
+              <li onclick="dsaSetReason(${i}, '${val}')" style="padding:0.5rem 0.75rem;font-size:0.75rem;font-weight:${f.reason === val ? '700' : '400'};cursor:pointer;background:${f.reason === val ? 'var(--blue);color:#fff' : 'transparent'};" onmouseover="if('${f.reason}'!=='${val}')this.style.background='var(--gray-50,#f9fafb)'" onmouseout="if('${f.reason}'!=='${val}')this.style.background='transparent'">${label}</li>`).join('')}
+          </ul>
         </div>
         <button type="button" onclick="dsaRemoveResolved(${i})" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;flex-shrink:0;padding:0.25rem;" title="Remove"><span class="material-symbols-outlined" style="font-size:1.1rem;">close</span></button>
       </div>`).join('');
     document.getElementById('dsa-resolved-list').innerHTML = html;
+  }
+
+  function dsaToggleReasonMenu(event, i) {
+    event.stopPropagation();
+    const menu = document.getElementById('dsa-reason-menu-' + i);
+    const isOpen = menu.style.display === 'block';
+    document.querySelectorAll('[id^="dsa-reason-menu-"]').forEach(m => m.style.display = 'none');
+    menu.style.display = isOpen ? 'none' : 'block';
+  }
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('[id^="dsa-reason-menu-"]').forEach(m => m.style.display = 'none');
+  });
+
+  function dsaSetReason(i, value) {
+    dsaResolved[i].reason = value;
+    dsaRenderResolvedList();
+    dsaRenderSummary();
   }
 
   function dsaRemoveResolved(i) {
@@ -3563,10 +3583,16 @@
     dsaRenderSummary();
   }
 
+  let dsaResolveInFlight = new Set();
+
   async function dsaResolveExceptions(directId) {
     const input = document.getElementById('dsa-rel-exceptions');
     const query = (directId || input.value).trim();
     if (!query) return;
+    const inFlightKey = query.toUpperCase();
+    if (dsaResolveInFlight.has(inFlightKey)) return;
+    dsaResolveInFlight.add(inFlightKey);
+    try {
 
     // If the typed text matches exactly one roster entry by name or ID, use it directly.
     let id = directId;
@@ -3605,6 +3631,9 @@
     document.getElementById('dsa-rel-suggestions').style.display = 'none';
     dsaRenderResolvedList();
     dsaRenderSummary();
+    } finally {
+      dsaResolveInFlight.delete(inFlightKey);
+    }
   }
 
   function dsaRenderSummary() {
