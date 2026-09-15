@@ -2236,11 +2236,26 @@
             </div>
           </div>
 
-          <div id="region-targets-list" style="display:flex;flex-direction:column;gap:0.75rem;">
-            <div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">
-              <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
-              &nbsp;Loading region targets…
-            </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>Region</th>
+                  <th style="text-align:right;">Target</th>
+                  <th style="text-align:right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="region-targets-list">
+                <tr><td colspan="3" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">
+                  <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
+                  &nbsp;Loading region targets…
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+            <span style="font-size:0.75rem;color:#6b7280;" id="region-targets-page-info">—</span>
+            <div class="pagination" id="region-targets-pagination"></div>
           </div>
         </div>
 
@@ -7679,6 +7694,7 @@
   // ── Region Targets ────────────────────────────────────────────
   let regionTargetsData = [];
   let regTargetEditing = null; // region_name currently being edited, or null
+  let regionTargetsPage = 0;
 
   function loadRegionSettings(force) {
     if (regionTargetsData.length && !force) { renderRegionSettings(); return; }
@@ -7705,32 +7721,47 @@
   function renderRegionSettings() {
     const list = document.getElementById('region-targets-list');
     if (!regionTargetsData.length) {
-      list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No regions found.</div>';
+      list.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);font-size:0.75rem;padding:2rem;">No regions found.</td></tr>';
+      document.getElementById('region-targets-page-info').textContent = 'No results';
+      buildPagination('region-targets-pagination', 0, 1, () => {});
       return;
     }
-    list.innerHTML = regionTargetsData.map((r) => {
+
+    const total = regionTargetsData.length;
+    const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+    regionTargetsPage = Math.min(regionTargetsPage, totalPages - 1);
+    const start = regionTargetsPage * PER_PAGE;
+    const end   = Math.min(start + PER_PAGE, total);
+    const page  = regionTargetsData.slice(start, end);
+
+    list.innerHTML = page.map((r) => {
       const isEditing = regTargetEditing === r.region_name;
-      const rightSide = isEditing
+      const targetCell = isEditing
         ? `<input type="number" min="0" max="9999" id="regt-input-${escapeAttr(r.region_name)}" value="${r.target}"
              class="settings-input" style="width:5.5rem;text-align:right;padding:0.35rem 0.5rem;font-weight:700;"
              oninput="if(this.value.length>4)this.value=this.value.slice(0,4);"
-             onkeydown="if(event.key==='Enter')regTargetSave('${escapeJs(r.region_name)}');if(event.key==='Escape')regTargetCancel();">
-           <button class="btn btn-ghost btn-sm" title="Save" onclick="regTargetSave('${escapeJs(r.region_name)}')" style="padding:0.3rem;color:#16a34a;">
+             onkeydown="if(event.key==='Enter')regTargetSave('${escapeJs(r.region_name)}');if(event.key==='Escape')regTargetCancel();">`
+        : `${r.target}`;
+      const actionCell = isEditing
+        ? `<button class="btn btn-ghost btn-sm" title="Save" onclick="regTargetSave('${escapeJs(r.region_name)}')" style="padding:0.3rem;color:#16a34a;">
              <span class="material-symbols-outlined" style="font-size:1rem;">check</span>
            </button>
            <button class="btn btn-ghost btn-sm" title="Cancel" onclick="regTargetCancel()" style="padding:0.3rem;color:#dc2626;">
              <span class="material-symbols-outlined" style="font-size:1rem;">close</span>
            </button>`
-        : `<span style="font-size:0.8rem;font-weight:500;color:#111827;min-width:2.5rem;text-align:right;">${r.target}</span>
-           <button class="btn btn-ghost btn-sm" title="Edit target" onclick="regTargetStartEdit('${escapeJs(r.region_name)}')" style="padding:0.3rem;">
+        : `<button class="btn btn-ghost btn-sm" title="Edit target" onclick="regTargetStartEdit('${escapeJs(r.region_name)}')" style="padding:0.3rem;">
              <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
            </button>`;
 
-      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:1rem 1.25rem;border:1px solid var(--gray-100);border-radius:0.75rem;">
-        <div style="font-weight:500;font-size:0.8rem;color:#111827;">${r.region_name}</div>
-        <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">${rightSide}</div>
-      </div>`;
+      return `<tr class="table-row-hover">
+        <td><div style="font-weight:600;color:#111811;">${escapeHtml(r.region_name)}</div></td>
+        <td style="text-align:right;">${targetCell}</td>
+        <td style="text-align:right;white-space:nowrap;">${actionCell}</td>
+      </tr>`;
     }).join('');
+
+    document.getElementById('region-targets-page-info').textContent = `Showing ${start+1}–${end} of ${total} regions`;
+    buildPagination('region-targets-pagination', regionTargetsPage, totalPages, p => { regionTargetsPage = p; renderRegionSettings(); });
   }
 
   function escapeAttr(s) { return String(s).replace(/"/g, '&quot;'); }
