@@ -79,7 +79,7 @@ Each file defines a global object, e.g.:
 ```js
 // public/js/i18n/tl.js
 window.I18N_TL = {
-  step1_heading: 'Paunang Kwalipikasyon',
+  step1_heading: 'Kwalipikasyon',
   step1_subtext: 'Kumpirmahin ang pagiging kasapi sa 4Ps...',
   member_title_head: 'Miyembro #{n} (Puno ng Pamilya)',
   member_title: 'Miyembro #{n}',

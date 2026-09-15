@@ -231,7 +231,7 @@ window.I18N_TL = {
   step_of_review: 'REBYU NG 10',
 
   // Step labels (progress bar)
-  steplabel_1: 'Paunang Kwalipikasyon',
+  steplabel_1: 'Kwalipikasyon',
   steplabel_2: 'Profile ng Respondent',
   steplabel_3: 'Profile ng Bata',
   steplabel_4: 'Profile ng Pamilya',
@@ -592,7 +592,7 @@ Add inside the `window.I18N_EN = { ... }` object (append before the closing `};`
 
 ```js
   // Step 1: Pre-Qualification
-  step1_heading: 'Paunang Kwalipikasyon',
+  step1_heading: 'Kwalipikasyon',
   step1_subtext: 'Kumpirmahin ang pagiging kasapi sa 4Ps upang matulungan kaming i-coordinate ang iyong mga benepisyo.',
   step1_sec_heading: 'Pagiging Kasapi sa 4Ps',
   step1_sec_subtext: 'Ikaw ba ay kasapi ng Pantawid Pamilyang Pilipino Program?',
@@ -2444,7 +2444,7 @@ window.toast.error(error.message || t('val_submission_error_body'), t('val_submi
 ```js
   review_heading: 'Rebyu ng Pagtatasa',
   review_subtext: 'Pakisuri ang lahat ng impormasyon bago ang huling pagsusumite',
-  review_group_1: '1. Paunang Kwalipikasyon',
+  review_group_1: '1. Kwalipikasyon',
   review_group_2: '2. Profile ng Respondent',
   review_group_3: '3. Profile ng Bata',
   review_group_4: '4. Profile ng Pamilya',
