@@ -56,14 +56,60 @@
            </label>
         </div>
 
-        <label for="dialect-select" class="block font-bold text-xs 2xl:text-sm mb-1 text-brand-dark">Language</label>
-        <div class="relative w-full mb-3">
-          <select id="dialect-select" name="dialect" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 cursor-pointer">
+        <label for="dialect-select-input" class="block font-bold text-xs 2xl:text-sm mb-1 text-brand-dark">Language</label>
+        <div class="relative w-full mb-3" id="dialect-combobox">
+          <select id="dialect-select" name="dialect" class="hidden">
             <option value="en" selected>English</option>
-            <option value="tl">Tagalog (For Improvement)</option>
+            <option value="tl">Tagalog (For Enhancement)</option>
           </select>
+          <input type="text" id="dialect-select-input" readonly autocomplete="off" value="English"
+            class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm outline-none bg-white text-gray-800 cursor-pointer">
           <span class="material-symbols-outlined pointer-events-none select-none" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:18px;color:#9ca3af;">expand_more</span>
+          <ul id="dialect-select-list"
+            class="hidden absolute z-50 w-full bg-white border border-gray-200 rounded-md shadow-lg overflow-y-auto dropdown-scroll google-menu-custom"
+            style="top:calc(100% + 4px);"></ul>
         </div>
+        <p id="dialect-tl-note" class="hidden text-[11px] text-gray-500 -mt-2 mb-3">We're actively refining the Tagalog translation.</p>
+        <script>
+          (function() {
+            const select = document.getElementById('dialect-select');
+            const input  = document.getElementById('dialect-select-input');
+            const list   = document.getElementById('dialect-select-list');
+            const tlNote = document.getElementById('dialect-tl-note');
+
+            function updateNote() {
+              tlNote.classList.toggle('hidden', select.value !== 'tl');
+            }
+            select.addEventListener('change', updateNote);
+            updateNote();
+
+            function renderList() {
+              list.innerHTML = '';
+              Array.from(select.options).forEach(opt => {
+                const li = document.createElement('li');
+                li.className = 'px-3 py-2 text-xs sm:text-sm text-gray-800 hover:bg-gray-100 cursor-pointer';
+                li.textContent = opt.text;
+                li.dataset.val = opt.value;
+                li.addEventListener('mousedown', e => {
+                  e.preventDefault();
+                  select.value = opt.value;
+                  input.value = opt.text;
+                  list.classList.add('hidden');
+                  select.dispatchEvent(new Event('change'));
+                });
+                list.appendChild(li);
+              });
+            }
+
+            input.addEventListener('click', () => {
+              renderList();
+              list.classList.toggle('hidden');
+            });
+            input.addEventListener('blur', () => {
+              setTimeout(() => list.classList.add('hidden'), 150);
+            });
+          })();
+        </script>
 
         <label for="code" class="block font-bold text-xs 2xl:text-sm mb-1 text-brand-dark">Interviewer Code</label>
         <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-1.5 h-10 2xl:h-11 mb-3 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
