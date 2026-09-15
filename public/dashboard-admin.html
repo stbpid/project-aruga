@@ -362,7 +362,6 @@
             </label>
             <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="all-ben-count"></span>
             <div style="display:flex;align-items:center;gap:0.5rem;margin-left:auto;">
-              <button class="btn btn-secondary btn-sm" id="all-ben-print-text-btn" onclick="openPayrollPrintView()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">description</span>Print as text</button>
               <button class="btn btn-primary btn-sm" id="all-ben-payout-btn" onclick="openPayrollTypeModal()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll</button>
             </div>
           </div>
@@ -9156,7 +9155,7 @@
       return;
     }
     closeSpecialPayrollModal();
-    openPayrollPrintView(specialPayrollIds);
+    openPayrollPrintView(specialPayrollIds, true);
   }
 
   // ── Payroll Print (Text) View ──────────────────────────────────
@@ -9203,7 +9202,7 @@
     applyPayrollZoom();
   }
 
-  async function openPayrollPrintView(arugaIdFilter) {
+  async function openPayrollPrintView(arugaIdFilter, alwaysShowFooterText) {
     if (!allBenFiltered.length) { showGlobalToast('No beneficiaries match the current filter.', 'error'); return; }
     document.getElementById('adm-ben-list-view').style.display = 'none';
     document.getElementById('adm-payroll-print-view').style.display = '';
@@ -9324,7 +9323,7 @@
         </tr>`;
 
       const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-      const isNCR = normRegion(region) === normRegion('NCR (National Capital Region)');
+      const isNCR = !alwaysShowFooterText && normRegion(region) === normRegion('NCR (National Capital Region)');
       const buildFooterHtml = (pageNum, totalPages) => `
       <div class="pp-footer">
         <div class="ftr-text">${(isNCR && pageNum === totalPages) ? '' : `This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}`}</div>
