@@ -143,6 +143,8 @@ window.I18N_EN = {
   step5_lbl_materials: 'What type of construction materials are the roofs and outer walls made of?',
   step5_lbl_tenure: 'What is the tenure status of the house and lot does the family have?',
   step5_lbl_modifications: "Are there any modifications in the house to accommodate the child's disability?",
+  step5_opt_mod_yes: 'Yes',
+  step5_opt_mod_no: 'No',
   step5_lbl_electricity: 'What is the main source of electricity in the dwelling place?',
   step5_sec_water: 'Water Supply',
   step5_lbl_water: "What is your family's main source of water supply?",
@@ -171,6 +173,8 @@ window.I18N_EN = {
   step6_lbl_availed_6mo: 'Has the child availed health services in the past 6 months?',
   step6_lbl_facility_accessible: 'Is the health facility accessible for the child?',
   step6_lbl_barriers: 'Are there any barriers to accessing health care services?',
+  step6_opt_barriers_yes: 'Yes',
+  step6_opt_barriers_no: 'No',
   step6_btn_next: 'Next: Education',
 
   // Step 7: Education
@@ -209,6 +213,8 @@ window.I18N_EN = {
   step8_income_class_high: 'Above Moderate / Upper Income',
   step8_sec_employment: 'Employment',
   step8_lbl_employed: 'Are the parents/guardians employed or have entrepreneurial activities?',
+  step8_opt_employed_yes: 'Yes',
+  step8_opt_employed_no: 'No',
   step8_btn_next: 'Next: Service Availment',
 
   // Step 9: Service Availment

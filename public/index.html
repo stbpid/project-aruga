@@ -56,31 +56,11 @@
            </label>
         </div>
 
-        <label class="block font-bold text-xs 2xl:text-sm mb-1 text-brand-dark">Language / Wika</label>
-        <div id="dialect-picker" class="grid grid-cols-2 gap-2 mb-3">
-          <label class="dialect-option flex items-center justify-center gap-1.5 h-9 rounded border-2 border-brand-blue bg-blue-50 cursor-pointer text-xs sm:text-sm font-semibold text-brand-blue transition-all">
-            <input type="radio" name="dialect" value="en" class="sr-only" checked>
-            English
-          </label>
-          <label class="dialect-option flex items-center justify-center gap-1.5 h-9 rounded border-2 border-gray-300 cursor-pointer text-xs sm:text-sm font-semibold text-gray-600 transition-all">
-            <input type="radio" name="dialect" value="tl" class="sr-only">
-            Tagalog
-          </label>
-        </div>
-        <script>
-          document.querySelectorAll('#dialect-picker input[name="dialect"]').forEach(function(input) {
-            input.addEventListener('change', function() {
-              document.querySelectorAll('#dialect-picker .dialect-option').forEach(function(label) {
-                const active = label.querySelector('input').checked;
-                label.classList.toggle('border-brand-blue', active);
-                label.classList.toggle('bg-blue-50', active);
-                label.classList.toggle('text-brand-blue', active);
-                label.classList.toggle('border-gray-300', !active);
-                label.classList.toggle('text-gray-600', !active);
-              });
-            });
-          });
-        </script>
+        <label for="dialect-select" class="block font-bold text-xs 2xl:text-sm mb-1 text-brand-dark">Language / Wika</label>
+        <select id="dialect-select" name="dialect" class="w-full h-9 mb-3 rounded border-2 border-gray-300 bg-white cursor-pointer text-xs sm:text-sm font-semibold text-gray-700 px-2 focus:outline-none focus:border-brand-blue transition-all">
+          <option value="en" selected>English</option>
+          <option value="tl">Tagalog</option>
+        </select>
 
         <label for="code" class="block font-bold text-xs 2xl:text-sm mb-1 text-brand-dark">Interviewer Code</label>
         <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-1.5 h-10 2xl:h-11 mb-3 focus-within:ring-1 focus-within:ring-brand-blue transition-all">

@@ -114,8 +114,8 @@ async function submitForm() {
       sessionStorage.setItem('interviewer_office', result.data.office || '');
       sessionStorage.setItem('interviewer_position', result.data.position || '');
       sessionStorage.setItem('session_started_at', result.data.started_at);
-      const dialectInput = document.querySelector('input[name="dialect"]:checked');
-      sessionStorage.setItem('dialect', dialectInput ? dialectInput.value : 'en');
+      const dialectSelect = document.getElementById('dialect-select');
+      sessionStorage.setItem('dialect', dialectSelect ? dialectSelect.value : 'en');
       sessionStorage.setItem('privacyAccepted', 'true');
       sessionStorage.setItem('loginTime', new Date().toISOString());
 

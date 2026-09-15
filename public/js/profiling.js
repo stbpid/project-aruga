@@ -765,11 +765,11 @@ function getStep5HTML() {
               <div class="slide-toggle-slider"></div>
               <label for="modifications-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.remove('hidden')">
                 <input type="radio" id="modifications-yes" name="modifications" value="Yes" class="hidden">
-                ${t('btn_yes')}
+                ${t('step5_opt_mod_yes')}
               </label>
               <label for="modifications-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.add('hidden')">
                 <input type="radio" id="modifications-no" name="modifications" value="No" class="hidden" checked>
-                ${t('btn_no')}
+                ${t('step5_opt_mod_no')}
               </label>
             </div>
             <input id="mod-specify" name="mod-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
@@ -1043,11 +1043,11 @@ function getStep6HTML() {
                 <div class="slide-toggle-slider"></div>
                 <label for="barriers-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.remove('hidden')">
                   <input type="radio" id="barriers-yes" name="barriers" value="Yes" class="hidden">
-                  ${t('btn_yes')}
+                  ${t('step6_opt_barriers_yes')}
                 </label>
                 <label for="barriers-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.add('hidden')">
                   <input type="radio" id="barriers-no" name="barriers" value="No" class="hidden" checked>
-                  ${t('btn_no')}
+                  ${t('step6_opt_barriers_no')}
                 </label>
               </div>
             </div>
@@ -1256,12 +1256,12 @@ function getStep8HTML() {
               <div class="slide-toggle-container h-8 w-32">
                 <div class="slide-toggle-slider"></div>
                 <label for="employed-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.remove('hidden')">
-                  <input type="radio" id="employed-yes" name="employed" value="Yes" class="hidden"> 
-                  ${t('btn_yes')}
+                  <input type="radio" id="employed-yes" name="employed" value="Yes" class="hidden">
+                  ${t('step8_opt_employed_yes')}
                 </label>
                 <label for="employed-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.add('hidden')">
-                  <input type="radio" id="employed-no" name="employed" value="No" class="hidden" checked> 
-                  ${t('btn_no')}
+                  <input type="radio" id="employed-no" name="employed" value="No" class="hidden" checked>
+                  ${t('step8_opt_employed_no')}
                 </label>
               </div>
             </div>
