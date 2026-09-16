@@ -668,7 +668,11 @@
         <div class="payroll-type-modal-body">
           <div class="payroll-type-modal-title">Generate Payroll</div>
           <div class="payroll-type-modal-msg">Choose which payroll you want to generate.<br><strong>This will prepare a printable PDF document.</strong></div>
-          <div style="font-size:0.75rem;font-weight:600;color:var(--gray-500);margin-top:0.75rem;">Select Month for Generate Payroll</div>
+          <div id="payroll-period-toggle" style="display:inline-flex;background:var(--gray-100);border-radius:999px;padding:3px;margin-top:0.85rem;">
+            <button type="button" id="payroll-period-monthly-btn" onclick="setPayrollPeriodMode('monthly')" style="border:none;cursor:pointer;font-family:inherit;font-size:0.75rem;font-weight:700;padding:0.35rem 0.9rem;border-radius:999px;background:var(--blue);color:#fff;">Monthly</button>
+            <button type="button" id="payroll-period-quarterly-btn" onclick="setPayrollPeriodMode('quarterly')" style="border:none;cursor:pointer;font-family:inherit;font-size:0.75rem;font-weight:700;padding:0.35rem 0.9rem;border-radius:999px;background:transparent;color:var(--gray-500);">Quarterly</button>
+          </div>
+          <div style="font-size:0.75rem;font-weight:600;color:var(--gray-500);margin-top:0.75rem;" id="payroll-period-label">Select Month for Generate Payroll</div>
           <select id="payroll-month-select" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.8rem;cursor:pointer;padding:0.4rem 0.6rem;margin-top:0.35rem;width:80%;"></select>
         </div>
         <div class="payroll-type-modal-actions">
@@ -2228,14 +2232,12 @@
 
       <!-- ── Tab: Region Targets ── -->
       <div class="settings-panel" id="stab-regions">
-        <div class="card" style="margin:0;">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Region Targets</div>
-              <div class="card-subtitle">Set the completion target used for coverage progress bars across the dashboards.</div>
-            </div>
-          </div>
+        <div style="margin-bottom:1.25rem;">
+          <div class="card-title" style="font-size:1.05rem;">Region Targets</div>
+          <div class="card-subtitle">Set the completion target used for coverage progress bars across the dashboards.</div>
+        </div>
 
+        <div class="card" style="margin:0;">
           <div class="table-wrap">
             <table class="dash-table">
               <thead>
@@ -9095,14 +9097,42 @@
     btn.innerHTML = '<span class="material-symbols-outlined">refresh</span>Regenerate';
   }
 
+  const PAYROLL_MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const PAYROLL_QUARTERS = [
+    { label: 'Q1: January, February, and March', months: [0,1,2] },
+    { label: 'Q2: April, May, and June', months: [3,4,5] },
+    { label: 'Q3: July, August, and September', months: [6,7,8] },
+    { label: 'Q4: October, November, and December', months: [9,10,11] }
+  ];
+  let payrollPeriodMode = 'monthly';
+
+  function setPayrollPeriodMode(mode) {
+    payrollPeriodMode = mode;
+    const monthlyBtn = document.getElementById('payroll-period-monthly-btn');
+    const quarterlyBtn = document.getElementById('payroll-period-quarterly-btn');
+    const label = document.getElementById('payroll-period-label');
+    const monthSelect = document.getElementById('payroll-month-select');
+    const isQuarterly = mode === 'quarterly';
+
+    monthlyBtn.style.background = isQuarterly ? 'transparent' : 'var(--blue)';
+    monthlyBtn.style.color = isQuarterly ? 'var(--gray-500)' : '#fff';
+    quarterlyBtn.style.background = isQuarterly ? 'var(--blue)' : 'transparent';
+    quarterlyBtn.style.color = isQuarterly ? '#fff' : 'var(--gray-500)';
+    label.textContent = isQuarterly ? 'Select Quarter for Generate Payroll' : 'Select Month for Generate Payroll';
+
+    if (isQuarterly) {
+      monthSelect.innerHTML = PAYROLL_QUARTERS.map((q, i) => `<option value="${i}">${q.label}</option>`).join('');
+      const now = new Date();
+      monthSelect.value = String(Math.floor(now.getMonth() / 3));
+    } else {
+      monthSelect.innerHTML = PAYROLL_MONTH_NAMES.map((m, i) => `<option value="${i}">${m}</option>`).join('');
+      monthSelect.value = String(new Date().getMonth());
+    }
+  }
+
   function openPayrollTypeModal() {
     if (!allBenFiltered.length) { showGlobalToast('No beneficiaries match the current filter.', 'error'); return; }
-    const monthSelect = document.getElementById('payroll-month-select');
-    if (monthSelect && !monthSelect.options.length) {
-      const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-      monthSelect.innerHTML = MONTH_NAMES.map((m, i) => `<option value="${i}">${m}</option>`).join('');
-    }
-    if (monthSelect) monthSelect.value = String(new Date().getMonth());
+    setPayrollPeriodMode('monthly');
     document.getElementById('payroll-type-modal').classList.add('open');
   }
 
@@ -9291,8 +9321,17 @@
 
       const now = new Date();
       const monthSelect = document.getElementById('payroll-month-select');
-      const selectedMonth = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : now.getMonth();
-      const monthYear = new Date(now.getFullYear(), selectedMonth, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
+      let monthYear;
+      if (payrollPeriodMode === 'quarterly') {
+        const qIndex = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : Math.floor(now.getMonth() / 3);
+        const q = PAYROLL_QUARTERS[qIndex];
+        const startName = PAYROLL_MONTH_NAMES[q.months[0]].toUpperCase();
+        const endName = PAYROLL_MONTH_NAMES[q.months[2]].toUpperCase();
+        monthYear = `Q${qIndex + 1} (${startName}–${endName}) ${now.getFullYear()}`;
+      } else {
+        const selectedMonth = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : now.getMonth();
+        monthYear = new Date(now.getFullYear(), selectedMonth, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
+      }
       const ROMAN_TO_NUM = { I:'1', II:'2', III:'3', IV:'4', 'IV-A':'4-A', 'IV-B':'4-B', V:'5', VI:'6', VII:'7', VIII:'8', IX:'9', X:'10', XI:'11', XII:'12', XIII:'13' };
       const regionLabel = (region || 'All Regions').replace(/^Region (IV-A|IV-B|[IVX]+)\b/, (m, roman) => 'Region ' + (ROMAN_TO_NUM[roman] || roman));
 
