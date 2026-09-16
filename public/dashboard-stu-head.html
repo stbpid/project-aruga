@@ -342,6 +342,27 @@
         <div id="stu-bene-detail-body"></div>
       </div>
 
+      <!-- Payroll Print (Text) View -->
+      <div id="stu-payroll-print-view" style="display:none;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="closeStuPayrollPrintView()" style="display:flex;align-items:center;gap:0.3rem;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>Back</button>
+          <div style="flex:1;min-width:0;">
+            <div class="page-title" style="margin:0;">Generate Payroll</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;">
+            <button class="btn btn-primary btn-sm" onclick="window.print()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">print</span>Print</button>
+          </div>
+        </div>
+        <div id="stu-payroll-print-scroll" style="position:relative;overflow:auto;">
+          <div id="stu-payroll-print-body"></div>
+        </div>
+        <div id="stu-payroll-zoom-controls" style="position:fixed;bottom:1.5rem;right:1.5rem;display:flex;align-items:center;gap:0.25rem;background:#fff;border:1px solid #e5e7eb;border-radius:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.15);padding:0.25rem;width:fit-content;z-index:50;opacity:0.35;transition:opacity 0.2s ease;" onmouseenter="this.style.opacity='1';" onmouseleave="this.style.opacity='0.35';">
+          <button class="btn btn-secondary btn-sm" onclick="stuPayrollZoomOut()" style="padding:0.3rem 0.5rem;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:1.1rem;">zoom_out</span></button>
+          <span id="stu-payroll-zoom-label" style="font-size:0.72rem;color:var(--gray-500);min-width:2.5rem;text-align:center;">100%</span>
+          <button class="btn btn-secondary btn-sm" onclick="stuPayrollZoomIn()" style="padding:0.3rem 0.5rem;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:1.1rem;">zoom_in</span></button>
+        </div>
+      </div>
+
     </div><!-- /stu-view-beneficiaries -->
 
     <!-- Analytics View -->
@@ -2573,26 +2594,65 @@
     stuBenGeneratePayoutList(stuSpecialPayrollIds, false, true);
   }
 
+  let stuPayrollZoomLevel = 1;
+  const STU_PAYROLL_ZOOM_MIN = 0.5;
+  const STU_PAYROLL_ZOOM_MAX = 2;
+  const STU_PAYROLL_BASE_ZOOM = 0.9;
+
+  function closeStuPayrollPrintView() {
+    document.getElementById('stu-bene-list-view').style.display = '';
+    document.getElementById('stu-payroll-print-view').style.display = 'none';
+    document.getElementById('stu-payroll-print-body').innerHTML = '';
+  }
+
+  function applyStuPayrollZoom() {
+    const scroll = document.getElementById('stu-payroll-print-scroll');
+    const body = document.getElementById('stu-payroll-print-body');
+    if (!scroll || !body) return;
+    const wraps = body.querySelectorAll('.pp-scale-wrap');
+    wraps.forEach(wrap => {
+      const sheet = wrap.querySelector('.pp-sheet');
+      if (!sheet) return;
+      sheet.style.transform = 'none';
+      const availableWidth = scroll.clientWidth - 1;
+      const sheetWidthPx = sheet.offsetWidth;
+      const sheetHeightPx = sheet.offsetHeight;
+      const fitScale = Math.min(1, availableWidth / sheetWidthPx) * STU_PAYROLL_BASE_ZOOM;
+      const scale = fitScale * stuPayrollZoomLevel;
+      sheet.style.transform = `scale(${scale})`;
+      wrap.style.width = (sheetWidthPx * scale) + 'px';
+      wrap.style.height = (sheetHeightPx * scale) + 'px';
+    });
+    const label = document.getElementById('stu-payroll-zoom-label');
+    if (label) label.textContent = Math.round(stuPayrollZoomLevel * 100) + '%';
+  }
+
+  function stuPayrollZoomIn() {
+    stuPayrollZoomLevel = Math.min(STU_PAYROLL_ZOOM_MAX, stuPayrollZoomLevel + 0.1);
+    applyStuPayrollZoom();
+  }
+
+  function stuPayrollZoomOut() {
+    stuPayrollZoomLevel = Math.max(STU_PAYROLL_ZOOM_MIN, stuPayrollZoomLevel - 0.1);
+    applyStuPayrollZoom();
+  }
+
   async function stuBenGeneratePayoutList(arugaIdFilter, asDocx, testMode) {
     const btn = document.getElementById('stu-ben-payout-btn');
     btn.disabled = true;
     btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;animation:spin 1s linear infinite;">progress_activity</span>Generating...';
 
-    let win = null;
-    if (!asDocx) {
-      win = window.open('', '_blank');
-      if (!win) {
-        showGlobalToast('Pop-up blocked. Please allow pop-ups for this site and try again.', 'error');
-        btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
-        return;
-      }
-      win.document.write('<p style="font-family:sans-serif;padding:2rem;">Generating payroll, please wait...</p>');
-    }
+    document.getElementById('stu-bene-list-view').style.display = 'none';
+    document.getElementById('stu-payroll-print-view').style.display = '';
+    const body = document.getElementById('stu-payroll-print-body');
+    body.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--gray-400);">
+      <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
+      &nbsp;Generating payroll preview…
+    </div>`;
 
     try {
       const region = sessionStorage.getItem('interviewer_region') || '';
-      if (!region) { showGlobalToast('Region not found. Please re-login.', 'error'); win.close(); return; }
+      if (!region) { showGlobalToast('Region not found. Please re-login.', 'error'); closeStuPayrollPrintView(); return; }
       const ROMAN_TO_NUM = { I:'1', II:'2', III:'3', IV:'4', 'IV-A':'4-A', 'IV-B':'4-B', V:'5', VI:'6', VII:'7', VIII:'8', IX:'9', X:'10', XI:'11', XII:'12', XIII:'13' };
       const regionLabel = region.replace(/^Region (IV-A|IV-B|[IVX]+)\b/, (m, roman) => 'Region ' + (ROMAN_TO_NUM[roman] || roman));
 
@@ -2611,7 +2671,7 @@
       const json = await res.json();
 
       if (!json.success || !json.data?.length) {
-        showGlobalToast('No beneficiaries found for the current filter.', 'error'); win.close(); return;
+        showGlobalToast('No beneficiaries found for the current filter.', 'error'); closeStuPayrollPrintView(); return;
       }
 
       const allData = json.data;
@@ -2665,7 +2725,7 @@
         uniqueBen = uniqueBen.filter(r => wanted.has((r.aruga_id || '').trim().toUpperCase()));
         if (!uniqueBen.length) {
           showGlobalToast('None of the entered Aruga IDs match a beneficiary.', 'error');
-          win.close();
+          closeStuPayrollPrintView();
           btn.disabled = false;
           btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
           return;
@@ -2680,8 +2740,8 @@
         uniqueBen = [...uniqueBen].sort((a, b) => lastName(a).localeCompare(lastName(b)));
       }
 
-      const ROWS_PER_PAGE = testMode ? 12 : 20;
-      const rowHeightPx = testMode ? 40 : 22;
+      const ROWS_PER_PAGE = 12;
+      const rowHeightPx = 40;
       const stuPeriodMonthCount = stuPayrollPeriodMode === 'quarterly' ? 3 : 1;
       const stuAmountPerBeneficiary = stuPeriodMonthCount * 2000;
       const allRows = uniqueBen.map((r, i) => {
@@ -2699,12 +2759,6 @@
         </tr>`;
       });
 
-      const totalAmount = uniqueBen.length * stuAmountPerBeneficiary;
-      const totalRowHtml = testMode ? `<tr>
-          <td colspan="4" style="font-weight:bold;text-align:right;">TOTAL</td>
-          <td colspan="3" style="font-weight:bold;">${totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
-        </tr>` : '';
-
       const tableHead = `
         <thead>
           <tr>
@@ -2720,11 +2774,11 @@
 
       const signatureRowHtml = matchedSignatories.length ? `
         <tr style="height:auto;border:none;">
-          <td colspan="7" style="border:none;padding-top:0.5in;">
+          <td colspan="7" style="border:none;padding-top:0.28in;">
             <div class="sig-block" style="display:flex;justify-content:space-around;">
               ${matchedSignatories.map(s => `
               <div class="sig-col" style="text-align:center;width:${normFunction(s.signatory_function) === 'certified true and correct by' ? 60 : 40}%;padding:0 10px;">
-                <div style="font-size:0.85em;height:0.9in;text-align:left;${normFunction(s.signatory_function) === 'certified true and correct by' ? 'width:78%;' : 'text-transform:uppercase;'}">${normFunction(s.signatory_function) === 'certified true and correct by' ? `I hereby certify on my official oath that this Report of Cash Disbursements is a full, true and correct statement of all cash disbursements during the period of <strong>${monthYear}</strong> actually made by me in payment for obligations shown in pertinent disbursement payroll.` : `${s.signatory_function}:`}</div>
+                <div style="font-size:0.85em;height:0.65in;text-align:left;${normFunction(s.signatory_function) === 'certified true and correct by' ? 'width:78%;' : 'text-transform:uppercase;'}">${normFunction(s.signatory_function) === 'certified true and correct by' ? `I hereby certify on my official oath that this Report of Cash Disbursements is a full, true and correct statement of all cash disbursements during the period of <strong>${monthYear}</strong> actually made by me in payment for obligations shown in pertinent disbursement payroll.` : `${s.signatory_function}:`}</div>
                 <div style="width:2.5in;margin-left:0;margin-right:auto;">
                   <div class="sig-line" style="border-top:1px solid #000;margin-bottom:4px;"></div>
                   <div style="font-weight:bold;text-transform:uppercase;">${s.signatory_fullname}</div>
@@ -2735,151 +2789,105 @@
           </td>
         </tr>` : '';
 
+      const totalAmount = uniqueBen.length * stuAmountPerBeneficiary;
+      const totalRowHtml = `<tr>
+          <td colspan="4" style="font-weight:bold;text-align:right;">TOTAL</td>
+          <td colspan="3" style="font-weight:bold;">${totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+        </tr>`;
+
       const isNCR = normRegion(region) === normRegion('NCR (National Capital Region)');
       const buildFooterHtml = (pageNum, totalPages) => `
-      <div class="page-footer-inline">
-        <div class="ftr-row">
-          <div class="ftr-text">${(isNCR && pageNum === totalPages) ? '' : `This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}`}</div>
-          <div class="ftr-page">Page <strong>${pageNum}</strong> of <strong>${totalPages}</strong></div>
-        </div>
+      <div class="pp-footer">
+        <div class="ftr-text">${(isNCR && pageNum === totalPages) ? '' : `This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}`}</div>
+        <div class="ftr-page">Page <strong>${pageNum}</strong> of <strong>${totalPages}</strong></div>
       </div>`;
 
       const pages = [];
       for (let p = 0; p < allRows.length; p += ROWS_PER_PAGE) {
         const pageRows = allRows.slice(p, p + ROWS_PER_PAGE).join('');
-        pages.push(`
-    <div class="page-content">
-      <table>
-        ${tableHead}
-        <tbody>
-          ${pageRows}
-        </tbody>
-      </table>
-    </div>`);
+        pages.push({ rows: pageRows });
       }
-      if (!pages.length) {
-        pages.push(`
-    <div class="page-content">
-      <table>
-        ${tableHead}
-        <tbody></tbody>
-      </table>
-    </div>`);
-      }
-      pages[pages.length - 1] = pages[pages.length - 1].replace('</tbody>', `${totalRowHtml}${signatureRowHtml}\n        </tbody>`);
-      for (let i = 0; i < pages.length; i++) {
-        pages[i] = pages[i].replace('</div>', `${buildFooterHtml(i + 1, pages.length)}\n    </div>`);
-      }
-      const pagesHtml = pages.join('\n    <div class="page-break"></div>\n');
+      if (!pages.length) pages.push({ rows: '' });
 
       const dswdLogoUrl = window.location.origin + '/images/form-logo.webp';
       const bpLogoUrl = window.location.origin + '/images/bagong-pilipinas.webp';
-      const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Project Aruga Payroll</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    @page { size: A4 landscape; margin: 0; }
-    body { font-family: Arial, sans-serif; font-size: 9pt; }
+      const totalPages = pages.length;
 
-    #page-header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      padding: 6mm 12mm 2mm 12mm;
-      background: #fff;
-    }
-    .hdr-inner { display: flex; align-items: center; gap: 10px; }
-    .hdr-logo { display: flex; align-items: center; gap: 10px; }
-    .hdr-logo img { height: 50px; width: auto; object-fit: contain; }
-    .hdr-text-wrap { flex: 1; display: flex; align-items: center; justify-content: flex-end; text-align: right; }
-    .hdr-text { text-align: center; font-size: 9pt; line-height: 1.4; margin-left: auto; }
-    .hdr-rule { border: none; border-top: 2px solid #000; margin-top: 3px; }
-    .hdr-subtitle { text-align: center; font-weight: bold; font-size: 10pt; margin-top: 8px; line-height: 1.4; }
-
-    .page-footer-inline {
-      position: absolute;
-      bottom: 50px;
-      left: 0;
-      right: 0;
-      padding: 1mm 12mm 0 12mm;
-    }
-    .ftr-row { display: flex; justify-content: space-between; align-items: center; }
-    .ftr-text { text-align: left; font-size: 7.5pt; color: #555; }
-    .ftr-page { text-align: right; font-size: 7.5pt; color: #555; white-space: nowrap; }
-
-    .page-content {
-      position: relative;
-      min-height: calc(210mm - 38mm - 12mm);
-      margin-top: 38mm;
-      margin-bottom: 12mm;
-      padding: 0 12mm;
-    }
-
-    table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-    th, td { border: 1px solid #000; padding: 3px 5px; font-size: 8pt; vertical-align: middle; }
-    th { font-weight: bold; text-align: center; background: #fff; }
-    tr { height: ${rowHeightPx}px; }
-
-    .page-break { break-after: page; page-break-after: always; }
-
-    @media print {
-      .page-content { margin-top: 38mm; margin-bottom: 12mm; }
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Header: repeated on every page -->
-  <div id="page-header">
-    <div class="hdr-inner">
-      <div class="hdr-logo">
-        <img src="${dswdLogoUrl}" alt="DSWD" onerror="this.style.display='none'">
-        <img src="${bpLogoUrl}" alt="Bagong Pilipinas" onerror="this.style.display='none'">
-      </div>
-      <div class="hdr-text-wrap">
-        <div class="hdr-text">
-          <div>Republic of the Philippines</div>
-          <div>Department of Social Welfare and Development</div>
-          <div>Field Office - ${regionLabel}</div>
+      const sheetsHtml = pages.map((pg, idx) => {
+        const isLast = idx === pages.length - 1;
+        return `
+        <div class="pp-scale-wrap">
+        <div class="pp-sheet">
+          <div class="hdr-inner">
+            <div class="hdr-logo">
+              <img class="dswd-logo" src="${dswdLogoUrl}" alt="DSWD" onerror="this.style.display='none'">
+              <img class="bp-logo" src="${bpLogoUrl}" alt="Bagong Pilipinas" onerror="this.style.display='none'">
+            </div>
+            <div class="hdr-text-wrap">
+              <div class="hdr-text">
+                <div>Republic of the Philippines</div>
+                <div>Department of Social Welfare and Development</div>
+                <div>Field Office - ${regionLabel}</div>
+              </div>
+            </div>
+          </div>
+          <hr class="hdr-rule">
+          <div class="hdr-subtitle">
+            <div>PROJECT ARUGA PAYROLL FOR DISABILITY SUPPORT ALLOWANCE</div>
+            <div>${monthYear}</div>
+          </div>
+          <table>
+            ${tableHead}
+            <tbody>
+              ${pg.rows}
+              ${isLast ? totalRowHtml + signatureRowHtml : ''}
+            </tbody>
+          </table>
+          ${buildFooterHtml(idx + 1, totalPages)}
         </div>
-      </div>
-    </div>
-    <hr class="hdr-rule">
-    <div class="hdr-subtitle">
-      <div>PROJECT ARUGA PAYROLL FOR DISABILITY SUPPORT ALLOWANCE</div>
-      <div>${monthYear}</div>
-    </div>
-  </div>
+        </div>`;
+      }).join('<div class="pp-sheet-gap"></div>');
 
-  <!-- Content -->
-  ${pagesHtml}
+      body.innerHTML = `
+        <style>
+          #stu-payroll-print-body { width:100%; overflow-x:hidden; box-sizing:border-box; padding:0 1.5rem; }
+          #stu-payroll-print-body .pp-sheet-gap { height:10mm; }
+          #stu-payroll-print-body .pp-scale-wrap { margin:0 auto; overflow:hidden; }
+          #stu-payroll-print-body .pp-sheet { background:#fff; width:297mm; min-height:210mm; flex-shrink:0; padding:12mm; box-shadow:0 1px 4px rgba(0,0,0,0.15); font-family:Arial, sans-serif; font-size:9pt; color:#000; display:flex; flex-direction:column; box-sizing:border-box; transform-origin:top left; }
+          #stu-payroll-print-body .hdr-inner { display:flex; align-items:center; gap:10px; }
+          #stu-payroll-print-body .hdr-logo { display:flex; align-items:center; gap:10px; }
+          #stu-payroll-print-body .hdr-logo img { height:50px; width:auto; object-fit:contain; }
+          #stu-payroll-print-body .hdr-logo img.bp-logo { height:42px; }
+          #stu-payroll-print-body .hdr-logo img.dswd-logo { margin-left:-8px; }
+          #stu-payroll-print-body .hdr-text-wrap { flex:1; display:flex; align-items:center; justify-content:flex-end; text-align:right; }
+          #stu-payroll-print-body .hdr-text { text-align:center; font-size:9pt; line-height:1.4; margin-left:auto; }
+          #stu-payroll-print-body .hdr-rule { border:none; border-top:2px solid #000; margin:3px 0 0 0; height:0; }
+          #stu-payroll-print-body .hdr-subtitle { text-align:center; font-weight:bold; font-size:10pt; margin-top:8px; line-height:1.4; }
+          #stu-payroll-print-body table { width:100%; border-collapse:collapse; margin-top:10px; }
+          #stu-payroll-print-body th, #stu-payroll-print-body td { border:1px solid #000; padding:3px 5px; font-size:8pt; vertical-align:middle; }
+          #stu-payroll-print-body th { font-weight:bold; text-align:center; background:#fff; }
+          #stu-payroll-print-body table tr { height:${rowHeightPx}px; }
+          #stu-payroll-print-body .pp-footer { display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:3mm; font-size:7.5pt; color:#555; }
+          @media print {
+            body * { visibility:hidden; }
+            #stu-payroll-zoom-controls { display:none !important; }
+            #stu-payroll-print-body, #stu-payroll-print-body * { visibility:visible; }
+            #stu-payroll-print-scroll { overflow:visible !important; height:auto !important; position:static !important; }
+            #stu-payroll-print-body { position:absolute; top:0; left:0; width:100%; margin:0; padding:0 !important; overflow:visible; }
+            #stu-payroll-print-body .pp-sheet-gap { display:none; }
+            #stu-payroll-print-body .pp-scale-wrap { overflow:visible; width:auto !important; height:auto !important; }
+            #stu-payroll-print-body .pp-sheet { box-shadow:none; margin:0; width:auto; transform:none !important; break-after:page; page-break-after:always; }
+            #stu-payroll-print-body .pp-sheet:last-child { break-after:auto; page-break-after:auto; }
+            @page { size: A4 landscape; margin:0; }
+          }
+        </style>
+        ${sheetsHtml}`;
 
-</body>
-</html>`;
-
-      if (asDocx) {
-        const converted = window.htmlDocx.asBlob(html, { orientation: 'landscape' });
-        const dlUrl = URL.createObjectURL(converted);
-        const a = document.createElement('a');
-        a.href = dlUrl;
-        a.download = `Test-Payroll-${monthYear.replace(/\s+/g, '-')}.docx`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(dlUrl);
-      } else {
-        win.document.open();
-        win.document.write(html);
-        win.document.close();
-        win.focus();
-        setTimeout(() => { win.print(); }, 500);
-      }
+      stuPayrollZoomLevel = 1;
+      requestAnimationFrame(applyStuPayrollZoom);
     } catch(e) {
       console.error('Generate Payroll error:', e);
-      showGlobalToast('Error generating payout list: ' + (e?.message || e), 'error');
-      if (win && !win.closed) win.close();
+      body.innerHTML = `<div style="text-align:center;padding:3rem;color:#dc2626;font-size:0.875rem;">Failed to load: ${e.message}</div>`;
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll';
