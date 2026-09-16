@@ -63,7 +63,11 @@
     <div class="payroll-type-modal-body">
       <div class="payroll-type-modal-title">Generate Payroll</div>
       <div class="payroll-type-modal-msg">Choose which payroll you want to generate.<br><strong>This will prepare a printable PDF document.</strong></div>
-      <div style="font-size:0.75rem;font-weight:600;color:var(--gray-500);margin-top:0.75rem;">Select Month for Generate Payroll</div>
+      <div id="stu-payroll-period-toggle" style="display:inline-flex;background:var(--gray-100);border-radius:0.6rem;padding:3px;margin-top:0.85rem;">
+        <button type="button" id="stu-payroll-period-monthly-btn" onclick="setStuPayrollPeriodMode('monthly')" style="border:none;cursor:pointer;font-family:inherit;font-size:0.75rem;font-weight:700;padding:0.35rem 0.9rem;border-radius:0.5rem;background:var(--blue);color:#fff;">Monthly</button>
+        <button type="button" id="stu-payroll-period-quarterly-btn" onclick="setStuPayrollPeriodMode('quarterly')" style="border:none;cursor:pointer;font-family:inherit;font-size:0.75rem;font-weight:700;padding:0.35rem 0.9rem;border-radius:0.5rem;background:transparent;color:var(--gray-500);">Quarterly</button>
+      </div>
+      <div style="font-size:0.75rem;font-weight:600;color:var(--gray-500);margin-top:0.75rem;" id="stu-payroll-period-label">Select Month for Generate Payroll</div>
       <select id="stu-payroll-month-select" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.8rem;cursor:pointer;padding:0.4rem 0.6rem;margin-top:0.35rem;width:80%;"></select>
     </div>
     <div class="payroll-type-modal-actions">
@@ -2467,13 +2471,41 @@
     }
   }
 
-  function openStuPayrollTypeModal() {
+  const STU_PAYROLL_MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const STU_PAYROLL_QUARTERS = [
+    { label: 'Q1: January, February, and March', months: [0,1,2] },
+    { label: 'Q2: April, May, and June', months: [3,4,5] },
+    { label: 'Q3: July, August, and September', months: [6,7,8] },
+    { label: 'Q4: October, November, and December', months: [9,10,11] }
+  ];
+  let stuPayrollPeriodMode = 'monthly';
+
+  function setStuPayrollPeriodMode(mode) {
+    stuPayrollPeriodMode = mode;
+    const monthlyBtn = document.getElementById('stu-payroll-period-monthly-btn');
+    const quarterlyBtn = document.getElementById('stu-payroll-period-quarterly-btn');
+    const label = document.getElementById('stu-payroll-period-label');
     const monthSelect = document.getElementById('stu-payroll-month-select');
-    if (monthSelect && !monthSelect.options.length) {
-      const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-      monthSelect.innerHTML = MONTH_NAMES.map((m, i) => `<option value="${i}">${m}</option>`).join('');
+    const isQuarterly = mode === 'quarterly';
+
+    monthlyBtn.style.background = isQuarterly ? 'transparent' : 'var(--blue)';
+    monthlyBtn.style.color = isQuarterly ? 'var(--gray-500)' : '#fff';
+    quarterlyBtn.style.background = isQuarterly ? 'var(--blue)' : 'transparent';
+    quarterlyBtn.style.color = isQuarterly ? '#fff' : 'var(--gray-500)';
+    label.textContent = isQuarterly ? 'Select Quarter for Generate Payroll' : 'Select Month for Generate Payroll';
+
+    if (isQuarterly) {
+      monthSelect.innerHTML = STU_PAYROLL_QUARTERS.map((q, i) => `<option value="${i}">${q.label}</option>`).join('');
+      const now = new Date();
+      monthSelect.value = String(Math.floor(now.getMonth() / 3));
+    } else {
+      monthSelect.innerHTML = STU_PAYROLL_MONTH_NAMES.map((m, i) => `<option value="${i}">${m}</option>`).join('');
+      monthSelect.value = String(new Date().getMonth());
     }
-    if (monthSelect) monthSelect.value = String(new Date().getMonth());
+  }
+
+  function openStuPayrollTypeModal() {
+    setStuPayrollPeriodMode('monthly');
     document.getElementById('stu-payroll-type-modal').classList.add('open');
   }
 
@@ -2609,8 +2641,16 @@
 
       const now = new Date();
       const monthSelect = document.getElementById('stu-payroll-month-select');
-      const selectedMonth = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : now.getMonth();
-      const monthYear  = new Date(now.getFullYear(), selectedMonth, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
+      let monthYear;
+      if (stuPayrollPeriodMode === 'quarterly') {
+        const qIndex = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : Math.floor(now.getMonth() / 3);
+        const q = STU_PAYROLL_QUARTERS[qIndex];
+        const monthNames = q.months.map(m => STU_PAYROLL_MONTH_NAMES[m].toUpperCase());
+        monthYear = `PERIOD COVERED: ${monthNames[0]}, ${monthNames[1]} AND ${monthNames[2]} ${now.getFullYear()}`;
+      } else {
+        const selectedMonth = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : now.getMonth();
+        monthYear = new Date(now.getFullYear(), selectedMonth, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
+      }
       const printedOn  = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
       const seenArugaIds = new Set();
@@ -2642,6 +2682,8 @@
 
       const ROWS_PER_PAGE = testMode ? 12 : 20;
       const rowHeightPx = testMode ? 40 : 22;
+      const stuPeriodMonthCount = stuPayrollPeriodMode === 'quarterly' ? 3 : 1;
+      const stuAmountPerBeneficiary = stuPeriodMonthCount * 2000;
       const allRows = uniqueBen.map((r, i) => {
         const pd = payoutMap[r.aruga_id] || {};
         const beneficiaryName = (pd.beneficiary_name || r.name || '').toUpperCase();
@@ -2651,13 +2693,13 @@
           <td>${r.aruga_id || ''}</td>
           <td>${beneficiaryName}</td>
           <td>${claimantName}</td>
-          <td>2,000.00</td>
+          <td>${stuAmountPerBeneficiary.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
           <td></td>
           <td></td>
         </tr>`;
       });
 
-      const totalAmount = uniqueBen.length * 2000;
+      const totalAmount = uniqueBen.length * stuAmountPerBeneficiary;
       const totalRowHtml = testMode ? `<tr>
           <td colspan="4" style="font-weight:bold;text-align:right;">TOTAL</td>
           <td colspan="3" style="font-weight:bold;">${totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
