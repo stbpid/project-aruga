@@ -266,9 +266,11 @@
 
       <!-- Beneficiaries List -->
       <div id="stu-bene-list-view">
-        <div style="margin-bottom:1rem;">
-          <div class="page-title" style="margin:0;">Region Beneficiaries</div>
-          <div class="page-subtitle" id="stu-bene-subtitle" style="margin:0;">Loading...</div>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+          <div>
+            <div class="page-title" style="margin:0;">Region Beneficiaries</div>
+            <div class="page-subtitle" id="stu-bene-subtitle" style="margin:0;">Loading...</div>
+          </div>
         </div>
         <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
           <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
@@ -310,12 +312,10 @@
                 <th onclick="stuSortBene('age')" style="cursor:pointer;user-select:none;white-space:nowrap;">Age <span id="stu-ben-sort-icon-age" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th>Disability</th>
                 <th onclick="stuSortBene('region')" style="cursor:pointer;user-select:none;white-space:nowrap;">Region <span id="stu-ben-sort-icon-region" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                <th onclick="stuSortBene('interviewer')" style="cursor:pointer;user-select:none;white-space:nowrap;">Interviewer <span id="stu-ben-sort-icon-interviewer" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                <th onclick="stuSortBene('date')" style="cursor:pointer;user-select:none;white-space:nowrap;">Date <span id="stu-ben-sort-icon-date" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th onclick="stuSortBene('readiness')" style="cursor:pointer;user-select:none;white-space:nowrap;">Readiness <span id="stu-ben-sort-icon-readiness" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th>Action</th>
               </tr></thead>
-              <tbody id="stu-bene-tbody"><tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr></tbody>
+              <tbody id="stu-bene-tbody"><tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr></tbody>
             </table>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
@@ -335,11 +335,12 @@
           </div>
           <div style="margin-left:auto;display:flex;gap:0.5rem;">
             <span id="stu-bene-save-err" style="font-size:0.75rem;color:#dc2626;align-self:center;"></span>
-            <button class="btn btn-secondary btn-sm" id="stu-bene-qr-btn" onclick="stuDownloadBenQR()"><span class="material-symbols-outlined" style="font-size:0.875rem;">qr_code_2</span>Download QR</button>
+            <button class="btn btn-secondary btn-sm" id="stu-bene-qr-btn" onclick="stuBenToggleIdCard()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;" id="stu-bene-qr-btn-icon">qr_code_2</span><span id="stu-bene-qr-btn-label">Beneficiary ID</span></button>
             <button class="btn btn-primary btn-sm" id="stu-bene-save-btn" onclick="stuSaveBeneficiary()"><span class="material-symbols-outlined" style="font-size:0.875rem;">save</span>Save Changes</button>
           </div>
         </div>
         <div id="stu-bene-detail-body"></div>
+        <div id="stu-bene-idcard-body" style="display:none;"></div>
       </div>
 
       <!-- Payroll Print (Text) View -->
@@ -1379,7 +1380,7 @@
     const offset = (stuBenePage - 1) * STU_BENE_LIMIT;
 
     const tbody = document.getElementById('stu-bene-tbody');
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:2rem;">Loading...</td></tr>';
 
     const params = new URLSearchParams({ region, limit: STU_BENE_LIMIT, offset });
     if (search) params.set('search', search);
@@ -1394,7 +1395,7 @@
       if (j.success && Array.isArray(j.data) && j.data.length > 0) {
         stuBeneCurrentData = j.data;
         stuBeneSortCol = null; stuBeneSortDir = 'asc';
-        ['name','age','region','interviewer','date','readiness'].forEach(c => {
+        ['name','age','region','readiness'].forEach(c => {
           const el = document.getElementById('stu-ben-sort-icon-' + c);
           if (el) { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
         });
@@ -1403,12 +1404,12 @@
         stuRenderBenePagination(totalPages, j.total);
       } else {
         stuBeneCurrentData = [];
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;">No beneficiaries found for this region.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:2rem;">No beneficiaries found for this region.</td></tr>';
         stuRenderBenePagination(0, 0);
         document.getElementById('stu-bene-pagination').innerHTML = '';
       }
     } catch(e) {
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#ef4444;padding:2rem;">Failed to load beneficiaries.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;padding:2rem;">Failed to load beneficiaries.</td></tr>';
     }
   }
 
@@ -1434,8 +1435,6 @@
         <td>${b.age}</td>
         <td>${disCell}</td>
         <td>${b.region || '—'}</td>
-        <td>${b.interviewer}</td>
-        <td>${b.date}</td>
         <td>${stuReadinessBadge(b.readiness_score)}</td>
         <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="stuOpenBeneDetail('${b.aruga_id}')" title="View / Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
       </tr>`;
@@ -1488,15 +1487,14 @@
   // ── Beneficiary Detail / Edit ─────────────────────────────────
   let stuBeneDetailData = null;
 
-  function stuDownloadBenQR() {
-    if (!stuBeneDetailData || !stuBeneDetailData.assessment) return;
-    const arugaId = stuBeneDetailData.assessment.aruga_id;
+  // Renders the beneficiary's profile URL as a QR PNG data URL.
+  function stuBenQrDataUrl(arugaId, cellSize) {
     const profileUrl = window.location.origin + '/profile?id=' + encodeURIComponent(arugaId);
     const qr = qrcode(0, 'M');
     qr.addData(profileUrl);
     qr.make();
-
-    const cellSize = 8, margin = 2;
+    cellSize = cellSize || 8;
+    const margin = 2;
     const count = qr.getModuleCount();
     const size = (count + margin * 2) * cellSize;
     const canvas = document.createElement('canvas');
@@ -1513,21 +1511,232 @@
         }
       }
     }
+    return canvas.toDataURL('image/png');
+  }
 
+  function stuDownloadBenQR() {
+    if (!stuBeneDetailData || !stuBeneDetailData.assessment) return;
+    const arugaId = stuBeneDetailData.assessment.aruga_id;
     const a = document.createElement('a');
-    a.href = canvas.toDataURL('image/png');
+    a.href = stuBenQrDataUrl(arugaId);
     a.download = `QR-${arugaId}.png`;
     a.click();
+  }
+
+  let stuBeneIdCardOpen = false;
+
+  // Always return to the details view; the ID card is never the entry state.
+  function stuBeneResetIdCard() {
+    stuBeneIdCardOpen = false;
+    const details = document.getElementById('stu-bene-detail-body');
+    const card    = document.getElementById('stu-bene-idcard-body');
+    const saveBtn = document.getElementById('stu-bene-save-btn');
+    const label   = document.getElementById('stu-bene-qr-btn-label');
+    const icon    = document.getElementById('stu-bene-qr-btn-icon');
+    if (details) details.style.display = '';
+    if (card) { card.style.display = 'none'; card.innerHTML = ''; }
+    if (saveBtn) saveBtn.style.display = 'flex';
+    if (label) label.textContent = 'Beneficiary ID';
+    if (icon)  icon.textContent  = 'qr_code_2';
+  }
+
+  // Switches between the editable detail form and the printable ID card.
+  // The details DOM is only hidden, never re-rendered, so unsaved edits survive.
+  function stuBenToggleIdCard() {
+    if (!stuBeneDetailData || !stuBeneDetailData.assessment) return;
+    stuBeneIdCardOpen = !stuBeneIdCardOpen;
+    const details = document.getElementById('stu-bene-detail-body');
+    const card    = document.getElementById('stu-bene-idcard-body');
+    const saveBtn = document.getElementById('stu-bene-save-btn');
+    const label   = document.getElementById('stu-bene-qr-btn-label');
+    const icon    = document.getElementById('stu-bene-qr-btn-icon');
+    if (stuBeneIdCardOpen) stuRenderBenIdCard();
+    details.style.display = stuBeneIdCardOpen ? 'none' : '';
+    card.style.display    = stuBeneIdCardOpen ? '' : 'none';
+    if (saveBtn) saveBtn.style.display = stuBeneIdCardOpen ? 'none' : 'flex';
+    if (label) label.textContent = stuBeneIdCardOpen ? 'View Details' : 'Beneficiary ID';
+    if (icon)  icon.textContent  = stuBeneIdCardOpen ? 'list_alt' : 'qr_code_2';
+  }
+
+  // Steps the font down as the value gets longer so a long address still fits
+  // its box instead of pushing the card layout around.
+  function stuBenIdFontSize(text) {
+    const n = (text || '').length;
+    if (n <= 34)  return '0.78rem';
+    if (n <= 60)  return '0.74rem';
+    if (n <= 90)  return '0.70rem';
+    if (n <= 130) return '0.66rem';
+    return '0.62rem';
+  }
+
+  function stuBenIdRow(label, value, autoFit) {
+    const val  = value || '—';
+    const size = autoFit ? stuBenIdFontSize(val) : '0.70rem';
+    return `<div style="min-width:0;">
+      <div style="font-size:0.62rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">${label}</div>
+      <div style="font-size:${size};font-weight:700;color:var(--dark);margin-top:0.1rem;line-height:1.35;overflow-wrap:anywhere;">${val}</div>
+    </div>`;
+  }
+
+  let stuBeneIdFlipped = false;
+
+  function stuRenderBenIdCard() {
+    const d = stuBeneDetailData || {};
+    const a = d.assessment || {};
+    const c = d.child || {};
+    const arugaId = a.aruga_id || '';
+    const fullName = [c.first_name, c.middle_name, c.last_name,
+      (c.name_extension && c.name_extension.trim().toLowerCase() !== 'none') ? c.name_extension : '']
+      .filter(Boolean).join(' ') || 'Unknown';
+    const dob = c.date_of_birth
+      ? new Date(c.date_of_birth).toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' })
+      : '';
+    const place = [c.street_address, c.barangay, c.city_municipality, c.region]
+      .map(v => (v || '').trim()).filter(Boolean).join(', ');
+    const logoUrl = window.location.origin + '/images/logo.webp';
+
+    const header = `
+          <div style="background:linear-gradient(135deg,#1152d4,#3730a3);padding:1.1rem 1.5rem;color:white;display:flex;align-items:center;gap:0.75rem;flex-shrink:0;">
+            <img src="${logoUrl}" alt="Project Aruga" style="width:2.25rem;height:2.25rem;object-fit:contain;flex-shrink:0;border-radius:0.375rem;background:white;padding:0.15rem;" onerror="this.style.display='none'">
+            <div>
+              <div style="font-size:0.95rem;font-weight:800;letter-spacing:0.02em;">Project Aruga</div>
+              <div style="font-size:0.68rem;opacity:0.85;">Beneficiary Identification Card</div>
+            </div>
+          </div>`;
+
+    const front = `
+        <div class="ben-id-face" id="stu-bene-idcard-front" style="position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;width:100%;background:white;border:1px solid var(--gray-100);border-radius:1.25rem;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+          ${header}
+
+          <div style="position:relative;flex:1;min-height:0;overflow:hidden;">
+            <img src="${logoUrl}" alt="" aria-hidden="true" onerror="this.style.display='none'"
+                 style="position:absolute;right:-1.5rem;top:50%;transform:translateY(-50%);width:16rem;height:16rem;object-fit:contain;opacity:0.06;pointer-events:none;user-select:none;">
+
+            <div style="position:relative;padding:1.1rem 1.5rem 2.25rem;display:flex;flex-direction:column;height:100%;box-sizing:border-box;">
+              <div style="display:flex;gap:1.35rem;align-items:flex-start;flex:1;min-height:0;">
+                <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;">
+                  <div style="font-size:0.7rem;font-weight:800;color:var(--blue);font-family:monospace;letter-spacing:0.01em;margin-bottom:0.4rem;">${arugaId}</div>
+                  <img src="${stuBenQrDataUrl(arugaId, 6)}" alt="QR code for ${arugaId}"
+                       style="width:8.5rem;height:8.5rem;display:block;border-radius:0.25rem;">
+                </div>
+
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0.7rem;margin-top:0.4rem;">
+                  <div>
+                    <div style="font-size:0.62rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Full Name</div>
+                    <div style="font-size:0.9rem;font-weight:800;color:var(--dark);margin-top:0.15rem;line-height:1.25;overflow-wrap:anywhere;">${fullName}</div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;">
+                    ${stuBenIdRow('Date of Birth', dob)}
+                    ${stuBenIdRow('Sex', c.sex)}
+                  </div>
+                  ${stuBenIdRow('Address', place, true)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:linear-gradient(90deg,#1152d4,#3730a3);padding:0.6rem 1.5rem;text-align:center;font-size:0.62rem;color:white;font-weight:600;flex-shrink:0;letter-spacing:0.01em;">
+            Department of Social Welfare and Development
+          </div>
+        </div>`;
+
+    const bgUrl = window.location.origin + '/images/aruga-bg-dashboard.webp';
+    const back = `
+        <div class="ben-id-face" id="stu-bene-idcard-back" style="position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(180deg);display:flex;flex-direction:column;width:100%;background:#fafafa;border:1px solid var(--gray-100);border-radius:1.25rem;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+          <div style="position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+            <img src="${bgUrl}" alt="" aria-hidden="true" onerror="this.style.display='none'"
+                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.5;pointer-events:none;user-select:none;">
+
+            <div style="position:relative;display:flex;align-items:center;justify-content:center;padding:1rem 1.5rem;max-width:100%;">
+              <img src="${window.location.origin}/images/projectaruga-longlogo.png" alt="Project Aruga" onerror="this.style.display='none'"
+                   style="width:16rem;height:auto;object-fit:contain;flex-shrink:0;">
+            </div>
+          </div>
+
+          <div style="background:linear-gradient(90deg,#1152d4,#3730a3);padding:0.6rem 1.5rem;text-align:center;font-size:0.62rem;color:white;font-weight:600;flex-shrink:0;letter-spacing:0.01em;">
+            Department of Social Welfare and Development
+          </div>
+        </div>`;
+
+    document.getElementById('stu-bene-idcard-body').innerHTML = `
+      <div style="display:flex;justify-content:center;padding:1rem 0 1.25rem;">
+        <div id="stu-bene-idcard-scene" onclick="stuBenFlipIdCard()" title="Click to flip"
+             style="width:100%;max-width:34rem;height:19rem;perspective:1600px;cursor:pointer;">
+          <div id="stu-bene-idcard" style="position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(0.4,0.2,0.2,1);">
+            ${front}
+            ${back}
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:center;align-items:center;gap:0.35rem;padding-bottom:1rem;color:var(--gray-500);font-size:0.68rem;font-weight:600;">
+        <span class="material-symbols-outlined" style="font-size:0.9rem;">touch_app</span>
+        <span id="stu-bene-flip-hint">Click the card to view the back</span>
+      </div>
+
+      <div style="display:flex;justify-content:center;gap:0.5rem;padding-bottom:2rem;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();stuBenFlipIdCard()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">flip</span>Flip Card</button>
+        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();stuBenPrintIdCard()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">print</span>Print ID</button>
+        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();stuDownloadBenQR()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">download</span>Download QR</button>
+      </div>`;
+
+    stuBeneIdFlipped = false;
+  }
+
+  function stuBenFlipIdCard() {
+    const card = document.getElementById('stu-bene-idcard');
+    if (!card) return;
+    stuBeneIdFlipped = !stuBeneIdFlipped;
+    card.style.transform = stuBeneIdFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+    const hint = document.getElementById('stu-bene-flip-hint');
+    if (hint) hint.textContent = stuBeneIdFlipped ? 'Click the card to view the front' : 'Click the card to view the back';
+  }
+
+  function stuBenPrintIdCard() {
+    const front = document.getElementById('stu-bene-idcard-front');
+    const back  = document.getElementById('stu-bene-idcard-back');
+    if (!front || !back) return;
+    const flatten = (el) => {
+      const clone = el.cloneNode(true);
+      clone.removeAttribute('id');
+      clone.style.position = 'relative';
+      clone.style.inset = 'auto';
+      clone.style.transform = 'none';
+      clone.style.backfaceVisibility = 'visible';
+      clone.style.webkitBackfaceVisibility = 'visible';
+      clone.style.maxWidth = '34rem';
+      clone.style.height = '19rem';
+      clone.style.marginBottom = '1rem';
+      clone.style.pageBreakInside = 'avoid';
+      clone.style.breakInside = 'avoid';
+      return clone.outerHTML;
+    };
+    const w = window.open('', '_blank', 'width=760,height=560');
+    if (!w) { alert('Please allow pop-ups for this site to print the ID.'); return; }
+    w.document.write(`<!doctype html><html><head><title>Beneficiary ID</title>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
+      <style>
+        :root { --dark:#111827; --blue:#1152d4; --gray-50:#f9fafb; --gray-100:#f3f4f6; --gray-200:#e5e7eb; --gray-400:#9ca3af; --gray-500:#6b7280; }
+        * { box-sizing:border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding:1.5rem; }
+      </style>
+      </head><body>${flatten(front)}${flatten(back)}
+      <script>window.onload=()=>{setTimeout(()=>window.print(),300);};<\/script>
+      </body></html>`);
+    w.document.close();
   }
 
   function stuBeneBack() {
     document.getElementById('stu-bene-list-view').style.display = '';
     document.getElementById('stu-bene-detail-view').style.display = 'none';
+    stuBeneResetIdCard();
+    stuBeneDetailData = null;
   }
 
   async function stuOpenBeneDetail(arugaId) {
     document.getElementById('stu-bene-list-view').style.display = 'none';
     document.getElementById('stu-bene-detail-view').style.display = '';
+    stuBeneResetIdCard();
     document.getElementById('stu-bene-detail-title').textContent = 'Beneficiary Details';
     document.getElementById('stu-bene-detail-sub').textContent = '';
     document.getElementById('stu-bene-detail-body').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--gray-400);">Loading...</div>';
