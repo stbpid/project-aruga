@@ -180,7 +180,6 @@
         <div class="tabs">
           <div class="tab-item active" onclick="switchTab(this,'tab-interviewers')">User Management</div>
           <div class="tab-item" onclick="switchTab(this,'tab-pending');stuLoadPendingReviews();">Pending Reviews <span id="pending-reviews-badge" style="display:none;background:#dc2626;color:#fff;border-radius:999px;font-size:0.65rem;font-weight:700;padding:1px 6px;margin-left:4px;vertical-align:middle;"></span></div>
-          <div class="tab-item" onclick="switchTab(this,'tab-recent')">Recent Submissions</div>
         </div>
 
         <div id="tab-interviewers">
@@ -209,9 +208,6 @@
           </div>
         </div>
 
-        <div id="tab-recent" style="display:none;">
-          <div style="text-align:center;color:#9ca3af;padding:2rem;font-size:13px;">No data available</div>
-        </div>
       </div>
 
       <!-- Progress vs Target -->
@@ -2022,7 +2018,8 @@
         stuBenInput('child-street', 'Street Address', c.street_address) +
         stuBenInput('child-contact', 'Contact Number', c.contact_number) +
         stuBenSelectOther('child-religion', 'Religion', c.religion, c.religion_other, OPT_RELIGION) +
-        stuBenSelectOther('child-ip', 'IP Membership', c.ip_membership, c.ip_membership_other, OPT_IP)
+        stuBenSelectOther('child-ip', 'IP Membership', c.ip_membership, c.ip_membership_other, OPT_IP),
+        { open: true }
       )}
 
       ${stuBenSection('school', '4. Education & Disability',
@@ -2094,19 +2091,15 @@
         `<div style="grid-column:1/-1;">${stuBenTextarea('sa-challenges-other', 'Service Challenges: Specify Other', sa.service_challenges_other)}</div>`
       )}
 
-      <div style="margin-bottom:0.5rem;">
-        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
-          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">rate_review</span></div>
-          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">11. Assessment Notes</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">
-          ${stuBenSelect('an-readiness', 'Readiness Score', an.readiness_score || readiness, OPT_READINESS)}
-          <div></div>
-          <div style="grid-column:1/-1;">${stuBenTextarea('an-strengths', 'Strengths', an.strengths)}</div>
-          <div style="grid-column:1/-1;">${stuBenTextarea('an-details', 'Assessment Details', an.assessment_details)}</div>
-          <div style="grid-column:1/-1;">${stuBenTextarea('an-actions', 'Recommended Actions', an.recommended_actions)}</div>
-        </div>
-      </div>`;
+      ${stuBenCard('rate_review', '11. Assessment Notes',
+        `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">` +
+          stuBenSelect('an-readiness', 'Readiness Score', an.readiness_score || readiness, OPT_READINESS) +
+          `<div></div>` +
+          `<div style="grid-column:1/-1;">${stuBenTextarea('an-strengths', 'Strengths', an.strengths)}</div>` +
+          `<div style="grid-column:1/-1;">${stuBenTextarea('an-details', 'Assessment Details', an.assessment_details)}</div>` +
+          `<div style="grid-column:1/-1;">${stuBenTextarea('an-actions', 'Recommended Actions', an.recommended_actions)}</div>` +
+        `</div>`
+      )}`;
 
     document.getElementById('stu-bene-detail-body').innerHTML = html;
   }
