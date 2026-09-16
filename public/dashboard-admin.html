@@ -9325,9 +9325,8 @@
       if (payrollPeriodMode === 'quarterly') {
         const qIndex = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : Math.floor(now.getMonth() / 3);
         const q = PAYROLL_QUARTERS[qIndex];
-        const startName = PAYROLL_MONTH_NAMES[q.months[0]].toUpperCase();
-        const endName = PAYROLL_MONTH_NAMES[q.months[2]].toUpperCase();
-        monthYear = `Q${qIndex + 1} (${startName}–${endName}) ${now.getFullYear()}`;
+        const monthNames = q.months.map(m => PAYROLL_MONTH_NAMES[m].toUpperCase());
+        monthYear = `PERIOD COVER: ${monthNames[0]}, ${monthNames[1]} AND ${monthNames[2]} ${now.getFullYear()}`;
       } else {
         const selectedMonth = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : now.getMonth();
         monthYear = new Date(now.getFullYear(), selectedMonth, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
@@ -9361,6 +9360,8 @@
 
       const ROWS_PER_PAGE = 12;
       const rowHeightPx = 40;
+      const periodMonthCount = payrollPeriodMode === 'quarterly' ? 3 : 1;
+      const amountPerBeneficiary = periodMonthCount * 2000;
       const allRows = uniqueBen.map((r, i) => {
         const pd = payoutMap[r.aruga_id] || {};
         const beneficiaryName = (pd.beneficiary_name || r.name || '').toUpperCase();
@@ -9370,7 +9371,7 @@
           <td>${r.aruga_id || ''}</td>
           <td>${beneficiaryName}</td>
           <td>${claimantName}</td>
-          <td>2,000.00</td>
+          <td>${amountPerBeneficiary.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
           <td></td>
           <td></td>
         </tr>`;
@@ -9406,7 +9407,7 @@
           </td>
         </tr>` : '';
 
-      const totalAmount = uniqueBen.length * 2000;
+      const totalAmount = uniqueBen.length * amountPerBeneficiary;
       const totalRowHtml = `<tr>
           <td colspan="4" style="font-weight:bold;text-align:right;">TOTAL</td>
           <td colspan="3" style="font-weight:bold;">${totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
