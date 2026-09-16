@@ -1782,16 +1782,38 @@
     </div>`;
   }
 
-  function stuBenSection(icon, title, content) {
-    return `<div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
-      <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+  let stuBenSecSeq = 0;
+
+  function stuBenToggleSection(id) {
+    const body = document.getElementById(id);
+    const chev = document.getElementById(id + '-chev');
+    if (!body) return;
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : '';
+    if (chev) chev.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+  }
+
+  // Collapsible card shell. opts.open starts it expanded; opts.action is header-right HTML.
+  function stuBenCard(icon, title, content, opts) {
+    opts = opts || {};
+    const id = 'stu-ben-sec-' + (++stuBenSecSeq);
+    const open = !!opts.open;
+    return `<div style="background:white;border:1px solid var(--gray-100);border-radius:0.875rem;margin-bottom:0.875rem;overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:0.625rem;padding:1rem 1.25rem;cursor:pointer;user-select:none;" onclick="stuBenToggleSection('${id}')">
         <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">${icon}</span>
         </div>
-        <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">${title}</div>
+        <div style="font-size:0.875rem;font-weight:800;color:var(--dark);flex:1;min-width:0;">${title}</div>
+        ${opts.action ? `<div onclick="event.stopPropagation();" style="flex-shrink:0;">${opts.action}</div>` : ''}
+        <span class="material-symbols-outlined" id="${id}-chev" style="font-size:1.15rem;color:var(--gray-400);flex-shrink:0;transition:transform 0.15s;transform:rotate(${open ? 180 : 0}deg);">expand_more</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">${content}</div>
+      <div id="${id}" style="display:${open ? '' : 'none'};padding:0 1.25rem 1.25rem;">${content}</div>
     </div>`;
+  }
+
+  function stuBenSection(icon, title, content, opts) {
+    return stuBenCard(icon, title,
+      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">${content}</div>`, opts);
   }
 
   function stuBenSelectOther(id, label, val, otherVal, options) {
@@ -2009,18 +2031,10 @@
         `<div style="grid-column:1/-1;">${stuBenCheckDropdown('ceh-illnesses', 'Critical Illnesses', STU_OPT_ILLNESS_LIST, ceh.critical_illnesses, ceh.illness_other, 'ceh-illness-other')}</div>`
       )}
 
-      <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.625rem;margin-bottom:1rem;">
-          <div style="display:flex;align-items:center;gap:0.625rem;">
-            <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">people</span></div>
-            <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">5. Family Members</div>
-          </div>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="stuAddFamMember()"><span class="material-symbols-outlined" style="font-size:0.875rem;">add</span>Add Member</button>
-        </div>
-        <div id="stu-ben-fam-members">
-          ${fm.length ? fm.map((m,i) => stuBenFamCard(i, m)).join('') : ''}
-        </div>
-      </div>
+      ${stuBenCard('people', '5. Family Members',
+        `<div id="stu-ben-fam-members">${fm.length ? fm.map((m,i) => stuBenFamCard(i, m)).join('') : ''}</div>`,
+        { action: `<button type="button" class="btn btn-secondary btn-sm" onclick="stuAddFamMember()"><span class="material-symbols-outlined" style="font-size:0.875rem;">add</span>Add Member</button>` }
+      )}
 
       ${stuBenSection('home', '6. Housing & Socio-Economic',
         stuBenSelectOther('se-materials', 'Housing Materials', se.housing_materials, se.housing_materials_other, OPT_MATERIALS) +
