@@ -276,12 +276,12 @@
               <span class="material-symbols-outlined">search</span>
               <input type="text" id="stu-bene-search" placeholder="Search name, ID…" aria-label="Search">
             </div>
-            <select id="stu-bene-status" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
+            <select id="stu-bene-status" class="btn btn-secondary btn-sm" style="display:none;font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
               <option value="">All Status</option>
               <option value="completed">Completed</option>
               <option value="pending">Pending</option>
             </select>
-            <select id="stu-bene-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
+            <select id="stu-bene-readiness" class="btn btn-secondary btn-sm" style="display:none;font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
               <option value="">All Readiness</option>
               <option value="severe">Severe</option>
               <option value="moderate">Moderate</option>
@@ -298,8 +298,8 @@
               <option value="Psychosocial">Psychosocial</option>
               <option value="Speech">Speech</option>
             </select>
-            <button class="btn btn-secondary btn-sm" onclick="stuClearBeneFilters()">Reset</button>
-            <button class="btn btn-primary btn-sm" id="stu-ben-payout-btn" onclick="openStuPayrollTypeModal()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll</button>
+            <button class="btn btn-secondary btn-sm" onclick="stuClearBeneFilters()" style="display:none;">Reset</button>
+            <button class="btn btn-primary btn-sm" id="stu-ben-payout-btn" onclick="openStuPayrollTypeModal()" style="display:flex;align-items:center;gap:0.3rem;white-space:nowrap;margin-left:auto;"><span class="material-symbols-outlined" style="font-size:0.875rem;">picture_as_pdf</span>Generate Payroll</button>
           </div>
         </div>
         <div class="card" style="margin:0;">
