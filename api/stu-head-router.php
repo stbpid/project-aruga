@@ -78,8 +78,14 @@ switch ($action) {
             'assessments?select=id,aruga_id,interviewer_code,status,created_at,readiness_score,children(first_name,last_name,name_extension,date_of_birth,sex,barangay,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc'
         );
 
+        // Beneficiaries tagged deceased/transferred are excluded, same as the
+        // payroll roster and beneficiaries-router.php.
+        $excludedIds = getExcludedArugaIds();
+
         $rows = [];
         foreach ($assessments as $a) {
+            if (isset($excludedIds[$a['aruga_id'] ?? ''])) continue;
+
             $child = is_array($a['children'])
                 ? (isset($a['children'][0]) ? $a['children'][0] : $a['children'])
                 : null;
@@ -555,14 +561,19 @@ switch ($action) {
 
         // Fetch all assessments + interviewers in parallel (paginated — Supabase caps each response at 1000 rows)
         $fetched = supabaseFetchAllMulti([
-            'assessments'  => 'assessments?select=id,status,children(region)&deleted_at=is.null',
+            'assessments'  => 'assessments?select=id,aruga_id,status,children(region)&deleted_at=is.null',
             'interviewers' => 'interviewers?select=interviewer_code,region',
         ]);
+
+        // Beneficiaries tagged deceased/transferred are excluded, same as the
+        // payroll roster and beneficiaries-router.php.
+        $excludedIds = getExcludedArugaIds();
 
         $totalBeneficiaries = 0;
         $completedCount     = 0;
 
         foreach ($fetched['assessments'] as $a) {
+            if (isset($excludedIds[$a['aruga_id'] ?? ''])) continue;
             $child = is_array($a['children'])
                 ? (isset($a['children'][0]) ? $a['children'][0] : $a['children'])
                 : null;
