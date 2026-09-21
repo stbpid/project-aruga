@@ -156,6 +156,13 @@ switch ($action) {
             $pqMap[$pq['assessment_id']] = (bool)($pq['is_4ps_member'] ?? false);
         }
 
+        // Beneficiaries tagged deceased/transferred are excluded, same as the
+        // payroll roster (see payroll-router.php) — they keep their DSA
+        // history but drop off active lists.
+        $standing = [];
+        $sres = supabaseFetchAll('dsa_beneficiary_status?select=aruga_id');
+        foreach ($sres as $s) $standing[$s['aruga_id']] = true;
+
         $rows = [];
         foreach ($assessments as $a) {
             $child = is_array($a['children'])
@@ -191,6 +198,7 @@ switch ($action) {
             $is4ps         = $pqMap[$a['id']] ?? false;
 
             // Filters
+            if (isset($standing[$arugaId])) continue;  // deceased/transferred
             if ($region !== '' && $childRegion !== normalizeRegion($region)) continue;
             if ($readinessScore !== '' && strtolower($readiness) !== strtolower($readinessScore)) continue;
             if ($disabilityType !== '') {

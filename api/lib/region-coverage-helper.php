@@ -155,11 +155,25 @@ function getRegionTargets() {
 }
 
 /**
+ * Aruga IDs tagged deceased/transferred in dsa_beneficiary_status. These
+ * beneficiaries keep their historical records but are excluded from active
+ * counts, lists, and reports (same as the payroll roster in payroll-router.php).
+ */
+function getExcludedArugaIds() {
+    $rows = supabaseFetchAll('dsa_beneficiary_status?select=aruga_id');
+    return array_flip(array_column($rows, 'aruga_id'));
+}
+
+/**
  * Returns active children counts per region, keyed by normalized region name.
  */
 function getActiveChildrenCountsByRegion() {
-    $assData = supabaseFetchAll('assessments?select=id&deleted_at=is.null');
-    $validIds = array_flip(array_column($assData, 'id'));
+    $assData = supabaseFetchAll('assessments?select=id,aruga_id&deleted_at=is.null');
+    $excluded = getExcludedArugaIds();
+    $validIds = array_flip(array_column(
+        array_filter($assData, fn($a) => !isset($excluded[$a['aruga_id'] ?? ''])),
+        'id'
+    ));
 
     $childData = supabaseFetchAll('children?select=region,assessment_id');
 

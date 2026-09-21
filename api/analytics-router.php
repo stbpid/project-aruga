@@ -48,7 +48,7 @@ switch ($action) {
 
         // ── Fetch core data in parallel (paginated — Supabase caps each response at 1000 rows) ──
         $fetched = supabaseFetchAllMulti([
-            'assessments'   => 'assessments?select=id,status,readiness_score,created_at,interviewer_id,interviewer_code&deleted_at=is.null' . $dateFilter,
+            'assessments'   => 'assessments?select=id,aruga_id,status,readiness_score,created_at,interviewer_id,interviewer_code&deleted_at=is.null' . $dateFilter,
             'children'      => 'children?select=assessment_id,region,province,city_municipality,date_of_birth,sex',
             'disabilities'  => 'child_education_health?select=assessment_id,disabilities',
             'interviewers'  => 'interviewers?select=id,full_name,interviewer_code,region,status',
@@ -57,6 +57,10 @@ switch ($action) {
         $children     = $fetched['children'];
         $disData      = $fetched['disabilities'];
         $interviewers = $fetched['interviewers'];
+
+        // Exclude deceased/transferred beneficiaries from reporting/analytics
+        $excludedIds = getExcludedArugaIds();
+        $assessments = array_values(array_filter($assessments, fn($a) => !isset($excludedIds[$a['aruga_id'] ?? ''])));
 
         // Build lookup maps
         $childMap = [];
@@ -399,7 +403,7 @@ switch ($action) {
 
         // ── Fetch all needed tables in parallel (paginated — Supabase caps each response at 1000 rows) ──
         $fetched = supabaseFetchAllMulti([
-            'assessments' => 'assessments?select=id,readiness_score,created_at&deleted_at=is.null' . $dateFilter,
+            'assessments' => 'assessments?select=id,aruga_id,readiness_score,created_at&deleted_at=is.null' . $dateFilter,
             'children'    => 'children?select=assessment_id,region,sex,religion,religion_other,ip_membership',
             'preq'        => 'pre_qualification?select=assessment_id,is_4ps_member',
             'family'      => 'family_members?select=assessment_id',
@@ -412,6 +416,10 @@ switch ($action) {
         ]);
         $rawAss    = $fetched['assessments'];
         $rawChild  = $fetched['children'];
+
+        // Exclude deceased/transferred beneficiaries from reporting/analytics
+        $excludedIds = getExcludedArugaIds();
+        $rawAss = array_values(array_filter($rawAss, fn($a) => !isset($excludedIds[$a['aruga_id'] ?? ''])));
         $rawPreq   = $fetched['preq'];
         $rawFam    = $fetched['family'];
         $rawEdus   = $fetched['education'];
@@ -845,8 +853,11 @@ switch ($action) {
             }
         }
 
-        // Total beneficiaries = total rows in assessments table
-        $totalBeneficiaries = supabaseCountDS('assessments?select=id&deleted_at=is.null');
+        // Total beneficiaries = total rows in assessments table, excluding
+        // deceased/transferred (dsa_beneficiary_status)
+        $allAssIds = supabaseFetchAll('assessments?select=aruga_id&deleted_at=is.null');
+        $excludedIds = getExcludedArugaIds();
+        $totalBeneficiaries = count(array_filter($allAssIds, fn($a) => !isset($excludedIds[$a['aruga_id'] ?? ''])));
 
         // Active interviewers — no status filter first, count all, then try with active
         $activeInterviewers = supabaseCountDS('interviewers?select=id&status=eq.active');
@@ -902,12 +913,14 @@ switch ($action) {
         $year = isset($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
 
         // Fetch all assessments for the given year — just created_at
-        $res = supabaseRequest('GET', 'assessments?select=created_at&deleted_at=is.null&created_at=gte.' . $year . '-01-01T00:00:00&created_at=lt.' . ($year + 1) . '-01-01T00:00:00&limit=10000');
+        $res = supabaseRequest('GET', 'assessments?select=created_at,aruga_id&deleted_at=is.null&created_at=gte.' . $year . '-01-01T00:00:00&created_at=lt.' . ($year + 1) . '-01-01T00:00:00&limit=10000');
 
         $months = array_fill(1, 12, 0);
+        $excludedIds = getExcludedArugaIds();
 
         if ($res['success'] && is_array($res['data'])) {
             foreach ($res['data'] as $row) {
+                if (isset($excludedIds[$row['aruga_id'] ?? ''])) continue;
                 if (!empty($row['created_at'])) {
                     $m = (int)date('n', strtotime($row['created_at']));
                     if ($m >= 1 && $m <= 12) $months[$m]++;
@@ -937,7 +950,9 @@ switch ($action) {
         }
 
         // System-wide (all non-deleted assessments, not scoped to a month)
-        $assData    = supabaseFetchAll('assessments?select=id,readiness_score&deleted_at=is.null');
+        $assData    = supabaseFetchAll('assessments?select=id,aruga_id,readiness_score&deleted_at=is.null');
+        $excludedIds = getExcludedArugaIds();
+        $assData    = array_values(array_filter($assData, fn($a) => !isset($excludedIds[$a['aruga_id'] ?? ''])));
         $healthData = supabaseFetchAll('health_info?select=assessment_id,has_ongoing_health_conditions,has_barriers_to_healthcare');
         $eduData    = supabaseFetchAll('education_info?select=assessment_id,is_currently_enrolled');
         $disData    = supabaseFetchAll('child_education_health?select=assessment_id,disabilities');
@@ -1107,7 +1122,7 @@ switch ($action) {
         // Pull all needed tables in parallel (paginated — Supabase caps each response at 1000 rows)
         $fetched = supabaseFetchAllMulti([
             'children'     => 'children?select=assessment_id,region,province,city_municipality,barangay,sex,date_of_birth',
-            'assessments'  => 'assessments?select=id,status,readiness_score,created_at,interviewer_code&deleted_at=is.null',
+            'assessments'  => 'assessments?select=id,aruga_id,status,readiness_score,created_at,interviewer_code&deleted_at=is.null',
             'interviewers' => 'interviewers?select=region,status',
             'disabilities' => 'child_education_health?select=assessment_id,disabilities',
         ]);
@@ -1115,6 +1130,10 @@ switch ($action) {
         $assRows   = $fetched['assessments'];
         $intRows2  = $fetched['interviewers'];
         $disRows   = $fetched['disabilities'];
+
+        // Exclude deceased/transferred beneficiaries from reporting/analytics
+        $excludedIds = getExcludedArugaIds();
+        $assRows = array_values(array_filter($assRows, fn($a) => !isset($excludedIds[$a['aruga_id'] ?? ''])));
 
         if (empty($childRows)) {
             echo json_encode(['success' => false, 'data' => [], 'regions' => [], 'provinces' => [], 'summary' => []]); exit;
