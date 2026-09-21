@@ -3386,8 +3386,13 @@
   function dsaRow(r) {
     const totalPaid = dsaTotalPaid[r.aruga_id] ?? 0;
     const totalHtml = `<span style="font-weight:700;color:${totalPaid > 0 ? 'var(--blue)' : '#9ca3af'};">${totalPaid}</span>`;
+    const isDeceased = r.standing === 'deceased';
+    const nameColor = isDeceased ? '#dc2626' : '#111811';
+    const deceasedIcon = isDeceased
+      ? `<span title="Deceased" style="font-size:0.8rem;margin-left:0.25rem;">🕊️</span>`
+      : '';
     return `<tr class="table-row-hover">
-      <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${r.name}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
+      <td><div style="font-weight:600;color:${nameColor};text-transform:uppercase;">${r.name}${deceasedIcon}</div><div style="font-size:0.65rem;color:#9ca3af;">${r.aruga_id}</div></td>
       ${DSA_MONTHS.map((m, mi) => `<td style="text-align:center;">${dsaCircleHtml(r.aruga_id, mi)}</td>`).join('')}
       <td style="text-align:center;">${totalHtml}</td>
     </tr>`;
