@@ -116,8 +116,8 @@
       <a href="#" class="nav-item active" id="nav-overview" title="My Dashboard" onclick="showView('overview');return false;">
         <span class="material-symbols-outlined">dashboard</span><span class="nav-label">My Dashboard</span>
       </a>
-      <a href="#" class="nav-item" id="nav-beneficiaries" title="My Beneficiaries" onclick="showView('beneficiaries');return false;">
-        <span class="material-symbols-outlined">group</span><span class="nav-label">My Beneficiaries</span>
+      <a href="#" class="nav-item" id="nav-beneficiaries" title="Beneficiaries" onclick="showView('beneficiaries');return false;">
+        <span class="material-symbols-outlined">group</span><span class="nav-label">Beneficiaries</span>
       </a>
       <a href="#" class="nav-item" id="nav-assessments" title="Assessments" onclick="showView('assessments');return false;"><span class="material-symbols-outlined">assignment</span><span class="nav-label">Assessments</span></a>
 
@@ -291,7 +291,7 @@
       <div id="fo-bene-list-view">
       <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-          <div class="page-title" style="margin:0;">My Beneficiaries</div>
+          <div class="page-title" style="margin:0;">Beneficiaries</div>
           <div class="page-subtitle" style="margin:0;">All beneficiaries I have assessed</div>
         </div>
         <a href="https://projectaruga.com/" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="margin-left:auto;">
@@ -338,14 +338,12 @@
                 <th onclick="benSort('age')" style="cursor:pointer;user-select:none;white-space:nowrap;">Age <span id="ben-sort-icon-age" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th>Disability</th>
                 <th onclick="benSort('region')" style="cursor:pointer;user-select:none;white-space:nowrap;">Region <span id="ben-sort-icon-region" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                <th onclick="benSort('interviewer')" style="cursor:pointer;user-select:none;white-space:nowrap;">Interviewer <span id="ben-sort-icon-interviewer" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                <th onclick="benSort('date')" style="cursor:pointer;user-select:none;white-space:nowrap;">Date <span id="ben-sort-icon-date" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th onclick="benSort('readiness')" style="cursor:pointer;user-select:none;white-space:nowrap;">Readiness <span id="ben-sort-icon-readiness" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody id="ben-tbody">
-              <tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              <tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:2rem;font-size:0.75rem;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -1097,12 +1095,14 @@
     const tbody  = document.getElementById('ben-tbody');
     const info   = document.getElementById('ben-page-info');
     const countEl= document.getElementById('ben-count');
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
 
     const benReadiness = document.getElementById('ben-readiness')?.value || '';
     const benDisability = document.getElementById('ben-disability')?.value || '';
+    const user = dashGetUser();
     const params = new URLSearchParams({
       interviewerCode: foCode,
+      region: user.region || '',
       page: benPage,
       limit: 10,
     });
@@ -1122,7 +1122,7 @@
       countEl.textContent = pg.total + ' beneficiar' + (pg.total === 1 ? 'y' : 'ies');
 
       if (!rows.length) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:3rem;">
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;">
           <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
             <span class="material-symbols-outlined" style="font-size:2.5rem;color:#d1d5db;">group_off</span>
             <div style="font-size:0.875rem;font-weight:600;color:#6b7280;">${benSearchVal ? 'No results for "' + esc(benSearchVal) + '"' : 'No beneficiaries yet. Start your first assessment!'}</div>
@@ -1152,10 +1152,8 @@
           <td>${esc(String(r.age))}</td>
           <td>${disCell}</td>
           <td>${esc(r.region || '—')}</td>
-          <td>${esc(r.interviewer || foCode)}</td>
-          <td>${esc(r.dateAssessed)}</td>
           <td>${readinessBadge(r.readinessScore)}</td>
-          <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="foOpenBeneDetail('${r.arugaId}')" title="View / Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
+          <td>${r.isOwner ? `<button class="btn btn-ghost btn-sm table-action-btn" onclick="foOpenBeneDetail('${r.arugaId}')" title="View / Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button>` : ''}</td>
         </tr>`;
       }).join('');
 
@@ -1166,7 +1164,7 @@
       buildPagination('ben-pagination', pg.page, pg.totalPages, 'goBenPage');
 
     } catch (e) {
-      tbody.innerHTML = '<tr><td colspan="8" class="fo-error-msg">Failed to load beneficiaries. Please try again.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="fo-error-msg">Failed to load beneficiaries. Please try again.</td></tr>';
     }
   }
 

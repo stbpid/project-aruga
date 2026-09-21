@@ -38,6 +38,7 @@ switch ($action) {
         }
 
         $interviewerCode = getStr('interviewerCode');
+        $region          = getStr('region');
         $search          = getStr('search');
         $page            = getInt('page', 1, 1);
         $limit           = 20;
@@ -48,23 +49,43 @@ switch ($action) {
             exit;
         }
 
-        $code = urlencode($interviewerCode);
-
-        // Fetch all matching assessments for this interviewer (with child data)
-        $res = supabaseRequest('GET',
-            "assessments?select=id,aruga_id,status,created_at,readiness_score,children(first_name,last_name,date_of_birth,sex,barangay,region),child_education_health(disabilities)&interviewer_code=eq.$code&deleted_at=is.null&order=created_at.desc&limit=10000"
-        );
+        // Region scope: show every beneficiary in the officer's region, but
+        // only rows they personally encoded are editable (isOwner flag below).
+        if (!empty($region)) {
+            $normalizedTarget = normalizeRegion($region) ?: $region;
+            $res = supabaseRequest('GET',
+                "assessments?select=id,aruga_id,status,created_at,readiness_score,interviewer_code,children(first_name,last_name,date_of_birth,sex,barangay,region),child_education_health(disabilities)&deleted_at=is.null&order=created_at.desc&limit=10000"
+            );
+        } else {
+            // Backward-compatible fallback: no region given, scope to own submissions only.
+            $code = urlencode($interviewerCode);
+            $res = supabaseRequest('GET',
+                "assessments?select=id,aruga_id,status,created_at,readiness_score,interviewer_code,children(first_name,last_name,date_of_birth,sex,barangay,region),child_education_health(disabilities)&interviewer_code=eq.$code&deleted_at=is.null&order=created_at.desc&limit=10000"
+            );
+        }
 
         if (!$res['success']) {
             echo json_encode(['success' => false, 'message' => 'Failed to fetch data']);
             exit;
         }
 
+        // Beneficiaries tagged deceased/transferred are excluded, same as
+        // other beneficiary lists.
+        $excludedIds = getExcludedArugaIds();
+
         $rows = [];
         foreach ($res['data'] as $a) {
+            $arugaId = $a['aruga_id'] ?? '—';
+            if (isset($excludedIds[$arugaId])) continue;
+
             $child = is_array($a['children'])
                 ? (isset($a['children'][0]) ? $a['children'][0] : $a['children'])
                 : null;
+
+            if (!empty($region)) {
+                $childRegion = normalizeRegion($child['region'] ?? '') ?: '';
+                if ($childRegion !== $normalizedTarget) continue;
+            }
 
             $firstName = $child['first_name'] ?? '';
             $lastName  = $child['last_name']  ?? '';
@@ -76,10 +97,10 @@ switch ($action) {
                 $age = (int)(new DateTime($dob))->diff(new DateTime())->y;
             }
 
-            $arugaId  = $a['aruga_id']        ?? '—';
-            $region   = $child['region']      ?? '—';
-            $readiness= $a['readiness_score'] ?? '—';
-            $date     = $a['created_at'] ? date('M j, Y', strtotime($a['created_at'])) : '—';
+            $rowInterviewer = $a['interviewer_code'] ?? '';
+            $region_        = $child['region']      ?? '—';
+            $readiness      = $a['readiness_score'] ?? '—';
+            $date           = $a['created_at'] ? date('M j, Y', strtotime($a['created_at'])) : '—';
 
             $cehRaw = $a['child_education_health'] ?? [];
             $ceh = is_array($cehRaw) ? (isset($cehRaw[0]) ? $cehRaw[0] : $cehRaw) : [];
@@ -90,7 +111,7 @@ switch ($action) {
 
             // Search filter
             if ($search !== '') {
-                $hay = strtolower($fullName . ' ' . $arugaId . ' ' . $region . ' ' . implode(' ', $disabilities));
+                $hay = strtolower($fullName . ' ' . $arugaId . ' ' . $region_ . ' ' . implode(' ', $disabilities));
                 if (strpos($hay, strtolower($search)) === false) continue;
             }
 
@@ -101,11 +122,12 @@ switch ($action) {
                 'age'           => $age,
                 'disability'    => $disability,
                 'disabilities'  => $disabilities,
-                'region'        => $region,
-                'interviewer'   => $interviewerCode,
+                'region'        => $region_,
+                'interviewer'   => $rowInterviewer,
                 'readinessScore'=> $readiness,
                 'dateAssessed'  => $date,
                 'status'        => $a['status'] ?? 'pending',
+                'isOwner'       => $rowInterviewer === $interviewerCode,
             ];
         }
 
