@@ -291,8 +291,8 @@
       <div id="fo-bene-list-view">
       <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-          <div class="page-title" style="margin:0;">Beneficiaries</div>
-          <div class="page-subtitle" style="margin:0;">All beneficiaries I have assessed</div>
+          <div class="page-title" style="margin:0;">Region Beneficiaries</div>
+          <div class="page-subtitle" id="fo-bene-subtitle" style="margin:0;">Loading...</div>
         </div>
         <a href="https://projectaruga.com/" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="margin-left:auto;">
           <span class="material-symbols-outlined">add</span>New Assessment
@@ -302,17 +302,10 @@
       <!-- Filters -->
       <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
         <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
-          <div class="search-bar" style="flex:1;min-width:140px;max-width:220px;">
+          <div class="search-bar" style="flex:1;min-width:140px;max-width:200px;height:1.875rem;">
             <span class="material-symbols-outlined">search</span>
             <input type="text" id="ben-search" placeholder="Search name, ID..." aria-label="Search beneficiaries">
           </div>
-          <select id="ben-readiness" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;">
-            <option value="">All Readiness</option>
-            <option value="severe">Severe</option>
-            <option value="moderate">Moderate</option>
-            <option value="low">Low</option>
-            <option value="stable">Stable</option>
-          </select>
           <select id="ben-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:140px;min-width:0;">
             <option value="">All Disabilities</option>
             <option value="Physical">Physical</option>
@@ -323,8 +316,6 @@
             <option value="Psychosocial">Psychosocial</option>
             <option value="Speech">Speech</option>
           </select>
-          <button class="btn btn-secondary btn-sm" id="ben-reset">Reset</button>
-          <span style="font-size:0.72rem;color:#6b7280;white-space:nowrap;" id="ben-count"></span>
         </div>
       </div>
 
@@ -901,22 +892,10 @@
     });
 
     // Dropdown filters
-    ['ben-readiness','ben-disability'].forEach(id => {
+    ['ben-disability'].forEach(id => {
       document.getElementById(id)?.addEventListener('change', () => { benPage = 1; loadBeneficiaries(); });
     });
 
-    // Reset
-    document.getElementById('ben-reset')?.addEventListener('click', () => {
-      document.getElementById('ben-search').value = '';
-      document.getElementById('ben-readiness').value = '';
-      document.getElementById('ben-disability').value = '';
-      benSearchVal = ''; benSortCol = ''; benSortDir = 'asc'; benPage = 1;
-      ['name','age','region','interviewer','date','readiness'].forEach(c => {
-        const el = document.getElementById('ben-sort-icon-' + c);
-        if (el) { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
-      });
-      loadBeneficiaries();
-    });
   });
 
   // ── Helpers ──────────────────────────────────────────────────
@@ -1094,12 +1073,14 @@
   async function loadBeneficiaries() {
     const tbody  = document.getElementById('ben-tbody');
     const info   = document.getElementById('ben-page-info');
-    const countEl= document.getElementById('ben-count');
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:2rem;font-size:0.75rem;">Loading...</td></tr>';
 
-    const benReadiness = document.getElementById('ben-readiness')?.value || '';
     const benDisability = document.getElementById('ben-disability')?.value || '';
     const user = dashGetUser();
+    const now = new Date();
+    const sub = document.getElementById('fo-bene-subtitle');
+    if (sub) sub.textContent = (user.region || '—') + ' · ' + now.toLocaleString('en-PH', {month:'long'}) + ' ' + now.getFullYear();
+
     const params = new URLSearchParams({
       interviewerCode: foCode,
       region: user.region || '',
@@ -1107,7 +1088,6 @@
       limit: 10,
     });
     if (benSearchVal)  params.set('search', benSearchVal);
-    if (benReadiness)  params.set('readiness', benReadiness);
     if (benDisability) params.set('disability', benDisability);
     if (benSortCol)    { params.set('sort', benSortCol); params.set('dir', benSortDir); }
 
@@ -1118,8 +1098,6 @@
 
       const rows = json.data;
       const pg   = json.pagination;
-
-      countEl.textContent = pg.total + ' beneficiar' + (pg.total === 1 ? 'y' : 'ies');
 
       if (!rows.length) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;">
