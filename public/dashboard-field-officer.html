@@ -1252,16 +1252,38 @@
     </div>`;
   }
 
-  function foBenSection(icon, title, content) {
-    return `<div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
-      <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
+  let foBenSecSeq = 0;
+
+  function foBenToggleSection(id) {
+    const body = document.getElementById(id);
+    const chev = document.getElementById(id + '-chev');
+    if (!body) return;
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : '';
+    if (chev) chev.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+  }
+
+  // Collapsible card shell. opts.open starts it expanded; opts.action is header-right HTML.
+  function foBenCard(icon, title, content, opts) {
+    opts = opts || {};
+    const id = 'fo-ben-sec-' + (++foBenSecSeq);
+    const open = !!opts.open;
+    return `<div style="background:white;border:1px solid var(--gray-100);border-radius:0.875rem;margin-bottom:0.875rem;overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:0.625rem;padding:1rem 1.25rem;cursor:pointer;user-select:none;" onclick="foBenToggleSection('${id}')">
         <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">${icon}</span>
         </div>
-        <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">${title}</div>
+        <div style="font-size:0.875rem;font-weight:800;color:var(--dark);flex:1;min-width:0;">${title}</div>
+        ${opts.action ? `<div onclick="event.stopPropagation();" style="flex-shrink:0;">${opts.action}</div>` : ''}
+        <span class="material-symbols-outlined" id="${id}-chev" style="font-size:1.15rem;color:var(--gray-400);flex-shrink:0;transition:transform 0.15s;transform:rotate(${open ? 180 : 0}deg);">expand_more</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">${content}</div>
+      <div id="${id}" style="display:${open ? '' : 'none'};padding:0 1.25rem 1.25rem;">${content}</div>
     </div>`;
+  }
+
+  function foBenSection(icon, title, content, opts) {
+    return foBenCard(icon, title,
+      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">${content}</div>`, opts);
   }
 
   function foBenSelectOther(id, label, val, otherVal, options) {
@@ -1414,7 +1436,7 @@
     const readiness = (an.readiness_score || a.readiness_score || '').toLowerCase();
     const BANNER_BG = { severe:'linear-gradient(135deg,#dc2626,#991b1b)', moderate:'linear-gradient(135deg,#ea580c,#9a3412)', low:'linear-gradient(135deg,#ca8a04,#854d0e)', stable:'linear-gradient(135deg,#16a34a,#14532d)' };
     const bannerBg = BANNER_BG[readiness] || 'linear-gradient(135deg,#1152d4,#3730a3)';
-    const childName = [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ') || 'Unknown';
+    const childName = [c.first_name, c.middle_name, c.last_name, (c.name_extension && c.name_extension.trim().toLowerCase() !== 'none') ? c.name_extension : ''].filter(Boolean).join(' ') || 'Unknown';
 
     document.getElementById('fo-bene-detail-sub').textContent = '';
 
@@ -1479,18 +1501,10 @@
         `<div style="grid-column:1/-1;">${foBenCheckDropdown('ceh-illnesses', 'Critical Illnesses', FO_OPT_ILLNESS_LIST, ceh.critical_illnesses, ceh.illness_other, 'ceh-illness-other')}</div>`
       )}
 
-      <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--gray-100);">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.625rem;margin-bottom:1rem;">
-          <div style="display:flex;align-items:center;gap:0.625rem;">
-            <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">people</span></div>
-            <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">5. Family Members</div>
-          </div>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="foAddFamMember()"><span class="material-symbols-outlined" style="font-size:0.875rem;">add</span>Add Member</button>
-        </div>
-        <div id="fo-ben-fam-members">
-          ${fm.length ? fm.map((m,i) => foBenFamCard(i, m)).join('') : ''}
-        </div>
-      </div>
+      ${foBenCard('people', '5. Family Members',
+        `<div id="fo-ben-fam-members">${fm.length ? fm.map((m,i) => foBenFamCard(i, m)).join('') : ''}</div>`,
+        { action: `<button type="button" class="btn btn-secondary btn-sm" onclick="foAddFamMember()"><span class="material-symbols-outlined" style="font-size:0.875rem;">add</span>Add Member</button>` }
+      )}
 
       ${foBenSection('home', '6. Housing & Socio-Economic',
         foBenSelectOther('se-materials', 'Housing Materials', se.housing_materials, se.housing_materials_other, OPT_MATERIALS) +
@@ -1550,19 +1564,15 @@
         `<div style="grid-column:1/-1;">${foBenTextarea('sa-challenges-other', 'Service Challenges: Specify Other', sa.service_challenges_other)}</div>`
       )}
 
-      <div style="margin-bottom:0.5rem;">
-        <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:1rem;">
-          <div style="width:2rem;height:2rem;background:#eff6ff;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;color:var(--blue);">rate_review</span></div>
-          <div style="font-size:0.875rem;font-weight:800;color:var(--dark);">11. Assessment Notes</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">
-          ${foBenSelect('an-readiness', 'Readiness Score', an.readiness_score || readiness, OPT_READINESS)}
-          <div></div>
-          <div style="grid-column:1/-1;">${foBenTextarea('an-strengths', 'Strengths', an.strengths)}</div>
-          <div style="grid-column:1/-1;">${foBenTextarea('an-details', 'Assessment Details', an.assessment_details)}</div>
-          <div style="grid-column:1/-1;">${foBenTextarea('an-actions', 'Recommended Actions', an.recommended_actions)}</div>
-        </div>
-      </div>`;
+      ${foBenCard('rate_review', '11. Assessment Notes',
+        `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">` +
+          foBenSelect('an-readiness', 'Readiness Score', an.readiness_score || readiness, OPT_READINESS) +
+          `<div></div>` +
+          `<div style="grid-column:1/-1;">${foBenTextarea('an-strengths', 'Strengths', an.strengths)}</div>` +
+          `<div style="grid-column:1/-1;">${foBenTextarea('an-details', 'Assessment Details', an.assessment_details)}</div>` +
+          `<div style="grid-column:1/-1;">${foBenTextarea('an-actions', 'Recommended Actions', an.recommended_actions)}</div>` +
+        `</div>`
+      )}`;
 
     document.getElementById('fo-bene-detail-body').innerHTML = html;
   }
