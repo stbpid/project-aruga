@@ -2085,7 +2085,12 @@
         <div class="page-subtitle" style="margin:0;">Chat with the Project Aruga assistant.</div>
       </div>
       <div style="margin-top:1.25rem;display:flex;justify-content:center;">
-        <iframe height="430" width="350" src="https://bot.dialogflow.com/fa54058c-6eee-45bb-9cee-0aedf4157970" style="border:none;border-radius:0.75rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);"></iframe>
+        <df-messenger
+          intent="WELCOME"
+          chat-title="Aruga"
+          agent-id="fa54058c-6eee-45bb-9cee-0aedf4157970"
+          language-code="en"
+        ></df-messenger>
       </div>
     </div><!-- /view-ai-agent -->
 
@@ -2794,6 +2799,7 @@
 <script src="/js/dashboard-common.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.js"></script>
+<script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
 <script>
   dashRequireAuth();
 
