@@ -141,6 +141,9 @@
       <a href="#" class="nav-item" id="nav-report" title="Report" onclick="showView('report');return false;">
         <span class="material-symbols-outlined">summarize</span><span class="nav-label">Report</span>
       </a>
+      <a href="#" class="nav-item" id="nav-ai-agent" title="AI Agent" onclick="showView('ai-agent');return false;">
+        <span class="material-symbols-outlined">smart_toy</span><span class="nav-label">AI Agent</span>
+      </a>
 
       <div class="nav-section-label">Management</div>
       <a href="#" class="nav-item" id="nav-interviewers" title="User Management" onclick="showView('interviewers');return false;">
@@ -2074,6 +2077,17 @@
 
 
     </div><!-- /view-report -->
+
+    <!-- AI Agent View -->
+    <div class="dash-content" id="view-ai-agent" style="display:none;">
+      <div style="margin-bottom:0.25rem;">
+        <div class="page-title" style="margin:0;">AI Agent</div>
+        <div class="page-subtitle" style="margin:0;">Chat with the Project Aruga assistant.</div>
+      </div>
+      <div style="margin-top:1.25rem;display:flex;justify-content:center;">
+        <iframe height="430" width="350" src="https://bot.dialogflow.com/fa54058c-6eee-45bb-9cee-0aedf4157970" style="border:none;border-radius:0.75rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);"></iframe>
+      </div>
+    </div><!-- /view-ai-agent -->
 
     <!-- Report Settings Modal -->
     <div id="an-report-settings-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
@@ -4458,7 +4472,7 @@
   });
 
   // ── View switcher ──────────────────────────────────────────────
-  const VIEWS = ['overview','beneficiaries','manage-dsa','assessments','interviewers','analytics','report','documents','settings','audit'];
+  const VIEWS = ['overview','beneficiaries','manage-dsa','assessments','interviewers','analytics','report','ai-agent','documents','settings','audit'];
   function showView(view) {
     if (secDirty && !confirm('You have unsaved security settings. Leave anyway?')) return;
     VIEWS.forEach(v => {
