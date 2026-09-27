@@ -25,23 +25,59 @@
     .aruga-modal-actions { border-top: 1px solid #f3f4f6; }
     .aruga-modal-actions button { width: 100%; padding: 0.9rem 1rem; font-family: inherit; font-size: 0.9375rem; font-weight: 700; cursor: pointer; border: none; background: #1152d4; color: #fff; border-radius: 0 0 1.25rem 1.25rem; transition: background 0.15s; }
     .aruga-modal-actions button:hover { background: #0e45b8; }
+
+    /* ── Login card sizing ────────────────────────────────────────
+       The card is the same height whichever section (Profiling /
+       Dashboard) is showing, and the page itself never scrolls.
+       --chrome is the vertical space the header, footer and <main>
+       padding already claim, so the card takes exactly what is left.  */
+    #login-card {
+      --chrome: 9.5rem;                 /* header 5.5rem + footer 2rem + main py 2rem */
+      height: calc(100dvh - var(--chrome));
+      max-height: 600px;                /* mobile / short viewports */
+    }
+    @media (min-width: 1024px) {
+      /* Laptops and up: grow with the viewport instead of sitting at a
+         fixed 600px, but stay within a comfortable reading measure.     */
+      #login-card { --chrome: 10.5rem; max-height: 660px; min-height: 520px; }
+    }
+    @media (min-width: 1024px) and (min-height: 900px) {
+      #login-card { max-height: 720px; }   /* MacBook Pro 14"/16", 1440p */
+    }
+    @media (min-width: 1536px) and (min-height: 1100px) {
+      #login-card { max-height: 780px; }   /* large external / 4K displays */
+    }
+    /* Very short viewports (e.g. a 13" laptop with dock + bookmarks bar):
+       let the card use the full leftover height rather than overflowing. */
+    @media (max-height: 640px) {
+      #login-card { min-height: 0; }
+    }
+
+    /* Both sections share this class so the two toggle states stay
+       identical in size. On wide displays the card grows, but the fields
+       stop widening so the form keeps a comfortable measure.             */
+    .login-section > * { width: 100%; }
+    @media (min-width: 1536px) {
+      .login-section { align-items: center; }
+      .login-section > * { max-width: 30rem; }
+    }
   </style>
 </head>
-<body class="text-gray-800 min-h-screen flex flex-col relative" style="background-image: url('/images/aruga-bg-dashboard.webp'); background-size: cover; background-position: center; background-attachment: fixed;">
+<body class="text-gray-800 overflow-hidden flex flex-col relative" style="height:100dvh;" style="background-image: url('/images/aruga-bg-dashboard.webp'); background-size: cover; background-position: center; background-attachment: fixed;">
   <div class="absolute inset-0 bg-white/70 pointer-events-none"></div>
 
   <?php $interactiveSwitch = true; include __DIR__ . '/partials/header.php'; ?>
 
-  <main class="relative flex-grow flex items-center justify-center px-4 py-8 overflow-y-auto">
-    <div class="bg-white rounded-xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-4xl 2xl:max-w-5xl 3xl:max-w-6xl max-h-[calc(100vh-8rem)] lg:max-h-none lg:h-[600px] flex flex-col lg:flex-row overflow-hidden">
+  <main class="relative flex-grow min-h-0 flex items-center justify-center px-4 py-4 sm:py-6 overflow-hidden">
+    <div id="login-card" class="bg-white rounded-xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-4xl 2xl:max-w-5xl 3xl:max-w-6xl flex flex-col lg:flex-row overflow-hidden">
 
-      <aside id="hero-aside" class="relative z-10 w-full h-36 sm:h-44 md:h-52 lg:h-full lg:w-5/12 bg-brand-blue overflow-hidden transition-transform duration-500 ease-in-out">
+      <aside id="hero-aside" class="relative z-10 w-full shrink-0 h-32 sm:h-40 md:h-48 lg:h-auto lg:w-5/12 bg-brand-blue overflow-hidden transition-transform duration-500 ease-in-out">
         <div id="hero-aside-img" class="w-full h-full" style="background-image: url('/images/aruga-profiling-cover.webp'); background-size: cover; background-position: center center; background-repeat: no-repeat;"></div>
       </aside>
 
-      <div id="form-panel" class="relative z-0 w-full lg:w-7/12 lg:h-full overflow-hidden transition-transform duration-500 ease-in-out">
+      <div id="form-panel" class="relative z-0 w-full flex-1 min-h-0 lg:flex-none lg:w-7/12 overflow-hidden transition-transform duration-500 ease-in-out">
 
-      <section id="section-profiling" class="w-full h-full p-5 sm:p-8 2xl:p-10 flex flex-col justify-center overflow-y-auto transition-opacity duration-300">
+      <section id="section-profiling" class="login-section w-full h-full p-5 sm:p-8 2xl:p-10 flex flex-col justify-center overflow-y-auto transition-opacity duration-300">
 
         <div class="mb-3">
            <img id="img-form-logo" src="/images/form-logo.webp" alt="DSWD Logo" class="h-9 sm:h-10 2xl:h-12 w-auto object-contain">
@@ -123,7 +159,7 @@
         </button>
       </section>
 
-      <section id="section-dashboard" class="hidden w-full h-full p-5 sm:p-8 2xl:p-10 flex flex-col justify-center overflow-y-auto transition-opacity duration-300">
+      <section id="section-dashboard" class="login-section hidden w-full h-full p-5 sm:p-8 2xl:p-10 flex flex-col justify-center overflow-y-auto transition-opacity duration-300">
 
         <div class="mb-4">
           <img src="/images/form-logo.webp" alt="DSWD Logo" class="h-9 sm:h-10 2xl:h-12 w-auto object-contain">
