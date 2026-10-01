@@ -2237,7 +2237,7 @@
       </div>
 
       <!-- Settings Tab Bar -->
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1.5rem;overflow-x:auto;">
+      <div class="settings-tabbar" style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1.5rem;overflow-x:auto;">
         <button class="settings-tab active" data-tab="regions" onclick="showSettingsTab('regions')">
           <span class="material-symbols-outlined">flag</span>Region Targets
         </button>
@@ -2787,7 +2787,7 @@
       </div>
 
       <!-- Audit Tab Bar -->
-      <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin:1rem 0 1.5rem;overflow-x:auto;">
+      <div class="settings-tabbar" style="display:flex;gap:0;border-bottom:2px solid var(--border);margin:1rem 0 1.5rem;overflow-x:auto;">
         <button class="settings-tab audit-tab active" data-tab="system" onclick="showAuditTab('system')">
           <span class="material-symbols-outlined">history</span>System Logs
         </button>
@@ -2858,11 +2858,13 @@
                   <th style="white-space:nowrap;">Timestamp</th>
                   <th style="white-space:nowrap;">User</th>
                   <th style="white-space:nowrap;">Payroll ID</th>
+                  <th style="white-space:nowrap;text-align:right;">Beneficiaries</th>
+                  <th style="white-space:nowrap;text-align:right;">Total Amount</th>
                   <th style="white-space:nowrap;">IP Address</th>
                 </tr>
               </thead>
               <tbody id="paygen-tbody">
-                <tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+                <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
               </tbody>
             </table>
           </div>
@@ -4740,7 +4742,7 @@
   async function loadPayrollGenerations() {
     if (paygenLoaded) return;
     document.getElementById('paygen-tbody').innerHTML =
-      `<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">
+      `<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">
         <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
         &nbsp;Loading generated payrolls…
       </td></tr>`;
@@ -4767,9 +4769,11 @@
               <div style="font-size:0.68rem;color:var(--gray-400);">${r.code !== '—' ? escapeHtml(r.code) + ' · ' : ''}${escapeHtml(r.user_region)}</div>
             </td>
             <td style="font-size:0.72rem;font-weight:700;color:#111827;white-space:nowrap;">${escapeHtml(r.payroll_id)}</td>
+            <td style="font-size:0.72rem;color:#374151;text-align:right;white-space:nowrap;">${Number(r.beneficiary_count || 0).toLocaleString('en-PH')}</td>
+            <td style="font-size:0.72rem;color:#374151;text-align:right;white-space:nowrap;">₱${Number(r.total_amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             <td style="font-family:monospace;font-size:0.7rem;color:#9ca3af;white-space:nowrap;">${escapeHtml(r.ip_address)}</td>
           </tr>`).join('')
-      : '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No generated payrolls yet.</td></tr>';
+      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No generated payrolls yet.</td></tr>';
     document.getElementById('paygen-page-info').textContent = total ? `Showing ${start+1}–${end} of ${total} payrolls` : 'No results';
     buildPagination('paygen-pagination', paygenPage, totalPages, p => { paygenPage = p; renderPayrollGenerations(); });
   }
@@ -9562,7 +9566,7 @@
       const isNCR = !alwaysShowFooterText && normRegion(region) === normRegion('NCR (National Capital Region)');
       const buildFooterHtml = (pageNum, totalPages) => `
       <div class="pp-footer">
-        <div class="ftr-text">${(isNCR && pageNum === totalPages) ? `<strong>${payrollId}</strong>` : `This is a system-generated document: <strong>${payrollId}</strong> &nbsp;&bull;&nbsp; Generated on ${printedOn}`}</div>
+        <div class="ftr-text">${(isNCR && pageNum === totalPages) ? `<strong>${payrollId}</strong>` : `This is a system-generated document. <strong>${payrollId}</strong> &nbsp;&bull;&nbsp; Printed on ${printedOn}`}</div>
         <div class="ftr-page">Page <strong>${pageNum}</strong> of <strong>${totalPages}</strong></div>
       </div>`;
 

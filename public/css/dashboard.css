@@ -1728,3 +1728,7 @@ table.dash-table {
 .code-row-code { font-family: monospace; font-weight: 700; color: var(--blue); font-size: 0.875rem; }
 .code-row-name { color: var(--dark); font-weight: 600; }
 .code-row-region { font-size: 0.7rem; color: var(--gray-400); }
+
+/* Tab bars scroll horizontally on narrow screens but never show a scrollbar */
+.settings-tabbar { overflow-y: hidden; scrollbar-width: none; -ms-overflow-style: none; }
+.settings-tabbar::-webkit-scrollbar { display: none; }

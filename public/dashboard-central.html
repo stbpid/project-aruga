@@ -2982,7 +2982,7 @@
       const buildFooterHtml = (pageNum, totalPages) => `
       <div class="page-footer-inline">
         <div class="ftr-row">
-          <div class="ftr-text">${(isNCR && pageNum === totalPages) ? `<strong>${payrollId}</strong>` : `This is a system-generated document: <strong>${payrollId}</strong> &nbsp;&bull;&nbsp; Generated on ${printedOn}`}</div>
+          <div class="ftr-text">${(isNCR && pageNum === totalPages) ? `<strong>${payrollId}</strong>` : `This is a system-generated document. <strong>${payrollId}</strong> &nbsp;&bull;&nbsp; Printed on ${printedOn}`}</div>
           <div class="ftr-page">Page <strong>${pageNum}</strong> of <strong>${totalPages}</strong></div>
         </div>
       </div>`;
