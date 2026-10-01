@@ -1768,3 +1768,7 @@ table.dash-table {
 .dash-table.table-flush td:first-child { padding-left: 1.25rem; }
 .dash-table.table-flush th:last-child,
 .dash-table.table-flush td:last-child { padding-right: 1.25rem; }
+.dash-table.table-flush thead th { height: 3.75rem; }
+/* Action column titles line up with their buttons' content (btn-sm has 0.75rem side padding) */
+.dash-table.table-flush th.th-action-left { padding-left: 1.625rem; }
+.dash-table.table-flush th.th-action-right { padding-right: 2rem; }

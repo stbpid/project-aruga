@@ -369,16 +369,16 @@
             </div>
           </div>
         </div>
-        <div class="card">
+        <div class="card" style="padding:0;overflow:hidden;">
           <div class="table-wrap">
-            <table class="dash-table">
+            <table class="dash-table table-flush">
               <thead id="all-ben-thead"></thead>
               <tbody id="all-ben-tbody">
                 <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
               </tbody>
             </table>
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.25rem;border-top:1px solid #f3f4f6;flex-wrap:wrap;gap:0.5rem;">
             <span style="font-size:0.75rem;color:#6b7280;" id="all-ben-page-info">—</span>
             <div class="pagination" id="all-ben-pagination"></div>
           </div>
@@ -469,16 +469,16 @@
             </div>
           </div>
         </div>
-        <div class="card">
+        <div class="card" style="padding:0;overflow:hidden;">
           <div class="table-wrap">
-            <table class="dash-table">
+            <table class="dash-table table-flush">
               <thead id="dsa-thead"></thead>
               <tbody id="dsa-tbody">
                 <tr><td colspan="14" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
               </tbody>
             </table>
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.25rem;border-top:1px solid #f3f4f6;flex-wrap:wrap;gap:0.5rem;">
             <span style="font-size:0.75rem;color:#6b7280;" id="dsa-page-info">—</span>
             <div class="pagination" id="dsa-pagination"></div>
           </div>
@@ -488,10 +488,10 @@
 
         <!-- ── Tab: DSA Status ── -->
         <div class="dsa-panel" id="dsatab-status" style="display:none;">
-          <div class="card" id="dsa-region-summary-panel">
-            <div style="font-size:0.75rem;color:#6b7280;margin-bottom:0.75rem;">Longest since last release first.</div>
+          <div class="card" style="padding:0;overflow:hidden;" id="dsa-region-summary-panel">
+            <div style="font-size:0.75rem;color:#6b7280;padding:1rem 1.25rem 0.75rem;">Longest since last release first.</div>
             <div class="table-wrap">
-              <table class="dash-table">
+              <table class="dash-table table-flush">
                 <thead>
                   <tr>
                     <th style="white-space:nowrap;">Region</th>
@@ -509,9 +509,9 @@
 
         <!-- ── Tab: Release History ── -->
         <div class="dsa-panel" id="dsatab-history" style="display:none;">
-          <div class="card">
+          <div class="card" style="padding:0;overflow:hidden;">
             <div class="table-wrap">
-              <table class="dash-table">
+              <table class="dash-table table-flush">
                 <thead>
                   <tr>
                     <th style="white-space:nowrap;">Release Date</th>
@@ -519,7 +519,7 @@
                     <th style="white-space:nowrap;">Months Covered</th>
                     <th style="white-space:nowrap;text-align:right;">Amount / Month</th>
                     <th style="white-space:nowrap;">Status</th>
-                    <th style="white-space:nowrap;text-align:right;">Action</th>
+                    <th class="th-action-right" style="white-space:nowrap;text-align:right;">Action</th>
                   </tr>
                 </thead>
                 <tbody id="dsa-releases-list">
@@ -671,9 +671,9 @@
           </button>
         </div>
       </div>
-      <div class="card">
+      <div class="card" style="padding:0;overflow:hidden;">
         <div class="table-wrap">
-          <table class="dash-table">
+          <table class="dash-table table-flush">
             <thead>
               <tr>
                 <th onclick="sortInterviewers('name')" style="cursor:pointer;user-select:none;white-space:nowrap;">Name <span id="int-sort-icon-name" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
@@ -681,7 +681,7 @@
                 <th onclick="sortInterviewers('email')" style="cursor:pointer;user-select:none;white-space:nowrap;">Email <span id="int-sort-icon-email" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th onclick="sortInterviewers('month')" style="cursor:pointer;user-select:none;white-space:nowrap;">Submissions <span id="int-sort-icon-month" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th onclick="sortInterviewers('last_active')" style="cursor:pointer;user-select:none;white-space:nowrap;">Last Active <span id="int-sort-icon-last_active" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                <th>Action</th>
+                <th class="th-action-left">Action</th>
               </tr>
             </thead>
             <tbody id="int-tbody">
@@ -689,7 +689,7 @@
             </tbody>
           </table>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.25rem;border-top:1px solid #f3f4f6;flex-wrap:wrap;gap:0.5rem;">
           <span style="font-size:0.75rem;color:#6b7280;" id="int-page-info"></span>
           <div class="pagination" id="int-pagination"></div>
         </div>
@@ -2185,11 +2185,11 @@
           <div class="table-wrap">
             <table class="dash-table table-flush">
               <thead>
-                <tr style="height:3.75rem;">
+                <tr>
                   <th onclick="sortDocuments('file_name')" style="cursor:pointer;user-select:none;white-space:nowrap;">File Name <span id="doc-sort-icon-file_name" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                   <th onclick="sortDocuments('description')" style="cursor:pointer;user-select:none;white-space:nowrap;">Description <span id="doc-sort-icon-description" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                   <th onclick="sortDocuments('category')" style="cursor:pointer;user-select:none;white-space:nowrap;">Category <span id="doc-sort-icon-category" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                  <th style="text-align:right;padding-right:1.75rem;">Actions</th>
+                  <th class="th-action-right" style="text-align:right;">Actions</th>
                 </tr>
               </thead>
               <tbody id="documents-tbody">
@@ -2294,14 +2294,14 @@
           <div class="card-subtitle">Set the completion target used for coverage progress bars across the dashboards.</div>
         </div>
 
-        <div class="card" style="margin:0;">
+        <div class="card" style="padding:0;overflow:hidden;margin:0;">
           <div class="table-wrap">
-            <table class="dash-table">
+            <table class="dash-table table-flush">
               <thead>
                 <tr>
                   <th>Region</th>
                   <th style="text-align:right;">Target</th>
-                  <th style="text-align:right;">Action</th>
+                  <th style="text-align:right;padding-right:1.55rem;">Action</th>
                 </tr>
               </thead>
               <tbody id="region-targets-list">
@@ -2312,7 +2312,7 @@
               </tbody>
             </table>
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.25rem;border-top:1px solid #f3f4f6;flex-wrap:wrap;gap:0.5rem;">
             <span style="font-size:0.75rem;color:#6b7280;" id="region-targets-page-info">—</span>
             <div class="pagination" id="region-targets-pagination"></div>
           </div>
@@ -2401,9 +2401,9 @@
             </button>
           </div>
         </div>
-        <div class="card">
+        <div class="card" style="padding:0;overflow:hidden;">
           <div class="table-wrap">
-            <table class="dash-table">
+            <table class="dash-table table-flush">
               <thead>
                 <tr>
                   <th onclick="sortSignatories('signatory_fullname')" style="cursor:pointer;user-select:none;white-space:nowrap;">Full Name <span id="sig-sort-icon-signatory_fullname" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
@@ -2411,7 +2411,7 @@
                   <th onclick="sortSignatories('signatory_office')" style="cursor:pointer;user-select:none;white-space:nowrap;">Office <span id="sig-sort-icon-signatory_office" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                   <th onclick="sortSignatories('signatory_region')" style="cursor:pointer;user-select:none;white-space:nowrap;">Region <span id="sig-sort-icon-signatory_region" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                   <th onclick="sortSignatories('signatory_status')" style="cursor:pointer;user-select:none;white-space:nowrap;">Status <span id="sig-sort-icon-signatory_status" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                  <th>Action</th>
+                  <th class="th-action-left">Action</th>
                 </tr>
               </thead>
               <tbody id="sig-tbody">
@@ -2419,7 +2419,7 @@
               </tbody>
             </table>
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.25rem;border-top:1px solid #f3f4f6;flex-wrap:wrap;gap:0.5rem;">
             <span style="font-size:0.75rem;color:#6b7280;" id="sig-page-info"></span>
             <div class="pagination" id="sig-pagination"></div>
           </div>
@@ -2859,9 +2859,9 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" style="padding:0;overflow:hidden;">
         <div class="table-wrap">
-          <table class="dash-table">
+          <table class="dash-table table-flush">
             <thead>
               <tr>
                 <th onclick="sortAudit('timestamp_raw')" style="cursor:pointer;user-select:none;white-space:nowrap;">Timestamp <span id="audit-sort-icon-timestamp_raw" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
@@ -2876,7 +2876,7 @@
             </tbody>
           </table>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.25rem;border-top:1px solid #f3f4f6;flex-wrap:wrap;gap:0.5rem;">
           <span style="font-size:0.75rem;color:#6b7280;" id="audit-page-info">—</span>
           <div class="pagination" id="audit-pagination"></div>
         </div>
@@ -2885,9 +2885,9 @@
 
       <!-- ── Tab: Generated Payroll ── -->
       <div class="audit-panel" id="atab-payroll" style="display:none;">
-        <div class="card">
+        <div class="card" style="padding:0;overflow:hidden;">
           <div class="table-wrap">
-            <table class="dash-table">
+            <table class="dash-table table-flush">
               <thead>
                 <tr>
                   <th style="white-space:nowrap;">Timestamp</th>
@@ -2903,7 +2903,7 @@
               </tbody>
             </table>
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.25rem;border-top:1px solid #f3f4f6;flex-wrap:wrap;gap:0.5rem;">
             <span style="font-size:0.75rem;color:#6b7280;" id="paygen-page-info">—</span>
             <div class="pagination" id="paygen-pagination"></div>
           </div>
@@ -3469,7 +3469,7 @@
     <th>Disability</th>
     <th onclick="sortAllBen('region')" style="cursor:pointer;user-select:none;white-space:nowrap;">Region <span id="ben-sort-icon-region" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
     <th onclick="sortAllBen('readiness')" style="cursor:pointer;user-select:none;white-space:nowrap;">Readiness <span id="ben-sort-icon-readiness" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-    <th>Action</th>
+    <th class="th-action-left">Action</th>
   </tr>`;
 
   const DSA_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
