@@ -26,8 +26,12 @@ create table if not exists payroll_generations (
     period             text,
     beneficiary_count  int not null default 0,
     total_amount       numeric(14,2) not null default 0,
+    ip_address         text,
     created_at         timestamptz not null default now()
 );
+
+-- For databases where the table was created before ip_address existed
+alter table payroll_generations add column if not exists ip_address text;
 
 create index if not exists idx_payroll_generations_created_at
     on payroll_generations (created_at desc);
@@ -35,12 +39,16 @@ create index if not exists idx_payroll_generations_created_at
 -- 3. Atomic create — called via Supabase RPC.
 --    Increments the day's counter and inserts the record in one
 --    transaction, so concurrent callers never receive the same ID.
+--    Drop the earlier 5-argument version so only one signature exists.
+drop function if exists create_payroll_generation(uuid, text, text, int, numeric);
+
 create or replace function create_payroll_generation(
     p_generated_by      uuid,
     p_region            text,
     p_period            text,
     p_beneficiary_count int,
-    p_total_amount      numeric
+    p_total_amount      numeric,
+    p_ip_address        text default null
 )
 returns text
 language plpgsql
@@ -61,8 +69,8 @@ begin
 
     v_payroll_id := 'DSA-' || to_char(v_date, 'MMDDYYYY') || '-' || lpad(v_next::text, 4, '0');
 
-    insert into payroll_generations (payroll_id, generated_by, region, period, beneficiary_count, total_amount)
-    values (v_payroll_id, p_generated_by, p_region, p_period, p_beneficiary_count, p_total_amount);
+    insert into payroll_generations (payroll_id, generated_by, region, period, beneficiary_count, total_amount, ip_address)
+    values (v_payroll_id, p_generated_by, p_region, p_period, p_beneficiary_count, p_total_amount, p_ip_address);
 
     return v_payroll_id;
 end;

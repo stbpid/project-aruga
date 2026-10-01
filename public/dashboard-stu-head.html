@@ -3052,7 +3052,7 @@
         const selectedMonth = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : now.getMonth();
         monthYear = new Date(now.getFullYear(), selectedMonth, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
       }
-      const printedOn  = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const printedOn  = `${String(now.getDate()).padStart(2, '0')} ${now.toLocaleDateString('en-US', { month: 'long' })} ${now.getFullYear()} at ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
 
       const seenArugaIds = new Set();
       let uniqueBen = allData.filter(r => {
@@ -3153,7 +3153,7 @@
       const isNCR = normRegion(region) === normRegion('NCR (National Capital Region)');
       const buildFooterHtml = (pageNum, totalPages) => `
       <div class="pp-footer">
-        <div class="ftr-text">${(isNCR && pageNum === totalPages) ? `Payroll ID: ${payrollId}` : `This is a system-generated document &nbsp;&bull;&nbsp; Payroll ID: ${payrollId} &nbsp;&bull;&nbsp; Printed on: ${printedOn}`}</div>
+        <div class="ftr-text">${(isNCR && pageNum === totalPages) ? `<strong>${payrollId}</strong>` : `This is a system-generated document: <strong>${payrollId}</strong> &nbsp;&bull;&nbsp; Generated on ${printedOn}`}</div>
         <div class="ftr-page">Page <strong>${pageNum}</strong> of <strong>${totalPages}</strong></div>
       </div>`;
 

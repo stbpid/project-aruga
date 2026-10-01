@@ -2962,7 +2962,7 @@
           </td>
         </tr>` : '';
 
-      const printedOn = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const printedOn = `${String(now.getDate()).padStart(2, '0')} ${now.toLocaleDateString('en-US', { month: 'long' })} ${now.getFullYear()} at ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
 
       const idRes = await authFetch('/api/payroll-router.php?action=create-payroll-id', {
         method: 'POST',
@@ -2982,7 +2982,7 @@
       const buildFooterHtml = (pageNum, totalPages) => `
       <div class="page-footer-inline">
         <div class="ftr-row">
-          <div class="ftr-text">${(isNCR && pageNum === totalPages) ? `Payroll ID: ${payrollId}` : `This is a system-generated document &nbsp;&bull;&nbsp; Payroll ID: ${payrollId} &nbsp;&bull;&nbsp; Printed on: ${printedOn}`}</div>
+          <div class="ftr-text">${(isNCR && pageNum === totalPages) ? `<strong>${payrollId}</strong>` : `This is a system-generated document: <strong>${payrollId}</strong> &nbsp;&bull;&nbsp; Generated on ${printedOn}`}</div>
           <div class="ftr-page">Page <strong>${pageNum}</strong> of <strong>${totalPages}</strong></div>
         </div>
       </div>`;

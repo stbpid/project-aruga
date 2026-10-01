@@ -888,6 +888,7 @@ switch ($action) {
             'p_period'            => $period,
             'p_beneficiary_count' => $count,
             'p_total_amount'      => $total,
+            'p_ip_address'        => getUserIP(),
         ]);
 
         if (!$rpc['success'] || !is_string($rpc['data']) || $rpc['data'] === '') {
@@ -904,6 +905,46 @@ switch ($action) {
         ], $authInterviewer['id']);
 
         echo json_encode(['success' => true, 'payroll_id' => $payrollId]);
+        break;
+    }
+
+    // ================================================================
+    // action=payroll-generations — most recent generated payrolls
+    // ================================================================
+    case 'payroll-generations': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin', 'central']);
+
+        $limit = getInt('limit', 40, 1, 1000);
+        $res = supabaseRequest('GET',
+            'payroll_generations?select=payroll_id,region,period,beneficiary_count,total_amount,ip_address,created_at,'
+            . 'interviewers(full_name,interviewer_code,region)'
+            . '&order=created_at.desc&limit=' . $limit);
+
+        if (!$res['success'] || !is_array($res['data'])) {
+            echo json_encode(['success' => false, 'data' => []]); exit;
+        }
+
+        $rows = array_map(function ($r) {
+            $int = $r['interviewers'] ?? null;
+            return [
+                'payroll_id'        => $r['payroll_id'],
+                'region'            => $r['region'] ?? '',
+                'period'            => $r['period'] ?? '',
+                'beneficiary_count' => (int)($r['beneficiary_count'] ?? 0),
+                'total_amount'      => (float)($r['total_amount'] ?? 0),
+                'ip_address'        => $r['ip_address'] ?: '—',
+                'timestamp_raw'     => $r['created_at'],
+                'user'              => $int['full_name'] ?? 'System',
+                'code'              => $int['interviewer_code'] ?? '—',
+                'user_region'       => $int['region'] ?? '—',
+            ];
+        }, $res['data']);
+
+        echo json_encode(['success' => true, 'data' => $rows]);
         break;
     }
 
