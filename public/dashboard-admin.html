@@ -519,7 +519,7 @@
                     <th style="white-space:nowrap;">Months Covered</th>
                     <th style="white-space:nowrap;text-align:right;">Amount / Month</th>
                     <th style="white-space:nowrap;">Status</th>
-                    <th class="th-action-right" style="white-space:nowrap;text-align:right;">Action</th>
+                    <th class="col-action-center" style="white-space:nowrap;">Action</th>
                   </tr>
                 </thead>
                 <tbody id="dsa-releases-list">
@@ -681,7 +681,7 @@
                 <th onclick="sortInterviewers('email')" style="cursor:pointer;user-select:none;white-space:nowrap;">Email <span id="int-sort-icon-email" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th onclick="sortInterviewers('month')" style="cursor:pointer;user-select:none;white-space:nowrap;">Submissions <span id="int-sort-icon-month" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th onclick="sortInterviewers('last_active')" style="cursor:pointer;user-select:none;white-space:nowrap;">Last Active <span id="int-sort-icon-last_active" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-                <th class="th-action-left">Action</th>
+                <th class="col-action-center">Action</th>
               </tr>
             </thead>
             <tbody id="int-tbody">
@@ -2301,7 +2301,7 @@
                 <tr>
                   <th>Region</th>
                   <th style="text-align:right;">Target</th>
-                  <th style="text-align:right;padding-right:1.55rem;">Action</th>
+                  <th class="col-action-center">Action</th>
                 </tr>
               </thead>
               <tbody id="region-targets-list">
@@ -3353,7 +3353,7 @@
       <td>${disabilityCell(r.disability, r.disabilities)}</td>
       <td>${r.region}</td>
       <td>${readinessBadge(r.readiness_score)}</td>
-      <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openBenModal('${r.aruga_id}')" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
+      <td class="col-action-center"><button class="btn btn-ghost btn-sm table-action-btn" onclick="openBenModal('${r.aruga_id}')" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
     </tr>`;
   }
 
@@ -3469,7 +3469,7 @@
     <th>Disability</th>
     <th onclick="sortAllBen('region')" style="cursor:pointer;user-select:none;white-space:nowrap;">Region <span id="ben-sort-icon-region" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
     <th onclick="sortAllBen('readiness')" style="cursor:pointer;user-select:none;white-space:nowrap;">Readiness <span id="ben-sort-icon-readiness" class="material-symbols-outlined" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
-    <th class="th-action-left">Action</th>
+    <th class="col-action-center">Action</th>
   </tr>`;
 
   const DSA_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -3960,7 +3960,7 @@
           <td style="color:#6b7280;">${(r.months_covered || []).map(dsaFormatMonth).join(', ')}</td>
           <td style="text-align:right;white-space:nowrap;">₱${Number(r.amount_per_month || 0).toLocaleString('en-PH')}</td>
           <td><span style="font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:999px;white-space:nowrap;background:${r.is_locked ? '#fee2e2' : '#dcfce7'};color:${r.is_locked ? '#991b1b' : '#166534'};">${r.is_locked ? 'Locked' : 'Open'}</span></td>
-          <td style="text-align:right;white-space:nowrap;">${isAdmin
+          <td class="col-action-center" style="white-space:nowrap;">${isAdmin
             ? (r.is_locked
                 ? `<button class="btn btn-ghost btn-sm" onclick="dsaReopen('${r.id}')">Reopen</button>`
                 : `<button class="btn btn-ghost btn-sm" onclick="openDsaEditPanel('${r.id}')">Edit</button>`)
@@ -4255,7 +4255,7 @@
             <td>${emailDisplay}</td>
             <td>${subCell}</td>
             <td>${lastActiveBadge(r.last_active)}</td>
-            <td><button class="btn btn-ghost btn-sm table-action-btn" onclick="openEditInterviewerModal(${start + i})" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
+            <td class="col-action-center"><button class="btn btn-ghost btn-sm table-action-btn" onclick="openEditInterviewerModal(${start + i})" title="Edit"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button></td>
           </tr>`;
         }).join('')
       : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No results found.</td></tr>';
@@ -7936,7 +7936,7 @@
     list.innerHTML = page.map((r) => `<tr class="table-row-hover">
         <td><div style="font-weight:600;color:#111811;">${escapeHtml(r.region_name)}</div></td>
         <td style="text-align:right;">${r.target}</td>
-        <td style="text-align:right;white-space:nowrap;">
+        <td class="col-action-center" style="white-space:nowrap;">
           <button class="btn btn-ghost btn-sm" title="Edit target" onclick="openRegionTargetModal('${escapeJs(r.region_name)}')" style="padding:0.3rem;">
             <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
           </button>
