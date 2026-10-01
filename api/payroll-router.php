@@ -10,6 +10,61 @@ require_once __DIR__ . '/lib/config.php';
 require_once __DIR__ . '/lib/auth.php';
 require_once __DIR__ . '/lib/region-coverage-helper.php';
 
+// ── Payroll → DSA release helpers ─────────────────────────────────
+
+/** "Last, First Middle Ext" — same format printed on the payroll. */
+function payrollFormatName(array $child): string {
+    $first = trim($child['first_name'] ?? '');
+    $last  = trim($child['last_name'] ?? '');
+    $mid   = trim($child['middle_name'] ?? '');
+    $ext   = trim($child['name_extension'] ?? '');
+    if (strcasecmp($ext, 'None') === 0) $ext = '';
+    $name = $last;
+    if ($first) $name .= ', ' . $first;
+    if ($mid)   $name .= ' ' . $mid;
+    if ($ext)   $name .= ' ' . $ext;
+    return $name;
+}
+
+/** Normalised, de-duplicated Aruga IDs printed on a payroll. */
+function payrollBeneficiaryIds(array $payroll): array {
+    $ids = [];
+    foreach ($payroll['beneficiary_ids'] ?? [] as $id) {
+        $id = strtoupper(trim((string)$id));
+        if ($id !== '') $ids[$id] = true;
+    }
+    return array_keys($ids);
+}
+
+/**
+ * Loads a generated payroll and checks it can be recorded as a DSA release.
+ * Returns [payrollRow, null] on success or [null, errorMessage].
+ * Region access is checked by the caller (requireRegion).
+ */
+function loadPayrollForRelease(string $payrollId): array {
+    if (!preg_match('/^DSA-\d{8}-\d{4,}$/', $payrollId)) {
+        return [null, 'Enter a valid Payroll ID (e.g. DSA-10012026-0001).'];
+    }
+    $res = supabaseRequest('GET', 'payroll_generations?select=payroll_id,region,period,payroll_type,'
+        . 'months_covered,amount_per_month,beneficiary_ids,beneficiary_count,total_amount,created_at'
+        . '&payroll_id=eq.' . urlencode($payrollId) . '&limit=1');
+    if (!$res['success']) return [null, 'Could not look up the Payroll ID. Please try again.'];
+    $pg = $res['data'][0] ?? null;
+    if (!$pg) return [null, 'Payroll ID not found.'];
+    if (empty($pg['beneficiary_ids']) || empty($pg['months_covered']) || empty($pg['amount_per_month'])) {
+        return [null, 'This payroll was generated before release tracking. Please regenerate the payroll.'];
+    }
+    if (trim($pg['region'] ?? '') === '') {
+        return [null, 'Only single-region payrolls can be recorded. Please regenerate this payroll for one region.'];
+    }
+    $rel = supabaseRequest('GET', 'dsa_releases?select=release_date&payroll_id=eq.' . urlencode($payrollId) . '&limit=1');
+    if ($rel['success'] && !empty($rel['data'])) {
+        return [null, 'This payroll was already recorded on '
+            . date('F j, Y', strtotime($rel['data'][0]['release_date'])) . '.'];
+    }
+    return [$pg, null];
+}
+
 $action = $_GET['action'] ?? '';
 
 switch ($action) {
@@ -361,39 +416,40 @@ switch ($action) {
         }
         requireRole(['admin', 'field_officer']);
 
-        $body   = json_decode(file_get_contents('php://input'), true) ?? [];
-        $region = trim($body['region'] ?? '');
-        $date   = trim($body['release_date'] ?? '');
-        $months = $body['months'] ?? [];
-        $amount = (int)($body['amount_per_month'] ?? 2000);
+        $body       = json_decode(file_get_contents('php://input'), true) ?? [];
+        $payrollId  = strtoupper(trim($body['payroll_id'] ?? ''));
+        $date       = trim($body['release_date'] ?? '');
         $exceptions = $body['exceptions'] ?? [];
 
-        $role = $authInterviewer['dashboard_role'] ?? '';
-        if ($role === 'field_officer') {
-            $region = trim($authInterviewer['region'] ?? '');
-        } else {
-            requireRegion($region);
+        // Every release is recorded against a verified, unused payroll.
+        if ($payrollId === '') {
+            echo json_encode(['success' => false, 'message' => 'A verified Payroll ID is required to record a release.']); exit;
         }
+        [$pg, $err] = loadPayrollForRelease($payrollId);
+        if ($err) { echo json_encode(['success' => false, 'message' => $err]); exit; }
+        requireRegion($pg['region']);
+
+        // Region, months and amount come from the payroll, never from the request.
+        $region = $pg['region'];
+        $months = array_values(array_unique($pg['months_covered']));
+        $amount = (int)$pg['amount_per_month'];
 
         // ---- Validate before touching the database ----
-        if ($region === '') {
-            echo json_encode(['success' => false, 'message' => 'Region is required.']); exit;
-        }
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
             echo json_encode(['success' => false, 'message' => 'Release date must be YYYY-MM-DD.']); exit;
         }
-        if (!is_array($months) || empty($months)) {
-            echo json_encode(['success' => false, 'message' => 'At least one month is required.']); exit;
-        }
-        $months = array_values(array_unique($months));
         foreach ($months as $m) {
             if (!preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $m)) {
-                echo json_encode(['success' => false, 'message' => 'Invalid month: ' . $m]); exit;
+                echo json_encode(['success' => false, 'message' => 'Invalid month on payroll: ' . $m]); exit;
             }
         }
         if ($amount <= 0) {
-            echo json_encode(['success' => false, 'message' => 'Amount must be greater than zero.']); exit;
+            echo json_encode(['success' => false, 'message' => 'Payroll amount is invalid.']); exit;
         }
+
+        // ---- Roster: exactly the beneficiaries printed on the payroll ----
+        $roster = payrollBeneficiaryIds($pg);
+        $rosterSet = array_flip($roster);
 
         $validReasons = ['deceased', 'transferred', 'not_claimed'];
         $exMap = [];
@@ -405,43 +461,11 @@ switch ($action) {
                 echo json_encode(['success' => false,
                     'message' => 'Invalid reason for ' . $exId . '.']); exit;
             }
-            $exMap[$exId] = $exReason;
-        }
-
-        // ---- Region roster, minus those with a standing status ----
-        $pageSize = 1000; $offset = 0; $assessments = [];
-        while (true) {
-            $res = supabaseRequest('GET',
-                'assessments?select=aruga_id,children(region)&deleted_at=is.null'
-                . '&limit=' . $pageSize . '&offset=' . $offset);
-            if (!$res['success']) {
-                echo json_encode(['success' => false, 'message' => 'Failed to fetch roster']); exit;
+            if (!isset($rosterSet[$exId])) {
+                echo json_encode(['success' => false,
+                    'message' => $exId . ' is not on payroll ' . $payrollId . '.']); exit;
             }
-            $page = $res['data'] ?? [];
-            $assessments = array_merge($assessments, $page);
-            if (count($page) < $pageSize) break;
-            $offset += $pageSize;
-        }
-
-        $standing = [];
-        $sres = supabaseRequest('GET', 'dsa_beneficiary_status?select=aruga_id&limit=10000');
-        if ($sres['success']) {
-            foreach ($sres['data'] ?? [] as $s) $standing[$s['aruga_id']] = true;
-        }
-
-        $roster = [];
-        foreach ($assessments as $a) {
-            $arugaId = $a['aruga_id'] ?? '';
-            if ($arugaId === '') continue;
-            if (($a['children']['region'] ?? '') !== $region) continue;
-            if (isset($standing[$arugaId])) continue;  // deceased/transferred drop off
-            $roster[] = $arugaId;
-        }
-        $roster = array_values(array_unique($roster));
-
-        if (empty($roster)) {
-            echo json_encode(['success' => false,
-                'message' => 'No active beneficiaries in this region.']); exit;
+            $exMap[$exId] = $exReason;
         }
 
         // ---- Reject the whole request if any beneficiary-month is already paid ----
@@ -469,6 +493,7 @@ switch ($action) {
 
         // ---- Create the release ----
         $relRes = supabaseRequest('POST', 'dsa_releases', [
+            'payroll_id'       => $payrollId,
             'region_name'      => $region,
             'release_date'     => $date,
             'months_covered'   => $months,
@@ -477,7 +502,9 @@ switch ($action) {
             'is_locked'        => true,
         ]);
         if (!$relRes['success'] || empty($relRes['data'][0]['id'])) {
-            echo json_encode(['success' => false, 'message' => 'Failed to create release.']); exit;
+            // The unique payroll_id index rejects a second release of the same payroll.
+            [, $usedErr] = loadPayrollForRelease($payrollId);
+            echo json_encode(['success' => false, 'message' => $usedErr ?: 'Failed to create release.']); exit;
         }
         $releaseId = $relRes['data'][0]['id'];
 
@@ -543,7 +570,7 @@ switch ($action) {
             requireRegion($region);
         }
 
-        $endpoint = 'dsa_releases?select=id,region_name,release_date,months_covered,'
+        $endpoint = 'dsa_releases?select=id,payroll_id,region_name,release_date,months_covered,'
             . 'amount_per_month,is_locked,created_at&order=release_date.desc&limit=500';
         if ($region !== '') $endpoint .= '&region_name=eq.' . urlencode($region);
 
@@ -866,6 +893,77 @@ switch ($action) {
     }
 
     // ================================================================
+    // action=dsa-verify-payroll — checks a Payroll ID can be recorded as a
+    // release and returns its snapshot, flagging anyone whose record
+    // changed since the payroll was printed
+    // ================================================================
+    case 'dsa-verify-payroll': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin', 'field_officer']);
+
+        $payrollId = strtoupper(trim(getStr('payroll_id')));
+        [$pg, $err] = loadPayrollForRelease($payrollId);
+        if ($err) { echo json_encode(['success' => false, 'message' => $err]); exit; }
+        requireRegion($pg['region']);
+
+        $ids = payrollBeneficiaryIds($pg);
+
+        // Current state of everyone on the payroll (deleted rows included,
+        // so a removed record can be reported rather than silently missing).
+        $byId = [];
+        foreach (supabaseFetchAll('assessments?select=aruga_id,deleted_at,'
+            . 'children(first_name,last_name,middle_name,name_extension,region)') as $a) {
+            $k = strtoupper(trim($a['aruga_id'] ?? ''));
+            if ($k === '') continue;
+            if (!isset($byId[$k]) || (empty($a['deleted_at']) && !empty($byId[$k]['deleted_at']))) $byId[$k] = $a;
+        }
+        $standing = [];
+        foreach (supabaseFetchAll('dsa_beneficiary_status?select=aruga_id,status,created_at') as $st) {
+            $standing[strtoupper($st['aruga_id'])] = $st;
+        }
+        $fmtDate = fn($ts) => $ts ? ' on ' . date('M j, Y', strtotime($ts)) : '';
+
+        $beneficiaries = [];
+        foreach ($ids as $id) {
+            $a = $byId[$id] ?? null;
+            $name = $a ? payrollFormatName($a['children'] ?? []) : '';
+            $flag = null;
+            if (!$a || !empty($a['deleted_at'])) {
+                $flag = ['type' => 'deleted', 'reason' => 'not_claimed',
+                         'label' => 'Record deleted' . $fmtDate($a['deleted_at'] ?? null)];
+            } elseif (isset($standing[$id])) {
+                $st = $standing[$id];
+                $flag = ['type' => $st['status'], 'reason' => $st['status'],
+                         'label' => 'Marked ' . ($st['status'] === 'deceased' ? 'Deceased' : 'Transferred') . $fmtDate($st['created_at'] ?? null)];
+            } elseif (($a['children']['region'] ?? '') !== $pg['region']) {
+                $flag = ['type' => 'moved', 'reason' => null,
+                         'label' => 'Now in ' . (($a['children']['region'] ?? '') ?: 'another region')];
+            }
+            $beneficiaries[] = ['aruga_id' => $id, 'name' => $name !== '' ? $name : $id, 'flag' => $flag];
+        }
+
+        $months = $pg['months_covered'];
+        sort($months);
+        $amount = (int)$pg['amount_per_month'];
+        echo json_encode(['success' => true, 'data' => [
+            'payroll_id'       => $pg['payroll_id'],
+            'region'           => $pg['region'],
+            'period'           => $pg['period'],
+            'payroll_type'     => $pg['payroll_type'] ?: 'complete',
+            'months_covered'   => $months,
+            'amount_per_month' => $amount,
+            'beneficiary_count'=> count($ids),
+            'total_amount'     => count($ids) * $amount * count($months),
+            'generated_at'     => $pg['created_at'],
+            'beneficiaries'    => $beneficiaries,
+        ]]);
+        break;
+    }
+
+    // ================================================================
     // action=create-payroll-id — assigns a Payroll ID (DSA-MMDDYYYY-NNNN)
     // to a generated payroll and records it in payroll_generations
     // ================================================================
@@ -882,6 +980,25 @@ switch ($action) {
         $count  = max(0, (int)($body['beneficiary_count'] ?? 0));
         $total  = max(0, (float)($body['total_amount'] ?? 0));
 
+        // Snapshot of exactly what was printed, used later to record the release.
+        $type = ($body['payroll_type'] ?? '') === 'special' ? 'special' : 'complete';
+        $monthsCovered = [];
+        foreach ((array)($body['months_covered'] ?? []) as $m) {
+            if (is_string($m) && preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $m)) $monthsCovered[$m] = true;
+        }
+        $monthsCovered = array_keys($monthsCovered);
+        sort($monthsCovered);
+        $amountPerMonth = (int)($body['amount_per_month'] ?? 0);
+        $benIds = [];
+        foreach ((array)($body['beneficiary_ids'] ?? []) as $id) {
+            $id = strtoupper(trim((string)$id));
+            if ($id !== '' && preg_match('/^[A-Z0-9-]{1,40}$/', $id)) $benIds[$id] = true;
+        }
+        $benIds = array_keys($benIds);
+        if (count($benIds) > 20000) {
+            echo json_encode(['success' => false, 'message' => 'Payroll is too large.']); exit;
+        }
+
         $rpc = supabaseRPC('create_payroll_generation', [
             'p_generated_by'      => $authInterviewer['id'],
             'p_region'            => $region !== '' ? $region : null,
@@ -889,6 +1006,10 @@ switch ($action) {
             'p_beneficiary_count' => $count,
             'p_total_amount'      => $total,
             'p_ip_address'        => getUserIP(),
+            'p_payroll_type'      => $type,
+            'p_months_covered'    => $monthsCovered ?: null,
+            'p_amount_per_month'  => $amountPerMonth > 0 ? $amountPerMonth : null,
+            'p_beneficiary_ids'   => $benIds ?: null,
         ]);
 
         if (!$rpc['success'] || !is_string($rpc['data']) || $rpc['data'] === '') {
@@ -902,6 +1023,8 @@ switch ($action) {
             'period'            => $period,
             'beneficiary_count' => $count,
             'total_amount'      => $total,
+            'payroll_type'      => $type,
+            'months_covered'    => $monthsCovered,
         ], $authInterviewer['id']);
 
         echo json_encode(['success' => true, 'payroll_id' => $payrollId]);

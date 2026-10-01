@@ -3042,14 +3042,16 @@
 
       const now = new Date();
       const monthSelect = document.getElementById('stu-payroll-month-select');
-      let monthYear;
+      let monthYear, monthKeys;
       if (stuPayrollPeriodMode === 'quarterly') {
         const qIndex = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : Math.floor(now.getMonth() / 3);
         const q = STU_PAYROLL_QUARTERS[qIndex];
+        monthKeys = q.months.map(m => `${now.getFullYear()}-${String(m + 1).padStart(2, '0')}`);
         const monthNames = q.months.map(m => STU_PAYROLL_MONTH_NAMES[m].toUpperCase());
         monthYear = `PERIOD COVERED: ${monthNames[0]}, ${monthNames[1]} AND ${monthNames[2]} ${now.getFullYear()}`;
       } else {
         const selectedMonth = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : now.getMonth();
+        monthKeys = [`${now.getFullYear()}-${String(selectedMonth + 1).padStart(2, '0')}`];
         monthYear = new Date(now.getFullYear(), selectedMonth, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
       }
       const printedOn  = `${String(now.getDate()).padStart(2, '0')} ${now.toLocaleDateString('en-US', { month: 'long' })} ${now.getFullYear()} at ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
@@ -3143,7 +3145,11 @@
           region,
           period: monthYear.replace(/^PERIOD COVERED:\s*/, ''),
           beneficiary_count: uniqueBen.length,
-          total_amount: totalAmount
+          total_amount: totalAmount,
+          payroll_type: (arugaIdFilter && arugaIdFilter.length) ? 'special' : 'complete',
+          months_covered: monthKeys,
+          amount_per_month: 2000,
+          beneficiary_ids: uniqueBen.map(r => r.aruga_id)
         })
       });
       const idJson = await idRes.json();

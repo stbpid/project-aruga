@@ -2878,6 +2878,7 @@
       const now = new Date();
       const monthSelect = document.getElementById('co-payroll-month-select');
       const selectedMonth = monthSelect && monthSelect.value !== '' ? parseInt(monthSelect.value, 10) : now.getMonth();
+      const monthKeys = [`${now.getFullYear()}-${String(selectedMonth + 1).padStart(2, '0')}`];
       const monthYear = new Date(now.getFullYear(), selectedMonth, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' }).toUpperCase();
       const ROMAN_TO_NUM = { I:'1', II:'2', III:'3', IV:'4', 'IV-A':'4-A', 'IV-B':'4-B', V:'5', VI:'6', VII:'7', VIII:'8', IX:'9', X:'10', XI:'11', XII:'12', XIII:'13' };
       const regionLabel = (region || 'All Regions').replace(/^Region (IV-A|IV-B|[IVX]+)\b/, (m, roman) => 'Region ' + (ROMAN_TO_NUM[roman] || roman));
@@ -2971,7 +2972,11 @@
           region,
           period: monthYear.replace(/^PERIOD COVERED:\s*/, ''),
           beneficiary_count: uniqueBen.length,
-          total_amount: totalAmount
+          total_amount: totalAmount,
+          payroll_type: (arugaIdFilter && arugaIdFilter.length) ? 'special' : 'complete',
+          months_covered: monthKeys,
+          amount_per_month: 2000,
+          beneficiary_ids: uniqueBen.map(r => r.aruga_id)
         })
       });
       const idJson = await idRes.json();
