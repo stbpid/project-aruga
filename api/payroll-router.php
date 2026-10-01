@@ -865,6 +865,48 @@ switch ($action) {
         break;
     }
 
+    // ================================================================
+    // action=create-payroll-id — assigns a Payroll ID (DSA-MMDDYYYY-NNNN)
+    // to a generated payroll and records it in payroll_generations
+    // ================================================================
+    case 'create-payroll-id': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin', 'central', 'stu_head']);
+
+        $body   = json_decode(file_get_contents('php://input'), true) ?? [];
+        $region = trim($body['region'] ?? '');
+        $period = trim($body['period'] ?? '');
+        $count  = max(0, (int)($body['beneficiary_count'] ?? 0));
+        $total  = max(0, (float)($body['total_amount'] ?? 0));
+
+        $rpc = supabaseRPC('create_payroll_generation', [
+            'p_generated_by'      => $authInterviewer['id'],
+            'p_region'            => $region !== '' ? $region : null,
+            'p_period'            => $period,
+            'p_beneficiary_count' => $count,
+            'p_total_amount'      => $total,
+        ]);
+
+        if (!$rpc['success'] || !is_string($rpc['data']) || $rpc['data'] === '') {
+            echo json_encode(['success' => false, 'message' => 'Could not assign a Payroll ID.']); exit;
+        }
+
+        $payrollId = $rpc['data'];
+        logAudit('create', 'payroll_generations', null, null, [
+            'payroll_id'        => $payrollId,
+            'region'            => $region,
+            'period'            => $period,
+            'beneficiary_count' => $count,
+            'total_amount'      => $total,
+        ], $authInterviewer['id']);
+
+        echo json_encode(['success' => true, 'payroll_id' => $payrollId]);
+        break;
+    }
+
     default: {
         http_response_code(400);
         header('Content-Type: application/json');

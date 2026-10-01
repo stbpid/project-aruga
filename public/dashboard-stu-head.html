@@ -3136,10 +3136,24 @@
           <td colspan="3" style="font-weight:bold;">${totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
         </tr>`;
 
+      const idRes = await authFetch('/api/payroll-router.php?action=create-payroll-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          region,
+          period: monthYear.replace(/^PERIOD COVERED:\s*/, ''),
+          beneficiary_count: uniqueBen.length,
+          total_amount: totalAmount
+        })
+      });
+      const idJson = await idRes.json();
+      if (!idJson.success || !idJson.payroll_id) throw new Error(idJson.message || 'Could not assign a Payroll ID.');
+      const payrollId = idJson.payroll_id;
+
       const isNCR = normRegion(region) === normRegion('NCR (National Capital Region)');
       const buildFooterHtml = (pageNum, totalPages) => `
       <div class="pp-footer">
-        <div class="ftr-text">${(isNCR && pageNum === totalPages) ? '' : `This is a system-generated document &nbsp;&bull;&nbsp; Printed on: ${printedOn}`}</div>
+        <div class="ftr-text">${(isNCR && pageNum === totalPages) ? `Payroll ID: ${payrollId}` : `This is a system-generated document &nbsp;&bull;&nbsp; Payroll ID: ${payrollId} &nbsp;&bull;&nbsp; Printed on: ${printedOn}`}</div>
         <div class="ftr-page">Page <strong>${pageNum}</strong> of <strong>${totalPages}</strong></div>
       </div>`;
 
