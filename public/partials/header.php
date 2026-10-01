@@ -24,9 +24,11 @@ $mobileNavLinkClass = function (string $page) use ($activePage) {
         : 'block py-2.5 px-3 text-sm font-semibold text-gray-700 hover:text-brand-blue hover:bg-gray-50 rounded-lg transition-colors';
 };
 $headerStickyClass = $interactiveSwitch ? 'sticky top-0 z-50' : '';
+// On index the pill tracks the login card's widths (#login-card) so the two stay aligned on wide screens.
+$pillWidthClass = $interactiveSwitch ? 'max-w-4xl 2xl:max-w-5xl 3xl:max-w-6xl' : 'max-w-4xl';
 ?>
   <header id="site-header" class="relative w-full <?= $headerStickyClass ?> px-4 pt-4 transition-all duration-300">
-    <div id="nav-pill" class="max-w-4xl mx-auto rounded-xl px-4 sm:px-5 h-14 flex items-center justify-between border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] bg-white/95 backdrop-blur-md transition-all duration-300">
+    <div id="nav-pill" class="<?= $pillWidthClass ?> mx-auto rounded-xl px-4 sm:px-5 h-14 flex items-center justify-between border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] bg-white/95 backdrop-blur-md transition-all duration-300">
 
       <div class="flex items-center gap-3">
         <img id="img-nav-logo" src="/images/logo.webp" alt="Project Aruga Logo" class="h-9 w-auto object-contain rounded-full">

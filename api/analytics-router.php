@@ -913,18 +913,17 @@ switch ($action) {
         $year = isset($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
 
         // Fetch all assessments for the given year — just created_at
-        $res = supabaseRequest('GET', 'assessments?select=created_at,aruga_id&deleted_at=is.null&created_at=gte.' . $year . '-01-01T00:00:00&created_at=lt.' . ($year + 1) . '-01-01T00:00:00&limit=10000');
+        // Paginated: a single request is capped at Supabase's 1000-row max
+        $rows = supabaseFetchAll('assessments?select=created_at,aruga_id&deleted_at=is.null&created_at=gte.' . $year . '-01-01T00:00:00&created_at=lt.' . ($year + 1) . '-01-01T00:00:00');
 
         $months = array_fill(1, 12, 0);
         $excludedIds = getExcludedArugaIds();
 
-        if ($res['success'] && is_array($res['data'])) {
-            foreach ($res['data'] as $row) {
-                if (isset($excludedIds[$row['aruga_id'] ?? ''])) continue;
-                if (!empty($row['created_at'])) {
-                    $m = (int)date('n', strtotime($row['created_at']));
-                    if ($m >= 1 && $m <= 12) $months[$m]++;
-                }
+        foreach ($rows as $row) {
+            if (isset($excludedIds[$row['aruga_id'] ?? ''])) continue;
+            if (!empty($row['created_at'])) {
+                $m = (int)date('n', strtotime($row['created_at']));
+                if ($m >= 1 && $m <= 12) $months[$m]++;
             }
         }
 

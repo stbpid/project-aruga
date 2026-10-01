@@ -8,6 +8,7 @@
  */
 require_once __DIR__ . '/lib/config.php';
 require_once __DIR__ . '/lib/auth.php';
+require_once __DIR__ . '/lib/region-coverage-helper.php';
 
 $action = $_GET['action'] ?? '';
 
@@ -137,36 +138,19 @@ switch ($action) {
             exit;
         }
 
-        if (!function_exists('supabaseCountAS')) {
-            function supabaseCountAS($endpoint) {
-                $url = SUPABASE_URL . '/rest/v1/' . $endpoint;
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    'Content-Type: application/json',
-                    'apikey: ' . SUPABASE_SERVICE_ROLE_KEY,
-                    'Authorization: Bearer ' . SUPABASE_SERVICE_ROLE_KEY,
-                    'Prefer: count=exact',
-                    'Range: 0-0',
-                ]);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-                curl_setopt($ch, CURLOPT_HEADER, true);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-                $resp = curl_exec($ch);
-                curl_close($ch);
-
-                if (preg_match('/Content-Range:\s*[\d\*]+-?[\d\*]*\/(\d+)/i', $resp, $m)) {
-                    return (int)$m[1];
-                }
-                return 0;
-            }
+        // Same population as dashboard-stats' total_beneficiaries: non-deleted
+        // assessments, excluding deceased/transferred (dsa_beneficiary_status)
+        $rows = supabaseFetchAll('assessments?select=aruga_id,readiness_score&deleted_at=is.null');
+        $excludedIds = getExcludedArugaIds();
+        $counts = ['severe' => 0, 'moderate' => 0, 'low' => 0, 'stable' => 0];
+        $total = 0;
+        foreach ($rows as $r) {
+            if (isset($excludedIds[$r['aruga_id'] ?? ''])) continue;
+            $total++;
+            $rs = strtolower(trim($r['readiness_score'] ?? ''));
+            if (isset($counts[$rs])) $counts[$rs]++;
         }
-
-        $severe   = supabaseCountAS('assessments?select=id&deleted_at=is.null&readiness_score=eq.severe');
-        $moderate = supabaseCountAS('assessments?select=id&deleted_at=is.null&readiness_score=eq.moderate');
-        $low      = supabaseCountAS('assessments?select=id&deleted_at=is.null&readiness_score=eq.low');
-        $stable   = supabaseCountAS('assessments?select=id&deleted_at=is.null&readiness_score=eq.stable');
+        ['severe' => $severe, 'moderate' => $moderate, 'low' => $low, 'stable' => $stable] = $counts;
 
         echo json_encode([
             'success' => true,
@@ -175,7 +159,7 @@ switch ($action) {
                 'moderate' => $moderate,
                 'low'      => $low,
                 'stable'   => $stable,
-                'total'    => $severe + $moderate + $low + $stable,
+                'total'    => $total,
             ]
         ]);
         break;
