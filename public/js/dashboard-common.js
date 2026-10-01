@@ -157,3 +157,32 @@ if (document.readyState === 'loading') {
 } else {
   _initDashCommon();
 }
+
+// ── Segmented tab bars: sliding active indicator ────────────────
+// Adds a white pill behind the active .settings-tab in every .settings-tabbar
+// and slides it to the new tab whenever the active class moves.
+(function initTabIndicators() {
+  document.querySelectorAll('.settings-tabbar').forEach(bar => {
+    const indicator = document.createElement('span');
+    indicator.className = 'settings-tab-indicator';
+    bar.prepend(indicator);
+    bar.classList.add('has-indicator');
+
+    let ready = false;
+    const move = () => {
+      const active = bar.querySelector('.settings-tab.active');
+      if (!active || !active.offsetWidth) return;   // bar hidden — wait until it's shown
+      if (!ready) indicator.style.transition = 'none';
+      indicator.style.width = active.offsetWidth + 'px';
+      indicator.style.height = active.offsetHeight + 'px';
+      indicator.style.transform = `translate(${active.offsetLeft}px, ${active.offsetTop}px)`;
+      indicator.style.opacity = '1';
+      if (!ready) { indicator.offsetWidth; indicator.style.transition = ''; ready = true; }
+    };
+
+    new MutationObserver(move).observe(bar, { attributes: true, subtree: true, attributeFilter: ['class'] });
+    if (window.ResizeObserver) new ResizeObserver(move).observe(bar);
+    window.addEventListener('resize', move);
+    move();
+  });
+})();

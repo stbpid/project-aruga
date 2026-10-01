@@ -1746,3 +1746,19 @@ table.dash-table {
   -ms-overflow-style: none;
 }
 .settings-tabbar::-webkit-scrollbar { display: none; }
+
+/* Sliding pill behind the active tab (added by dashboard-common.js) */
+.settings-tabbar { position: relative; }
+.settings-tabbar .settings-tab { position: relative; z-index: 1; }
+.settings-tab-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.settings-tabbar.has-indicator .settings-tab.active { background: transparent; box-shadow: none; }
