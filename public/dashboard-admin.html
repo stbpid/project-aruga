@@ -2172,46 +2172,57 @@
       <!-- Add/Edit Document Modal -->
       <div id="document-modal" class="payroll-type-modal">
         <div class="payroll-type-modal-backdrop" onclick="closeDocumentModal()"></div>
-        <div class="payroll-type-modal-box" style="max-width:420px;text-align:left;">
-          <div style="padding:1.5rem 1.75rem 1rem;border-bottom:1px solid var(--gray-100);">
+        <div class="payroll-type-modal-box" style="max-width:440px;max-height:92vh;display:flex;flex-direction:column;text-align:left;overflow:hidden;">
+
+          <!-- Fixed Header -->
+          <div style="padding:1.5rem 1.75rem 1rem;border-bottom:1px solid var(--gray-100);flex-shrink:0;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
-              <div style="font-size:1rem;font-weight:800;color:var(--dark);" id="document-modal-title">Add Document</div>
-              <button onclick="closeDocumentModal()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;padding:0.25rem;border-radius:0.375rem;"><span class="material-symbols-outlined">close</span></button>
+              <div>
+                <div style="font-size:1rem;font-weight:800;color:var(--dark);" id="document-modal-title">Add Document</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin-top:0.1rem;">Manage a form or template document</div>
+              </div>
+              <button onclick="closeDocumentModal()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;padding:0.25rem;border-radius:0.375rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='none'"><span class="material-symbols-outlined">close</span></button>
             </div>
           </div>
-          <div style="padding:1.25rem 1.75rem;">
+
+          <!-- Scrollable Body -->
+          <div style="flex:1;overflow-y:auto;padding:1.25rem 1.75rem;scrollbar-width:thin;scrollbar-color:var(--gray-200) transparent;">
             <input type="hidden" id="document-id">
-            <div style="margin-bottom:0.9rem;">
-              <label class="settings-label">File Name <span style="color:#dc2626;">*</span></label>
-              <input type="text" id="document-file-name" class="settings-input" placeholder="e.g. Profiling Tool">
-            </div>
-            <div style="margin-bottom:0.9rem;">
-              <label class="settings-label">Description</label>
-              <input type="text" id="document-description" class="settings-input" placeholder="Short description">
-            </div>
-            <div style="margin-bottom:0.9rem;">
-              <label class="settings-label">Category <span style="color:#dc2626;">*</span></label>
-              <select id="document-category" class="settings-input">
-                <option value="Issuances">Issuances</option>
-                <option value="Manual">Manual</option>
-                <option value="Guidelines">Guidelines</option>
-                <option value="Briefer">Briefer</option>
-                <option value="Storybook">Storybook</option>
-                <option value="Primer">Primer</option>
-                <option value="Form">Form</option>
-                <option value="Presentation">Presentation</option>
-                <option value="AVPs">AVPs</option>
-              </select>
-            </div>
-            <div style="margin-bottom:0.25rem;">
-              <label class="settings-label">File URL <span style="color:#dc2626;">*</span></label>
-              <input type="text" id="document-file-url" class="settings-input" placeholder="https://...">
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+              <div>
+                <label class="settings-label">File Name <span style="color:#dc2626;">*</span></label>
+                <input type="text" id="document-file-name" class="settings-input" placeholder="e.g. Profiling Tool">
+              </div>
+              <div>
+                <label class="settings-label">Description</label>
+                <input type="text" id="document-description" class="settings-input" placeholder="Short description">
+              </div>
+              <div>
+                <label class="settings-label">Category <span style="color:#dc2626;">*</span></label>
+                <select id="document-category" class="settings-input">
+                  <option value="Issuances">Issuances</option>
+                  <option value="Manual">Manual</option>
+                  <option value="Guidelines">Guidelines</option>
+                  <option value="Briefer">Briefer</option>
+                  <option value="Storybook">Storybook</option>
+                  <option value="Primer">Primer</option>
+                  <option value="Form">Form</option>
+                  <option value="Presentation">Presentation</option>
+                  <option value="AVPs">AVPs</option>
+                </select>
+              </div>
+              <div>
+                <label class="settings-label">File URL <span style="color:#dc2626;">*</span></label>
+                <input type="text" id="document-file-url" class="settings-input" placeholder="https://...">
+              </div>
             </div>
             <div id="document-modal-error" style="display:none;color:#dc2626;font-size:0.75rem;margin-top:0.5rem;"></div>
           </div>
-          <div style="padding:1rem 1.75rem 1.5rem;display:flex;justify-content:flex-end;gap:0.5rem;">
-            <button class="btn btn-secondary btn-sm" onclick="closeDocumentModal()">Cancel</button>
-            <button class="btn btn-primary btn-sm" id="document-save-btn" onclick="saveDocument()">Save</button>
+
+          <!-- Fixed Footer -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);flex-shrink:0;">
+            <button onclick="closeDocumentModal()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
+            <button onclick="saveDocument()" id="document-save-btn" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'"><span id="document-save-label">Add Document</span></button>
           </div>
         </div>
       </div>
@@ -2273,13 +2284,54 @@
         </div>
 
         <div id="regions-toast" class="settings-toast" style="display:none;"></div>
+
+        <!-- Edit Region Target Modal -->
+        <div id="region-target-modal" class="payroll-type-modal">
+          <div class="payroll-type-modal-backdrop" onclick="closeRegionTargetModal()"></div>
+          <div class="payroll-type-modal-box" style="max-width:440px;max-height:92vh;display:flex;flex-direction:column;text-align:left;overflow:hidden;">
+
+            <!-- Fixed Header -->
+            <div style="padding:1.5rem 1.75rem 1rem;border-bottom:1px solid var(--gray-100);flex-shrink:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-size:1rem;font-weight:800;color:var(--dark);">Edit Region Target</div>
+                  <div style="font-size:0.75rem;color:var(--gray-400);margin-top:0.1rem;">Set the completion target for this region</div>
+                </div>
+                <button onclick="closeRegionTargetModal()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;padding:0.25rem;border-radius:0.375rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='none'"><span class="material-symbols-outlined">close</span></button>
+              </div>
+            </div>
+
+            <!-- Scrollable Body -->
+            <div style="flex:1;overflow-y:auto;padding:1.25rem 1.75rem;scrollbar-width:thin;scrollbar-color:var(--gray-200) transparent;">
+              <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div>
+                  <label class="settings-label">Region</label>
+                  <input type="text" id="region-target-name" class="settings-input" readonly style="background:var(--gray-50);color:var(--gray-600);">
+                </div>
+                <div>
+                  <label class="settings-label">Target <span style="color:#dc2626;">*</span></label>
+                  <input type="number" id="region-target-value" class="settings-input" min="0" max="9999" placeholder="0–9999"
+                    oninput="if(this.value.length>4)this.value=this.value.slice(0,4);"
+                    onkeydown="if(event.key==='Enter')saveRegionTarget();">
+                </div>
+              </div>
+              <div id="region-target-modal-error" style="display:none;color:#dc2626;font-size:0.75rem;margin-top:0.5rem;"></div>
+            </div>
+
+            <!-- Fixed Footer -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);flex-shrink:0;">
+              <button onclick="closeRegionTargetModal()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
+              <button onclick="saveRegionTarget()" id="region-target-save-btn" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Update Target</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ── Tab: Signatory ── -->
       <div class="settings-panel" id="stab-signatories" style="display:none;">
         <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
           <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
-            <div class="search-bar" style="flex:1;min-width:140px;max-width:220px;">
+            <div class="search-bar" style="flex:1;min-width:140px;max-width:220px;height:1.875rem;">
               <span class="material-symbols-outlined">search</span>
               <input type="text" id="sig-search" placeholder="Search name, position..." aria-label="Search signatories" oninput="filterSignatories()">
             </div>
@@ -2309,7 +2361,6 @@
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>
-            <button class="btn btn-secondary btn-sm" id="sig-reset" onclick="resetSignatoryFilters()">Reset</button>
             <button class="btn btn-primary btn-sm" onclick="openAddSignatoryModal()" style="white-space:nowrap;margin-left:auto;">
               <span class="material-symbols-outlined">add</span>Add Signatory
             </button>
@@ -2738,7 +2789,7 @@
       <!-- Filters -->
       <div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;">
         <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-          <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;">
+          <div class="search-bar" style="flex:1;min-width:180px;max-width:320px;height:1.875rem;">
             <span class="material-symbols-outlined">search</span>
             <input type="text" id="audit-search" placeholder="Search user, action, details..." aria-label="Search audit logs">
           </div>
@@ -7711,7 +7762,6 @@
 
   // ── Region Targets ────────────────────────────────────────────
   let regionTargetsData = [];
-  let regTargetEditing = null; // region_name currently being edited, or null
   let regionTargetsPage = 0;
 
   function loadRegionSettings(force) {
@@ -7752,31 +7802,15 @@
     const end   = Math.min(start + PER_PAGE, total);
     const page  = regionTargetsData.slice(start, end);
 
-    list.innerHTML = page.map((r) => {
-      const isEditing = regTargetEditing === r.region_name;
-      const targetCell = isEditing
-        ? `<input type="number" min="0" max="9999" id="regt-input-${escapeAttr(r.region_name)}" value="${r.target}"
-             class="settings-input" style="width:5.5rem;text-align:right;padding:0.35rem 0.5rem;font-weight:700;"
-             oninput="if(this.value.length>4)this.value=this.value.slice(0,4);"
-             onkeydown="if(event.key==='Enter')regTargetSave('${escapeJs(r.region_name)}');if(event.key==='Escape')regTargetCancel();">`
-        : `${r.target}`;
-      const actionCell = isEditing
-        ? `<button class="btn btn-ghost btn-sm" title="Save" onclick="regTargetSave('${escapeJs(r.region_name)}')" style="padding:0.3rem;color:#16a34a;">
-             <span class="material-symbols-outlined" style="font-size:1rem;">check</span>
-           </button>
-           <button class="btn btn-ghost btn-sm" title="Cancel" onclick="regTargetCancel()" style="padding:0.3rem;color:#dc2626;">
-             <span class="material-symbols-outlined" style="font-size:1rem;">close</span>
-           </button>`
-        : `<button class="btn btn-ghost btn-sm" title="Edit target" onclick="regTargetStartEdit('${escapeJs(r.region_name)}')" style="padding:0.3rem;">
-             <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
-           </button>`;
-
-      return `<tr class="table-row-hover">
+    list.innerHTML = page.map((r) => `<tr class="table-row-hover">
         <td><div style="font-weight:600;color:#111811;">${escapeHtml(r.region_name)}</div></td>
-        <td style="text-align:right;">${targetCell}</td>
-        <td style="text-align:right;white-space:nowrap;">${actionCell}</td>
-      </tr>`;
-    }).join('');
+        <td style="text-align:right;">${r.target}</td>
+        <td style="text-align:right;white-space:nowrap;">
+          <button class="btn btn-ghost btn-sm" title="Edit target" onclick="openRegionTargetModal('${escapeJs(r.region_name)}')" style="padding:0.3rem;">
+            <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
+          </button>
+        </td>
+      </tr>`).join('');
 
     document.getElementById('region-targets-page-info').textContent = `Showing ${start+1}–${end} of ${total} regions`;
     buildPagination('region-targets-pagination', regionTargetsPage, totalPages, p => { regionTargetsPage = p; renderRegionSettings(); });
@@ -7786,45 +7820,42 @@
   function escapeJs(s) { return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
   function escapeHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
-  function regTargetStartEdit(regionName) {
-    regTargetEditing = regionName;
-    renderRegionSettings();
-    const input = document.getElementById('regt-input-' + regionName);
-    if (input) { input.focus(); input.select(); }
+  function openRegionTargetModal(regionName) {
+    const row = regionTargetsData.find(r => r.region_name === regionName);
+    const errEl = document.getElementById('region-target-modal-error');
+    errEl.style.display = 'none';
+    errEl.textContent = '';
+    document.getElementById('region-target-name').value = regionName;
+    document.getElementById('region-target-value').value = row ? row.target : '';
+    document.getElementById('region-target-modal').classList.add('open');
+    const input = document.getElementById('region-target-value');
+    input.focus(); input.select();
   }
 
-  function regTargetCancel() {
-    regTargetEditing = null;
-    renderRegionSettings();
+  function closeRegionTargetModal() {
+    document.getElementById('region-target-modal').classList.remove('open');
   }
 
-  function regTargetSave(regionName) {
-    const input = document.getElementById('regt-input-' + regionName);
-    if (!input) return;
-    const target = parseInt(input.value, 10);
+  function saveRegionTarget() {
+    const regionName = document.getElementById('region-target-name').value;
+    const target     = parseInt(document.getElementById('region-target-value').value, 10);
+    const errEl      = document.getElementById('region-target-modal-error');
+
     if (isNaN(target) || target < 0 || target > 9999) {
-      showToast('regions-toast', 'Target must be a number between 0 and 9999.', 'error');
+      errEl.textContent = 'Target must be a number between 0 and 9999.';
+      errEl.style.display = '';
       return;
     }
 
     const current = regionTargetsData.find(r => r.region_name === regionName);
     if (current && current.target === target) {
-      regTargetCancel();
+      closeRegionTargetModal();
       return;
     }
 
-    openConfirmModal({
-      title: 'Update Region Target?',
-      message: `Are you sure you want to update the target for <strong>${regionName}</strong>?`,
-      onConfirm: () => regTargetSaveConfirmed(regionName, target)
-    });
-  }
+    const saveBtn = document.getElementById('region-target-save-btn');
+    saveBtn.disabled = true;
 
-  function regTargetSaveConfirmed(regionName, target) {
-    const input = document.getElementById('regt-input-' + regionName);
-    if (!input) return;
-
-    input.disabled = true;
     authFetch('/api/admin-router.php?action=update-region-target', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -7832,17 +7863,18 @@
     })
       .then(r => r.json())
       .then(json => {
+        saveBtn.disabled = false;
         if (!json.success) throw new Error(json.message || 'Failed');
-        const row = regionTargetsData.find(r => r.region_name === regionName);
-        if (row) row.target = target;
+        if (current) current.target = target;
         regionTargetsData.sort((a, b) => b.target - a.target || a.region_name.localeCompare(b.region_name));
-        regTargetEditing = null;
+        closeRegionTargetModal();
         renderRegionSettings();
-        showToast('regions-toast', `"${regionName}" target updated.`, 'success');
+        showGlobalToast(`"${regionName}" target updated.`, 'success');
       })
-      .catch((e) => {
-        input.disabled = false;
-        showToast('regions-toast', e.message || 'Could not save target.', 'error');
+      .catch(e => {
+        saveBtn.disabled = false;
+        errEl.textContent = e.message || 'Could not save target.';
+        errEl.style.display = '';
       });
   }
 
@@ -7955,12 +7987,14 @@
     if (id) {
       const doc = documentsData.find(d => d.id === id);
       document.getElementById('document-modal-title').textContent = 'Edit Document';
+      document.getElementById('document-save-label').textContent = 'Update Document';
       document.getElementById('document-file-name').value = doc ? doc.file_name : '';
       document.getElementById('document-description').value = doc ? (doc.description || '') : '';
       document.getElementById('document-category').value = doc ? doc.category : 'Form';
       document.getElementById('document-file-url').value = doc ? doc.file_url : '';
     } else {
       document.getElementById('document-modal-title').textContent = 'Add Document';
+      document.getElementById('document-save-label').textContent = 'Add Document';
       document.getElementById('document-file-name').value = '';
       document.getElementById('document-description').value = '';
       document.getElementById('document-category').value = 'Form';
@@ -8076,13 +8110,6 @@
       if (el) { el.textContent = 'unfold_more'; el.style.color = 'var(--gray-400)'; }
     });
     sigPage = 0; renderSignatories();
-  }
-
-  function resetSignatoryFilters() {
-    document.getElementById('sig-search').value = '';
-    document.getElementById('sig-region-filter').value = '';
-    document.getElementById('sig-status-filter').value = '';
-    filterSignatories();
   }
 
   function sortSignatories(key) {
