@@ -1762,3 +1762,9 @@ table.dash-table {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .settings-tabbar.has-indicator .settings-tab.active { background: transparent; box-shadow: none; }
+
+/* Edge-to-edge table inside a padding-less card: inset the outer columns */
+.dash-table.table-flush th:first-child,
+.dash-table.table-flush td:first-child { padding-left: 1.25rem; }
+.dash-table.table-flush th:last-child,
+.dash-table.table-flush td:last-child { padding-right: 1.25rem; }
