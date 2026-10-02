@@ -489,7 +489,7 @@
         <!-- ── Tab: DSA Status ── -->
         <div class="dsa-panel" id="dsatab-status" style="display:none;">
           <div class="card" style="padding:0;overflow:hidden;" id="dsa-region-summary-panel">
-            <div style="font-size:0.75rem;color:#6b7280;padding:1rem 1.25rem 0.75rem;">Longest since last release first. Click a region to see its breakdown.</div>
+            <div style="font-size:0.75rem;color:#6b7280;padding:1rem 1.25rem 0.75rem;">Longest since last release first.</div>
             <div class="table-wrap">
               <table class="dash-table table-flush">
                 <thead>
@@ -497,10 +497,11 @@
                     <th style="white-space:nowrap;">Region</th>
                     <th style="white-space:nowrap;">Last Release</th>
                     <th style="white-space:nowrap;text-align:right;">Total Disbursed</th>
+                    <th class="col-action-center" style="white-space:nowrap;">Action</th>
                   </tr>
                 </thead>
                 <tbody id="dsa-region-summary-list">
-                  <tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+                  <tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -517,19 +518,19 @@
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin-bottom:1rem;">
               <div class="card" style="padding:1rem 1.25rem;">
                 <div style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Total Disbursed</div>
-                <div id="dsa-rb-total" style="font-size:1.25rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">—</div>
+                <div id="dsa-rb-total" style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:700;color:var(--dark);margin-top:0.25rem;">—</div>
               </div>
               <div class="card" style="padding:1rem 1.25rem;">
                 <div style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Releases</div>
-                <div id="dsa-rb-releases" style="font-size:1.25rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">—</div>
+                <div id="dsa-rb-releases" style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:700;color:var(--dark);margin-top:0.25rem;">—</div>
               </div>
               <div class="card" style="padding:1rem 1.25rem;">
                 <div style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Paid</div>
-                <div id="dsa-rb-paid" style="font-size:1.25rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">—</div>
+                <div id="dsa-rb-paid" style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:700;color:var(--dark);margin-top:0.25rem;">—</div>
               </div>
               <div class="card" style="padding:1rem 1.25rem;">
                 <div style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Not Paid</div>
-                <div id="dsa-rb-notpaid" style="font-size:1.25rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">—</div>
+                <div id="dsa-rb-notpaid" style="font-family:'Poppins',sans-serif;font-size:1.25rem;font-weight:700;color:var(--dark);margin-top:0.25rem;">—</div>
               </div>
             </div>
             <div class="card" style="padding:0;overflow:hidden;">
@@ -3658,7 +3659,7 @@
         &nbsp;Loading DSA records…
       </td></tr>`;
     document.getElementById('dsa-releases-list').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading…</td></tr>';
-    document.getElementById('dsa-region-summary-list').innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading…</td></tr>';
+    document.getElementById('dsa-region-summary-list').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading…</td></tr>';
 
     const rSel = document.getElementById('dsa-region');
     BEN_REGIONS.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; rSel.appendChild(o); });
@@ -3773,7 +3774,7 @@
           <span class="badge badge-blue">${p.payroll_type === 'special' ? 'Special Payroll' : 'Complete Payroll'}</span>
         </div>
         <div style="font-size:0.8125rem;color:var(--gray-700);margin-top:0.5rem;">${escapeHtml(p.region)}</div>
-        <div style="font-size:0.75rem;color:var(--gray-500);margin-top:0.15rem;">${p.months_covered.map(dsaFormatMonth).join(', ')}</div>
+        <div style="font-size:0.75rem;color:var(--gray-500);margin-top:0.15rem;">${dsaFormatMonthRange(p.months_covered)}</div>
         <div style="font-size:0.8125rem;color:var(--dark);margin-top:0.5rem;"><strong>${p.beneficiary_count.toLocaleString('en-PH')}</strong> beneficiaries &nbsp;·&nbsp; <strong>${peso(p.total_amount)}</strong></div>
       </div>
       ${missed.length ? `
@@ -4094,7 +4095,7 @@
           <td style="font-weight:600;color:#111827;white-space:nowrap;">${dsaFormatDate(r.release_date)}</td>
           <td style="font-weight:700;color:#111827;white-space:nowrap;">${r.payroll_id ? escapeHtml(r.payroll_id) : '<span style="color:var(--gray-400);font-weight:400;">—</span>'}</td>
           <td>${r.region_name}</td>
-          <td style="color:#6b7280;">${(r.months_covered || []).map(dsaFormatMonth).join(', ')}</td>
+          <td style="color:#6b7280;">${dsaFormatMonthRange(r.months_covered)}</td>
           <td style="text-align:right;white-space:nowrap;">₱${Number(r.amount_per_month || 0).toLocaleString('en-PH')}</td>
           <td><span style="font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:999px;white-space:nowrap;background:${r.is_locked ? '#fee2e2' : '#dcfce7'};color:${r.is_locked ? '#991b1b' : '#166534'};">${r.is_locked ? 'Locked' : 'Open'}</span></td>
           <td class="col-action-center" style="white-space:nowrap;">${isAdmin
@@ -4138,7 +4139,7 @@
 
     const rel = dsaEditData.release;
     document.getElementById('dsa-edit-title').textContent =
-      `Editing release — ${rel.region_name} — ${(rel.months_covered || []).map(dsaFormatMonth).join(', ')}`;
+      `Editing release — ${rel.region_name} — ${dsaFormatMonthRange(rel.months_covered)}`;
 
     dsaRenderEditTable();
     document.getElementById('dsa-edit-error').style.display = 'none';
@@ -4219,6 +4220,7 @@
   let dsaRegionBreakdown = null;
   let dsaReleaseViewData = null;
   const dsaPeso = n => '₱' + Number(n || 0).toLocaleString('en-PH');
+  const dsaLoadingRow = (cols, text) => dsaEmptyRow(cols, '<span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>&nbsp;' + text);
   const dsaEmptyRow = (cols, text) => `<tr><td colspan="${cols}" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">${text}</td></tr>`;
 
   async function openDsaRegionBreakdown(i) {
@@ -4229,7 +4231,7 @@
     document.getElementById('dsa-rb-title').textContent = region;
     document.getElementById('dsa-rb-subtitle').textContent = 'Releases in ' + dsaYear;
     ['dsa-rb-total', 'dsa-rb-releases', 'dsa-rb-paid', 'dsa-rb-notpaid'].forEach(id => document.getElementById(id).textContent = '—');
-    document.getElementById('dsa-rb-tbody').innerHTML = dsaEmptyRow(7, 'Loading…');
+    document.getElementById('dsa-rb-tbody').innerHTML = dsaLoadingRow(7, 'Loading releases…');
     dsaRegionBreakdown = null;
     try {
       const json = await (await authFetch('/api/payroll-router.php?action=dsa-region-breakdown&year=' + dsaYear
@@ -4257,11 +4259,11 @@
       ? d.releases.map(r => `<tr class="table-row-hover">
           <td style="font-weight:600;color:#111827;white-space:nowrap;">${dsaFormatDate(r.release_date)}</td>
           <td style="font-weight:700;color:#111827;white-space:nowrap;">${r.payroll_id ? escapeHtml(r.payroll_id) : '<span style="color:var(--gray-400);font-weight:400;">—</span>'}</td>
-          <td style="color:#6b7280;">${r.months_covered.map(dsaFormatMonth).join(', ')}</td>
+          <td style="color:#6b7280;">${dsaFormatMonthRange(r.months_covered)}</td>
           <td style="text-align:right;">${r.paid.toLocaleString('en-PH')}</td>
           <td style="text-align:right;color:${r.not_paid ? '#b45309' : 'inherit'};">${r.not_paid.toLocaleString('en-PH')}</td>
           <td style="text-align:right;font-weight:700;white-space:nowrap;">${dsaPeso(r.amount)}</td>
-          <td class="col-action-center"><button class="btn btn-ghost btn-sm" onclick="openDsaReleaseView('${r.id}')">View</button></td>
+          <td class="col-action-center"><button class="btn btn-ghost btn-sm table-action-btn" onclick="openDsaReleaseView('${r.id}')" title="View"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
         </tr>`).join('')
       : dsaEmptyRow(7, 'No releases in ' + d.year + '.');
   }
@@ -4269,9 +4271,9 @@
   async function openDsaReleaseView(releaseId) {
     const modal = document.getElementById('dsa-release-view-modal');
     document.getElementById('dsa-rv-title').textContent = 'Release Breakdown';
-    document.getElementById('dsa-rv-subtitle').textContent = 'Loading…';
+    document.getElementById('dsa-rv-subtitle').textContent = '';
     document.getElementById('dsa-rv-thead').innerHTML = '';
-    document.getElementById('dsa-rv-tbody').innerHTML = dsaEmptyRow(1, 'Loading…');
+    document.getElementById('dsa-rv-tbody').innerHTML = dsaLoadingRow(1, 'Loading beneficiaries…');
     dsaReleaseViewData = null;
     modal.classList.add('open');
     try {
@@ -4326,12 +4328,13 @@
     if (!json.success) return;
     dsaRegionList = json.data;
     document.getElementById('dsa-region-summary-list').innerHTML = json.data.length
-      ? json.data.map((r, i) => `<tr class="table-row-hover" style="cursor:pointer;" onclick="openDsaRegionBreakdown(${i})" title="View breakdown">
+      ? json.data.map((r, i) => `<tr class="table-row-hover">
           <td style="font-weight:600;color:#111827;">${escapeHtml(r.region)}</td>
           <td style="color:#6b7280;white-space:nowrap;">${dsaFormatDate(r.last_release_date)}</td>
           <td style="text-align:right;font-weight:700;white-space:nowrap;">₱${(r.total_disbursed || 0).toLocaleString('en-PH')}</td>
+          <td class="col-action-center"><button class="btn btn-ghost btn-sm table-action-btn" onclick="openDsaRegionBreakdown(${i})" title="View releases"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
         </tr>`).join('')
-      : '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No releases recorded yet.</td></tr>';
+      : '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No releases recorded yet.</td></tr>';
   }
 
   // Renders a "YYYY-MM-DD" date string as "11 September 2026". Parsed as
@@ -4350,6 +4353,22 @@
     const [y, m] = monthStr.split('-').map(Number);
     if (!y || !m) return monthStr;
     return new Date(y, m - 1, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' });
+  }
+
+  // Consecutive months read as a range: "October – December 2026",
+  // "November 2026 – January 2027". A single or non-consecutive set
+  // falls back to the full list.
+  function dsaFormatMonthRange(months) {
+    const list = [...(months || [])].filter(Boolean).sort();
+    if (list.length < 2) return list.length ? dsaFormatMonth(list[0]) : '—';
+    const idx = k => { const [y, m] = k.split('-').map(Number); return y * 12 + (m - 1); };
+    const consecutive = list.every((k, i) => i === 0 || idx(k) === idx(list[i - 1]) + 1);
+    if (!consecutive) return list.map(dsaFormatMonth).join(', ');
+    const first = list[0], last = list[list.length - 1];
+    const monthName = k => { const [y, m] = k.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('en-PH', { month: 'long' }); };
+    return first.slice(0, 4) === last.slice(0, 4)
+      ? `${monthName(first)} – ${dsaFormatMonth(last)}`
+      : `${dsaFormatMonth(first)} – ${dsaFormatMonth(last)}`;
   }
 
   function renderAllBen() {
