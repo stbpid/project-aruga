@@ -43,7 +43,7 @@ function payrollBeneficiaryIds(array $payroll): array {
  */
 function loadPayrollForRelease(string $payrollId): array {
     if (!preg_match('/^DSA-\d{8}-\d{4,}$/', $payrollId)) {
-        return [null, 'Enter a valid Payroll ID (e.g. DSA-10012026-0001).'];
+        return [null, 'Enter a valid Payroll ID.'];
     }
     $res = supabaseRequest('GET', 'payroll_generations?select=payroll_id,region,period,payroll_type,'
         . 'months_covered,amount_per_month,beneficiary_ids,beneficiary_count,total_amount,created_at'
@@ -52,10 +52,10 @@ function loadPayrollForRelease(string $payrollId): array {
     $pg = $res['data'][0] ?? null;
     if (!$pg) return [null, 'Payroll ID not found.'];
     if (empty($pg['beneficiary_ids']) || empty($pg['months_covered']) || empty($pg['amount_per_month'])) {
-        return [null, 'This payroll was generated before release tracking. Please regenerate the payroll.'];
+        return [null, 'Outdated payroll. Please regenerate.'];
     }
     if (trim($pg['region'] ?? '') === '') {
-        return [null, 'Only single-region payrolls can be recorded. Please regenerate this payroll for one region.'];
+        return [null, 'Payroll must be for one region. Please regenerate.'];
     }
     $rel = supabaseRequest('GET', 'dsa_releases?select=release_date&payroll_id=eq.' . urlencode($payrollId) . '&limit=1');
     if ($rel['success'] && !empty($rel['data'])) {
@@ -94,7 +94,7 @@ function payrollRecordedSummary(array $recorded, ?int $total = null): string {
     $parts = array_map(function ($r) use ($total) {
         $n = $r['count'];
         return date('F Y', strtotime($r['month'] . '-01'))
-            . ' (' . $n . ($total !== null ? ' of ' . $total : '') . ' beneficiar' . ($n === 1 && $total === null ? 'y' : 'ies') . ')';
+            . ' (' . $n . ($total !== null ? ' of ' . $total : ' beneficiar' . ($n === 1 ? 'y' : 'ies')) . ')';
     }, $recorded);
     $last = array_pop($parts);
     return $parts ? implode(', ', $parts) . ' and ' . $last : $last;
@@ -950,9 +950,8 @@ switch ($action) {
         $recorded = payrollRecordedMonths($ids, $pg['months_covered']);
         if ($recorded) {
             echo json_encode(['success' => false, 'message' =>
-                'This payroll can\'t be recorded. Already recorded: '
-                . payrollRecordedSummary($recorded, count($ids))
-                . '. Generate a payroll for the unpaid months instead.']); exit;
+                'Already recorded: '
+                . payrollRecordedSummary($recorded, count($ids)) . '.']); exit;
         }
 
         // Current state of everyone on the payroll (deleted rows included,
@@ -1047,9 +1046,8 @@ switch ($action) {
         $recorded = payrollRecordedMonths($benIds, $monthsCovered);
         if ($recorded) {
             echo json_encode(['success' => false, 'message' =>
-                'Already recorded for people on this list: '
-                . payrollRecordedSummary($recorded)
-                . '. Choose a period without recorded months.']); exit;
+                'Already recorded: '
+                . payrollRecordedSummary($recorded) . '. Choose another period.']); exit;
         }
 
         $rpc = supabaseRPC('create_payroll_generation', [
