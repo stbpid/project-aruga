@@ -928,6 +928,141 @@ switch ($action) {
     }
 
     // ================================================================
+    // action=dsa-region-breakdown — one region's releases for a year with
+    // paid / not-paid counts and amounts (read-only, for DSA Status)
+    // ================================================================
+    case 'dsa-region-breakdown': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin', 'central']);
+
+        $region = getStr('region');
+        $year   = (int)(getStr('year') ?: date('Y'));
+        if ($region === '') {
+            echo json_encode(['success' => false, 'message' => 'Region is required.']); exit;
+        }
+
+        $relRes = supabaseRequest('GET', 'dsa_releases?select=id,payroll_id,release_date,months_covered,'
+            . 'amount_per_month,is_locked&region_name=eq.' . urlencode($region)
+            . '&order=release_date.desc&limit=500');
+        if (!$relRes['success']) {
+            echo json_encode(['success' => false, 'message' => 'Failed to fetch releases']); exit;
+        }
+        $releases = $relRes['data'] ?? [];
+
+        $stats = [];
+        if ($releases) {
+            $ids = array_column($releases, 'id');
+            $payments = supabaseFetchAll('dsa_payments?select=release_id,aruga_id,period_month,status'
+                . '&release_id=in.(' . urlencode(implode(',', $ids)) . ')&order=id.asc');
+            $amountOf = array_column($releases, 'amount_per_month', 'id');
+            foreach ($payments as $p) {
+                // Same year scope as DSA Status' Total Disbursed.
+                if (substr($p['period_month'], 0, 4) !== (string)$year) continue;
+                $rid = $p['release_id'];
+                $st  = &$stats[$rid];
+                $st['all'][$p['aruga_id']] = true;
+                if ($p['status'] === 'paid') {
+                    $st['amount'] = ($st['amount'] ?? 0) + (int)($amountOf[$rid] ?? 2000);
+                } else {
+                    $st['missed'][$p['aruga_id']] = true;
+                }
+                unset($st);
+            }
+        }
+
+        $rows = []; $total = 0; $paidPeople = 0; $missedPeople = 0;
+        foreach ($releases as $r) {
+            if (!isset($stats[$r['id']])) continue;   // nothing in this year
+            $st = $stats[$r['id']];
+            $people = count($st['all']);
+            $missed = count($st['missed'] ?? []);
+            $amount = $st['amount'] ?? 0;
+            $total += $amount; $paidPeople += $people - $missed; $missedPeople += $missed;
+            $months = $r['months_covered'] ?? [];
+            sort($months);
+            $rows[] = [
+                'id'             => $r['id'],
+                'payroll_id'     => $r['payroll_id'],
+                'release_date'   => $r['release_date'],
+                'months_covered' => $months,
+                'is_locked'      => $r['is_locked'],
+                'beneficiaries'  => $people,
+                'paid'           => $people - $missed,
+                'not_paid'       => $missed,
+                'amount'         => $amount,
+            ];
+        }
+
+        echo json_encode(['success' => true, 'data' => [
+            'region'          => $region,
+            'year'            => $year,
+            'total_disbursed' => $total,
+            'release_count'   => count($rows),
+            'paid'            => $paidPeople,
+            'not_paid'        => $missedPeople,
+            'releases'        => $rows,
+        ]]);
+        break;
+    }
+
+    // ================================================================
+    // action=dsa-release-view — everyone on one release with their status
+    // per month (read-only; works for locked releases)
+    // ================================================================
+    case 'dsa-release-view': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin', 'central']);
+
+        $releaseId = getStr('release_id');
+        if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $releaseId)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid release id.']); exit;
+        }
+        $relRes = supabaseRequest('GET', 'dsa_releases?select=id,payroll_id,region_name,release_date,'
+            . 'months_covered,amount_per_month,is_locked&id=eq.' . urlencode($releaseId) . '&limit=1');
+        if (!$relRes['success'] || empty($relRes['data'])) {
+            echo json_encode(['success' => false, 'message' => 'Release not found.']); exit;
+        }
+        $release = $relRes['data'][0];
+        $amount  = (int)$release['amount_per_month'];
+
+        $payments = supabaseFetchAll('dsa_payments?select=aruga_id,period_month,status'
+            . '&release_id=eq.' . urlencode($releaseId) . '&order=id.asc');
+
+        $names = [];
+        foreach (supabaseFetchAll('assessments?select=aruga_id,deleted_at,'
+            . 'children(first_name,last_name,middle_name,name_extension)') as $a) {
+            $k = $a['aruga_id'] ?? '';
+            if ($k === '' || (isset($names[$k]) && !empty($a['deleted_at']))) continue;
+            $names[$k] = payrollFormatName($a['children'] ?? []);
+        }
+
+        $byPerson = [];
+        foreach ($payments as $p) {
+            $aid = $p['aruga_id'];
+            if (!isset($byPerson[$aid])) {
+                $byPerson[$aid] = ['aruga_id' => $aid, 'name' => ($names[$aid] ?? '') ?: $aid,
+                                   'months' => [], 'amount' => 0];
+            }
+            $byPerson[$aid]['months'][$p['period_month']] = $p['status'];
+            if ($p['status'] === 'paid') $byPerson[$aid]['amount'] += $amount;
+        }
+        $rows = array_values($byPerson);
+        usort($rows, fn($a, $b) => strcasecmp($a['name'], $b['name']));
+
+        $months = $release['months_covered'] ?? [];
+        sort($months);
+        $release['months_covered'] = $months;
+        echo json_encode(['success' => true, 'data' => ['release' => $release, 'beneficiaries' => $rows]]);
+        break;
+    }
+
+    // ================================================================
     // action=dsa-verify-payroll — checks a Payroll ID can be recorded as a
     // release and returns its snapshot, flagging anyone whose record
     // changed since the payroll was printed

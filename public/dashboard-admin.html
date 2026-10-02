@@ -489,7 +489,7 @@
         <!-- ── Tab: DSA Status ── -->
         <div class="dsa-panel" id="dsatab-status" style="display:none;">
           <div class="card" style="padding:0;overflow:hidden;" id="dsa-region-summary-panel">
-            <div style="font-size:0.75rem;color:#6b7280;padding:1rem 1.25rem 0.75rem;">Longest since last release first.</div>
+            <div style="font-size:0.75rem;color:#6b7280;padding:1rem 1.25rem 0.75rem;">Longest since last release first. Click a region to see its breakdown.</div>
             <div class="table-wrap">
               <table class="dash-table table-flush">
                 <thead>
@@ -503,6 +503,54 @@
                   <tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+          <!-- Region breakdown (shown in place of the region list) -->
+          <div id="dsa-region-detail" style="display:none;">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;">
+              <button class="btn btn-secondary btn-sm" onclick="closeDsaRegionBreakdown()" style="display:flex;align-items:center;gap:0.3rem;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>Back</button>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:1rem;font-weight:800;color:var(--dark);" id="dsa-rb-title">—</div>
+                <div style="font-size:0.75rem;color:var(--gray-500);" id="dsa-rb-subtitle">—</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin-bottom:1rem;">
+              <div class="card" style="padding:1rem 1.25rem;">
+                <div style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Total Disbursed</div>
+                <div id="dsa-rb-total" style="font-size:1.25rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">—</div>
+              </div>
+              <div class="card" style="padding:1rem 1.25rem;">
+                <div style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Releases</div>
+                <div id="dsa-rb-releases" style="font-size:1.25rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">—</div>
+              </div>
+              <div class="card" style="padding:1rem 1.25rem;">
+                <div style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Paid</div>
+                <div id="dsa-rb-paid" style="font-size:1.25rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">—</div>
+              </div>
+              <div class="card" style="padding:1rem 1.25rem;">
+                <div style="font-size:0.7rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Not Paid</div>
+                <div id="dsa-rb-notpaid" style="font-size:1.25rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">—</div>
+              </div>
+            </div>
+            <div class="card" style="padding:0;overflow:hidden;">
+              <div class="table-wrap">
+                <table class="dash-table table-flush">
+                  <thead>
+                    <tr>
+                      <th style="white-space:nowrap;">Release Date</th>
+                      <th style="white-space:nowrap;">Payroll ID</th>
+                      <th style="white-space:nowrap;">Months Covered</th>
+                      <th style="white-space:nowrap;text-align:right;">Paid</th>
+                      <th style="white-space:nowrap;text-align:right;">Not Paid</th>
+                      <th style="white-space:nowrap;text-align:right;">Amount</th>
+                      <th class="col-action-center" style="white-space:nowrap;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dsa-rb-tbody">
+                    <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div><!-- /dsatab-status -->
@@ -611,6 +659,31 @@
           </div>
         </div>
       </div><!-- /dsa-release-modal -->
+
+      <!-- Release Breakdown Modal -->
+      <div id="dsa-release-view-modal" class="payroll-type-modal">
+        <div class="payroll-type-modal-backdrop" onclick="closeDsaReleaseView()"></div>
+        <div class="payroll-type-modal-box" style="max-width:760px;max-height:92vh;display:flex;flex-direction:column;text-align:left;overflow:hidden;">
+          <div style="padding:1.5rem 1.75rem 1rem;border-bottom:1px solid var(--gray-100);flex-shrink:0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+              <div style="min-width:0;">
+                <div style="font-size:1rem;font-weight:800;color:var(--dark);" id="dsa-rv-title">Release Breakdown</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin-top:0.1rem;" id="dsa-rv-subtitle">—</div>
+              </div>
+              <button onclick="closeDsaReleaseView()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;padding:0.25rem;border-radius:0.375rem;transition:background 0.15s;flex-shrink:0;" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='none'"><span class="material-symbols-outlined">close</span></button>
+            </div>
+          </div>
+          <div style="flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--gray-200) transparent;">
+            <table class="dash-table table-flush">
+              <thead id="dsa-rv-thead"></thead>
+              <tbody id="dsa-rv-tbody"></tbody>
+            </table>
+          </div>
+          <div style="border-top:1px solid var(--gray-100);flex-shrink:0;">
+            <button onclick="closeDsaReleaseView()" style="width:100%;padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 1.25rem 1.25rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Close</button>
+          </div>
+        </div>
+      </div>
 
       <!-- Verify Payroll ID Modal -->
       <div id="dsa-verify-modal" class="payroll-type-modal">
@@ -4141,16 +4214,120 @@
   }
 
   // ── Regional DSA status (admin/central only) ─────────────────────
+  // ── DSA Status drill-down ────────────────────────────────────────
+  let dsaRegionList = [];
+  let dsaRegionBreakdown = null;
+  let dsaReleaseViewData = null;
+  const dsaPeso = n => '₱' + Number(n || 0).toLocaleString('en-PH');
+  const dsaEmptyRow = (cols, text) => `<tr><td colspan="${cols}" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">${text}</td></tr>`;
+
+  async function openDsaRegionBreakdown(i) {
+    const region = (dsaRegionList[i] || {}).region;
+    if (!region) return;
+    document.getElementById('dsa-region-summary-panel').style.display = 'none';
+    document.getElementById('dsa-region-detail').style.display = '';
+    document.getElementById('dsa-rb-title').textContent = region;
+    document.getElementById('dsa-rb-subtitle').textContent = 'Releases in ' + dsaYear;
+    ['dsa-rb-total', 'dsa-rb-releases', 'dsa-rb-paid', 'dsa-rb-notpaid'].forEach(id => document.getElementById(id).textContent = '—');
+    document.getElementById('dsa-rb-tbody').innerHTML = dsaEmptyRow(7, 'Loading…');
+    dsaRegionBreakdown = null;
+    try {
+      const json = await (await authFetch('/api/payroll-router.php?action=dsa-region-breakdown&year=' + dsaYear
+        + '&region=' + encodeURIComponent(region))).json();
+      if (!json.success) throw new Error(json.message);
+      dsaRegionBreakdown = json.data;
+      dsaRenderRegionBreakdown();
+    } catch (e) {
+      document.getElementById('dsa-rb-tbody').innerHTML = dsaEmptyRow(7, 'Could not load the breakdown.');
+    }
+  }
+
+  function closeDsaRegionBreakdown() {
+    document.getElementById('dsa-region-detail').style.display = 'none';
+    document.getElementById('dsa-region-summary-panel').style.display = 'block';
+  }
+
+  function dsaRenderRegionBreakdown() {
+    const d = dsaRegionBreakdown;
+    document.getElementById('dsa-rb-total').textContent = dsaPeso(d.total_disbursed);
+    document.getElementById('dsa-rb-releases').textContent = d.release_count.toLocaleString('en-PH');
+    document.getElementById('dsa-rb-paid').textContent = d.paid.toLocaleString('en-PH');
+    document.getElementById('dsa-rb-notpaid').textContent = d.not_paid.toLocaleString('en-PH');
+    document.getElementById('dsa-rb-tbody').innerHTML = d.releases.length
+      ? d.releases.map(r => `<tr class="table-row-hover">
+          <td style="font-weight:600;color:#111827;white-space:nowrap;">${dsaFormatDate(r.release_date)}</td>
+          <td style="font-weight:700;color:#111827;white-space:nowrap;">${r.payroll_id ? escapeHtml(r.payroll_id) : '<span style="color:var(--gray-400);font-weight:400;">—</span>'}</td>
+          <td style="color:#6b7280;">${r.months_covered.map(dsaFormatMonth).join(', ')}</td>
+          <td style="text-align:right;">${r.paid.toLocaleString('en-PH')}</td>
+          <td style="text-align:right;color:${r.not_paid ? '#b45309' : 'inherit'};">${r.not_paid.toLocaleString('en-PH')}</td>
+          <td style="text-align:right;font-weight:700;white-space:nowrap;">${dsaPeso(r.amount)}</td>
+          <td class="col-action-center"><button class="btn btn-ghost btn-sm" onclick="openDsaReleaseView('${r.id}')">View</button></td>
+        </tr>`).join('')
+      : dsaEmptyRow(7, 'No releases in ' + d.year + '.');
+  }
+
+  async function openDsaReleaseView(releaseId) {
+    const modal = document.getElementById('dsa-release-view-modal');
+    document.getElementById('dsa-rv-title').textContent = 'Release Breakdown';
+    document.getElementById('dsa-rv-subtitle').textContent = 'Loading…';
+    document.getElementById('dsa-rv-thead').innerHTML = '';
+    document.getElementById('dsa-rv-tbody').innerHTML = dsaEmptyRow(1, 'Loading…');
+    dsaReleaseViewData = null;
+    modal.classList.add('open');
+    try {
+      const json = await (await authFetch('/api/payroll-router.php?action=dsa-release-view&release_id=' + encodeURIComponent(releaseId))).json();
+      if (!json.success) throw new Error(json.message);
+      dsaReleaseViewData = json.data;
+      dsaRenderReleaseView();
+    } catch (e) {
+      document.getElementById('dsa-rv-subtitle').textContent = '';
+      document.getElementById('dsa-rv-tbody').innerHTML = dsaEmptyRow(1, 'Could not load this release.');
+    }
+  }
+
+  function closeDsaReleaseView() {
+    document.getElementById('dsa-release-view-modal').classList.remove('open');
+  }
+
+  function dsaRenderReleaseView() {
+    const { release: rel, beneficiaries: rows } = dsaReleaseViewData;
+    const months = rel.months_covered;
+    const paid = rows.filter(b => Object.values(b.months).every(st => st === 'paid')).length;
+    const total = rows.reduce((sum, b) => sum + b.amount, 0);
+    document.getElementById('dsa-rv-title').textContent = rel.payroll_id ? rel.payroll_id : 'Release Breakdown';
+    document.getElementById('dsa-rv-subtitle').textContent =
+      `${rel.region_name} · Released ${dsaFormatDate(rel.release_date)} · ${paid} of ${rows.length} paid · ${dsaPeso(total)}`;
+    document.getElementById('dsa-rv-thead').innerHTML = `<tr>
+      <th style="white-space:nowrap;">Beneficiary</th>
+      ${months.map(m => `<th style="white-space:nowrap;">${dsaFormatMonth(m)}</th>`).join('')}
+      <th style="white-space:nowrap;text-align:right;">Amount</th>
+    </tr>`;
+    const badge = st => {
+      const ok = st === 'paid';
+      return `<span style="font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:999px;white-space:nowrap;background:${ok ? '#dcfce7' : '#fef3c7'};color:${ok ? '#166534' : '#92400e'};">${DSA_STATUS_LABELS[st] || st || '—'}</span>`;
+    };
+    document.getElementById('dsa-rv-tbody').innerHTML = rows.length
+      ? rows.map(b => `<tr class="table-row-hover">
+          <td><div style="font-weight:600;color:#111827;font-size:0.75rem;text-transform:uppercase;">${escapeHtml(b.name)}</div><div style="font-size:0.68rem;color:var(--gray-400);">${escapeHtml(b.aruga_id)}</div></td>
+          ${months.map(m => `<td>${b.months[m] ? badge(b.months[m]) : '<span style="color:var(--gray-400);">—</span>'}</td>`).join('')}
+          <td style="text-align:right;font-weight:700;white-space:nowrap;">${dsaPeso(b.amount)}</td>
+        </tr>`).join('')
+      : dsaEmptyRow(months.length + 2, 'No beneficiaries on this release.');
+  }
+
   async function loadDsaRegionSummary() {
     const role = sessionStorage.getItem('dashboard_role');
     if (role !== 'admin' && role !== 'central') return;
-    document.getElementById('dsa-region-summary-panel').style.display = 'block';
+    if (document.getElementById('dsa-region-detail').style.display === 'none') {
+      document.getElementById('dsa-region-summary-panel').style.display = 'block';
+    }
     const res = await authFetch('/api/payroll-router.php?action=dsa-region-summary&year=' + dsaYear);
     const json = await res.json();
     if (!json.success) return;
+    dsaRegionList = json.data;
     document.getElementById('dsa-region-summary-list').innerHTML = json.data.length
-      ? json.data.map(r => `<tr class="table-row-hover">
-          <td style="font-weight:600;color:#111827;">${r.region}</td>
+      ? json.data.map((r, i) => `<tr class="table-row-hover" style="cursor:pointer;" onclick="openDsaRegionBreakdown(${i})" title="View breakdown">
+          <td style="font-weight:600;color:#111827;">${escapeHtml(r.region)}</td>
           <td style="color:#6b7280;white-space:nowrap;">${dsaFormatDate(r.last_release_date)}</td>
           <td style="text-align:right;font-weight:700;white-space:nowrap;">₱${(r.total_disbursed || 0).toLocaleString('en-PH')}</td>
         </tr>`).join('')
