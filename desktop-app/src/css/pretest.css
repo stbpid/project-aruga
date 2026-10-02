@@ -1,0 +1,42 @@
+/* Project Aruga — pretest desktop app additions (banner, feedback button). */
+
+.pretest-banner {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  width: 100%;
+  padding: 6px 12px;
+  background: repeating-linear-gradient(-45deg, #b45309, #b45309 12px, #92400e 12px, #92400e 24px);
+  color: #fff;
+  font: 700 12px/1.4 'Poppins', system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.pretest-feedback-fab {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 9999px;
+  background: #b45309;
+  color: #fff;
+  font: 600 13px/1 'Poppins', system-ui, sans-serif;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+.pretest-feedback-fab:hover { background: #92400e; }
+
+.pretest-feedback-count {
+  min-width: 20px;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  background: #fff;
+  color: #92400e;
+  font-size: 11px;
+  text-align: center;
+}

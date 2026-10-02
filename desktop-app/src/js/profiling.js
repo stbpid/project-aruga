@@ -1,0 +1,3602 @@
+﻿// ============================================================================
+// PROJECT ARUGA - PROFILING TOOL JAVASCRIPT (v2 PRETEST DESKTOP APP COPY)
+// Copied from public/js/profiling.js. Pretest-only changes:
+//   - lists load from bundled /data/*.json instead of the live API
+//   - submits to api/pretest-router.php via PretestApi (js/pretest-api.js)
+//   - each profile gets a device-generated record ID (no duplicate uploads)
+//   - tester feedback ("Report a problem") is sent with the profile
+//   - success screen gets its result from sessionStorage, not the URL
+// ============================================================================
+
+// One ID per profile, created on this device when the form opens.
+const PRETEST_RECORD_ID = PretestApi.newRecordId();
+const PRETEST_CREATED_ON_DEVICE_AT = new Date().toISOString();
+let pretestFeedback = [];
+
+// Global Variables
+let memberCount = 1;
+let globalData = {};
+let locationData = {};
+let totalSeconds = 0;
+const MAX_SECONDS = 20 * 60; // 20 minutes
+let timerInterval;
+let currentStep = 1;
+
+// ============================================================================
+// STEP <-> URL HASH ROUTING
+// ============================================================================
+
+const STEP_SLUGS = {
+  1: 'pre-qualification',
+  2: 'respondent-profile',
+  3: 'child-profile',
+  4: 'family-profile',
+  5: 'socio-economic',
+  6: 'health',
+  7: 'education',
+  8: 'economic-capacity',
+  9: 'service-availment',
+  10: 'assessment',
+  11: 'review',
+};
+const SLUG_TO_STEP = Object.fromEntries(Object.entries(STEP_SLUGS).map(([n, s]) => [s, Number(n)]));
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+
+document.addEventListener('DOMContentLoaded', async function() {
+  applyStaticI18n();
+
+  // Set max date on DOB to today
+  const dobEl = document.getElementById('child-dob');
+  if (dobEl) dobEl.max = new Date().toISOString().split('T')[0];
+
+  // Check if user came from index page
+  checkAuthentication();
+
+  // Back/forward moves between form steps (wizard-style). Pressing back from
+  // Step 1 (nothing left to step back to) shows the End Session modal instead.
+  // Anchor + push a guard entry so the very first back press has something of
+  // ours to pop (and catch via popstate) instead of leaving straight away.
+  history.replaceState({ profilingStep: 1 }, '', '#' + STEP_SLUGS[1]);
+  history.pushState({ profilingStep: 1 }, '', '#' + STEP_SLUGS[1]);
+  window.addEventListener('popstate', function(e) {
+    if (!sessionStorage.getItem('session_id')) {
+      window.location.replace('index.html');
+      return;
+    }
+
+    const slug = location.hash.replace(/^#/, '');
+    const step = SLUG_TO_STEP[slug];
+
+    if (!step || step === currentStep) {
+      // Nowhere left to go back to — re-anchor on step 1 and confirm exit.
+      history.pushState({ profilingStep: 1 }, '', '#' + STEP_SLUGS[1]);
+      showLogoutModal();
+      return;
+    }
+
+    goToStep(step, { fromPopState: true });
+  });
+
+  // Handle back/forward cache — re-check auth when page is restored from bfcache
+  window.addEventListener('pageshow', function(e) {
+    if (e.persisted) {
+      checkAuthentication();
+    }
+  });
+
+  // Initialize timer
+  startSessionTimer();
+  
+  // Load data FIRST before rendering steps
+  await Promise.all([
+    loadDropdowns(),
+    loadLocations()
+  ]);
+  
+  // Wait a bit for data to be available
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // NOW load the steps
+  loadAllSteps();
+  updateProgress(1);
+});
+
+// ============================================================================
+// AUTHENTICATION CHECK
+// ============================================================================
+
+function checkAuthentication() {
+  const sessionId = sessionStorage.getItem('session_id');
+  const interviewerCode = sessionStorage.getItem('interviewer_code');
+  const privacyAccepted = sessionStorage.getItem('privacyAccepted');
+
+  if (!sessionId || !interviewerCode || !privacyAccepted) {
+    window.location.replace('index.html');
+    return;
+  }
+
+  updateHeaderInfo();
+}
+
+// Update header with interviewer info
+function updateHeaderInfo() {
+  const interviewerCode = sessionStorage.getItem('interviewer_code');
+  const interviewerName = sessionStorage.getItem('interviewer_name');
+
+  const nameElement = document.getElementById('interviewer-code');
+  if (nameElement) {
+    nameElement.textContent = interviewerName || interviewerCode || '---';
+    nameElement.title = interviewerCode || '';
+  }
+}
+
+// ============================================================================
+// SESSION TIMER
+// ============================================================================
+
+function startSessionTimer() {
+  const timerEl = document.getElementById('session-timer');
+  
+  timerInterval = setInterval(() => {
+    totalSeconds++;
+    
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    
+    const formattedTime = 
+      String(minutes).padStart(2, '0') + ":" + 
+      String(seconds).padStart(2, '0');
+
+    if (timerEl) {
+      timerEl.innerText = formattedTime;
+    }
+  }, 1000);
+}
+
+// ============================================================================
+// LOGOUT MODAL
+// ============================================================================
+
+function showLogoutModal() {
+  document.getElementById('logout-modal').classList.remove('hidden');
+}
+
+function hideLogoutModal() {
+  document.getElementById('logout-modal').classList.add('hidden');
+}
+
+async function confirmLogout() {
+  await PretestApi.logout();
+  window.location.replace('index.html');
+}
+
+// ============================================================================
+// DATA LOADING
+// ============================================================================
+
+async function loadDropdowns() {
+  try {
+    const response = await fetch('/data/options.json');
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    globalData = data;
+    return data;
+  } catch (error) {
+    // Set empty defaults so app doesn't crash
+    globalData = {
+      List_Religion: [],
+      List_IP: [],
+      List_Education: [],
+      List_Relationship: [],
+      List_Disability: [],
+      List_Illness: [],
+      List_Extension: [],
+      List_Occupation: [],
+      List_Occupation_Class: [],
+      List_Materials: [],
+      List_Tenure: [],
+      List_Electricity: [],
+      List_Water: [],
+      List_Toilet: [],
+      List_Garbage: []
+    };
+    return globalData;
+  }
+}
+
+async function loadLocations() {
+  try {
+    const response = await fetch('/data/locations.json');
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    locationData = data;
+    return data;
+  } catch (error) {
+    locationData = {};
+    return locationData;
+  }
+}
+
+// ============================================================================
+// PROGRESS BAR
+// ============================================================================
+
+function updateProgress(step) {
+  const bar = document.getElementById('progress-bar');
+  const indicator = document.getElementById('step-indicator');
+  const label = document.getElementById('step-label');
+
+  const stepLabels = {
+    1: t('steplabel_1'),
+    2: t('steplabel_2'),
+    3: t('steplabel_3'),
+    4: t('steplabel_4'),
+    5: t('steplabel_5'),
+    6: t('steplabel_6'),
+    7: t('steplabel_7'),
+    8: t('steplabel_8'),
+    9: t('steplabel_9'),
+    10: t('steplabel_10'),
+    11: t('steplabel_11')
+  };
+
+  let percent = (step / 11) * 100;
+  if (step === 11) percent = 100;
+
+  bar.style.width = percent + '%';
+  indicator.innerText = step === 11 ? t('step_of_review') : t('step_of', { n: step });
+  label.innerText = stepLabels[step] || '';
+}
+
+// ============================================================================
+// NAVIGATION
+// ============================================================================
+
+function goToStep(stepNumber, options = {}) {
+  clearAllErrors();
+  document.querySelectorAll('.step-section').forEach(el => {
+    el.classList.add('hidden-step');
+    el.style.opacity = 0;
+  });
+
+  const target = document.getElementById('step-' + stepNumber);
+  if (target) {
+    target.classList.remove('hidden-step');
+    setTimeout(() => target.style.opacity = 1, 50);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  const progressSection = document.getElementById('progress-section');
+  if (stepNumber === 11) {
+    progressSection.style.display = 'none';
+  } else {
+    progressSection.style.display = 'block';
+    updateProgress(stepNumber);
+  }
+
+  currentStep = stepNumber;
+
+  // Reflect the step in the URL hash so it's bookmarkable/shareable.
+  // Skip when called from the popstate handler (history entry already exists).
+  if (!options.fromPopState) {
+    const slug = STEP_SLUGS[stepNumber];
+    if (slug) history.pushState({ profilingStep: stepNumber }, '', '#' + slug);
+  }
+}
+
+// ============================================================================
+// LOAD ALL STEPS
+// ============================================================================
+
+function loadAllSteps() {
+  const container = document.getElementById('steps-container');
+  container.innerHTML = `
+    ${getStep1HTML()}
+    ${getStep2HTML()}
+    ${getStep3HTML()}
+    ${getStep4HTML()}
+    ${getStep5HTML()}
+    ${getStep6HTML()}
+    ${getStep7HTML()}
+    ${getStep8HTML()}
+    ${getStep9HTML()}
+    ${getStep10HTML()}
+    ${getStep11HTML()}
+  `;
+  
+  // Initialize all interactive elements
+  initializeAllSteps();
+}
+
+// ============================================================================
+// STEP 1: PRE-QUALIFICATION
+// ============================================================================
+
+function getStep1HTML() {
+  return `
+    <div id="step-1" class="step-section w-full space-y-5">
+      <div class="w-full text-left space-y-0.5">
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step1_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step1_subtext')}</p>
+      </div>
+
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">assignment_ind</span>
+          </div>
+          <div>
+            <h2 class="font-bold text-brand-dark text-base sm:text-lg leading-tight">${t('step1_sec_heading')}</h2>
+            <p class="text-gray-500 text-xs sm:text-sm mt-0.5">${t('step1_sec_subtext')}</p>
+          </div>
+        </div>
+
+        <fieldset class="space-y-3 mb-5">
+          <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-1 cursor-pointer hover:border-blue-300 transition-all select-none">
+            <input type="radio" id="membership-yes" name="membership" value="Yes" class="peer sr-only" onchange="toggleId(true)" checked>
+            <div class="p-2 flex flex-col border-transparent transition-all">
+              <span class="font-bold text-brand-dark block text-xs sm:text-sm">${t('step1_opt_yes_title')}</span>
+              <span class="text-[10px] sm:text-xs text-gray-500">${t('step1_opt_yes_sub')}</span>
+            </div>
+          </label>
+
+          <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-1 cursor-pointer hover:border-blue-300 transition-all select-none">
+            <input type="radio" id="membership-no" name="membership" value="No" class="peer sr-only" onchange="toggleId(false)">
+            <div class="p-2 flex flex-col border-transparent transition-all">
+              <span class="font-bold text-brand-dark block text-xs sm:text-sm">${t('step1_opt_no_title')}</span>
+              <span class="text-[10px] sm:text-xs text-gray-500">${t('step1_opt_no_sub')}</span>
+            </div>
+          </label>
+        </fieldset>
+
+        <div id="id-container" class="transition-opacity duration-300">
+          <label for="household-id" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step1_lbl_household_id')} <span class="text-red-500">*</span></label>
+          <div class="flex items-center gap-2 bg-white rounded border border-gray-300 px-3 py-1.5 h-9 focus-within:ring-1 focus-within:ring-brand-blue transition-all">
+            <span class="material-symbols-outlined text-[16px] text-gray-400">badge</span>
+            <input id="household-id" name="household-id" type="text" maxlength="18" oninput="this.value=this.value.slice(0,18)" class="w-full text-xs sm:text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" placeholder="${t('step1_ph_household_id')}">
+          </div>
+          <p class="text-[10px] sm:text-xs text-brand-blue mt-1">${t('step1_helper_household_id')}</p>
+        </div>
+      </section>
+
+      <div class="w-full flex justify-end pb-6">
+        <button onclick="if(validateStep(1)) goToStep(2)" class="w-full sm:w-auto px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover shadow-md transition-all flex items-center justify-center gap-2">
+          ${t('step1_btn_next')}
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
+// STEP 2: RESPONDENT PROFILE
+// ============================================================================
+
+function getStep2HTML() {
+  return `
+    <div id="step-2" class="step-section hidden-step w-full space-y-5">
+      <div class="w-full text-left space-y-0.5">
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step2_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step2_subtext')}</p>
+      </div>
+
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-8 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">account_circle</span>
+          </div>
+          <h2 class="font-bold text-brand-dark text-base sm:text-lg">${t('step2_sec_heading')}</h2>
+        </div>
+
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="resp-name" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step2_lbl_name')} <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="material-symbols-outlined text-[16px] text-gray-400">person</span>
+                </div>
+                <input type="text" id="resp-name" name="resp-name" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step2_ph_name')}">
+              </div>
+            </div>
+
+            <div>
+              <label for="dd-relationship-input" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step2_lbl_relationship')} <span class="text-red-500">*</span></label>
+              <div class="relative" id="relationship-combobox">
+                <input type="text" id="dd-relationship-input" name="dd-relationship-input" autocomplete="off"
+                  class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400"
+                  placeholder="${t('step2_ph_relationship')}">
+                <input type="hidden" id="dd-relationship" name="dd-relationship">
+                <span class="material-symbols-outlined pointer-events-none select-none" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:18px;color:#9ca3af;">expand_more</span>
+                <ul id="dd-relationship-list"
+                  class="fixed z-50 bg-white border border-gray-300 rounded shadow-lg overflow-y-auto dropdown-scroll hidden text-xs sm:text-sm">
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="resp-email" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step2_lbl_email')}</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="material-symbols-outlined text-[16px] text-gray-400">mail</span>
+                </div>
+                <input type="email" id="resp-email" name="resp-email" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step2_ph_email')}">
+              </div>
+            </div>
+
+            <div>
+              <label for="resp-contact" class="block font-bold text-brand-dark text-xs sm:text-sm mb-1">${t('step2_lbl_contact')}</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="material-symbols-outlined text-[16px] text-gray-400">phone</span>
+                </div>
+                <input type="tel" id="resp-contact" name="resp-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 pl-10 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step2_ph_contact')}">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="w-full flex justify-between pb-6">
+        <button onclick="goToStep(1)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
+        </button>
+        <button onclick="if(validateStep(2)) goToStep(3)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          ${t('step2_btn_next')}
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
+// STEP 3: CHILD PROFILE (Part 1 of the file - continues below)
+// ============================================================================
+
+function getStep3HTML() {
+  return `
+    <div id="step-3" class="step-section hidden-step w-full space-y-5">
+      <div class="w-full text-left space-y-0.5">
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step3_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step3_subtext')}</p>
+      </div>
+
+      <!-- Personal Information -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-8 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">face</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base sm:text-lg">${t('step3_sec_personal')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div>
+              <label for="child-fname" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_fname')} <span class="text-red-500">*</span></label>
+              <input type="text" id="child-fname" name="child-fname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_lbl_fname')}">
+            </div>
+            <div>
+              <label for="child-mname" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_mname')}</label>
+              <input type="text" id="child-mname" name="child-mname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_lbl_mname')}">
+            </div>
+            <div>
+              <label for="child-lname" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_lname')} <span class="text-red-500">*</span></label>
+              <input type="text" id="child-lname" name="child-lname" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_lbl_lname')}">
+            </div>
+            <div>
+              <label for="dd-extension" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_extension')}</label>
+              <div class="relative">
+                <select id="dd-extension" name="dd-extension" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
+                  <option value="" disabled selected>${t('ph_loading')}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="child-region" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_region')} <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <select id="child-region" name="child-region" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateProvinces()">
+                  <option value="" disabled selected>${t('ph_select_region')}</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="child-province" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_province')} <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <select id="child-province" name="child-province" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateCities()" disabled>
+                  <option value="" disabled selected>${t('ph_select_province')}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="child-city" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_city')} <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <select id="child-city" name="child-city" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="updateBarangays()" disabled>
+                  <option value="" disabled selected>${t('ph_select_city')}</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="child-barangay" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_barangay')} <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <select id="child-barangay" name="child-barangay" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" disabled>
+                  <option value="" disabled selected>${t('ph_select_barangay')}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="child-street" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_street')} <span class="text-red-500">*</span></label>
+              <input type="text" id="child-street" name="child-street" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_ph_street')}">
+            </div>
+            <div>
+              <label for="resp-contact" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_contact')}</label>
+              <input type="tel" id="child-contact" name="child-contact" maxlength="13" oninput="formatPhone(this)" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step3_ph_contact_alt')}">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Demographics -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-8 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">manage_accounts</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base sm:text-lg">${t('step3_sec_demographics')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="child-dob" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_dob')} <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <input type="date" id="child-dob" name="child-dob" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none text-gray-600">
+              </div>
+            </div>
+            <div>
+              <label for="sex-male" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_sex')}</label>
+              <div class="slide-toggle-container h-9 w-full sm:w-2/3">
+                <div class="slide-toggle-slider"></div>
+                <label for="sex-male" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                  <input type="radio" id="sex-male" name="sex" value="Male" class="hidden" checked>
+                  <span>${t('opt_male')}</span>
+                </label>
+                <label for="sex-female" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                  <input type="radio" id="sex-female" name="sex" value="Female" class="hidden">
+                  <span>${t('opt_female')}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="dd-religion" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_religion')} <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <select id="dd-religion" name="dd-religion" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'rel-other')">
+                  <option value="" disabled selected>${t('ph_loading')}</option>
+                </select>
+              </div>
+              <input id="rel-other" name="rel-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+            </div>
+            <div>
+              <label for="dd-ip" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_ip')} <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <select id="dd-ip" name="dd-ip" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'ip-other')">
+                  <option value="" disabled selected>${t('ph_loading')}</option>
+                </select>
+              </div>
+              <input id="ip-other" name="ip-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Condition & Education -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-8 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">school</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base sm:text-lg">${t('step3_sec_condition_edu')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label for="dd-education" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_education')} <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <select id="dd-education" name="dd-education" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'edu-other')">
+                <option value="" disabled selected>${t('ph_loading')}</option>
+              </select>
+            </div>
+            <input id="edu-other" name="edu-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+
+          <div class="relative">
+            <label for="dd-disability-btn" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_disability')}</label>
+            <button id="dd-disability-btn" type="button" onclick="toggleDropdown('dd-disability')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
+              <span id="disability-display" class="truncate text-gray-400">${t('txt_select_options_ellipsis')}</span>
+              <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
+            </button>
+            <div id="dd-disability" class="hidden absolute z-10 w-full google-menu mt-1 max-h-60 overflow-y-auto dropdown-scroll">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <div class="relative">
+            <label for="dd-illness-btn" class="block text-xs font-bold text-brand-dark mb-1">${t('step3_lbl_illness')}</label>
+            <button id="dd-illness-btn" type="button" onclick="toggleDropdown('dd-illness')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
+              <span id="illness-display" class="truncate text-gray-400">${t('txt_select_options_ellipsis')}</span>
+              <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
+            </button>
+            <div id="dd-illness" class="hidden absolute z-10 w-full google-menu mt-1 max-h-60 overflow-y-auto dropdown-scroll">
+              <!-- Will be populated by JavaScript -->
+            </div>
+            <input id="illness-other-input" name="illness-other-input" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+        </div>
+      </section>
+
+      <div class="w-full flex justify-between pb-6">
+        <button onclick="goToStep(2)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
+        </button>
+        <button onclick="if(validateStep(3)) goToStep(4)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          ${t('step3_btn_next')}
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
+// STEP 4: FAMILY PROFILE
+// ============================================================================
+
+function getStep4HTML() {
+  return `
+    <div id="step-4" class="step-section hidden-step w-full space-y-5">
+      <div class="w-full text-left space-y-0.5">
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step4_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step4_subtext')}</p>
+      </div>
+
+      <section class="w-full bg-blue-50 rounded-xl border border-blue-200 shadow-sm p-5 sm:p-6 flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-brand-dark text-base sm:text-lg">${t('step4_sec_family_size')}</h3>
+          <p class="text-xs text-gray-500">${t('step4_helper_family_size')}</p>
+        </div>
+        <div class="w-20">
+          <input id="total-family-size" name="total-family-size" type="number" readonly value="1" class="w-full h-12 text-center text-xl font-bold text-brand-blue bg-white rounded-lg border border-blue-100 outline-none">
+        </div>
+      </section>
+
+      <div id="family-members-container" class="space-y-5">
+        <!-- Family member cards will be added here -->
+      </div>
+
+      <button onclick="addFamilyMember()" class="w-full py-3 border-2 border-dashed border-brand-blue text-brand-blue rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[20px]">person_add</span>
+        ${t('step4_btn_add_member')}
+      </button>
+
+      <div class="w-full flex justify-between pb-6">
+        <button onclick="goToStep(3)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
+        </button>
+        <button onclick="if(validateStep(4)) goToStep(5)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          <span>${t('step4_btn_next')}</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
+// STEP 5: SOCIO ECONOMIC
+// ============================================================================
+
+function getStep5HTML() {
+  return `
+    <div id="step-5" class="step-section hidden-step w-full space-y-5">
+      <div class="w-full text-left space-y-0.5">
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step5_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step5_subtext')}</p>
+      </div>
+
+      <!-- Housing Condition -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">home</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step5_sec_housing')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label for="dd-materials" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_materials')} <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <select id="dd-materials" name="dd-materials" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'mat-other')">
+                <option value="" disabled selected>${t('ph_select_materials')}</option>
+              </select>
+            </div>
+            <input id="mat-other" name="mat-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+
+          <div>
+            <label for="dd-tenure" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_tenure')} <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <select id="dd-tenure" name="dd-tenure" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'tenure-other')">
+                <option value="" disabled selected>${t('ph_select_tenure')}</option>
+              </select>
+            </div>
+            <input id="tenure-other" name="tenure-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+
+          <div>
+            <label for="modifications-yes" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_modifications')}</label>
+            <div class="slide-toggle-container h-8 w-full sm:w-1/3 mb-2">
+              <div class="slide-toggle-slider"></div>
+              <label for="modifications-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.remove('hidden')">
+                <input type="radio" id="modifications-yes" name="modifications" value="Yes" class="hidden">
+                ${t('step5_opt_mod_yes')}
+              </label>
+              <label for="modifications-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('mod-specify').classList.add('hidden')">
+                <input type="radio" id="modifications-no" name="modifications" value="No" class="hidden" checked>
+                ${t('step5_opt_mod_no')}
+              </label>
+            </div>
+            <input id="mod-specify" name="mod-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+
+          <div>
+            <label for="dd-electricity" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_electricity')} <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <select id="dd-electricity" name="dd-electricity" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'elec-other')">
+                <option value="" disabled selected>${t('ph_select_electricity')}</option>
+              </select>
+            </div>
+            <input id="elec-other" name="elec-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+        </div>
+      </section>
+
+      <!-- Water Supply -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">water_drop</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step5_sec_water')}</h3>
+        </div>
+
+        <div>
+          <label for="dd-water" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_water')} <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <select id="dd-water" name="dd-water" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'water-other')">
+              <option value="" disabled selected>${t('ph_select_water')}</option>
+            </select>
+          </div>
+          <input id="water-other" name="water-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+        </div>
+      </section>
+
+      <!-- Sanitation -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">recycling</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step5_sec_sanitation')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="dd-toilet" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_toilet')} <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <select id="dd-toilet" name="dd-toilet" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'toilet-other')">
+                  <option value="" disabled selected>${t('ph_select_toilet')}</option>
+                </select>
+              </div>
+              <input id="toilet-other" name="toilet-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+            </div>
+            <div>
+              <label for="toilet-access-yes" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_toilet_access')}</label>
+              <div class="slide-toggle-container h-9 w-full">
+                <div class="slide-toggle-slider"></div>
+                <label for="toilet-access-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                  <input type="radio" id="toilet-access-yes" name="toilet-access" value="Yes" class="hidden" checked>
+                  ${t('btn_yes')}
+                </label>
+                <label for="toilet-access-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                  <input type="radio" id="toilet-access-no" name="toilet-access" value="No" class="hidden">
+                  ${t('btn_no')}
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label for="dd-garbage" class="block text-xs font-bold text-brand-dark mb-1">${t('step5_lbl_garbage')} <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <select id="dd-garbage" name="dd-garbage" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'garbage-other')">
+                <option value="" disabled selected>${t('ph_select_garbage')}</option>
+              </select>
+            </div>
+            <input id="garbage-other" name="garbage-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+        </div>
+      </section>
+
+      <div class="w-full flex justify-between pb-6">
+        <button onclick="goToStep(4)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
+        </button>
+        <button onclick="if(validateStep(5)) goToStep(6)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          <span>${t('step5_btn_next')}</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
+// STEP 6: HEALTH
+// ============================================================================
+
+function getStep6HTML() {
+  return `
+    <div id="step-6" class="step-section hidden-step w-full space-y-5">
+      <div class="w-full text-left space-y-0.5">
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step6_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step6_subtext')}</p>
+      </div>
+
+      <!-- General Health -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">health_and_safety</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step6_sec_general')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <label for="vaccines-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_vaccinations')}</label>
+            <div class="slide-toggle-container h-8 w-32">
+              <div class="slide-toggle-slider"></div>
+              <label for="vaccines-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                <input type="radio" id="vaccines-yes" name="vaccines" value="Yes" class="hidden" checked>
+                ${t('btn_yes')}
+              </label>
+              <label for="vaccines-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                <input type="radio" id="vaccines-no" name="vaccines" value="No" class="hidden">
+                ${t('btn_no')}
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
+              <label for="health_cond-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_ongoing_condition')}</label>
+              <div class="slide-toggle-container h-8 w-32">
+                <div class="slide-toggle-slider"></div>
+                <label for="health_cond-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.remove('hidden')">
+                  <input type="radio" id="health_cond-yes" name="health_cond" value="Yes" class="hidden">
+                  ${t('btn_yes')}
+                </label>
+                <label for="health_cond-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('health-cond-specify').classList.add('hidden')">
+                  <input type="radio" id="health_cond-no" name="health_cond" value="No" class="hidden" checked>
+                  ${t('btn_no')}
+                </label>
+              </div>
+            </div>
+            <input id="health-cond-specify" name="health-cond-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+        </div>
+      </section>
+
+      <!-- Monthly Health Expenses -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">monetization_on</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step6_sec_expenses')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div>
+              <label for="exp-food" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_food')}</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
+                <input type="text" id="exp-food" name="exp-food" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
+              </div>
+            </div>
+            <div>
+              <label for="exp-med" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_medication')}</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
+                <input type="text" id="exp-med" name="exp-med" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
+              </div>
+            </div>
+            <div>
+              <label for="exp-therapy" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_therapy')}</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
+                <input type="text" id="exp-therapy" name="exp-therapy" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
+              </div>
+            </div>
+            <div>
+              <label for="exp-hygiene" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_hygiene')}</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
+                <input type="text" id="exp-hygiene" name="exp-hygiene" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
+              </div>
+            </div>
+            <div>
+              <label for="exp-assist" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_assistive')}</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
+                <input type="text" id="exp-assist" name="exp-assist" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
+              </div>
+            </div>
+            <div>
+              <label for="exp-other" class="block text-[10px] font-bold text-gray-500 mb-1">${t('step6_lbl_other_health')}</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
+                <input type="text" id="exp-other" name="exp-other" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs focus:ring-1 focus:ring-brand-blue outline-none text-right placeholder-gray-400" placeholder="0" oninput="validateExpense(this)">
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex justify-between items-center">
+            <div>
+              <h4 class="font-bold text-brand-dark text-sm">${t('step6_sec_total_expense')}</h4>
+              <p class="text-[10px] text-gray-500">${t('step6_helper_total_expense')}</p>
+            </div>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-brand-blue font-bold pointer-events-none text-lg">₱</span>
+              <input id="exp-total" name="exp-total" type="text" readonly class="bg-transparent text-right font-bold text-brand-blue text-lg outline-none w-32" value="0">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Access to Health Services -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">local_hospital</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step6_sec_access')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
+              <label for="avail_services-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_availed_6mo')}</label>
+              <div class="slide-toggle-container h-8 w-32">
+                <div class="slide-toggle-slider"></div>
+                <label for="avail_services-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.remove('hidden')">
+                  <input type="radio" id="avail_services-yes" name="avail_services" value="Yes" class="hidden">
+                  ${t('btn_yes')}
+                </label>
+                <label for="avail_services-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('avail-specify').classList.add('hidden')">
+                  <input type="radio" id="avail_services-no" name="avail_services" value="No" class="hidden" checked>
+                  ${t('btn_no')}
+                </label>
+              </div>
+            </div>
+            <input id="avail-specify" name="avail-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <label for="facility_access-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_facility_accessible')}</label>
+            <div class="slide-toggle-container h-8 w-32">
+              <div class="slide-toggle-slider"></div>
+              <label for="facility_access-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                <input type="radio" id="facility_access-yes" name="facility_access" value="Yes" class="hidden">
+                ${t('btn_yes')}
+              </label>
+              <label for="facility_access-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                <input type="radio" id="facility_access-no" name="facility_access" value="No" class="hidden" checked>
+                ${t('btn_no')}
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
+              <label for="barriers-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step6_lbl_barriers')}</label>
+              <div class="slide-toggle-container h-8 w-32">
+                <div class="slide-toggle-slider"></div>
+                <label for="barriers-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.remove('hidden')">
+                  <input type="radio" id="barriers-yes" name="barriers" value="Yes" class="hidden">
+                  ${t('step6_opt_barriers_yes')}
+                </label>
+                <label for="barriers-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('barrier-specify').classList.add('hidden')">
+                  <input type="radio" id="barriers-no" name="barriers" value="No" class="hidden" checked>
+                  ${t('step6_opt_barriers_no')}
+                </label>
+              </div>
+            </div>
+            <input id="barrier-specify" name="barrier-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+        </div>
+      </section>
+
+      <div class="w-full flex justify-between pb-6">
+        <button onclick="goToStep(5)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
+        </button>
+        <button onclick="if(validateStep(6)) goToStep(7)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          <span>${t('step6_btn_next')}</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
+// STEP 7: EDUCATION
+// ============================================================================
+
+function getStep7HTML() {
+  return `
+    <div id="step-7" class="step-section hidden-step w-full space-y-5">
+      <div class="w-full text-left space-y-0.5">
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step7_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step7_subtext')}</p>
+      </div>
+
+      <!-- Educational Status -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">school</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step7_sec_status')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
+              <label for="enrolled-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step7_lbl_enrolled')}</label>
+              <div class="slide-toggle-container h-8 w-32">
+                <div class="slide-toggle-slider"></div>
+                <label for="enrolled-yes" class="slide-toggle-label text-white" onclick="toggleBtn(this); toggleEnrollment(true)">
+                  <input type="radio" id="enrolled-yes" name="enrolled" value="Yes" class="hidden" checked>
+                  ${t('btn_yes')}
+                </label>
+                <label for="enrolled-no" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); toggleEnrollment(false)">
+                  <input type="radio" id="enrolled-no" name="enrolled" value="No" class="hidden">
+                  ${t('btn_no')}
+                </label>
+              </div>
+            </div>
+
+            <div id="enrollment-yes" class="">
+              <label for="grade-level" class="block text-xs font-bold text-brand-dark mb-1">${t('step7_lbl_grade')} <span class="text-red-500">*</span></label>
+              <input type="text" id="grade-level" name="grade-level" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step7_ph_grade')}">
+            </div>
+            <div id="enrollment-no" class="hidden">
+              <label for="not-enrolled-reason" class="block text-xs font-bold text-brand-dark mb-1">${t('step7_lbl_why_not')} <span class="text-red-500">*</span></label>
+              <input type="text" id="not-enrolled-reason" name="not-enrolled-reason" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- School Accessibility -->
+      <section id="form-school-access" class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6 transition-all duration-300">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">accessible</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step7_sec_accessibility')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
+              <label for="school_features-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step7_lbl_school_accessible')}</label>
+              <div class="slide-toggle-container h-8 w-32">
+                <div class="slide-toggle-slider"></div>
+                <label for="school_features-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.remove('hidden')">
+                  <input type="radio" id="school_features-yes" name="school_features" value="Yes" class="hidden">
+                  ${t('btn_yes')}
+                </label>
+                <label for="school_features-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('school-access-specify').classList.add('hidden')">
+                  <input type="radio" id="school_features-no" name="school_features" value="No" class="hidden" checked>
+                  ${t('btn_no')}
+                </label>
+              </div>
+            </div>
+            <input id="school-access-specify" name="school-access-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+
+          <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
+              <label for="sped_prog-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step7_lbl_sped')}</label>
+              <div class="slide-toggle-container h-8 w-32">
+                <div class="slide-toggle-slider"></div>
+                <label for="sped_prog-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.remove('hidden')">
+                  <input type="radio" id="sped_prog-yes" name="sped_prog" value="Yes" class="hidden">
+                  ${t('btn_yes')}
+                </label>
+                <label for="sped_prog-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('sped-specify').classList.add('hidden')">
+                  <input type="radio" id="sped_prog-no" name="sped_prog" value="No" class="hidden" checked>
+                  ${t('btn_no')}
+                </label>
+              </div>
+            </div>
+            <input id="sped-specify" name="sped-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+
+          <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
+              <label for="learning_support-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step7_lbl_learning_support')}</label>
+              <div class="slide-toggle-container h-8 w-32">
+                <div class="slide-toggle-slider"></div>
+                <label for="learning_support-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.remove('hidden')">
+                  <input type="radio" id="learning_support-yes" name="learning_support" value="Yes" class="hidden">
+                  ${t('btn_yes')}
+                </label>
+                <label for="learning_support-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('learn-supp-specify').classList.add('hidden')">
+                  <input type="radio" id="learning_support-no" name="learning_support" value="No" class="hidden" checked>
+                  ${t('btn_no')}
+                </label>
+              </div>
+            </div>
+            <input id="learn-supp-specify" name="learn-supp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+        </div>
+      </section>
+
+      <div class="w-full flex justify-between pb-6">
+        <button onclick="goToStep(6)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
+        </button>
+        <button onclick="if(validateStep(7)) goToStep(8)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          <span>${t('step7_btn_next')}</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
+// STEP 8: ECONOMIC CAPACITY
+// ============================================================================
+
+function getStep8HTML() {
+  return `
+    <div id="step-8" class="step-section hidden-step w-full space-y-5">
+      <div class="w-full text-left space-y-0.5">
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step8_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step8_subtext')}</p>
+      </div>
+
+      <!-- Financial Information -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">account_balance_wallet</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step8_sec_financial')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label for="income-source" class="block text-xs font-bold text-brand-dark mb-1">${t('step8_lbl_income_source')} <span class="text-red-500">*</span></label>
+            <input type="text" id="income-source" name="income-source" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('step8_ph_income_source')}">
+          </div>
+
+          <div>
+            <label for="monthly-income" class="block text-xs font-bold text-brand-dark mb-1">${t('step8_lbl_monthly_income')} <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-bold pointer-events-none text-xs">₱</span>
+              <input type="text" id="monthly-income" name="monthly-income" class="w-full h-9 pl-6 pr-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="0" oninput="calculateIncomeClass(this)">
+            </div>
+          </div>
+
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <h4 class="font-bold text-brand-dark text-xs mb-1">${t('step8_sec_income_class')}</h4>
+            <p id="income-class-display" class="text-sm font-semibold text-brand-blue">${t('step8_ph_income_class_initial')}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Employment -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">work</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step8_sec_employment')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
+              <label for="employed-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step8_lbl_employed')}</label>
+              <div class="slide-toggle-container h-8 w-32">
+                <div class="slide-toggle-slider"></div>
+                <label for="employed-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.remove('hidden')">
+                  <input type="radio" id="employed-yes" name="employed" value="Yes" class="hidden">
+                  ${t('step8_opt_employed_yes')}
+                </label>
+                <label for="employed-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('emp-specify').classList.add('hidden')">
+                  <input type="radio" id="employed-no" name="employed" value="No" class="hidden" checked>
+                  ${t('step8_opt_employed_no')}
+                </label>
+              </div>
+            </div>
+            <input id="emp-specify" name="emp-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+        </div>
+      </section>
+      
+      <div class="w-full flex justify-between pb-6">
+        <button onclick="goToStep(7)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+        </button>
+        <button onclick="if(validateStep(8)) goToStep(9)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          <span>${t('step8_btn_next')}</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
+// STEP 9: SERVICE AVAILMENT
+// ============================================================================
+
+function getStep9HTML() {
+  return `
+    <div id="step-9" class="step-section hidden-step w-full space-y-5">
+      <div class="w-full text-left space-y-0.5">
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step9_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step9_subtext')}</p>
+      </div>
+
+      <!-- Social Services -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">handshake</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step9_sec_social')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
+              <label for="fin_assist-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step9_lbl_financial_assistance')}</label>
+              <div class="slide-toggle-container h-8 w-32">
+                <div class="slide-toggle-slider"></div>
+                <label for="fin_assist-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('fin-assist-specify').classList.remove('hidden')">
+                  <input type="radio" id="fin_assist-yes" name="fin_assist" value="Yes" class="hidden"> 
+                  ${t('btn_yes')}
+                </label>
+                <label for="fin_assist-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('fin-assist-specify').classList.add('hidden')">
+                  <input type="radio" id="fin_assist-no" name="fin_assist" value="No" class="hidden" checked> 
+                  ${t('btn_no')}
+                </label>
+              </div>
+            </div>
+            <input id="fin-assist-specify" name="fin-assist-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+          
+          <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
+              <label for="aware_services-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step9_lbl_aware_services')}</label>
+              <div class="slide-toggle-container h-8 w-32">
+                <div class="slide-toggle-slider"></div>
+                <label for="aware_services-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('aware-specify').classList.remove('hidden')">
+                  <input type="radio" id="aware_services-yes" name="aware_services" value="Yes" class="hidden"> 
+                  ${t('btn_yes')}
+                </label>
+                <label for="aware_services-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('aware-specify').classList.add('hidden')">
+                  <input type="radio" id="aware_services-no" name="aware_services" value="No" class="hidden" checked> 
+                  ${t('btn_no')}
+                </label>
+              </div>
+            </div>
+            <input id="aware-specify" name="aware-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+          
+          <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
+              <label for="availed_any-yes" class="text-xs font-bold text-brand-dark flex-1">${t('step9_lbl_availed_services')}</label>
+              <div class="slide-toggle-container h-8 w-32">
+                <div class="slide-toggle-slider"></div>
+                <label for="availed_any-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this); document.getElementById('availed-specify').classList.remove('hidden')">
+                  <input type="radio" id="availed_any-yes" name="availed_any" value="Yes" class="hidden"> 
+                  ${t('btn_yes')}
+                </label>
+                <label for="availed_any-no" class="slide-toggle-label text-white" onclick="toggleBtn(this); document.getElementById('availed-specify').classList.add('hidden')">
+                  <input type="radio" id="availed_any-no" name="availed_any" value="No" class="hidden" checked> 
+                  ${t('btn_no')}
+                </label>
+              </div>
+            </div>
+            <input id="availed-specify" name="availed-specify" type="text" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+        </div>
+      </section>
+      
+      <!-- Barriers -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">warning</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step9_sec_barriers')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label for="service-challenges" class="block text-xs font-bold text-brand-dark mb-1">${t('step9_lbl_challenges')} <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <select id="service-challenges" name="service-challenges" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400" onchange="toggleOther(this, 'barrier-other')">
+                <option value="" disabled selected>${t('ph_select_challenge')}</option>
+                <option value="Lack of awareness">${t('challenge_lack_awareness')}</option>
+                <option value="Financial constraints">${t('challenge_financial')}</option>
+                <option value="Distance/Transportation">${t('challenge_distance')}</option>
+                <option value="Requirements/Documents">${t('challenge_requirements')}</option>
+                <option value="Others">${t('option_others_specify')}</option>
+                <option value="None">${t('challenge_none')}</option>
+              </select>
+            </div>
+            <input id="barrier-other" name="barrier-other" type="text" class="mt-2 w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm hidden focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('ph_please_specify')}">
+          </div>
+        </div>
+      </section>
+      
+      <div class="w-full flex justify-between pb-6">
+        <button onclick="goToStep(8)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> Back
+        </button>
+        <button onclick="if(validateStep(9)) goToStep(10)" class="px-4 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">
+          <span>${t('step9_btn_next')}</span>
+          <span class="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[16px]">arrow_forward</span></span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
+// STEP 10: ASSESSMENT
+// ============================================================================
+
+function getStep10HTML() {
+  return `
+    <div id="step-10" class="step-section hidden-step w-full space-y-5">
+      <div class="w-full text-left space-y-0.5">
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step10_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step10_subtext')}</p>
+      </div>
+
+      <!-- Assessment Notes -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">edit_note</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step10_sec_notes')}</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label for="strengths" class="block text-xs font-bold text-brand-dark mb-1">${t('step10_lbl_strengths')} <span class="text-red-500">*</span></label>
+            <textarea id="strengths" name="strengths" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="${t('step10_ph_strengths')}"></textarea>
+          </div>
+          <div>
+            <label for="assessment" class="block text-xs font-bold text-brand-dark mb-1">${t('step10_lbl_assessment')} <span class="text-red-500">*</span></label>
+            <textarea id="assessment" name="assessment" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="${t('step10_ph_assessment')}"></textarea>
+          </div>
+          <div>
+            <label for="recommendations" class="block text-xs font-bold text-brand-dark mb-1">${t('step10_lbl_recommendations')} <span class="text-red-500">*</span></label>
+            <textarea id="recommendations" name="recommendations" class="w-full p-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none h-24 resize-none placeholder-gray-400" placeholder="${t('step10_ph_recommendations')}"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Readiness Score -->
+      <section class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-5 sm:p-6">
+        <div class="mb-5 flex items-center gap-3 border-b border-gray-100 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px] text-brand-blue">speed</span>
+          </div>
+          <h3 class="font-bold text-brand-dark text-base">${t('step10_sec_readiness')}</h3>
+        </div>
+
+        <div class="space-y-3">
+          <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
+            <input type="radio" id="readiness-severe" name="readiness" value="severe" class="peer sr-only">
+            <div class="flex flex-col">
+              <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold">1</span>
+                ${t('readiness_severe_title')}
+              </h3>
+              <p class="text-xs text-gray-500 mt-1 pl-7">${t('readiness_severe_desc')}</p>
+            </div>
+          </label>
+
+          <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
+            <input type="radio" id="readiness-moderate" name="readiness" value="moderate" class="peer sr-only">
+            <div class="flex flex-col">
+              <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold">2</span>
+                ${t('readiness_moderate_title')}
+              </h3>
+              <p class="text-xs text-gray-500 mt-1 pl-7">${t('readiness_moderate_desc')}</p>
+            </div>
+          </label>
+
+          <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
+            <input type="radio" id="readiness-low" name="readiness" value="low" class="peer sr-only">
+            <div class="flex flex-col">
+              <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xs font-bold">3</span>
+                ${t('readiness_low_title')}
+              </h3>
+              <p class="text-xs text-gray-500 mt-1 pl-7">${t('readiness_low_desc')}</p>
+            </div>
+          </label>
+
+          <label class="radio-card relative block w-full border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-300 transition-all select-none">
+            <input type="radio" id="readiness-stable" name="readiness" value="stable" class="peer sr-only">
+            <div class="flex flex-col">
+              <h3 class="font-bold text-gray-700 text-sm flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">4</span>
+                ${t('readiness_stable_title')}
+              </h3>
+              <p class="text-xs text-gray-500 mt-1 pl-7">${t('readiness_stable_desc')}</p>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <div class="w-full flex justify-between pb-6">
+        <button onclick="goToStep(9)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span> ${t('btn_back')}
+        </button>
+        <button onclick="if(validateStep(10)) generateReview()" class="px-6 h-10 bg-green-600 rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-green-700 flex items-center gap-2 shadow-md transition-all">
+          <span class="material-symbols-outlined text-[16px]">check</span> ${t('step10_btn_review')}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
+// STEP 11: REVIEW
+// ============================================================================
+
+function getStep11HTML() {
+  return `
+    <div id="step-11" class="step-section hidden-step w-full space-y-5">
+      <div class="w-full text-left space-y-0.5">
+        <h1 class="font-extrabold text-brand-dark text-xl sm:text-2xl">${t('step11_heading')}</h1>
+        <p class="text-gray-500 text-xs sm:text-sm">${t('step11_subtext')}</p>
+      </div>
+
+      <div id="review-content" class="w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm p-6 space-y-6">
+        <!-- Review content will be generated here -->
+      </div>
+
+      <div class="w-full flex justify-between pb-6">
+        <button onclick="goToStep(10)" class="px-4 h-10 bg-white border border-gray-300 rounded-lg text-gray-700 font-bold text-xs sm:text-sm hover:bg-gray-50 flex items-center gap-2 transition-all">${t('step11_btn_edit')}</button>
+        <button onclick="submitAssessment()" class="px-6 h-10 bg-brand-blue rounded-lg text-white font-bold text-xs sm:text-sm hover:bg-brand-blueHover flex items-center gap-2 shadow-md transition-all">${t('step11_btn_submit')}</button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+function initializeAllSteps() {
+  // Populate all dropdowns
+  populateAllDropdowns();
+  
+  // Initialize location dropdowns
+  initializeLocationDropdowns();
+  
+  // Initialize toggle buttons
+  initToggles();
+  
+  // Initialize first family member
+  addFirstFamilyMember();
+  
+  // Initialize Google-style selects
+  setTimeout(initGoogleSelects, 500);
+}
+
+function initRelationshipCombobox(options) {
+  const input = document.getElementById('dd-relationship-input');
+  const hidden = document.getElementById('dd-relationship');
+  const list = document.getElementById('dd-relationship-list');
+  if (!input || !list) return;
+
+  let activeIndex = -1;
+
+  function getItems() { return list.querySelectorAll('li[data-option]'); }
+
+  function setActive(idx) {
+    const items = getItems();
+    items.forEach(li => li.classList.remove('bg-blue-100'));
+    activeIndex = Math.max(0, Math.min(idx, items.length - 1));
+    if (items[activeIndex]) {
+      items[activeIndex].classList.add('bg-blue-100');
+      items[activeIndex].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function positionList() {
+    const rect = input.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const maxH = 192;
+    list.style.position = 'fixed';
+    list.style.width = rect.width + 'px';
+    list.style.left = rect.left + 'px';
+    if (spaceBelow >= Math.min(maxH, 80) || spaceBelow >= spaceAbove) {
+      list.style.top = rect.bottom + 'px';
+      list.style.bottom = 'auto';
+      list.style.maxHeight = Math.min(maxH, spaceBelow - 4) + 'px';
+    } else {
+      list.style.bottom = (viewportHeight - rect.top) + 'px';
+      list.style.top = 'auto';
+      list.style.maxHeight = Math.min(maxH, spaceAbove - 4) + 'px';
+    }
+  }
+
+  function renderList(filter) {
+    const q = (filter || '').toLowerCase();
+    const matched = q
+      ? options.filter(o => o.toLowerCase().includes(q) || translateOption('List_Relationship', o).toLowerCase().includes(q))
+      : options.slice();
+    activeIndex = -1;
+    list.innerHTML = '';
+    if (matched.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'px-3 py-2 text-gray-400 italic';
+      li.textContent = t('txt_no_match_found');
+      list.appendChild(li);
+    } else {
+      matched.forEach(o => {
+        const label = translateOption('List_Relationship', o);
+        const li = document.createElement('li');
+        li.className = 'px-3 py-2 cursor-pointer hover:bg-blue-50';
+        li.dataset.option = o;
+        li.textContent = label;
+        li.addEventListener('mousedown', e => {
+          e.preventDefault();
+          input.value = label;
+          hidden.value = o;
+          list.classList.add('hidden');
+        });
+        list.appendChild(li);
+      });
+    }
+    positionList();
+  }
+
+  input.addEventListener('focus', () => {
+    renderList(input.value);
+    list.classList.remove('hidden');
+  });
+
+  input.addEventListener('input', () => {
+    hidden.value = '';
+    renderList(input.value);
+    list.classList.remove('hidden');
+  });
+
+  input.addEventListener('keydown', e => {
+    if (list.classList.contains('hidden')) return;
+    const items = getItems();
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActive(activeIndex < 0 ? 0 : activeIndex + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive(activeIndex <= 0 ? 0 : activeIndex - 1);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeIndex >= 0 && items[activeIndex]) {
+        const val = items[activeIndex].dataset.option;
+        input.value = translateOption('List_Relationship', val);
+        hidden.value = val;
+        list.classList.add('hidden');
+      }
+    } else if (e.key === 'Escape') {
+      list.classList.add('hidden');
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    setTimeout(() => list.classList.add('hidden'), 150);
+    if (!hidden.value) input.value = '';
+  });
+
+  window.addEventListener('scroll', () => { if (!list.classList.contains('hidden')) positionList(); }, true);
+  window.addEventListener('resize', () => { if (!list.classList.contains('hidden')) positionList(); });
+}
+
+function populateAllDropdowns() {
+  if (!globalData || Object.keys(globalData).length === 0) {
+    setTimeout(populateAllDropdowns, 1000);
+    return;
+  }
+
+  // Step 2
+  initRelationshipCombobox(globalData.List_Relationship);
+  
+  // Step 3
+  populateSelect('dd-extension', globalData.List_Extension, t('ph_none'));
+  populateSelect('dd-religion', globalData.List_Religion, t('ph_select_religion'), 'List_Religion');
+  populateSelect('dd-ip', globalData.List_IP, t('ph_select_ip'), 'List_IP');
+  populateSelect('dd-education', globalData.List_Education, t('ph_select_education'), 'List_Education');
+  populateMulti('dd-disability', globalData.List_Disability, 'disability-display', null, 'List_Disability');
+  populateMulti('dd-illness', globalData.List_Illness, 'illness-display', 'illness-other-input', 'List_Illness');
+  
+  // Step 5
+  populateSelect('dd-materials', globalData.List_Materials, t('ph_select_materials'), 'List_Materials');
+  populateSelect('dd-tenure', globalData.List_Tenure, t('ph_select_tenure'), 'List_Tenure');
+  populateSelect('dd-electricity', globalData.List_Electricity, t('ph_select_electricity'), 'List_Electricity');
+  populateSelect('dd-water', globalData.List_Water, t('ph_select_water'), 'List_Water');
+  populateSelect('dd-toilet', globalData.List_Toilet, t('ph_select_toilet'), 'List_Toilet');
+  populateSelect('dd-garbage', globalData.List_Garbage, t('ph_select_garbage'), 'List_Garbage');
+}
+
+function populateSelect(id, items, placeholder, listKey) {
+  const s = document.getElementById(id);
+  if (!s) {
+    return;
+  }
+
+  if (!items || items.length === 0) {
+    s.innerHTML = `<option value="" disabled selected>${placeholder} (${t('ph_no_data')})</option>`;
+    return;
+  }
+
+  s.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
+  let hasOthers = false;
+
+  (items || []).forEach(i => {
+    const o = document.createElement('option');
+    if (i === "Others" || i === "Other" || i === "Others (Specify)") {
+      o.value = "Others";
+      o.innerText = t('option_others_specify');
+      hasOthers = true;
+    } else {
+      o.value = i;
+      o.innerText = listKey ? translateOption(listKey, i) : i;
+    }
+    s.appendChild(o);
+  });
+
+  if (!hasOthers && id !== 'dd-extension' && id !== 'dd-relationship') {
+    const o = document.createElement('option');
+    o.value = "Others";
+    o.innerText = t('option_others_specify');
+    s.appendChild(o);
+  }
+}
+
+function populateMulti(cid, items, did, oid = null, listKey) {
+  let c = document.getElementById(cid);
+  if (!c) return;
+
+  // Move menu to body for fixed positioning if not already there
+  if (c.parentElement !== document.body) {
+    c._anchorId = cid + '-btn-anchor';
+    document.body.appendChild(c);
+  }
+
+  c.innerHTML = "";
+  c.className = "hidden fixed google-menu dropdown-scroll overflow-y-auto";
+  c.style.zIndex = '9999';
+  if (listKey) c.dataset.listKey = listKey; else delete c.dataset.listKey;
+  let hasOthers = false;
+
+  (items || []).forEach(x => {
+    if (x === "Others" || x === "Other" || x === "Others (Specify)" || x === "Other (specify)") {
+      hasOthers = true;
+      return;
+    }
+    const l = document.createElement('label');
+    l.className = "google-menu-item";
+    const cb = document.createElement('input');
+    cb.type = "checkbox";
+    cb.name = cid;
+    cb.value = x;
+    cb.onchange = function() { updateMultiSelect(cid, did) };
+    const s = document.createElement('span');
+    s.innerText = listKey ? translateOption(listKey, x) : x;
+    l.appendChild(cb);
+    l.appendChild(s);
+    c.appendChild(l);
+  });
+
+  if (oid || hasOthers) {
+    const l = document.createElement('label');
+    l.className = "google-menu-item";
+    const cb = document.createElement('input');
+    cb.type = "checkbox";
+    cb.name = cid;
+    cb.value = "Others";
+    cb.onchange = function() {
+      updateMultiSelect(cid, did);
+      if (oid) {
+        const inp = document.getElementById(oid);
+        if (inp) inp.classList.toggle('hidden', !this.checked);
+      }
+    };
+    const s = document.createElement('span');
+    s.innerText = t('option_others_specify');
+    l.appendChild(cb);
+    l.appendChild(s);
+    c.appendChild(l);
+  }
+}
+
+function initializeLocationDropdowns() {
+  const regionSelect = getLocationSelect('child-region');
+  if (!regionSelect) return;
+
+  regionSelect.innerHTML = `<option value="" disabled selected>${t('ph_select_region')}</option>`;
+  Object.keys(locationData).forEach(region => {
+    const opt = document.createElement('option');
+    opt.value = region;
+    opt.innerText = region;
+    regionSelect.appendChild(opt);
+  });
+}
+
+function getLocationSelect(id) {
+  return document.getElementById('_hidden-' + id) || document.getElementById(id);
+}
+
+function getLocationValue(id) {
+  const hidden = document.getElementById('_hidden-' + id);
+  if (hidden) return hidden.value;
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+function updateProvinces() {
+  const region = getLocationValue('child-region');
+  const provSelect = getLocationSelect('child-province');
+  const citySelect = getLocationSelect('child-city');
+  const brgySelect = getLocationSelect('child-barangay');
+
+  provSelect.innerHTML = `<option value="" disabled selected>${t('ph_select_province')}</option>`;
+  citySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_city')}</option>`;
+  brgySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_barangay')}</option>`;
+  provSelect.disabled = true;
+  citySelect.disabled = true;
+  brgySelect.disabled = true;
+  provSelect.dispatchEvent(new Event('change'));
+  citySelect.dispatchEvent(new Event('change'));
+  brgySelect.dispatchEvent(new Event('change'));
+
+  if (region && locationData[region]) {
+    const provinces = Object.keys(locationData[region]);
+    provinces.forEach(prov => {
+      const opt = document.createElement('option');
+      opt.value = prov;
+      opt.innerText = prov;
+      provSelect.appendChild(opt);
+    });
+    provSelect.disabled = false;
+    provSelect.dispatchEvent(new Event('change'));
+  }
+}
+
+function updateCities() {
+  const region = getLocationValue('child-region');
+  const province = getLocationValue('child-province');
+  const citySelect = getLocationSelect('child-city');
+  const brgySelect = getLocationSelect('child-barangay');
+
+  citySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_city')}</option>`;
+  brgySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_barangay')}</option>`;
+  citySelect.disabled = true;
+  brgySelect.disabled = true;
+  citySelect.dispatchEvent(new Event('change'));
+  brgySelect.dispatchEvent(new Event('change'));
+
+  if (region && province && locationData[region] && locationData[region][province]) {
+    const cities = Object.keys(locationData[region][province]);
+    cities.forEach(city => {
+      const opt = document.createElement('option');
+      opt.value = city;
+      opt.innerText = city;
+      citySelect.appendChild(opt);
+    });
+    citySelect.disabled = false;
+    citySelect.dispatchEvent(new Event('change'));
+  }
+}
+
+function updateBarangays() {
+  const region = getLocationValue('child-region');
+  const province = getLocationValue('child-province');
+  const city = getLocationValue('child-city');
+  const brgySelect = getLocationSelect('child-barangay');
+
+  brgySelect.innerHTML = `<option value="" disabled selected>${t('ph_select_barangay')}</option>`;
+  brgySelect.disabled = true;
+  brgySelect.dispatchEvent(new Event('change'));
+
+  if (region && province && city && locationData[region] && locationData[region][province] && locationData[region][province][city]) {
+    const barangays = locationData[region][province][city];
+    barangays.forEach(brgy => {
+      const opt = document.createElement('option');
+      opt.value = brgy;
+      opt.innerText = brgy;
+      brgySelect.appendChild(opt);
+    });
+    brgySelect.disabled = false;
+    brgySelect.dispatchEvent(new Event('change'));
+  }
+}
+
+function initToggles() {
+  document.querySelectorAll('.slide-toggle-container').forEach(container => {
+    const checkedInput = container.querySelector('input:checked');
+    if (checkedInput) {
+      const label = checkedInput.closest('.slide-toggle-label');
+      const labels = Array.from(container.querySelectorAll('.slide-toggle-label'));
+      const index = labels.indexOf(label);
+      const slider = container.querySelector('.slide-toggle-slider');
+      
+      slider.style.transform = `translateX(${index * 100}%)`;
+      labels.forEach(l => l.classList.remove('text-white', 'text-gray-500'));
+      labels.forEach(l => l.classList.add('text-gray-500'));
+      label.classList.remove('text-gray-500');
+      label.classList.add('text-white');
+    }
+  });
+}
+
+function toggleBtn(label) {
+  const container = label.closest('.slide-toggle-container');
+  const slider = container.querySelector('.slide-toggle-slider');
+  const labels = Array.from(container.querySelectorAll('.slide-toggle-label'));
+  
+  const index = labels.indexOf(label);
+  slider.style.transform = `translateX(${index * 100}%)`;
+  
+  labels.forEach(l => {
+    l.classList.remove('text-white');
+    l.classList.add('text-gray-500');
+  });
+  label.classList.remove('text-gray-500');
+  label.classList.add('text-white');
+  
+  label.querySelector('input').checked = true;
+}
+
+function toggleId(show) {
+  const el = document.getElementById('household-id');
+  const box = document.getElementById('id-container');
+  if (show) {
+    el.removeAttribute('disabled');
+    box.style.opacity = '1';
+    el.value = "";
+    el.focus();
+  } else {
+    el.setAttribute('disabled', 'true');
+    box.style.opacity = '0.5';
+    el.value = "N/A";
+  }
+}
+
+function toggleOther(selectEl, inputId) {
+  const input = document.getElementById(inputId);
+  if (selectEl.value === 'Others') {
+    input.classList.remove('hidden');
+    input.focus();
+  } else {
+    input.classList.add('hidden');
+    input.value = "";
+  }
+}
+
+function positionFixedMenu(menu, anchor) {
+  const rect = anchor.getBoundingClientRect();
+  const vh = window.innerHeight;
+  const maxH = 240;
+  const spaceBelow = vh - rect.bottom;
+  const spaceAbove = rect.top;
+  menu.style.position = 'fixed';
+  menu.style.width = rect.width + 'px';
+  menu.style.left = rect.left + 'px';
+  menu.style.zIndex = '9999';
+  if (spaceBelow >= Math.min(maxH, 80) || spaceBelow >= spaceAbove) {
+    menu.style.top = rect.bottom + 'px';
+    menu.style.bottom = 'auto';
+    menu.style.maxHeight = Math.min(maxH, spaceBelow - 4) + 'px';
+  } else {
+    menu.style.bottom = (vh - rect.top) + 'px';
+    menu.style.top = 'auto';
+    menu.style.maxHeight = Math.min(maxH, spaceAbove - 4) + 'px';
+  }
+}
+
+function toggleDropdown(id) {
+  const dropdown = document.getElementById(id);
+  const isHidden = dropdown.classList.contains('hidden');
+  document.querySelectorAll('.google-menu, .google-menu-custom').forEach(m => m.classList.add('hidden'));
+  if (isHidden) {
+    const anchor = document.querySelector(`[onclick="toggleDropdown('${id}')"]`);
+    dropdown.classList.remove('hidden');
+    if (anchor) {
+      positionFixedMenu(dropdown, anchor);
+      if (!dropdown._reposBound) {
+        dropdown._reposBound = true;
+        window.addEventListener('scroll', () => { if (!dropdown.classList.contains('hidden')) positionFixedMenu(dropdown, anchor); }, true);
+        window.addEventListener('resize', () => { if (!dropdown.classList.contains('hidden')) positionFixedMenu(dropdown, anchor); });
+      }
+    }
+  }
+}
+
+function updateMultiSelect(cid, did) {
+  const c = document.getElementById(cid);
+  const chk = c.querySelectorAll('input:checked');
+  const d = document.getElementById(did);
+  
+  if (chk.length === 0) {
+    d.innerText = t('txt_select_options_ellipsis');
+    d.classList.add("text-gray-400");
+    d.classList.remove("text-gray-900");
+  } else {
+    const lk = c.dataset.listKey || '';
+    const v = Array.from(chk).map(x => lk ? translateOption(lk, x.value) : x.value).join(', ');
+    d.innerText = v;
+    d.classList.remove("text-gray-400");
+    d.classList.add("text-gray-900");
+  }
+}
+
+function toggleEnrollment(isEnrolled) {
+  const yesDiv = document.getElementById('enrollment-yes');
+  const noDiv = document.getElementById('enrollment-no');
+  const form2 = document.getElementById('form-school-access');
+  
+  if (isEnrolled) {
+    yesDiv.classList.remove('hidden');
+    noDiv.classList.add('hidden');
+    form2.classList.remove('hidden');
+  } else {
+    yesDiv.classList.add('hidden');
+    noDiv.classList.remove('hidden');
+    form2.classList.add('hidden');
+  }
+}
+
+function validateExpense(input) {
+  let val = input.value.replace(/[^0-9]/g, '');
+  if (val.length > 7) val = val.slice(0, 7);
+  input.value = val;
+  calculateHealthTotal();
+}
+
+function calculateHealthTotal() {
+  const ids = ['exp-food', 'exp-med', 'exp-therapy', 'exp-hygiene', 'exp-assist', 'exp-other'];
+  let total = 0;
+  ids.forEach(id => {
+    const val = document.getElementById(id).value;
+    total += parseInt(val || 0);
+  });
+  document.getElementById('exp-total').value = total.toLocaleString();
+}
+
+function calculateIncomeClass(input) {
+  let val = input.value.replace(/[^0-9]/g, '');
+  if (val.length > 7) val = val.slice(0, 7);
+  input.value = val;
+  
+  const numVal = parseInt(val || 0);
+  const display = document.getElementById('income-class-display');
+  
+  // Canonical (English) classification key; the display text may be translated,
+  // but the value submitted to the backend must always be canonical English.
+  let canonicalKey = null;
+  if (numVal === 0) {
+    canonicalKey = null;
+  } else if (numVal <= 24000) {
+    canonicalKey = 'step8_income_class_low';
+  } else if (numVal <= 76000) {
+    canonicalKey = 'step8_income_class_middle';
+  } else {
+    canonicalKey = 'step8_income_class_high';
+  }
+
+  display.innerText = canonicalKey ? t(canonicalKey) : t('step8_ph_income_class_initial');
+  display.dataset.canonicalClass = canonicalKey
+    ? ((window.I18N_EN && window.I18N_EN[canonicalKey]) || t(canonicalKey))
+    : '';
+}
+
+// Close dropdowns when clicking outside
+window.addEventListener('click', function(e) {
+  document.querySelectorAll('.google-menu-custom, .google-menu').forEach(menu => {
+    if (!menu.contains(e.target) && !e.target.closest('[onclick^="toggleDropdown"]') && !e.target.classList.contains('google-dropdown-style')) {
+      menu.classList.add('hidden');
+    }
+  });
+});
+
+function initGoogleSelects() {
+  document.querySelectorAll('select.google-dropdown-style').forEach(select => {
+    if (select.dataset.customized) return;
+    select.dataset.customized = "true";
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'relative w-full';
+    select.parentNode.insertBefore(wrapper, select);
+    wrapper.appendChild(select);
+    select.classList.add('hidden');
+
+    // Placeholder text from the disabled option
+    const placeholderOpt = Array.from(select.options).find(o => o.disabled);
+    const placeholderText = placeholderOpt ? placeholderOpt.text : t('ph_select_ellipsis');
+
+    // Text input acts as the visible field
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.autocomplete = 'off';
+    input.placeholder = placeholderText;
+    input.className = 'google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm outline-none bg-white text-gray-800 placeholder-gray-400';
+    // Give input the select's id/name so label for= resolves to the visible element
+    // Keep select's name with a prefix so the hidden select is still a valid form field
+    if (select.id) {
+      input.id = select.id;
+      input.name = select.name || select.id;
+      select.id = '_hidden-' + select.id;
+      select.name = '_hidden-' + (select.name || input.id);
+    }
+    wrapper.appendChild(input);
+
+    const icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined pointer-events-none select-none';
+    icon.style.cssText = 'position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:18px;color:#9ca3af;';
+    icon.innerText = 'expand_more';
+    wrapper.appendChild(icon);
+
+    const list = document.createElement('ul');
+    list.className = 'hidden fixed bg-white border border-gray-200 rounded-md shadow-lg overflow-y-auto dropdown-scroll google-menu-custom';
+    list.style.zIndex = '9999';
+    document.body.appendChild(list);
+
+    let activeIndex = -1;
+    let committed = false;
+
+    const getItems = () => list.querySelectorAll('li[data-val]');
+
+    const setActive = (idx) => {
+      const items = getItems();
+      items.forEach(i => i.classList.remove('bg-blue-100'));
+      activeIndex = Math.max(0, Math.min(idx, items.length - 1));
+      if (items[activeIndex]) {
+        items[activeIndex].classList.add('bg-blue-100');
+        items[activeIndex].scrollIntoView({ block: 'nearest' });
+      }
+    };
+
+    const syncDisabled = () => {
+      if (select.disabled) {
+        input.disabled = true;
+        input.classList.add('bg-gray-50', 'opacity-70', 'cursor-not-allowed');
+      } else {
+        input.disabled = false;
+        input.classList.remove('bg-gray-50', 'opacity-70', 'cursor-not-allowed');
+      }
+    };
+    syncDisabled();
+
+    const renderList = (filter) => {
+      const q = (filter || '').toLowerCase();
+      const opts = q
+        ? Array.from(select.options).filter(o => !o.disabled && o.text.toLowerCase().includes(q))
+        : Array.from(select.options).filter(o => !o.disabled);
+      activeIndex = -1;
+      list.innerHTML = '';
+      if (opts.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'px-3 py-2 text-xs text-gray-400 italic';
+        li.textContent = t('txt_no_match_found');
+        list.appendChild(li);
+      } else {
+        opts.forEach(opt => {
+          const li = document.createElement('li');
+          li.className = 'px-3 py-2 text-xs sm:text-sm text-gray-800 hover:bg-gray-100 cursor-pointer';
+          li.dataset.val = opt.value;
+          li.textContent = opt.text;
+          li.addEventListener('mousedown', e => {
+            e.preventDefault();
+            select.value = opt.value;
+            input.value = opt.text;
+            input.dataset.value = opt.value;
+            input.classList.remove('text-gray-400');
+            input.classList.add('text-gray-800');
+            committed = true;
+            list.classList.add('hidden');
+            select.dispatchEvent(new Event('change'));
+          });
+          list.appendChild(li);
+        });
+      }
+      positionFixedMenu(list, input);
+    };
+
+    input.addEventListener('focus', () => {
+      if (select.disabled) return;
+      document.querySelectorAll('.google-menu-custom, .google-menu').forEach(m => m.classList.add('hidden'));
+      committed = false;
+      renderList(input.value);
+      list.classList.remove('hidden');
+    });
+
+    input.addEventListener('input', () => {
+      committed = false;
+      select.value = '';
+      delete input.dataset.value;
+      renderList(input.value);
+      list.classList.remove('hidden');
+    });
+
+    input.addEventListener('keydown', e => {
+      if (list.classList.contains('hidden')) return;
+      const items = getItems();
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(activeIndex < 0 ? 0 : activeIndex + 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(activeIndex <= 0 ? 0 : activeIndex - 1); }
+      else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeIndex >= 0 && items[activeIndex]) {
+          const val = items[activeIndex].dataset.val;
+          const text = items[activeIndex].textContent;
+          select.value = val;
+          input.value = text;
+          input.dataset.value = val;
+          committed = true;
+          list.classList.add('hidden');
+          select.dispatchEvent(new Event('change'));
+        }
+      } else if (e.key === 'Escape') {
+        list.classList.add('hidden');
+        input.blur();
+      }
+    });
+
+    input.addEventListener('blur', () => {
+      setTimeout(() => {
+        list.classList.add('hidden');
+        if (!committed) { input.value = ''; delete input.dataset.value; }
+      }, 150);
+    });
+
+    // Sync input when select value changes externally (e.g. reset)
+    const observer = new MutationObserver(() => {
+      syncDisabled();
+      const opt = select.options[select.selectedIndex];
+      if (opt && opt.value) {
+        input.value = opt.text;
+        input.dataset.value = opt.value;
+        committed = true;
+      } else {
+        input.value = '';
+        delete input.dataset.value;
+        committed = false;
+      }
+    });
+    observer.observe(select, { childList: true, attributes: true, attributeFilter: ['disabled'] });
+
+    window.addEventListener('scroll', () => { if (!list.classList.contains('hidden')) positionFixedMenu(list, input); }, true);
+    window.addEventListener('resize', () => { if (!list.classList.contains('hidden')) positionFixedMenu(list, input); });
+  });
+}
+
+// ============================================================================
+// FAMILY MEMBER MANAGEMENT
+// ============================================================================
+
+function addFirstFamilyMember() {
+  const container = document.getElementById('family-members-container');
+  if (!container) return;
+  
+  container.innerHTML = getFamilyMemberCardHTML(1, true);
+  updateTotalCount();
+  
+  // Populate dropdowns for first member
+  setTimeout(() => {
+    populateSelect('dd-fam-occ-1', globalData.List_Occupation, t('ph_select_occupation'), 'List_Occupation');
+    populateSelect('dd-fam-class-1', globalData.List_Occupation_Class, t('ph_select_class'), 'List_Occupation_Class');
+    populateMulti('dd-fam-dis-1', globalData.List_Disability, 'disp-fam-dis-1', null, 'List_Disability');
+    populateMulti('dd-fam-ill-1', globalData.List_Illness, 'disp-fam-ill-1', null, 'List_Illness');
+    initToggles();
+    initGoogleSelects();
+  }, 100);
+}
+
+function addFamilyMember() {
+  memberCount++;
+  const container = document.getElementById('family-members-container');
+  
+  const newCard = document.createElement('div');
+  newCard.innerHTML = getFamilyMemberCardHTML(memberCount, false);
+  container.appendChild(newCard.firstElementChild);
+  
+  updateTotalCount();
+  
+  // Populate dropdowns for new member
+  setTimeout(() => {
+    populateSelect(`dd-fam-occ-${memberCount}`, globalData.List_Occupation, t('ph_select_occupation'), 'List_Occupation');
+    populateSelect(`dd-fam-class-${memberCount}`, globalData.List_Occupation_Class, t('ph_select_class'), 'List_Occupation_Class');
+    populateMulti(`dd-fam-dis-${memberCount}`, globalData.List_Disability, `disp-fam-dis-${memberCount}`, null, 'List_Disability');
+    populateMulti(`dd-fam-ill-${memberCount}`, globalData.List_Illness, `disp-fam-ill-${memberCount}`, null, 'List_Illness');
+    initToggles();
+    initGoogleSelects();
+  }, 100);
+}
+
+function getFamilyMemberCardHTML(num, isHead) {
+  const title = isHead ? t('member_title_head', { n: num }) : t('member_title', { n: num });
+  const removeButton = !isHead ? `
+    <button onclick="removeMember(this)" class="text-xs bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors font-semibold">${t('member_btn_remove')}</button>
+  ` : '';
+
+  return `
+    <section class="member-card w-full bg-white rounded-xl border border-[#dce0e5] shadow-sm relative" id="member-card-${num}">
+      <div class="bg-gray-50 px-5 py-3 border-b border-gray-200 flex justify-between items-center rounded-t-xl h-14">
+        <h3 class="font-bold text-brand-dark text-sm sm:text-base member-title">${title}</h3>
+        <div class="flex items-center gap-2 remove-btn-container">
+          <button onclick="toggleMemberVisibility(this)" class="text-[10px] text-gray-400 font-semibold hover:text-brand-blue transition-colors">${t('member_btn_hide')}</button>
+          ${removeButton}
+        </div>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-4 member-content">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="sm:col-span-2">
+            <label for="fam-full-name-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_fullname')} <span class="text-red-500">*</span></label>
+            <input type="text" id="fam-full-name-${num}" name="fam-full-name-${num}" data-field="full_name" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('member_ph_fullname')}">
+          </div>
+          <div>
+            <label for="fam-rel-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_relationship')}</label>
+            <div class="relative">
+              <select id="fam-rel-${num}" name="fam-rel-${num}" data-field="relationship_to_head" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
+                <option value="${isHead ? 'Head' : 'Spouse'}">${translateOption('List_RelationshipToHead', isHead ? 'Head' : 'Spouse')}</option>
+                <option value="Spouse">${translateOption('List_RelationshipToHead', 'Spouse')}</option>
+                <option value="Child">${translateOption('List_RelationshipToHead', 'Child')}</option>
+                <option value="Parent">${translateOption('List_RelationshipToHead', 'Parent')}</option>
+                <option value="Sibling">${translateOption('List_RelationshipToHead', 'Sibling')}</option>
+                <option value="Grandparent">${translateOption('List_RelationshipToHead', 'Grandparent')}</option>
+                <option value="Grandchild">${translateOption('List_RelationshipToHead', 'Grandchild')}</option>
+                <option value="Other Relative">${translateOption('List_RelationshipToHead', 'Other Relative')}</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="solo-${num}-yes" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_solo_parent')}</label>
+            <div class="slide-toggle-container h-9 w-full">
+              <div class="slide-toggle-slider"></div>
+              <label for="solo-${num}-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                <input type="radio" name="solo-${num}" id="solo-${num}-yes" value="Yes" data-field="is_solo_parent" class="hidden">
+                ${t('btn_yes')}
+              </label>
+              <label for="solo-${num}-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                <input type="radio" name="solo-${num}" id="solo-${num}-no" value="No" data-field="is_solo_parent" class="hidden" checked>
+                ${t('btn_no')}
+              </label>
+            </div>
+          </div>
+          <div>
+            <label for="claimant-${num}-yes" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_claimant')}</label>
+            <div class="slide-toggle-container h-9 w-full">
+              <div class="slide-toggle-slider"></div>
+              <label for="claimant-${num}-yes" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                <input type="radio" name="claimant-${num}" id="claimant-${num}-yes" value="Yes" data-field="is_authorized_claimant" class="hidden">
+                ${t('btn_yes')}
+              </label>
+              <label for="claimant-${num}-no" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                <input type="radio" name="claimant-${num}" id="claimant-${num}-no" value="No" data-field="is_authorized_claimant" class="hidden" checked>
+                ${t('btn_no')}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="fam-civil-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_civil_status')} <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <select id="fam-civil-${num}" name="fam-civil-${num}" data-field="civil_status" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
+                <option value="" disabled selected>${t('ph_select_status')}</option>
+                <option value="Single">${translateOption('List_CivilStatus', 'Single')}</option>
+                <option value="Married">${translateOption('List_CivilStatus', 'Married')}</option>
+                <option value="Widowed">${translateOption('List_CivilStatus', 'Widowed')}</option>
+                <option value="Separated">${translateOption('List_CivilStatus', 'Separated')}</option>
+                <option value="Live-in">${translateOption('List_CivilStatus', 'Live-in')}</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="fam-age-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_age')} <span class="text-red-500">*</span></label>
+            <input type="text" id="fam-age-${num}" name="fam-age-${num}" data-field="age" maxlength="3" class="w-full h-9 px-3 rounded border border-gray-300 text-xs sm:text-sm focus:ring-1 focus:ring-brand-blue outline-none placeholder-gray-400" placeholder="${t('member_ph_age')}" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+          </div>
+          <div>
+            <label for="sex-${num}-male" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_sex')}</label>
+            <div class="slide-toggle-container h-9 w-full">
+              <div class="slide-toggle-slider"></div>
+              <label for="sex-${num}-male" class="slide-toggle-label text-white" onclick="toggleBtn(this)">
+                <input type="radio" name="sex-${num}" id="sex-${num}-male" value="Male" data-field="member_sex" class="hidden" checked>
+                <span>${t('opt_male')}</span>
+              </label>
+              <label for="sex-${num}-female" class="slide-toggle-label text-gray-500" onclick="toggleBtn(this)">
+                <input type="radio" name="sex-${num}" id="sex-${num}-female" value="Female" data-field="member_sex" class="hidden">
+                <span>${t('opt_female')}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="dd-fam-occ-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_occupation')} <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <select id="dd-fam-occ-${num}" name="dd-fam-occ-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
+                <option value="" disabled selected>${t('ph_loading')}</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="dd-fam-class-${num}" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_occ_class')} <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <select id="dd-fam-class-${num}" name="dd-fam-class-${num}" class="google-dropdown-style w-full h-9 px-3 text-xs sm:text-sm bg-white text-gray-800 invalid:text-gray-400">
+                <option value="" disabled selected>${t('ph_loading')}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="relative">
+            <label for="dd-fam-dis-${num}-btn" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_disability')}</label>
+            <button type="button" id="dd-fam-dis-${num}-btn" onclick="toggleDropdown('dd-fam-dis-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
+              <span id="disp-fam-dis-${num}" class="truncate text-gray-500">${t('ph_select_ellipsis')}</span>
+              <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
+            </button>
+            <div id="dd-fam-dis-${num}" class="hidden absolute z-10 w-full google-menu mt-1 max-h-40 overflow-y-auto dropdown-scroll">
+              <div class="p-2 text-gray-400 text-xs">${t('ph_loading')}</div>
+            </div>
+          </div>
+          <div class="relative">
+            <label for="dd-fam-ill-${num}-btn" class="block text-xs font-bold text-brand-dark mb-1">${t('member_lbl_illness')}</label>
+            <button type="button" id="dd-fam-ill-${num}-btn" onclick="toggleDropdown('dd-fam-ill-${num}')" class="w-full h-9 px-3 text-left bg-white border border-gray-300 rounded focus:ring-1 focus:ring-brand-blue outline-none flex justify-between items-center text-xs sm:text-sm">
+              <span id="disp-fam-ill-${num}" class="truncate text-gray-500">${t('ph_select_ellipsis')}</span>
+              <span class="material-symbols-outlined text-[18px] text-gray-400 flex-shrink-0">expand_more</span>
+            </button>
+            <div id="dd-fam-ill-${num}" class="hidden absolute z-10 w-full google-menu mt-1 max-h-40 overflow-y-auto dropdown-scroll">
+              <div class="p-2 text-gray-400 text-xs">${t('ph_loading')}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function removeMember(btn) {
+  const card = btn.closest('.member-card');
+  card.remove();
+  
+  const allCards = document.querySelectorAll('.member-card');
+  let currentCount = 0;
+  allCards.forEach((c, index) => {
+    currentCount = index + 1;
+    c.id = `member-card-${currentCount}`;
+    const title = c.querySelector('.member-title');
+    if (currentCount === 1) {
+      title.innerText = t('member_title_head', { n: 1 });
+    } else {
+      title.innerText = t('member_title', { n: currentCount });
+    }
+  });
+  memberCount = currentCount;
+  updateTotalCount();
+}
+
+function toggleMemberVisibility(btn) {
+  const card = btn.closest('.member-card');
+  const content = card.querySelector('.member-content');
+  if (content.style.display === "none") {
+    content.style.display = "block";
+    btn.innerText = t('member_btn_hide');
+  } else {
+    content.style.display = "none";
+    btn.innerText = t('member_btn_show');
+  }
+}
+
+function updateTotalCount() {
+  document.getElementById('total-family-size').value = memberCount;
+}
+
+// ============================================================================
+// FIELD VALIDATION ENGINE
+// ============================================================================
+
+function clearAllErrors() {
+  document.querySelectorAll('.field-error').forEach(e => e.remove());
+  document.querySelectorAll('.input-invalid').forEach(e => e.classList.remove('input-invalid'));
+}
+
+function getFieldContainer(el) {
+  let node = el;
+  for (let i = 0; i < 7; i++) {
+    node = node.parentElement;
+    if (!node || node === document.body) break;
+    if (node.querySelector(':scope > label')) return node;
+  }
+  return el.parentElement;
+}
+
+function _showErr(el, errId, message) {
+  if (!el) return;
+  document.getElementById(errId)?.remove();
+  const styleEl = (el.tagName === 'SELECT' && el.classList.contains('hidden'))
+    ? (el.parentElement?.querySelector('button') || el)
+    : el;
+  // If input is inside a flex wrapper div (no own border), highlight the wrapper instead
+  const wrapperDiv = styleEl.tagName === 'INPUT' && styleEl.parentElement?.classList.contains('flex')
+    ? styleEl.parentElement
+    : styleEl;
+  wrapperDiv.classList.add('input-invalid');
+  const container = getFieldContainer(el);
+  if (!container) return;
+  const p = document.createElement('p');
+  p.id = errId;
+  p.className = 'field-error';
+  p.textContent = message;
+  container.appendChild(p);
+}
+
+function showFieldError(id, message) {
+  _showErr(document.getElementById(id), 'err-' + id, message);
+}
+
+function showElemError(el, errId, message) {
+  _showErr(el, errId, message);
+}
+
+function scrollToFirstError() {
+  const first = document.querySelector('.field-error');
+  if (first) first.closest('section, div[id^="step-"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function validateStep(step) {
+  clearAllErrors();
+  const validators = { 1: validateStep1, 2: validateStep2, 3: validateStep3,
+    4: validateStep4, 5: validateStep5, 6: validateStep6, 7: validateStep7,
+    8: validateStep8, 9: validateStep9, 10: validateStep10 };
+  const fn = validators[step];
+  if (!fn) return true;
+  const ok = fn();
+  if (!ok) {
+    scrollToFirstError();
+    if (typeof toast !== 'undefined') toast.warning(t('val_fix_errors'), t('val_fix_errors_title'));
+  }
+  return ok;
+}
+
+// --- Reusable validators ---
+function isValidName(v)    { return /^[A-Za-zÑñ\s\-']+$/.test(v); }
+function isValidEmail(v)   { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+function isValidPhone(v)   { const d = v.replace(/\D/g,''); return d.length === 11 && d.startsWith('09'); }
+function getRadioVal(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || null; }
+function getSelVal(id)     { const el = document.getElementById(id); if (!el) return ''; return el.dataset.value !== undefined ? el.dataset.value : (el.value || ''); }
+function getMultiVals(id)  {
+  const c = document.getElementById(id);
+  return c ? Array.from(c.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value) : [];
+}
+function getMultiBtn(dropdownId) {
+  return document.getElementById(dropdownId)?.parentElement?.querySelector('button[type="button"]');
+}
+
+function chkDropdownOther(selectId, otherId, label) {
+  const v = getSelVal(selectId);
+  if (!v) { showFieldError(selectId, t('val_please_select', { field: label })); return false; }
+  if (v === 'Others' && otherId) {
+    const o = (document.getElementById(otherId)?.value || '').trim();
+    if (!o) { showFieldError(otherId, t('val_please_specify', { field: label })); return false; }
+    if (o.length > 255) { showFieldError(otherId, t('val_max_length', { field: label, n: 255 })); return false; }
+  }
+  return true;
+}
+
+function chkToggleSpecify(radioName, specifyId, label, maxLen = 500) {
+  if (getRadioVal(radioName) === 'Yes' && specifyId) {
+    const v = (document.getElementById(specifyId)?.value || '').trim();
+    if (!v) { showFieldError(specifyId, t('val_please_specify', { field: label })); return false; }
+    if (v.length > maxLen) { showFieldError(specifyId, t('val_max_length', { field: label, n: maxLen })); return false; }
+  }
+  return true;
+}
+
+function chkMulti(dropdownId, errId, label) {
+  if (getMultiVals(dropdownId).length === 0) {
+    const btn = getMultiBtn(dropdownId);
+    if (btn) _showErr(btn, errId, label);
+    return false;
+  }
+  return true;
+}
+
+function chkName(id, label, min, max) {
+  const v = (document.getElementById(id)?.value || '').trim();
+  if (!v)              { showFieldError(id, t('val_required', { field: label })); return false; }
+  if (v.length < min)  { showFieldError(id, t('val_min_length', { field: label, n: min })); return false; }
+  if (v.length > max)  { showFieldError(id, t('val_max_length', { field: label, n: max })); return false; }
+  if (!isValidName(v)) { showFieldError(id, t('val_letters_only', { field: label })); return false; }
+  return true;
+}
+
+function chkPhone(id, label) {
+  const v = (document.getElementById(id)?.value || '').trim();
+  if (!v)               { showFieldError(id, t('val_required', { field: label })); return false; }
+  if (!isValidPhone(v)) { showFieldError(id, t('val_phone_format', { field: label })); return false; }
+  return true;
+}
+
+// --- Step 1 ---
+function validateStep1() {
+  if (getRadioVal('membership') !== 'Yes') return true;
+  const v = (document.getElementById('household-id')?.value || '').trim();
+  if (!v)               { showFieldError('household-id', t('val_step1_hh_required')); return false; }
+  if (!/^[A-Za-z0-9]{13,18}$/.test(v)) { showFieldError('household-id', t('val_step1_hh_length')); return false; }
+  return true;
+}
+
+// --- Step 2 ---
+function validateStep2() {
+  let ok = true;
+  if (!chkName('resp-name', t('fieldlbl_name'), 2, 255)) ok = false;
+  if (!getSelVal('dd-relationship'))  { showFieldError('dd-relationship-input', t('val_step2_relationship')); ok = false; }
+
+  const email = (document.getElementById('resp-email')?.value || '').trim();
+  if (email && !isValidEmail(email)) { showFieldError('resp-email', t('val_step2_email_invalid')); ok = false; }
+  else if (email && email.length > 255) { showFieldError('resp-email', t('val_step2_email_length')); ok = false; }
+
+  const respContact = (document.getElementById('resp-contact')?.value || '').trim();
+  if (respContact && !isValidPhone(respContact)) { showFieldError('resp-contact', t('val_step2_contact_format')); ok = false; }
+  return ok;
+}
+
+// --- Step 3 ---
+function validateStep3() {
+  let ok = true;
+  if (!chkName('child-fname', t('fieldlbl_first_name'), 2, 100)) ok = false;
+  const mn = (document.getElementById('child-mname')?.value || '').trim();
+  if (mn && mn.length > 100)   { showFieldError('child-mname', t('val_step3_middle_name_length')); ok = false; }
+  else if (mn && !isValidName(mn)) { showFieldError('child-mname', t('val_step3_middle_name_letters')); ok = false; }
+  if (!chkName('child-lname', t('fieldlbl_last_name'), 2, 100)) ok = false;
+
+  const locationFieldLabelKeys = {
+    'child-region':   'fieldlbl_region',
+    'child-province': 'fieldlbl_province',
+    'child-city':     'fieldlbl_city',
+    'child-barangay': 'fieldlbl_barangay',
+  };
+  Object.keys(locationFieldLabelKeys).forEach(id => {
+    if (!getSelVal(id)) { showFieldError(id, t('val_please_select', { field: t(locationFieldLabelKeys[id]) })); ok = false; }
+  });
+
+  const st = (document.getElementById('child-street')?.value || '').trim();
+  if (!st)             { showFieldError('child-street', t('val_step3_street_required')); ok = false; }
+  else if (st.length < 5)   { showFieldError('child-street', t('val_step3_street_min')); ok = false; }
+  else if (st.length > 255) { showFieldError('child-street', t('val_step3_street_max')); ok = false; }
+
+  const childContact = (document.getElementById('child-contact')?.value || '').trim();
+  if (childContact && !isValidPhone(childContact)) { showFieldError('child-contact', t('val_step3_contact_format')); ok = false; }
+
+  const dob = (document.getElementById('child-dob')?.value || '');
+  if (!dob) { showFieldError('child-dob', t('val_step3_dob_required')); ok = false; }
+  else {
+    const d = new Date(dob), today = new Date();
+    today.setHours(0,0,0,0);
+    if (d > today) { showFieldError('child-dob', t('val_step3_dob_future')); ok = false; }
+  }
+
+  const rel = getSelVal('dd-religion');
+  if (!rel) { showFieldError('dd-religion', t('val_please_select', { field: t('fieldlbl_religion') })); ok = false; }
+  else if (rel === 'Others') {
+    const v = (document.getElementById('rel-other')?.value || '').trim();
+    if (!v) { showFieldError('rel-other', t('val_please_specify', { field: t('fieldlbl_religion') })); ok = false; }
+  }
+
+  const ip = getSelVal('dd-ip');
+  if (!ip) { showFieldError('dd-ip', t('val_please_select', { field: t('fieldlbl_ip_status') })); ok = false; }
+  else if (ip === 'Others') {
+    const v = (document.getElementById('ip-other')?.value || '').trim();
+    if (!v) { showFieldError('ip-other', t('val_please_specify', { field: t('fieldlbl_ip_group') })); ok = false; }
+  }
+
+  const edu = getSelVal('dd-education');
+  if (!edu) { showFieldError('dd-education', t('val_please_select', { field: t('fieldlbl_education') })); ok = false; }
+  else if (edu === 'Others') {
+    const v = (document.getElementById('edu-other')?.value || '').trim();
+    if (!v) { showFieldError('edu-other', t('val_please_specify', { field: t('fieldlbl_education') })); ok = false; }
+  }
+
+  if (!chkMulti('dd-disability', 'err-dd-disability', t('val_step3_disability_required'))) ok = false;
+
+  const illVals = getMultiVals('dd-illness');
+  if (illVals.length === 0) {
+    showFieldError('dd-illness-btn', t('val_step3_illness_required'));
+    ok = false;
+  } else if (illVals.includes('Others')) {
+    const v = (document.getElementById('illness-other-input')?.value || '').trim();
+    if (!v) { showFieldError('illness-other-input', t('val_step3_illness_specify')); ok = false; }
+  }
+
+  return ok;
+}
+
+// --- Step 4 ---
+function validateStep4() {
+  let ok = true;
+  document.querySelectorAll('.member-card').forEach((card, i) => {
+    const n = i + 1;
+    const origNum = parseInt((card.id || '').replace('member-card-','')) || n;
+
+    const nameEl = card.querySelector('[data-field="full_name"]');
+    const nameVal = (nameEl?.value || '').trim();
+    if (!nameVal)             { showElemError(nameEl, `err-fam-name-${n}`, t('val_step4_member_name_required', { n })); ok = false; }
+    else if (nameVal.length < 2) { showElemError(nameEl, `err-fam-name-${n}`, t('val_step4_member_name_min', { n })); ok = false; }
+    else if (!isValidName(nameVal)) { showElemError(nameEl, `err-fam-name-${n}`, t('val_step4_member_name_letters', { n })); ok = false; }
+
+    const relEl = card.querySelector('[data-field="relationship_to_head"]');
+    if (!relEl?.value) { showElemError(relEl, `err-fam-rel-${n}`, t('val_step4_member_relationship', { n })); ok = false; }
+
+    const civEl = card.querySelector('[data-field="civil_status"]');
+    if (!civEl?.value) { showElemError(civEl, `err-fam-civ-${n}`, t('val_step4_member_civil_status', { n })); ok = false; }
+
+    const ageEl = card.querySelector('[data-field="age"]');
+    const ageV  = parseInt(ageEl?.value || '');
+    if (!ageEl?.value.trim()) { showElemError(ageEl, `err-fam-age-${n}`, t('val_step4_member_age_required', { n })); ok = false; }
+    else if (isNaN(ageV) || ageV < 0 || ageV > 150) { showElemError(ageEl, `err-fam-age-${n}`, t('val_step4_member_age_range', { n })); ok = false; }
+
+    const occEl   = document.getElementById(`dd-fam-occ-${origNum}`);
+    const classEl = document.getElementById(`dd-fam-class-${origNum}`);
+    if (!occEl?.value)   { if (occEl)   showFieldError(`dd-fam-occ-${origNum}`,   t('val_step4_member_occupation', { n })); ok = false; }
+    if (!classEl?.value) { if (classEl) showFieldError(`dd-fam-class-${origNum}`, t('val_step4_member_occ_class', { n })); ok = false; }
+
+    if (!chkMulti(`dd-fam-dis-${origNum}`, `err-fam-dis-${n}`, t('val_step4_member_disability', { n }))) ok = false;
+    if (!chkMulti(`dd-fam-ill-${origNum}`, `err-fam-ill-${n}`, t('val_step4_member_illness', { n }))) ok = false;
+  });
+  return ok;
+}
+
+// --- Step 5 ---
+function validateStep5() {
+  let ok = true;
+  ok = chkDropdownOther('dd-materials',    'mat-other',    t('fieldlbl_housing_materials'))     && ok;
+  ok = chkDropdownOther('dd-tenure',       'tenure-other', t('fieldlbl_tenure_status'))         && ok;
+  ok = chkToggleSpecify('modifications',   'mod-specify',  t('fieldlbl_modification_details'))  && ok;
+  ok = chkDropdownOther('dd-electricity',  'elec-other',   t('fieldlbl_electricity_source'))    && ok;
+  ok = chkDropdownOther('dd-water',        'water-other',  t('fieldlbl_water_source'))          && ok;
+  ok = chkDropdownOther('dd-toilet',       'toilet-other', t('fieldlbl_toilet_type'))           && ok;
+  ok = chkDropdownOther('dd-garbage',      'garbage-other',t('fieldlbl_garbage_system'))        && ok;
+  return ok;
+}
+
+// --- Step 6 ---
+function validateStep6() {
+  let ok = true;
+  ok = chkToggleSpecify('health_cond',    'health-cond-specify', t('fieldlbl_health_condition_details')) && ok;
+  ok = chkToggleSpecify('avail_services', 'avail-specify',       t('fieldlbl_services_availed_6mo'))     && ok;
+  ok = chkToggleSpecify('barriers',       'barrier-specify',     t('fieldlbl_healthcare_barrier_details')) && ok;
+  return ok;
+}
+
+// --- Step 7 ---
+function validateStep7() {
+  let ok = true;
+  const enrolled = getRadioVal('enrolled');
+  if (enrolled === 'Yes') {
+    const grade = (document.getElementById('grade-level')?.value || '').trim();
+    if (!grade)            { showFieldError('grade-level', t('val_step7_grade_required')); ok = false; }
+    else if (grade.length > 50) { showFieldError('grade-level', t('val_step7_grade_max')); ok = false; }
+    ok = chkToggleSpecify('school_features',  'school-access-specify', t('fieldlbl_accessibility_feature_details')) && ok;
+    ok = chkToggleSpecify('sped_prog',        'sped-specify',          t('fieldlbl_sped_details'))                  && ok;
+    ok = chkToggleSpecify('learning_support', 'learn-supp-specify',    t('fieldlbl_learning_support_details'))      && ok;
+  } else if (enrolled === 'No') {
+    const r = (document.getElementById('not-enrolled-reason')?.value || '').trim();
+    if (!r)           { showFieldError('not-enrolled-reason', t('val_step7_reason_required')); ok = false; }
+    else if (r.length > 500) { showFieldError('not-enrolled-reason', t('val_step7_reason_max')); ok = false; }
+  }
+  return ok;
+}
+
+// --- Step 8 ---
+function validateStep8() {
+  let ok = true;
+  const src = (document.getElementById('income-source')?.value || '').trim();
+  if (!src)             { showFieldError('income-source', t('val_step8_income_source_required')); ok = false; }
+  else if (src.length < 3)   { showFieldError('income-source', t('val_step8_income_source_min')); ok = false; }
+  else if (src.length > 255) { showFieldError('income-source', t('val_step8_income_source_max')); ok = false; }
+
+  const inc = (document.getElementById('monthly-income')?.value || '').trim();
+  if (!inc)                  { showFieldError('monthly-income', t('val_step8_income_required')); ok = false; }
+  else if (!/^\d+$/.test(inc)) { showFieldError('monthly-income', t('val_step8_income_whole_number')); ok = false; }
+
+  ok = chkToggleSpecify('employed', 'emp-specify', t('fieldlbl_employment_details')) && ok;
+  return ok;
+}
+
+// --- Step 9 ---
+function validateStep9() {
+  let ok = true;
+  ok = chkToggleSpecify('fin_assist',    'fin-assist-specify', t('fieldlbl_financial_assistance_details')) && ok;
+  ok = chkToggleSpecify('aware_services','aware-specify',       t('fieldlbl_service_awareness_details'))   && ok;
+  ok = chkToggleSpecify('availed_any',   'availed-specify',     t('fieldlbl_availed_services_details'))    && ok;
+  if (!chkDropdownOther('service-challenges', 'barrier-other', t('fieldlbl_service_challenge'))) ok = false;
+  return ok;
+}
+
+// --- Step 10 ---
+function validateStep10() {
+  let ok = true;
+  [['strengths','fieldlbl_strengths'],['assessment','fieldlbl_assessment'],['recommendations','fieldlbl_recommendations']].forEach(([id, labelKey]) => {
+    const label = t(labelKey);
+    const v = (document.getElementById(id)?.value || '').trim();
+    if (!v)              { showFieldError(id, t('val_required', { field: label })); ok = false; }
+    else if (v.length < 10)   { showFieldError(id, t('val_step10_min_length_10', { field: label })); ok = false; }
+    else if (v.length > 2000) { showFieldError(id, t('val_step10_max_length_2000', { field: label })); ok = false; }
+  });
+  if (!getRadioVal('readiness')) {
+    const section = document.querySelector('input[name="readiness"]')?.closest('section');
+    if (section) {
+      document.getElementById('err-readiness')?.remove();
+      const p = document.createElement('p');
+      p.id = 'err-readiness'; p.className = 'field-error mt-2';
+      p.textContent = t('val_step10_readiness_required');
+      section.querySelector('.space-y-3')?.appendChild(p);
+    }
+    ok = false;
+  }
+  return ok;
+}
+
+// --- Phone auto-formatter ---
+function formatPhone(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length > 11) v = v.slice(0, 11);
+  if (v.length > 7)      v = v.slice(0,4) + ' ' + v.slice(4,7) + ' ' + v.slice(7);
+  else if (v.length > 4) v = v.slice(0,4) + ' ' + v.slice(4);
+  input.value = v;
+}
+
+// ============================================================================
+// REVIEW GENERATION
+// ============================================================================
+
+function generateReview() {
+  const getVal = (id) => {
+    const el = document.getElementById(id);
+    return (el && el.value.trim() !== "") ? el.value : '-';
+  };
+
+  const getRadio = (name) => {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : '-';
+  };
+  
+  // Readiness wording is sourced from the same readiness_*_title keys used by
+  // Step 10's cards, so the review screen can never drift out of sync with them.
+  const readinessMap = {
+    severe:   { label: t('readiness_severe_title'),   color: 'bg-red-50 border-red-200 text-red-700' },
+    moderate: { label: t('readiness_moderate_title'), color: 'bg-orange-50 border-orange-200 text-orange-700' },
+    low:      { label: t('readiness_low_title'),      color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+    stable:   { label: t('readiness_stable_title'),   color: 'bg-green-50 border-green-200 text-green-700' },
+  };
+
+  // 'Yes - <detail>' / 'No' pattern used throughout the review screen.
+  const yesNo = (radioName, detailId) =>
+    getRadio(radioName) === 'Yes'
+      ? t('review_yes_prefix', { detail: getVal(detailId) })
+      : t('review_no_fallback');
+  const readinessVal   = getRadio('readiness') || '';
+  const readinessInfo  = readinessMap[readinessVal] || { label: readinessVal || '-', color: 'bg-gray-50 border-gray-200 text-gray-700' };
+
+  const incomeClassTxt = document.getElementById('income-class-display')?.innerText || '';
+  const incomeDisplay  = (incomeClassTxt && incomeClassTxt !== t('step8_ph_income_class_initial')) ? incomeClassTxt : '-';
+
+  let html = `
+    <!-- REVIEW INTRODUCTION -->
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-5 sm:p-6 mb-6 text-white" style="font-family:'Poppins',sans-serif">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-[24px] sm:text-[28px]">fact_check</span>
+        </div>
+        <div>
+          <h2 class="text-xl sm:text-2xl font-extrabold">${t('review_heading')}</h2>
+          <p class="text-xs sm:text-sm opacity-90 mt-0.5">${t('review_subtext')}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: PRE-QUALIFICATION -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">assignment_ind</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_1')}</h3>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-0 sm:ml-12">
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_4ps_member')}</p>
+          <p class="text-sm font-semibold text-gray-900">${getRadio('membership')}</p>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('step1_lbl_household_id')}</p>
+          <p class="text-sm font-semibold text-gray-900">${getVal('household-id')}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: RESPONDENT PROFILE -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">account_circle</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_2')}</h3>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-0 sm:ml-12">
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_name')}</p>
+          <p class="text-sm font-semibold text-gray-900">${getVal('resp-name')}</p>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_relationship')}</p>
+          <p class="text-sm font-semibold text-gray-900">${getVal('dd-relationship')}</p>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_email')}</p>
+          <p class="text-sm font-semibold text-gray-900 break-all">${getVal('resp-email')}</p>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-gray-500 uppercase mb-1">${t('review_lbl_contact')}</p>
+          <p class="text-sm font-semibold text-gray-900">${getVal('resp-contact')}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: CHILD PROFILE -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">face</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_3')}</h3>
+      </div>
+      <div class="ml-0 sm:ml-12 space-y-4">
+        <!-- Personal Information -->
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step3_sec_personal')}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('member_lbl_fullname')}</p>
+              <p class="text-sm font-semibold text-gray-900">${[document.getElementById('child-fname')?.value?.trim(), document.getElementById('child-mname')?.value?.trim(), document.getElementById('child-lname')?.value?.trim(), document.getElementById('dd-extension')?.value?.trim()].filter(Boolean).join(' ') || '-'}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_dob_sex')}</p>
+              <p class="text-sm font-semibold text-gray-900">${(() => { const d = document.getElementById('child-dob')?.value; if (!d) return '-'; const dt = new Date(d + 'T00:00:00'); return dt.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }); })()} / ${getRadio('sex')}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('review_lbl_address')}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_street')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-street')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_barangay')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-barangay')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_city')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-city')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_province')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-province')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_region')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-region')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_contact_number')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('child-contact')}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Demographics -->
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step3_sec_demographics')}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_religion')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-religion') === 'Others' ? getVal('rel-other') : getVal('dd-religion')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_ip')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-ip') === 'Others' ? getVal('ip-other') : getVal('dd-ip')}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Condition & Education -->
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step3_sec_condition_edu')}</p>
+          <div class="grid grid-cols-1 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('step3_lbl_education')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-education') === 'Others' ? getVal('edu-other') : getVal('dd-education')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_disability')}</p>
+              <p class="text-sm font-semibold text-gray-900">${document.getElementById('disability-display') ? document.getElementById('disability-display').innerText : '-'}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('member_lbl_illness')}</p>
+              <p class="text-sm font-semibold text-gray-900">${document.getElementById('illness-display') ? document.getElementById('illness-display').innerText : '-'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- SECTION 4: FAMILY PROFILE -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">family_restroom</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_4')}</h3>
+      </div>
+      <div class="ml-0 sm:ml-12">
+        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-4">
+          <div class="flex justify-between items-center">
+            <p class="text-sm font-bold text-brand-dark">${t('review_lbl_total_family_size')}</p>
+            <p class="text-2xl font-extrabold text-brand-blue">${getVal('total-family-size')}</p>
+          </div>
+        </div>
+  `;
+  
+  const cards = document.querySelectorAll('.member-card');
+  if (cards.length === 0) {
+    html += `
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
+          <p class="text-sm text-gray-500">${t('review_no_members')}</p>
+        </div>
+    `;
+  } else {
+    html += `<div class="space-y-3">`;
+    cards.forEach((card, index) => {
+      const inputs = card.querySelectorAll('input[type="text"]');
+      let name = t('review_member_fallback', { n: index + 1 });
+      if (inputs.length > 0 && inputs[0].value) {
+        name = inputs[0].value;
+      }
+      html += `
+        <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-brand-blue text-[18px]">person</span>
+            <p class="text-sm font-semibold text-gray-900">${name}</p>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+  html += `
+      </div>
+    </section>
+
+    <!-- SECTION 5: SOCIO ECONOMIC -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">home</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_5')}</h3>
+      </div>
+      <div class="ml-0 sm:ml-12 space-y-3">
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step5_sec_housing')}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_construction_materials')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-materials') === 'Others' ? getVal('mat-other') : getVal('dd-materials')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_tenure_status')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-tenure') === 'Others' ? getVal('tenure-other') : getVal('dd-tenure')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_electricity_source')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-electricity') === 'Others' ? getVal('elec-other') : getVal('dd-electricity')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_modifications')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('modifications', 'mod-specify')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('review_sec_water_sanitation')}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_water_source')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-water') === 'Others' ? getVal('water-other') : getVal('dd-water')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_toilet_facility')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-toilet') === 'Others' ? getVal('toilet-other') : getVal('dd-toilet')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_toilet_accessible')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('toilet-access')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_garbage_disposal')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('dd-garbage') === 'Others' ? getVal('garbage-other') : getVal('dd-garbage')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: HEALTH -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">health_and_safety</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_6')}</h3>
+      </div>
+      <div class="ml-0 sm:ml-12 space-y-3">
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step6_sec_general')}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_vaccinations')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('vaccines')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_ongoing_conditions')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('health_cond', 'health-cond-specify')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-xs font-bold text-gray-700 uppercase mb-1">${t('review_lbl_total_health_expense')}</p>
+              <p class="text-xs text-gray-500">${t('review_helper_total_health_expense')}</p>
+            </div>
+            <p class="text-2xl font-extrabold text-brand-blue"><span style="font-family:'Poppins',sans-serif">₱</span>${getVal('exp-total')}</p>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step6_sec_access')}</p>
+          <div class="grid grid-cols-1 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_availed_6mo')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('avail_services', 'avail-specify')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_facility_accessible')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('facility_access')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_barriers')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('barriers', 'barrier-specify')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7: EDUCATION -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">school</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_7')}</h3>
+      </div>
+      <div class="ml-0 sm:ml-12 space-y-3">
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step7_sec_status')}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_currently_enrolled')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getRadio('enrolled') === 'Yes' ? t('review_enrolled_yes', { grade: getVal('grade-level') }) : t('review_enrolled_no', { reason: getVal('not-enrolled-reason') })}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step7_sec_accessibility')}</p>
+          <div class="grid grid-cols-1 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_accessibility_features')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('school_features', 'school-access-specify')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_sped')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('sped_prog', 'sped-specify')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_learning_support')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('learning_support', 'learn-supp-specify')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 8: ECONOMIC CAPACITY -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">account_balance_wallet</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_8')}</h3>
+      </div>
+      <div class="ml-0 sm:ml-12 space-y-3">
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step8_sec_financial')}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_income_source')}</p>
+              <p class="text-sm font-semibold text-gray-900">${getVal('income-source')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_monthly_income')}</p>
+              <p class="text-sm font-semibold text-gray-900">₱${getVal('monthly-income')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">${t('review_lbl_income_classification')}</p>
+          <p class="text-sm font-bold ${incomeDisplay.includes('Below') || incomeDisplay.includes('Low') ? 'text-red-600' : 'text-brand-blue'}">${incomeDisplay}</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step8_sec_employment')}</p>
+          <div>
+            <p class="text-xs text-gray-500 mb-1">${t('review_lbl_employed')}</p>
+            <p class="text-sm font-semibold text-gray-900">${yesNo('employed', 'emp-specify')}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 9: SERVICE AVAILMENT -->
+    <section class="mb-6 pb-6 border-b border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">handshake</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_9')}</h3>
+      </div>
+      <div class="ml-0 sm:ml-12 space-y-3">
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step9_sec_social')}</p>
+          <div class="grid grid-cols-1 gap-3">
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_fin_assist')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('fin_assist', 'fin-assist-specify')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_aware_services')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('aware_services', 'aware-specify')}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 mb-1">${t('review_lbl_availed_services')}</p>
+              <p class="text-sm font-semibold text-gray-900">${yesNo('availed_any', 'availed-specify')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-3">${t('step9_sec_barriers')}</p>
+          <div>
+            <p class="text-xs text-gray-500 mb-1">${t('review_lbl_challenges')}</p>
+            <p class="text-sm font-semibold text-gray-900">${document.getElementById('service-challenges').value === 'Others' ? getVal('barrier-other') : document.getElementById('service-challenges').value}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 10: ASSESSMENT NOTES -->
+    <section class="mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-brand-blue text-[22px]">edit_note</span>
+        </div>
+        <h3 class="text-lg font-bold text-brand-dark">${t('review_group_10')}</h3>
+      </div>
+      <div class="ml-0 sm:ml-12 space-y-3">
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">${t('step10_lbl_strengths')}</p>
+          <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('strengths')}</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">${t('step10_lbl_assessment')}</p>
+          <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('assessment')}</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-xs font-bold text-gray-500 uppercase mb-2">${t('step10_lbl_recommendations')}</p>
+          <p class="text-sm text-gray-900 whitespace-pre-wrap">${getVal('recommendations')}</p>
+        </div>
+
+        <div class="rounded-lg p-4 border ${readinessInfo.color}">
+          <p class="text-xs font-bold uppercase mb-2" style="opacity:0.7">${t('step10_sec_readiness')}</p>
+          <p class="text-sm font-bold">${readinessInfo.label}</p>
+        </div>
+      </div>
+    </section>
+  `;
+
+  const container = document.getElementById('review-content');
+  container.innerHTML = html;
+  container.style.fontFamily = "'Poppins', sans-serif";
+  goToStep(11);
+}
+
+// ============================================================================
+// FORM SUBMISSION
+// ============================================================================
+
+function collectFormData() {
+  const getVal = (id) => {
+    const el = document.getElementById(id);
+    const v = el ? el.value.trim() : '';
+    return v !== '' ? v : null;
+  };
+  const getRadio = (name) => {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : null;
+  };
+  const getMulti = (containerId) => {
+    const container = document.getElementById(containerId);
+    if (!container) return [];
+    return Array.from(container.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+  };
+
+  const membershipVal  = getRadio('membership');
+  const religionVal    = getVal('dd-religion');
+  const ipVal          = getVal('dd-ip');
+  const eduVal         = getVal('dd-education');
+  const materialsVal   = getVal('dd-materials');
+  const tenureVal      = getVal('dd-tenure');
+  const elecVal        = getVal('dd-electricity');
+  const waterVal       = getVal('dd-water');
+  const toiletVal      = getVal('dd-toilet');
+  const garbageVal     = getVal('dd-garbage');
+  const healthCondVal  = getRadio('health_cond');
+  const availServVal   = getRadio('avail_services');
+  const barriersVal    = getRadio('barriers');
+  const enrolledVal    = getRadio('enrolled');
+  const schoolFeatVal  = getRadio('school_features');
+  const spedVal        = getRadio('sped_prog');
+  const learnSuppVal   = getRadio('learning_support');
+  const employedVal    = getRadio('employed');
+  const finAssistVal   = getRadio('fin_assist');
+  const awareServVal   = getRadio('aware_services');
+  const availedAnyVal  = getRadio('availed_any');
+  const readinessVal   = getRadio('readiness');
+
+  const serviceChalEl  = document.getElementById('service-challenges');
+  const serviceChalVal = serviceChalEl ? (serviceChalEl.value || null) : null;
+
+  const incomeClassEl  = document.getElementById('income-class-display');
+  // Read the canonical (English) classification stored by calculateIncomeClass(),
+  // never the displayed text, which may be translated.
+  const incomeClass    = (incomeClassEl && incomeClassEl.dataset.canonicalClass) || null;
+
+  // Collect family members by DOM order, using data-field attributes
+  const familyMembers = [];
+  let memberIndex = 0;
+  document.querySelectorAll('.member-card').forEach((card) => {
+    memberIndex++;
+    const cardId  = card.id || '';
+    const origNum = parseInt(cardId.replace('member-card-', '')) || memberIndex;
+
+    const nameEl    = card.querySelector('[data-field="full_name"]');
+    const relEl     = card.querySelector('[data-field="relationship_to_head"]');
+    const civilEl   = card.querySelector('[data-field="civil_status"]');
+    const ageEl     = card.querySelector('[data-field="age"]');
+    const soloInput = card.querySelector('input[data-field="is_solo_parent"]:checked');
+    const claimantInput = card.querySelector('input[data-field="is_authorized_claimant"]:checked');
+    const sexInput  = card.querySelector('input[data-field="member_sex"]:checked');
+    const occEl     = document.getElementById(`dd-fam-occ-${origNum}`);
+    const classEl   = document.getElementById(`dd-fam-class-${origNum}`);
+    const disDiv    = document.getElementById(`dd-fam-dis-${origNum}`);
+    const illDiv    = document.getElementById(`dd-fam-ill-${origNum}`);
+
+    familyMembers.push({
+      member_number:        memberIndex,
+      full_name:            nameEl  ? nameEl.value.trim()  : '',
+      relationship_to_head: relEl   ? (relEl.value   || null) : null,
+      is_solo_parent:       soloInput ? soloInput.value === 'Yes' : false,
+      is_authorized_claimant: claimantInput ? claimantInput.value === 'Yes' : false,
+      civil_status:         civilEl ? (civilEl.value || null) : null,
+      age:                  ageEl && ageEl.value ? (parseInt(ageEl.value) || null) : null,
+      sex:                  sexInput ? sexInput.value : null,
+      occupation:           occEl   ? (occEl.value   || null) : null,
+      occupation_class:     classEl ? (classEl.value || null) : null,
+      disabilities:         disDiv  ? Array.from(disDiv.querySelectorAll('input:checked')).map(cb => cb.value) : [],
+      critical_illnesses:   illDiv  ? Array.from(illDiv.querySelectorAll('input:checked')).map(cb => cb.value) : [],
+    });
+  });
+
+  // Interviewer and session are NOT sent here: the server takes them from the
+  // verified login.
+  return {
+    assessment_id:        PRETEST_RECORD_ID,
+    created_on_device_at: PRETEST_CREATED_ON_DEVICE_AT,
+    app_version:          window.ARUGA_CONFIG.APP_VERSION,
+    feedback:             pretestFeedback,
+    readiness_score:      readinessVal,
+
+    pre_qualification: {
+      is_4ps_member: membershipVal === 'Yes',
+      household_id:  membershipVal === 'Yes' ? getVal('household-id') : null,
+    },
+
+    respondent: {
+      full_name:             getVal('resp-name') || '',
+      relationship_to_child: getVal('dd-relationship'),
+      email:                 getVal('resp-email'),
+      contact_number:        getVal('resp-contact'),
+    },
+
+    child: {
+      first_name:          getVal('child-fname') || '',
+      middle_name:         getVal('child-mname'),
+      last_name:           getVal('child-lname') || '',
+      name_extension:      getVal('dd-extension'),
+      region:              getVal('child-region'),
+      province:            getVal('child-province'),
+      city_municipality:   getVal('child-city'),
+      barangay:            getVal('child-barangay'),
+      street_address:      getVal('child-street'),
+      contact_number:      getVal('child-contact'),
+      date_of_birth:       getVal('child-dob'),
+      sex:                 getRadio('sex'),
+      religion:            religionVal !== 'Others' ? religionVal : null,
+      religion_other:      religionVal === 'Others' ? getVal('rel-other') : null,
+      ip_membership:       ipVal !== 'Others' ? ipVal : null,
+      ip_membership_other: ipVal === 'Others' ? getVal('ip-other') : null,
+    },
+
+    child_education_health: {
+      highest_education:       eduVal !== 'Others' ? eduVal : null,
+      highest_education_other: eduVal === 'Others' ? getVal('edu-other') : null,
+      disabilities:            getMulti('dd-disability'),
+      critical_illnesses:      getMulti('dd-illness'),
+      illness_other:           getVal('illness-other-input'),
+    },
+
+    family_members: familyMembers,
+
+    socio_economic: {
+      housing_materials:               materialsVal !== 'Others' ? materialsVal : null,
+      housing_materials_other:         materialsVal === 'Others' ? getVal('mat-other') : null,
+      tenure_status:                   tenureVal !== 'Others' ? tenureVal : null,
+      tenure_status_other:             tenureVal === 'Others' ? getVal('tenure-other') : null,
+      has_accessibility_modifications: getRadio('modifications') === 'Yes',
+      modification_details:            getRadio('modifications') === 'Yes' ? getVal('mod-specify') : null,
+      electricity_source:              elecVal !== 'Others' ? elecVal : null,
+      electricity_source_other:        elecVal === 'Others' ? getVal('elec-other') : null,
+      water_source:                    waterVal !== 'Others' ? waterVal : null,
+      water_source_other:              waterVal === 'Others' ? getVal('water-other') : null,
+      toilet_type:                     toiletVal !== 'Others' ? toiletVal : null,
+      toilet_type_other:               toiletVal === 'Others' ? getVal('toilet-other') : null,
+      is_toilet_accessible:            getRadio('toilet-access') === 'Yes',
+      garbage_disposal:                garbageVal !== 'Others' ? garbageVal : null,
+      garbage_disposal_other:          garbageVal === 'Others' ? getVal('garbage-other') : null,
+    },
+
+    health_info: {
+      has_all_vaccinations:         getRadio('vaccines') === 'Yes',
+      has_ongoing_health_conditions:healthCondVal === 'Yes',
+      health_conditions_details:    healthCondVal === 'Yes' ? getVal('health-cond-specify') : null,
+      expense_food:                 parseFloat(getVal('exp-food') || '0') || 0,
+      expense_medication:           parseFloat(getVal('exp-med') || '0') || 0,
+      expense_therapy:              parseFloat(getVal('exp-therapy') || '0') || 0,
+      expense_hygiene:              parseFloat(getVal('exp-hygiene') || '0') || 0,
+      expense_assistive_device:     parseFloat(getVal('exp-assist') || '0') || 0,
+      expense_other:                parseFloat(getVal('exp-other') || '0') || 0,
+      availed_services_6months:     availServVal === 'Yes',
+      availed_services_details:     availServVal === 'Yes' ? getVal('avail-specify') : null,
+      is_facility_accessible:       getRadio('facility_access') === 'Yes',
+      has_barriers_to_healthcare:   barriersVal === 'Yes',
+      healthcare_barriers_details:  barriersVal === 'Yes' ? getVal('barrier-specify') : null,
+    },
+
+    education_info: {
+      is_currently_enrolled:          enrolledVal === 'Yes',
+      grade_year_level:               enrolledVal === 'Yes' ? getVal('grade-level') : null,
+      not_enrolled_reason:            enrolledVal !== 'Yes' ? getVal('not-enrolled-reason') : null,
+      has_accessibility_features:     schoolFeatVal === 'Yes',
+      accessibility_features_details: schoolFeatVal === 'Yes' ? getVal('school-access-specify') : null,
+      has_sped_programs:              spedVal === 'Yes',
+      sped_programs_details:          spedVal === 'Yes' ? getVal('sped-specify') : null,
+      receives_learning_support:      learnSuppVal === 'Yes',
+      learning_support_details:       learnSuppVal === 'Yes' ? getVal('learn-supp-specify') : null,
+    },
+
+    economic_capacity: {
+      primary_income_source: getVal('income-source'),
+      monthly_income:        parseFloat(getVal('monthly-income') || '0') || null,
+      income_classification: incomeClass,
+      are_parents_employed:  employedVal === 'Yes',
+      employment_details:    employedVal === 'Yes' ? getVal('emp-specify') : null,
+    },
+
+    service_availment: {
+      receives_financial_assistance: finAssistVal === 'Yes',
+      financial_assistance_details:  finAssistVal === 'Yes' ? getVal('fin-assist-specify') : null,
+      is_aware_of_social_services:   awareServVal === 'Yes',
+      awareness_details:             awareServVal === 'Yes' ? getVal('aware-specify') : null,
+      has_availed_services:          availedAnyVal === 'Yes',
+      availed_services_details:      availedAnyVal === 'Yes' ? getVal('availed-specify') : null,
+      service_challenges:            serviceChalVal !== 'Others' ? serviceChalVal : null,
+      service_challenges_other:      serviceChalVal === 'Others' ? getVal('barrier-other') : null,
+    },
+
+    assessment_notes: {
+      strengths:            getVal('strengths'),
+      assessment_details:   getVal('assessment'),
+      recommended_actions:  getVal('recommendations'),
+      readiness_score:      readinessVal,
+    },
+  };
+}
+
+async function submitAssessment() {
+  const submitBtn = document.querySelector('#step-11 button[onclick="submitAssessment()"]');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<img src="/images/logo.webp" alt="Aruga" style="width:24px;height:24px;display:inline-block;animation:arugaSmile 1.2s ease-in-out infinite;vertical-align:middle;" />';
+  }
+
+  try {
+    const formData = collectFormData();
+    const result = await PretestApi.call('submit', { method: 'POST', body: formData });
+
+    if (result.ok) {
+      const d = result.json.data || {};
+      // Kept in sessionStorage (not the URL) so names never appear in links or logs.
+      sessionStorage.setItem('pretest_last_result', JSON.stringify({
+        aruga_id:   d.aruga_id || '',
+        child_name: [formData.child.first_name, formData.child.last_name].filter(Boolean).join(' '),
+        duplicate:  !!d.duplicate,
+      }));
+      window.location.href = 'success.html';
+    } else if (result.status === 401) {
+      window.toast.error('Your pretest session has expired. Please log in again. Your answers on this screen were not saved.', t('val_submission_error_title'));
+      throw null;
+    } else if (result.status === 0) {
+      throw new Error('No internet connection. Connect and press Submit again. Your answers are still on this screen.');
+    } else {
+      throw new Error((result.json && result.json.message) || t('val_submission_failed'));
+    }
+  } catch (error) {
+    if (error) window.toast.error(error.message || t('val_submission_error_body'), t('val_submission_error_title'));
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = t('step11_btn_submit');
+    }
+  }
+}
+
+// ============================================================================
+// END OF PROFILING TOOL JAVASCRIPT
+// ============================================================================
+// ============================================================================
+// PRETEST: TESTER FEEDBACK ("Report a problem")
+// Comments are kept with this profile and uploaded together with it.
+// ============================================================================
+
+function openFeedbackModal() {
+  document.getElementById('feedback-step').textContent = (STEP_SLUGS[currentStep] || '').replace(/-/g, ' ');
+  document.getElementById('feedback-text').value = '';
+  document.getElementById('feedback-modal').classList.remove('hidden');
+  document.getElementById('feedback-text').focus();
+}
+
+function closeFeedbackModal() {
+  document.getElementById('feedback-modal').classList.add('hidden');
+}
+
+function saveFeedback() {
+  const text = document.getElementById('feedback-text').value.trim();
+  if (!text) {
+    window.toast.warning('Please describe the problem first.', 'Feedback');
+    return;
+  }
+  pretestFeedback.push({ step: currentStep, comment: text.slice(0, 2000) });
+  document.getElementById('feedback-count').textContent = String(pretestFeedback.length);
+  document.getElementById('feedback-count').classList.remove('hidden');
+  closeFeedbackModal();
+  window.toast.success('Saved. It will be sent together with this profile.', 'Feedback');
+}

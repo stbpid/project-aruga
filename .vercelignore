@@ -22,3 +22,9 @@ npm-debug.log*
 
 # SQL migration files
 *.sql
+
+# Pretest desktop app (Tauri) — built locally, never deployed to Vercel
+desktop-app/
+
+# Internal planning docs and pretest guides — not part of the website
+docs/

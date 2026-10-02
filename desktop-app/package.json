@@ -1,0 +1,16 @@
+{
+  "name": "aruga-pretest-desktop",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Project Aruga Profiling Tool - v2 Pretest desktop app (Tauri). Not deployed to Vercel.",
+  "scripts": {
+    "export-data": "php scripts/export-reference-data.php",
+    "build:css": "node ../node_modules/tailwindcss/lib/cli.js -c ../tailwind.config.js --content \"./src/**/*.{html,js}\" -i ../public/css/input.css -o ./src/css/tailwind.css --minify",
+    "icons": "tauri icon ../public/images/logo.webp -o src-tauri/icons",
+    "dev": "tauri dev",
+    "build": "npm run build:css && tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

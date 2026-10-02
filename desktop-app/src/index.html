@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Aruga - Profiling Tool (PRETEST)</title>
+  <link rel="icon" href="/images/logo.webp" type="image/webp">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tailwind.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/pretest.css">
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col font-sans">
+
+  <div class="pretest-banner" role="status">
+    PRETEST VERSION &mdash; test records only, saved separately from official Project Aruga records
+  </div>
+
+  <main class="flex-grow flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] w-full max-w-md p-6 sm:p-8">
+
+      <div class="flex items-center gap-3 mb-4">
+        <img src="/images/form-logo.webp" alt="DSWD Logo" class="h-10 w-auto object-contain">
+      </div>
+
+      <h1 class="font-bold text-xl text-brand-dark">Project Aruga Profiling Tool</h1>
+      <p class="text-xs font-semibold uppercase tracking-wider text-amber-700 mb-5">Pretest &middot; v2</p>
+
+      <label for="code" class="block font-bold text-sm mb-1 text-brand-dark">Interviewer Code</label>
+      <input type="text" id="code" maxlength="8" autocomplete="off" spellcheck="false"
+        class="w-full h-11 px-3 mb-4 border border-gray-300 rounded-lg text-base tracking-[0.3em] font-semibold uppercase focus:outline-none focus:border-brand-blue"
+        placeholder="8 characters">
+
+      <label for="dialect-select" class="block font-bold text-sm mb-1 text-brand-dark">Language</label>
+      <select id="dialect-select" class="w-full h-10 px-3 mb-1 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:border-brand-blue">
+        <option value="en" selected>English</option>
+        <option value="tl">Tagalog (For Enhancement)</option>
+      </select>
+      <p id="dialect-tl-note" class="hidden text-[11px] text-gray-500 mb-3">We're actively refining the Tagalog translation.</p>
+
+      <div class="flex items-start gap-3 mt-4 mb-5">
+        <input type="checkbox" id="agree" class="h-4 w-4 mt-0.5 cursor-pointer accent-gray-900 shrink-0">
+        <label for="agree" class="text-xs font-medium cursor-pointer text-brand-dark leading-snug select-none">
+          I understand the <a href="privacy.html" class="underline" style="color:#1152d4">Data Privacy Terms and Conditions</a> for data processing.
+        </label>
+      </div>
+
+      <button id="btn-submit" type="button" disabled
+        class="w-full h-11 rounded-lg bg-brand-blue text-white font-bold text-sm hover:bg-brand-blueHover disabled:opacity-50 disabled:cursor-not-allowed">
+        Start Profiling
+      </button>
+
+      <p class="mt-5 text-[11px] text-gray-500 leading-snug">
+        Only Interviewer Codes enrolled in the pretest can log in. Needs an internet connection.
+      </p>
+      <p id="app-version" class="mt-1 text-[10px] text-gray-400"></p>
+    </div>
+  </main>
+
+  <footer class="w-full pb-4 text-center px-4">
+    <p class="text-[10px] text-gray-400">© 2026 Department of Social Welfare Development - Social Technology Bureau</p>
+  </footer>
+
+  <script src="/js/toast.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/pretest-api.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>
