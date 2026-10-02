@@ -2247,7 +2247,7 @@
             <div class="ai-chat-name">Aruga Assistant</div>
             <div class="ai-chat-status">Online</div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="aiChatReset()" title="Clear the conversation" style="margin-left:auto;display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">restart_alt</span>Reset</button>
+          <button class="btn btn-ghost btn-sm" onclick="aiChatReset()" title="Clear the conversation" style="margin-left:auto;display:flex;align-items:center;gap:0.25rem;font-size:0.72rem;font-weight:500;color:var(--gray-500);"><span class="material-symbols-outlined" style="font-size:0.95rem;">restart_alt</span>Reset</button>
         </div>
         <div class="ai-chat-body" id="ai-chat-body">
           <div class="ai-chat-day">Today</div>
@@ -4240,7 +4240,8 @@
 
   function aiChatAutosize(el) {
     el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 112) + 'px';
+    // Hidden (section not shown yet) measures 0 — leave the CSS height in place.
+    if (el.scrollHeight) el.style.height = Math.min(el.scrollHeight, 112) + 'px';
     el.style.overflowY = el.scrollHeight > 112 ? 'auto' : 'hidden';
     document.getElementById('ai-chat-send').disabled = !el.value.trim();
   }

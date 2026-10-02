@@ -1816,7 +1816,7 @@ table.dash-table {
 .ai-time { font-size: 0.625rem; color: var(--gray-400); margin-top: 0.2rem; }
 .ai-msg.user .ai-time { text-align: right; }
 .ai-chat-input { display: flex; align-items: flex-end; gap: 0.5rem; padding: 0.875rem 1.25rem; border-top: 1px solid var(--gray-100); background: white; flex-shrink: 0; }
-.ai-chat-input textarea { flex: 1; resize: none; border: 1px solid var(--border); border-radius: 0.75rem; padding: 0.6rem 0.85rem; font-family: inherit; font-size: 0.8125rem; line-height: 1.4; max-height: 7rem; overflow-y: hidden; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+.ai-chat-input textarea { flex: 1; resize: none; border: 1px solid var(--border); border-radius: 0.75rem; padding: 0.6rem 0.85rem; font-family: inherit; font-size: 0.8125rem; line-height: 1.4; min-height: 2.4rem; max-height: 7rem; overflow-y: hidden; outline: none; box-sizing: border-box; transition: border-color 0.15s, box-shadow 0.15s; }
 .ai-chat-input textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue); }
 .ai-chat-send { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: none; background: var(--blue); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background 0.15s, transform 0.1s, opacity 0.15s; }
 .ai-chat-send:hover:not(:disabled) { background: var(--blue-hover); }
