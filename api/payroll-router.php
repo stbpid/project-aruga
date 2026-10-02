@@ -38,31 +38,37 @@ function payrollBeneficiaryIds(array $payroll): array {
 
 /**
  * Loads a generated payroll and checks it can be recorded as a DSA release.
- * Returns [payrollRow, null] on success or [null, errorMessage].
+ * Returns [payrollRow, null, null] when it has not been recorded yet, or
+ * [null, errorMessage, null]. With $allowOpen, a payroll whose release an
+ * admin has reopened returns [payrollRow, null, releaseRow] for correction.
  * Region access is checked by the caller (requireRegion).
  */
-function loadPayrollForRelease(string $payrollId): array {
+function loadPayrollForRelease(string $payrollId, bool $allowOpen = false): array {
     if (!preg_match('/^DSA-\d{8}-\d{4,}$/', $payrollId)) {
-        return [null, 'Enter a valid Payroll ID.'];
+        return [null, 'Enter a valid Payroll ID.', null];
     }
     $res = supabaseRequest('GET', 'payroll_generations?select=payroll_id,region,period,payroll_type,'
         . 'months_covered,amount_per_month,beneficiary_ids,beneficiary_count,total_amount,created_at'
         . '&payroll_id=eq.' . urlencode($payrollId) . '&limit=1');
-    if (!$res['success']) return [null, 'Could not look up the Payroll ID. Please try again.'];
+    if (!$res['success']) return [null, 'Could not look up the Payroll ID. Please try again.', null];
     $pg = $res['data'][0] ?? null;
-    if (!$pg) return [null, 'Payroll ID not found.'];
+    if (!$pg) return [null, 'Payroll ID not found.', null];
     if (empty($pg['beneficiary_ids']) || empty($pg['months_covered']) || empty($pg['amount_per_month'])) {
-        return [null, 'Outdated payroll. Please regenerate.'];
+        return [null, 'Outdated payroll. Please regenerate.', null];
     }
     if (trim($pg['region'] ?? '') === '') {
-        return [null, 'Payroll must be for one region. Please regenerate.'];
+        return [null, 'Payroll must be for one region. Please regenerate.', null];
     }
-    $rel = supabaseRequest('GET', 'dsa_releases?select=release_date&payroll_id=eq.' . urlencode($payrollId) . '&limit=1');
-    if ($rel['success'] && !empty($rel['data'])) {
-        return [null, 'This payroll was already recorded on '
-            . date('F j, Y', strtotime($rel['data'][0]['release_date'])) . '.'];
+    $rel = supabaseRequest('GET', 'dsa_releases?select=id,release_date,is_locked'
+        . '&payroll_id=eq.' . urlencode($payrollId) . '&limit=1');
+    if (!$rel['success']) return [null, 'Could not look up the Payroll ID. Please try again.', null];
+    if (!empty($rel['data'])) {
+        $release = $rel['data'][0];
+        if (!$release['is_locked'] && $allowOpen) return [$pg, null, $release];
+        return [null, 'Already recorded on ' . date('F j, Y', strtotime($release['release_date']))
+            . ($release['is_locked'] ? '. Ask Admin to reopen it.' : '.'), null];
     }
-    return [$pg, null];
+    return [$pg, null, null];
 }
 
 /**
@@ -588,6 +594,123 @@ switch ($action) {
     }
 
     // ================================================================
+    // action=dsa-correct-by-payroll — update who received a reopened release,
+    // found by its Payroll ID, then relock it. Months, region, amount and
+    // payout date stay as recorded; only each person's status changes.
+    // ================================================================
+    case 'dsa-correct-by-payroll': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin', 'field_officer']);
+
+        $body       = json_decode(file_get_contents('php://input'), true) ?? [];
+        $payrollId  = strtoupper(trim($body['payroll_id'] ?? ''));
+        $exceptions = $body['exceptions'] ?? [];
+
+        [$pg, $err, $release] = loadPayrollForRelease($payrollId, true);
+        if ($err) { echo json_encode(['success' => false, 'message' => $err]); exit; }
+        if (!$release) {
+            echo json_encode(['success' => false, 'message' => 'This payroll has not been recorded yet.']); exit;
+        }
+        requireRegion($pg['region']);
+        $releaseId = $release['id'];
+
+        $rosterSet = array_flip(payrollBeneficiaryIds($pg));
+        $validReasons = ['deceased', 'transferred', 'not_claimed'];
+        $exMap = [];
+        foreach ($exceptions as $ex) {
+            $exId     = strtoupper(trim($ex['aruga_id'] ?? ''));
+            $exReason = trim($ex['reason'] ?? '');
+            if ($exId === '') continue;
+            if (!in_array($exReason, $validReasons, true)) {
+                echo json_encode(['success' => false, 'message' => 'Invalid reason for ' . $exId . '.']); exit;
+            }
+            if (!isset($rosterSet[$exId])) {
+                echo json_encode(['success' => false, 'message' => $exId . ' is not on payroll ' . $payrollId . '.']); exit;
+            }
+            $exMap[$exId] = $exReason;
+        }
+
+        // Everyone not listed as "did not receive" is paid, for every month.
+        $payments = supabaseFetchAll('dsa_payments?select=id,aruga_id,period_month,status'
+            . '&release_id=eq.' . urlencode($releaseId) . '&order=id.asc');
+        if (empty($payments)) {
+            echo json_encode(['success' => false, 'message' => 'Could not load this release. Please try again.']); exit;
+        }
+        $applied = [];
+        foreach ($payments as $p) {
+            $to = $exMap[strtoupper($p['aruga_id'])] ?? 'paid';
+            if ($p['status'] === $to) continue;
+            $applied[] = ['payment_id' => $p['id'], 'aruga_id' => $p['aruga_id'],
+                          'period_month' => $p['period_month'], 'from' => $p['status'], 'to' => $to];
+        }
+
+        // Audit before changing data, as with reopen/correct.
+        if ($applied) {
+            $audit = supabaseRequest('POST', 'dsa_release_audit', [
+                'release_id'   => $releaseId,
+                'action'       => 'correct',
+                'reason'       => 'Corrected via Payroll ID ' . $payrollId . '.',
+                'performed_by' => $authInterviewer['id'],
+                'details'      => $applied,
+            ]);
+            if (!$audit['success']) {
+                echo json_encode(['success' => false, 'message' => 'Failed to write audit record.']); exit;
+            }
+            foreach ($applied as $ch) {
+                $upd = supabaseRequest('PATCH', 'dsa_payments?id=eq.' . urlencode($ch['payment_id']), ['status' => $ch['to']]);
+                if (!$upd['success']) {
+                    echo json_encode(['success' => false,
+                        'message' => 'Failed partway through saving. The release is still open — please retry.']); exit;
+                }
+            }
+
+            // Standing status follows the correction: set for newly deceased /
+            // transferred, cleared when this release had set it and it no longer applies.
+            $months = $pg['months_covered']; sort($months);
+            $touched = [];
+            foreach ($applied as $ch) $touched[strtoupper($ch['aruga_id'])] = $ch['aruga_id'];
+            foreach ($touched as $key => $arugaId) {
+                $newStatus = $exMap[$key] ?? 'paid';
+                if ($newStatus === 'deceased' || $newStatus === 'transferred') {
+                    supabaseRequest('POST', 'dsa_beneficiary_status', [
+                        'aruga_id' => $arugaId, 'status' => $newStatus,
+                        'effective_from' => $months[0], 'set_by_release' => $releaseId,
+                    ]);
+                } else {
+                    supabaseRequest('DELETE', 'dsa_beneficiary_status?aruga_id=eq.' . urlencode($arugaId)
+                        . '&set_by_release=eq.' . urlencode($releaseId));
+                }
+            }
+        }
+
+        supabaseRequest('POST', 'dsa_release_audit', [
+            'release_id'   => $releaseId,
+            'action'       => 'relock',
+            'reason'       => $applied ? 'Auto-relocked after correction.' : 'Relocked with no changes.',
+            'performed_by' => $authInterviewer['id'],
+        ]);
+        $lock = supabaseRequest('PATCH', 'dsa_releases?id=eq.' . urlencode($releaseId), ['is_locked' => true]);
+        if (!$lock['success']) {
+            echo json_encode(['success' => false,
+                'message' => 'Changes saved but the release could not be relocked. Please try saving again.']); exit;
+        }
+
+        $missed = 0;
+        foreach (array_keys($rosterSet) as $id) if (isset($exMap[$id])) $missed++;
+        $paid = count($rosterSet) - $missed;
+        echo json_encode(['success' => true, 'data' => [
+            'changed'      => count($applied),
+            'paid_count'   => $paid,
+            'missed_count' => $missed,
+            'total_amount' => $paid * (int)$pg['amount_per_month'] * count($pg['months_covered']),
+        ]]);
+        break;
+    }
+
+    // ================================================================
     // action=dsa-releases — release history for a region
     // ================================================================
     case 'dsa-releases': {
@@ -1075,14 +1198,25 @@ switch ($action) {
         requireRole(['admin', 'field_officer']);
 
         $payrollId = strtoupper(trim(getStr('payroll_id')));
-        [$pg, $err] = loadPayrollForRelease($payrollId);
+        [$pg, $err, $openRelease] = loadPayrollForRelease($payrollId, true);
         if ($err) { echo json_encode(['success' => false, 'message' => $err]); exit; }
         requireRegion($pg['region']);
 
         $ids = payrollBeneficiaryIds($pg);
 
+        // Correction mode: each person's current status on the reopened release
+        // (the first non-paid month wins, since a correction sets all their months).
+        $currentStatus = [];
+        if ($openRelease) {
+            foreach (supabaseFetchAll('dsa_payments?select=aruga_id,status&release_id=eq.'
+                . urlencode($openRelease['id']) . '&order=id.asc') as $p) {
+                $k = strtoupper($p['aruga_id']);
+                if (!isset($currentStatus[$k]) || $currentStatus[$k] === 'paid') $currentStatus[$k] = $p['status'];
+            }
+        }
+
         // Reject now rather than at save if any month is already recorded.
-        $recorded = payrollRecordedMonths($ids, $pg['months_covered']);
+        $recorded = $openRelease ? [] : payrollRecordedMonths($ids, $pg['months_covered']);
         if ($recorded) {
             echo json_encode(['success' => false, 'message' =>
                 'Already recorded: '
@@ -1120,7 +1254,8 @@ switch ($action) {
                 $flag = ['type' => 'moved', 'reason' => null,
                          'label' => 'Now in ' . (($a['children']['region'] ?? '') ?: 'another region')];
             }
-            $beneficiaries[] = ['aruga_id' => $id, 'name' => $name !== '' ? $name : $id, 'flag' => $flag];
+            $beneficiaries[] = ['aruga_id' => $id, 'name' => $name !== '' ? $name : $id, 'flag' => $flag,
+                                'current_status' => $currentStatus[$id] ?? null];
         }
 
         $months = $pg['months_covered'];
@@ -1136,6 +1271,9 @@ switch ($action) {
             'beneficiary_count'=> count($ids),
             'total_amount'     => count($ids) * $amount * count($months),
             'generated_at'     => $pg['created_at'],
+            'mode'             => $openRelease ? 'correct' : 'record',
+            'release_id'       => $openRelease['id'] ?? null,
+            'release_date'     => $openRelease['release_date'] ?? null,
             'beneficiaries'    => $beneficiaries,
         ]]);
         break;

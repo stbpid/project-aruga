@@ -586,7 +586,7 @@
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
           <button class="btn btn-secondary btn-sm" onclick="closeDsaReleaseModal()" style="display:flex;align-items:center;gap:0.3rem;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>Back</button>
           <div style="flex:1;min-width:0;">
-            <div class="page-title" style="margin:0;">Record DSA Release</div>
+            <div class="page-title" style="margin:0;" id="dsa-rel-title">Record DSA Release</div>
           </div>
           <div style="display:flex;gap:0.5rem;align-items:center;flex-shrink:0;">
             <button class="btn btn-primary btn-sm" id="dsa-save-btn" onclick="dsaSaveRelease()" style="display:flex;align-items:center;gap:0.3rem;"><span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save</button>
@@ -682,6 +682,38 @@
           </div>
           <div style="border-top:1px solid var(--gray-100);flex-shrink:0;">
             <button onclick="closeDsaReleaseView()" style="width:100%;padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 1.25rem 1.25rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reopen Release Modal -->
+      <div id="dsa-reopen-modal" class="payroll-type-modal">
+        <div class="payroll-type-modal-backdrop" onclick="closeDsaReopenModal()"></div>
+        <div class="payroll-type-modal-box" style="max-width:440px;max-height:92vh;display:flex;flex-direction:column;text-align:left;overflow:hidden;">
+
+          <!-- Fixed Header -->
+          <div style="padding:1.5rem 1.75rem 1rem;border-bottom:1px solid var(--gray-100);flex-shrink:0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="font-size:1rem;font-weight:800;color:var(--dark);">Reopen Release</div>
+                <div style="font-size:0.75rem;color:var(--gray-400);margin-top:0.1rem;" id="dsa-reopen-subtitle">Unlock this release to correct it</div>
+              </div>
+              <button onclick="closeDsaReopenModal()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;padding:0.25rem;border-radius:0.375rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-100)'" onmouseout="this.style.background='none'"><span class="material-symbols-outlined">close</span></button>
+            </div>
+          </div>
+
+          <!-- Scrollable Body -->
+          <div style="flex:1;overflow-y:auto;padding:1.25rem 1.75rem;scrollbar-width:thin;scrollbar-color:var(--gray-200) transparent;">
+            <label class="settings-label">Reason <span style="color:#dc2626;">*</span></label>
+            <textarea id="dsa-reopen-reason" class="settings-input" rows="3" maxlength="500" placeholder="Why is this release being reopened?" style="resize:vertical;min-height:5rem;font-family:inherit;" oninput="document.getElementById('dsa-reopen-error').style.display='none'"></textarea>
+            <div class="settings-hint" style="margin-top:0.3rem;">At least 5 characters. Saved in the audit log.</div>
+            <div id="dsa-reopen-error" style="display:none;color:#dc2626;font-size:0.75rem;font-weight:600;margin-top:0.5rem;"></div>
+          </div>
+
+          <!-- Fixed Footer -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gray-100);flex-shrink:0;">
+            <button onclick="closeDsaReopenModal()" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-600);border-radius:0 0 0 1.25rem;transition:background 0.15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='white'">Cancel</button>
+            <button onclick="dsaConfirmReopen()" id="dsa-reopen-btn" style="padding:0.9rem;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;background:var(--blue);color:white;border-radius:0 0 1.25rem 0;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-hover)'" onmouseout="this.style.background='var(--blue)'">Reopen</button>
           </div>
         </div>
       </div>
@@ -871,29 +903,6 @@
         </div>
         <div style="padding:0 1.75rem 1.5rem;">
           <button id="special-payroll-generate-btn" class="btn btn-primary" style="width:100%;justify-content:center;" onclick="generateSpecialPayroll()">Generate Payroll</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Edit Reopened Release Modal -->
-    <div id="dsa-edit-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);">
-      <div style="background:white;border-radius:0.75rem;width:min(48rem,94vw);max-height:90vh;overflow-y:auto;padding:1.5rem;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
-          <div>
-            <div style="font-size:1.05rem;font-weight:700;color:#111811;">Edit Reopened Release</div>
-            <div style="font-size:0.75rem;color:#6b7280;" id="dsa-edit-title"></div>
-          </div>
-          <button class="btn btn-ghost btn-sm" onclick="closeDsaEditPanel()"><span class="material-symbols-outlined">close</span></button>
-        </div>
-
-        <div style="font-size:0.7rem;color:#b45309;margin-bottom:0.75rem;">Change only the people who need correcting. Saving relocks this release and records the reason.</div>
-
-        <div id="dsa-edit-table" style="overflow-x:auto;margin-bottom:0.75rem;"></div>
-
-        <div id="dsa-edit-error" style="display:none;font-size:0.75rem;color:#dc2626;margin-bottom:0.75rem;"></div>
-        <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
-          <button class="btn btn-secondary btn-sm" onclick="closeDsaEditPanel()">Close without saving</button>
-          <button class="btn btn-primary btn-sm" id="dsa-edit-save-btn" onclick="dsaSaveCorrection()">Save &amp; Relock</button>
         </div>
       </div>
     </div>
@@ -3772,12 +3781,14 @@
           <span class="material-symbols-outlined" style="font-size:1.1rem;color:#16a34a;">verified</span>
           <span style="font-weight:800;color:var(--dark);">${escapeHtml(p.payroll_id)}</span>
           <span class="badge badge-blue">${p.payroll_type === 'special' ? 'Special Payroll' : 'Complete Payroll'}</span>
+          ${p.mode === 'correct' ? '<span class="badge" style="background:#fef3c7;color:#92400e;">Reopened for correction</span>' : ''}
         </div>
         <div style="font-size:0.8125rem;color:var(--gray-700);margin-top:0.5rem;">${escapeHtml(p.region)}</div>
         <div style="font-size:0.75rem;color:var(--gray-500);margin-top:0.15rem;">${dsaFormatMonthRange(p.months_covered)}</div>
         <div style="font-size:0.8125rem;color:var(--dark);margin-top:0.5rem;"><strong>${p.beneficiary_count.toLocaleString('en-PH')}</strong> beneficiaries &nbsp;·&nbsp; <strong>${peso(p.total_amount)}</strong></div>
+        ${p.mode === 'correct' ? `<div style="font-size:0.75rem;color:var(--gray-500);margin-top:0.35rem;">Released ${dsaFormatDate(p.release_date)} · current statuses will load for correction</div>` : ''}
       </div>
-      ${missed.length ? `
+      ${missed.length && p.mode !== 'correct' ? `
       <div style="border:1px solid #fde68a;background:#fffbeb;border-radius:0.75rem;padding:0.875rem 1.125rem;margin-top:0.75rem;font-size:0.75rem;color:#92400e;">
         <div style="font-weight:700;margin-bottom:0.25rem;">⚠ ${missed.length} ${missed.length === 1 ? 'person' : 'people'} changed since printing — already added to "Who did not receive it":</div>
         <ul style="margin:0;padding-left:1.1rem;">${missed.map(flagRow).join('')}</ul>
@@ -3871,8 +3882,17 @@
     regionSel.innerHTML = `<option value="${escapeHtml(p.region)}">${escapeHtml(p.region)}</option>`;
     regionSel.value = p.region;
     regionSel.onchange = null;
+    const correcting = p.mode === 'correct';
+    document.getElementById('dsa-rel-title').textContent = correcting ? 'Correct DSA Release' : 'Record DSA Release';
+    document.getElementById('dsa-save-btn').innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">save</span>' + (correcting ? 'Save &amp; Relock' : 'Save');
     document.getElementById('dsa-rel-payroll-id').value = p.payroll_id + (p.payroll_type === 'special' ? ' (Special Payroll)' : '');
-    document.getElementById('dsa-rel-date').value = new Date().toISOString().slice(0, 10);
+    // The payout date is fixed once recorded; corrections only change who received.
+    const dateInput = document.getElementById('dsa-rel-date');
+    dateInput.value = correcting ? p.release_date : new Date().toISOString().slice(0, 10);
+    dateInput.disabled = correcting;
+    dateInput.style.background = correcting ? 'var(--gray-50)' : '';
+    dateInput.style.color = correcting ? 'var(--gray-600)' : '';
+    dateInput.style.cursor = correcting ? 'not-allowed' : '';
     document.getElementById('dsa-rel-amount').value = p.amount_per_month;
     dsaRenderPayrollMonths();
 
@@ -3880,10 +3900,15 @@
     dsaRelRoster = p.beneficiaries.map(b => ({ aruga_id: b.aruga_id, name: b.name }));
     dsaRosterCount = dsaRelRoster.length;
 
-    // People whose records changed since printing start as "did not receive".
-    dsaResolved = p.beneficiaries
-      .filter(b => b.flag && b.flag.reason)
-      .map(b => ({ aruga_id: b.aruga_id, name: b.name, reason: b.flag.reason, note: b.flag.label }));
+    // Correcting: start from the release's current statuses.
+    // Recording: people whose records changed since printing start as "did not receive".
+    dsaResolved = correcting
+      ? p.beneficiaries
+          .filter(b => b.current_status && b.current_status !== 'paid')
+          .map(b => ({ aruga_id: b.aruga_id, name: b.name, reason: b.current_status }))
+      : p.beneficiaries
+          .filter(b => b.flag && b.flag.reason)
+          .map(b => ({ aruga_id: b.aruga_id, name: b.name, reason: b.flag.reason, note: b.flag.label }));
 
     document.getElementById('dsa-rel-exceptions').value = '';
     document.getElementById('dsa-rel-suggestions').style.display = 'none';
@@ -4037,19 +4062,18 @@
     if (!months.length) { err1.textContent = 'Select at least one month.'; err1.style.display = 'block'; return; }
     if (!document.getElementById('dsa-rel-date').value) { err1.textContent = 'Enter the payout date.'; err1.style.display = 'block'; return; }
 
-    openConfirmModal({
-      title: 'Save DSA Payout?',
-      message: `This will lock ${months.length} month(s) from further edits.`,
-      onConfirm: () => dsaSaveReleaseConfirmed(months)
-    });
+    openConfirmModal(dsaPayroll.mode === 'correct'
+      ? { title: 'Save Corrections?', message: 'This will update who received this payout and lock the release again.', onConfirm: () => dsaSaveReleaseConfirmed(months) }
+      : { title: 'Save DSA Payout?', message: `This will lock ${months.length} month(s) from further edits.`, onConfirm: () => dsaSaveReleaseConfirmed(months) });
   }
 
   async function dsaSaveReleaseConfirmed(months) {
     const btn = document.getElementById('dsa-save-btn');
     const err = document.getElementById('dsa-step2-error');
+    const correcting = dsaPayroll.mode === 'correct';
     btn.disabled = true; btn.textContent = 'Saving…';
     try {
-      const res = await authFetch('/api/payroll-router.php?action=dsa-record-release', {
+      const res = await authFetch('/api/payroll-router.php?action=' + (correcting ? 'dsa-correct-by-payroll' : 'dsa-record-release'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -4069,9 +4093,9 @@
       await loadDsaGrid();
       await loadDsaReleases();
       await loadDsaRegionSummary();
-      alert(`Release saved. ${json.data.paid_count} paid, ${json.data.missed_count} not paid. Total ₱${json.data.total_amount.toLocaleString()}.`);
+      alert(`${correcting ? 'Corrections saved and release locked' : 'Release saved'}. ${json.data.paid_count} paid, ${json.data.missed_count} not paid. Total ₱${json.data.total_amount.toLocaleString()}.`);
     } finally {
-      btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">save</span>Save';
+      btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">save</span>' + (correcting ? 'Save &amp; Relock' : 'Save');
     }
   }
 
@@ -4099,120 +4123,66 @@
           <td style="text-align:right;white-space:nowrap;">₱${Number(r.amount_per_month || 0).toLocaleString('en-PH')}</td>
           <td><span style="font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:999px;white-space:nowrap;background:${r.is_locked ? '#fee2e2' : '#dcfce7'};color:${r.is_locked ? '#991b1b' : '#166534'};">${r.is_locked ? 'Locked' : 'Open'}</span></td>
           <td class="col-action-center" style="white-space:nowrap;">${isAdmin
-            ? (r.is_locked
-                ? `<button class="btn btn-ghost btn-sm" onclick="dsaReopen('${r.id}')">Reopen</button>`
-                : `<button class="btn btn-ghost btn-sm" onclick="openDsaEditPanel('${r.id}')">Edit</button>`)
+            ? (!r.payroll_id
+                ? '<span style="color:var(--gray-400);">—</span>'
+                : r.is_locked
+                  ? `<button class="btn btn-ghost btn-sm" onclick="dsaReopen('${r.id}', '${escapeJs(r.payroll_id)}')">Reopen</button>`
+                  : `<button class="btn btn-ghost btn-sm" onclick="dsaCorrectByPayroll('${escapeJs(r.payroll_id)}')">Correct</button>`)
             : ''}</td>
         </tr>`).join('')
       : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No releases recorded yet.</td></tr>';
   }
 
-  async function dsaReopen(releaseId) {
-    const reason = prompt('Why is this release being reopened? (required, min 5 characters)');
-    if (reason === null) return;
-    const res = await authFetch('/api/payroll-router.php?action=dsa-reopen', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ release_id: releaseId, reason: reason })
-    });
-    const json = await res.json();
-    if (!json.success) { alert(json.message || 'Failed.'); return; }
-    await loadDsaReleases();
-    await openDsaEditPanel(releaseId);
+  let dsaReopenReleaseId = null;
+  let dsaReopenPayrollId = null;
+
+  // Opens the Payroll ID window with the ID filled in and verified.
+  function dsaCorrectByPayroll(payrollId) {
+    openDsaVerifyModal();
+    document.getElementById('dsa-verify-input').value = payrollId;
+    dsaVerifyPayroll();
   }
 
-  // ── Edit a reopened release, then relock ─────────────────────────
-  let dsaEditReleaseId = null;
-  let dsaEditData = null;       // { release, beneficiaries }
-  let dsaEditChanges = {};      // payment_id -> new status
-
-  const DSA_STATUS_LABELS = { paid: 'Paid', not_claimed: 'Did not claim', deceased: 'Deceased', transferred: 'Moved away' };
-
-  async function openDsaEditPanel(releaseId) {
-    const res = await authFetch('/api/payroll-router.php?action=dsa-release-detail&release_id=' + encodeURIComponent(releaseId));
-    const json = await res.json();
-    if (!json.success) { alert(json.message || 'Failed to load release.'); return; }
-
-    dsaEditReleaseId = releaseId;
-    dsaEditData = json.data;
-    dsaEditChanges = {};
-
-    const rel = dsaEditData.release;
-    document.getElementById('dsa-edit-title').textContent =
-      `Editing release — ${rel.region_name} — ${dsaFormatMonthRange(rel.months_covered)}`;
-
-    dsaRenderEditTable();
-    document.getElementById('dsa-edit-error').style.display = 'none';
-    document.getElementById('dsa-edit-modal').style.display = 'flex';
+  function dsaReopen(releaseId, label) {
+    dsaReopenReleaseId = releaseId;
+    dsaReopenPayrollId = label;
+    document.getElementById('dsa-reopen-subtitle').textContent = label ? 'Unlock ' + label + ' to correct it' : 'Unlock this release to correct it';
+    document.getElementById('dsa-reopen-reason').value = '';
+    document.getElementById('dsa-reopen-error').style.display = 'none';
+    document.getElementById('dsa-reopen-modal').classList.add('open');
+    setTimeout(() => document.getElementById('dsa-reopen-reason').focus(), 50);
   }
 
-  function closeDsaEditPanel() {
-    // The release stays open (is_locked = false) until Save & Relock is
-    // pressed, so closing without saving is safe — nothing is lost, and an
-    // admin can come back to it later from Release History.
-    document.getElementById('dsa-edit-modal').style.display = 'none';
-    dsaEditReleaseId = null; dsaEditData = null; dsaEditChanges = {};
+  function closeDsaReopenModal() {
+    document.getElementById('dsa-reopen-modal').classList.remove('open');
   }
 
-  function dsaRenderEditTable() {
-    const months = dsaEditData.release.months_covered || [];
-    const thead = `<tr>
-      <th style="text-align:left;padding:0.35rem;">Beneficiary</th>
-      ${months.map(m => `<th style="padding:0.35rem;">${m}</th>`).join('')}
-    </tr>`;
-    const rows = dsaEditData.beneficiaries.map(b => {
-      const cells = months.map(m => {
-        const cell = b.months[m];
-        if (!cell) return '<td></td>';
-        const current = dsaEditChanges[cell.payment_id] ?? cell.status;
-        const opts = Object.keys(DSA_STATUS_LABELS).map(s =>
-          `<option value="${s}" ${s === current ? 'selected' : ''}>${DSA_STATUS_LABELS[s]}</option>`).join('');
-        return `<td style="padding:0.35rem;"><select class="dsa-reason-select" onchange="dsaEditChanges['${cell.payment_id}']=this.value;" style="font-size:0.7rem;padding:0.2rem;border:1px solid #d1d5db;border-radius:0.25rem;">${opts}</select></td>`;
-      }).join('');
-      return `<tr style="border-bottom:1px solid #f3f4f6;">
-        <td style="padding:0.35rem;"><strong style="text-transform:uppercase;font-size:0.75rem;">${b.name}</strong><br><span style="font-size:0.65rem;color:#9ca3af;">${b.aruga_id}</span></td>
-        ${cells}
-      </tr>`;
-    }).join('');
-    document.getElementById('dsa-edit-table').innerHTML =
-      `<table style="width:100%;border-collapse:collapse;font-size:0.75rem;"><thead>${thead}</thead><tbody>${rows}</tbody></table>`;
-  }
-
-  async function dsaSaveCorrection() {
-    const err = document.getElementById('dsa-edit-error');
-    const changeList = Object.entries(dsaEditChanges).map(([payment_id, status]) => ({ payment_id, status }));
-    if (!changeList.length) {
-      err.textContent = 'No changes made. Adjust a status before saving, or close without saving.';
-      err.style.display = 'block';
-      return;
-    }
-    const reason = prompt('Why is this release being corrected? (required, min 5 characters)');
-    if (reason === null) return;
-
-    const btn = document.getElementById('dsa-edit-save-btn');
-    btn.disabled = true; btn.textContent = 'Saving…';
-    err.style.display = 'none';
+  async function dsaConfirmReopen() {
+    const reason = document.getElementById('dsa-reopen-reason').value.trim();
+    const errEl = document.getElementById('dsa-reopen-error');
+    if (reason.length < 5) { errEl.textContent = 'Enter a reason of at least 5 characters.'; errEl.style.display = ''; return; }
+    const btn = document.getElementById('dsa-reopen-btn');
+    btn.disabled = true; btn.textContent = 'Reopening…';
     try {
-      const res = await authFetch('/api/payroll-router.php?action=dsa-correct-release', {
+      const res = await authFetch('/api/payroll-router.php?action=dsa-reopen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ release_id: dsaEditReleaseId, reason: reason, changes: changeList })
+        body: JSON.stringify({ release_id: dsaReopenReleaseId, reason: reason })
       });
       const json = await res.json();
-      if (!json.success) {
-        err.textContent = json.message || 'Failed to save.';
-        err.style.display = 'block';
-        return;
-      }
-      closeDsaEditPanel();
-      await loadDsaGrid();
+      if (!json.success) { errEl.textContent = json.message || 'Could not reopen this release.'; errEl.style.display = ''; return; }
+      closeDsaReopenModal();
       await loadDsaReleases();
-      await loadDsaRegionSummary();
-      alert(`Saved ${json.data.applied} change(s). Release is locked again.`);
+      dsaCorrectByPayroll(dsaReopenPayrollId);
+    } catch (e) {
+      errEl.textContent = 'Could not reopen this release. Please try again.'; errEl.style.display = '';
     } finally {
-      btn.disabled = false; btn.textContent = 'Save & Relock';
+      btn.disabled = false; btn.textContent = 'Reopen';
     }
   }
+
+  // Payment status labels (release breakdown window)
+  const DSA_STATUS_LABELS = { paid: 'Paid', not_claimed: 'Did not claim', deceased: 'Deceased', transferred: 'Moved away' };
 
   // ── Regional DSA status (admin/central only) ─────────────────────
   // ── DSA Status drill-down ────────────────────────────────────────
