@@ -65,6 +65,41 @@ function loadPayrollForRelease(string $payrollId): array {
     return [$pg, null];
 }
 
+/**
+ * Months already recorded (any status) for any of the given beneficiaries.
+ * dsa_payments allows one row per beneficiary per month, so any existing
+ * row means that month can't be paid again for that person.
+ * Returns [] when clear, else [['month' => '2026-10', 'count' => 12], ...].
+ */
+function payrollRecordedMonths(array $ids, array $months): array {
+    if (empty($ids) || empty($months)) return [];
+    $set = [];
+    foreach ($ids as $id) $set[strtoupper(trim((string)$id))] = true;
+    $list = implode(',', array_map(fn($m) => '"' . $m . '"', $months));
+    $rows = supabaseFetchAll('dsa_payments?select=aruga_id,period_month'
+        . '&period_month=in.(' . urlencode($list) . ')&order=id.asc');
+    $byMonth = [];
+    foreach ($rows as $r) {
+        $id = strtoupper(trim($r['aruga_id'] ?? ''));
+        if (isset($set[$id])) $byMonth[$r['period_month']][$id] = true;
+    }
+    ksort($byMonth);
+    $out = [];
+    foreach ($byMonth as $m => $who) $out[] = ['month' => $m, 'count' => count($who)];
+    return $out;
+}
+
+/** "October 2026 (12 beneficiaries) and November 2026 (3 of 15 beneficiaries)" */
+function payrollRecordedSummary(array $recorded, ?int $total = null): string {
+    $parts = array_map(function ($r) use ($total) {
+        $n = $r['count'];
+        return date('F Y', strtotime($r['month'] . '-01'))
+            . ' (' . $n . ($total !== null ? ' of ' . $total : '') . ' beneficiar' . ($n === 1 && $total === null ? 'y' : 'ies') . ')';
+    }, $recorded);
+    $last = array_pop($parts);
+    return $parts ? implode(', ', $parts) . ' and ' . $last : $last;
+}
+
 $action = $_GET['action'] ?? '';
 
 switch ($action) {
@@ -911,6 +946,15 @@ switch ($action) {
 
         $ids = payrollBeneficiaryIds($pg);
 
+        // Reject now rather than at save if any month is already recorded.
+        $recorded = payrollRecordedMonths($ids, $pg['months_covered']);
+        if ($recorded) {
+            echo json_encode(['success' => false, 'message' =>
+                'This payroll can\'t be recorded. Already recorded: '
+                . payrollRecordedSummary($recorded, count($ids))
+                . '. Generate a payroll for the unpaid months instead.']); exit;
+        }
+
         // Current state of everyone on the payroll (deleted rows included,
         // so a removed record can be reported rather than silently missing).
         $byId = [];
@@ -997,6 +1041,15 @@ switch ($action) {
         $benIds = array_keys($benIds);
         if (count($benIds) > 20000) {
             echo json_encode(['success' => false, 'message' => 'Payroll is too large.']); exit;
+        }
+
+        // Don't issue an ID (and so don't print) a payroll that could never be recorded.
+        $recorded = payrollRecordedMonths($benIds, $monthsCovered);
+        if ($recorded) {
+            echo json_encode(['success' => false, 'message' =>
+                'Already recorded for people on this list: '
+                . payrollRecordedSummary($recorded)
+                . '. Choose a period without recorded months.']); exit;
         }
 
         $rpc = supabaseRPC('create_payroll_generation', [
