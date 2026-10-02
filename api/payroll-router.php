@@ -795,6 +795,45 @@ switch ($action) {
     }
 
     // ================================================================
+    // action=dsa-relock — admin locks an open release again, audited
+    // ================================================================
+    case 'dsa-relock': {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']); exit;
+        }
+        requireRole(['admin']);
+
+        $body      = json_decode(file_get_contents('php://input'), true) ?? [];
+        $releaseId = trim($body['release_id'] ?? '');
+        if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $releaseId)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid release id.']); exit;
+        }
+        $cur = supabaseRequest('GET', 'dsa_releases?select=id,is_locked&id=eq.' . urlencode($releaseId) . '&limit=1');
+        if (!$cur['success'] || empty($cur['data'])) {
+            echo json_encode(['success' => false, 'message' => 'Release not found.']); exit;
+        }
+        if ($cur['data'][0]['is_locked']) {
+            echo json_encode(['success' => false, 'message' => 'Release is already locked.']); exit;
+        }
+        $audit = supabaseRequest('POST', 'dsa_release_audit', [
+            'release_id'   => $releaseId,
+            'action'       => 'relock',
+            'reason'       => 'Locked manually from Release History.',
+            'performed_by' => $authInterviewer['id'],
+        ]);
+        if (!$audit['success']) {
+            echo json_encode(['success' => false, 'message' => 'Failed to write audit record.']); exit;
+        }
+        $upd = supabaseRequest('PATCH', 'dsa_releases?id=eq.' . urlencode($releaseId), ['is_locked' => true]);
+        if (!$upd['success']) {
+            echo json_encode(['success' => false, 'message' => 'Failed to lock release.']); exit;
+        }
+        echo json_encode(['success' => true, 'message' => 'Release locked.']);
+        break;
+    }
+
+    // ================================================================
     // action=dsa-release-detail — a reopened release's own rows, for editing
     // ================================================================
     case 'dsa-release-detail': {

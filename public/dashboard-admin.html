@@ -4117,11 +4117,11 @@
           <td style="text-align:right;white-space:nowrap;">₱${Number(r.amount_per_month || 0).toLocaleString('en-PH')}</td>
           <td><span style="font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:999px;white-space:nowrap;background:${r.is_locked ? '#fee2e2' : '#dcfce7'};color:${r.is_locked ? '#991b1b' : '#166534'};">${r.is_locked ? 'Locked' : 'Open'}</span></td>
           <td class="col-action-center" style="white-space:nowrap;">${isAdmin
-            ? (!r.payroll_id
+            ? (r.is_locked && !r.payroll_id
                 ? '<span style="color:var(--gray-400);">—</span>'
-                : r.is_locked
-                  ? `<button class="btn btn-ghost btn-sm" onclick="dsaReopen('${r.id}', '${escapeJs(r.payroll_id)}')">Reopen</button>`
-                  : `<button class="btn btn-ghost btn-sm table-action-btn" onclick="dsaCorrectByPayroll('${escapeJs(r.payroll_id)}')" title="Correct release"><span class="material-symbols-outlined" style="font-size:0.875rem;">edit</span></button>`)
+                : `<button type="button" role="switch" aria-checked="${r.is_locked}" class="dsa-lock-toggle${r.is_locked ? ' on' : ''}"
+                    title="${r.is_locked ? 'Locked — switch to reopen' : 'Open — switch to lock'}"
+                    onclick="${r.is_locked ? `dsaReopen('${r.id}', '${escapeJs(r.payroll_id)}')` : `dsaRelock('${r.id}')`}"></button>`)
             : ''}</td>
         </tr>`).join('')
       : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No releases recorded yet.</td></tr>';
@@ -4130,17 +4130,25 @@
   let dsaReopenReleaseId = null;
   let dsaReopenPayrollId = null;
 
-  // The Payroll ID is already known here, so verify it in the background and
-  // go straight to the correction screen — no Payroll ID window.
-  async function dsaCorrectByPayroll(payrollId) {
-    try {
-      const json = await (await authFetch('/api/payroll-router.php?action=dsa-verify-payroll&payroll_id=' + encodeURIComponent(payrollId))).json();
-      if (!json.success) { showGlobalToast(json.message || 'This release could not be opened for correction.', 'error'); return; }
-      dsaPayroll = json.data;
-      openDsaReleaseModal();
-    } catch (e) {
-      showGlobalToast('This release could not be opened. Please try again.', 'error');
-    }
+  function dsaRelock(releaseId) {
+    openConfirmModal({
+      title: 'Lock Release?',
+      message: 'This release will be locked again and can no longer be corrected until it is reopened.',
+      onConfirm: async () => {
+        try {
+          const json = await (await authFetch('/api/payroll-router.php?action=dsa-relock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ release_id: releaseId })
+          })).json();
+          if (!json.success) { showGlobalToast(json.message || 'Could not lock this release.', 'error'); return; }
+          showGlobalToast('Release locked.', 'success');
+          await loadDsaReleases();
+        } catch (e) {
+          showGlobalToast('Could not lock this release. Please try again.', 'error');
+        }
+      }
+    });
   }
 
   function dsaReopen(releaseId, label) {
@@ -4173,7 +4181,7 @@
       if (!json.success) { errEl.textContent = json.message || 'Could not reopen this release.'; errEl.style.display = ''; return; }
       closeDsaReopenModal();
       await loadDsaReleases();
-      dsaCorrectByPayroll(dsaReopenPayrollId);
+      showGlobalToast(`${dsaReopenPayrollId} is open. Enter its Payroll ID in Manage DSA Payout to correct it.`, 'success');
     } catch (e) {
       errEl.textContent = 'Could not reopen this release. Please try again.'; errEl.style.display = '';
     } finally {
