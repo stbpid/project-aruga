@@ -737,7 +737,23 @@ switch ($action) {
         if (!$res['success']) {
             echo json_encode(['success' => false, 'message' => 'Failed to fetch releases']); exit;
         }
-        echo json_encode(['success' => true, 'data' => $res['data'] ?? []]);
+        $releases = $res['data'] ?? [];
+
+        // Total released = paid beneficiary-months × amount per month.
+        // Release ids are queried in chunks to keep the URL short.
+        $paidCount = [];
+        foreach (array_chunk(array_column($releases, 'id'), 100) as $chunk) {
+            foreach (supabaseFetchAll('dsa_payments?select=release_id&status=eq.paid'
+                . '&release_id=in.(' . urlencode(implode(',', $chunk)) . ')&order=id.asc') as $p) {
+                $paidCount[$p['release_id']] = ($paidCount[$p['release_id']] ?? 0) + 1;
+            }
+        }
+        foreach ($releases as &$r) {
+            $r['total_released'] = ($paidCount[$r['id']] ?? 0) * (int)$r['amount_per_month'];
+        }
+        unset($r);
+
+        echo json_encode(['success' => true, 'data' => $releases]);
         break;
     }
 
