@@ -568,12 +568,11 @@
                     <th style="white-space:nowrap;">Region</th>
                     <th style="white-space:nowrap;">Months Covered</th>
                     <th style="white-space:nowrap;text-align:right;">Amount / Month</th>
-                    <th style="white-space:nowrap;">Status</th>
                     <th class="col-action-center" style="white-space:nowrap;">Action</th>
                   </tr>
                 </thead>
                 <tbody id="dsa-releases-list">
-                  <tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>&nbsp;Loading releases…</td></tr>
+                  <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>&nbsp;Loading releases…</td></tr>
                 </tbody>
               </table>
             </div>
@@ -2240,6 +2239,24 @@
         <div class="page-title" style="margin:0;">AI Agent</div>
         <div class="page-subtitle" style="margin:0;">Chat with the Project Aruga assistant.</div>
       </div>
+      <!-- Chat UI is visual only for now: messages stay on screen and are not sent anywhere. -->
+      <div class="card ai-chat" id="ai-agent-box" style="margin-top:1.5rem;">
+        <div class="ai-chat-header">
+          <div class="ai-chat-avatar"><span class="material-symbols-outlined">smart_toy</span></div>
+          <div>
+            <div class="ai-chat-name">Aruga Assistant</div>
+            <div class="ai-chat-status">Online</div>
+          </div>
+        </div>
+        <div class="ai-chat-body" id="ai-chat-body">
+          <div class="ai-chat-day">Today</div>
+        </div>
+        <div class="ai-chat-input">
+          <textarea id="ai-chat-text" rows="1" placeholder="Ask something…" aria-label="Message"
+            oninput="aiChatAutosize(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiChatSend();}"></textarea>
+          <button class="ai-chat-send" id="ai-chat-send" onclick="aiChatSend()" title="Send" disabled><span class="material-symbols-outlined">send</span></button>
+        </div>
+      </div>
     </div><!-- /view-ai-agent -->
 
     <!-- Report Settings Modal -->
@@ -3661,7 +3678,7 @@
         <span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>
         &nbsp;Loading DSA records…
       </td></tr>`;
-    document.getElementById('dsa-releases-list').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>&nbsp;Loading releases…</td></tr>';
+    document.getElementById('dsa-releases-list').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>&nbsp;Loading releases…</td></tr>';
     document.getElementById('dsa-region-summary-list').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;"><span class="material-symbols-outlined" style="font-size:1.1rem;vertical-align:middle;animation:spin 1s linear infinite;">progress_activity</span>&nbsp;Loading regions…</td></tr>';
 
     const rSel = document.getElementById('dsa-region');
@@ -4110,21 +4127,35 @@
     const isAdmin = (sessionStorage.getItem('dashboard_role') === 'admin');
     document.getElementById('dsa-releases-list').innerHTML = json.data.length
       ? json.data.map(r => `<tr class="table-row-hover">
-          <td style="font-weight:600;color:#111827;white-space:nowrap;">${dsaFormatDate(r.release_date)}</td>
+          <td style="white-space:nowrap;">${dsaFormatDate(r.release_date)}</td>
           <td style="font-weight:700;color:#111827;white-space:nowrap;">${r.payroll_id ? escapeHtml(r.payroll_id) : '<span style="color:var(--gray-400);font-weight:400;">—</span>'}</td>
           <td>${r.region_name}</td>
           <td style="color:#6b7280;">${dsaFormatMonthRange(r.months_covered)}</td>
           <td style="text-align:right;white-space:nowrap;">₱${Number(r.amount_per_month || 0).toLocaleString('en-PH')}</td>
-          <td><span style="font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:999px;white-space:nowrap;background:${r.is_locked ? '#fee2e2' : '#dcfce7'};color:${r.is_locked ? '#991b1b' : '#166534'};">${r.is_locked ? 'Locked' : 'Open'}</span></td>
-          <td class="col-action-center" style="white-space:nowrap;">${isAdmin
-            ? (r.is_locked && !r.payroll_id
-                ? '<span style="color:var(--gray-400);">—</span>'
-                : `<button type="button" role="switch" aria-checked="${r.is_locked}" class="dsa-lock-toggle${r.is_locked ? ' on' : ''}"
-                    title="${r.is_locked ? 'Locked — switch to reopen' : 'Open — switch to lock'}"
-                    onclick="${r.is_locked ? `dsaReopen('${r.id}', '${escapeJs(r.payroll_id)}')` : `dsaRelock('${r.id}')`}"></button>`)
-            : ''}</td>
+          <td class="col-action-center" style="white-space:nowrap;">${dsaLockSwitch(r, isAdmin)}</td>
         </tr>`).join('')
-      : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No releases recorded yet.</td></tr>';
+      : '<tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No releases recorded yet.</td></tr>';
+  }
+
+  function dsaLockSwitch(r, isAdmin) {
+    const canToggle = isAdmin && (!r.is_locked || !!r.payroll_id);
+    const action = r.is_locked ? `dsaReopen('${r.id}', '${escapeJs(r.payroll_id || '')}')` : `dsaRelock('${r.id}')`;
+    const title = !canToggle ? (r.is_locked ? 'Locked' : 'Open')
+      : r.is_locked ? 'Locked — switch to reopen' : 'Open — switch to lock';
+    return `<button type="button" role="switch" aria-checked="${r.is_locked}" data-release-id="${r.id}" class="dsa-lock-toggle${r.is_locked ? ' on' : ''}"
+      title="${title}" ${canToggle ? `onclick="${action}"` : 'disabled'}><span class="dsa-lock-label">${r.is_locked ? 'Locked' : 'Open'}</span></button>`;
+  }
+
+  // Slides a release's switch to its new state, then resolves once the
+  // motion has finished so the table can be redrawn without cutting it off.
+  function dsaAnimateSwitch(releaseId, locked) {
+    const sw = document.querySelector(`.dsa-lock-toggle[data-release-id="${releaseId}"]`);
+    if (!sw) return Promise.resolve();
+    sw.classList.toggle('on', locked);
+    sw.setAttribute('aria-checked', String(locked));
+    const label = sw.querySelector('.dsa-lock-label');
+    if (label) label.textContent = locked ? 'Locked' : 'Open';
+    return new Promise(r => setTimeout(r, 320));
   }
 
   let dsaReopenReleaseId = null;
@@ -4142,6 +4173,7 @@
             body: JSON.stringify({ release_id: releaseId })
           })).json();
           if (!json.success) { showGlobalToast(json.message || 'Could not lock this release.', 'error'); return; }
+          await dsaAnimateSwitch(releaseId, true);
           showGlobalToast('Release locked.', 'success');
           await loadDsaReleases();
         } catch (e) {
@@ -4180,6 +4212,7 @@
       const json = await res.json();
       if (!json.success) { errEl.textContent = json.message || 'Could not reopen this release.'; errEl.style.display = ''; return; }
       closeDsaReopenModal();
+      await dsaAnimateSwitch(dsaReopenReleaseId, false);
       await loadDsaReleases();
       showGlobalToast(`${dsaReopenPayrollId} is open. Enter its Payroll ID in Manage DSA Payout to correct it.`, 'success');
     } catch (e) {
@@ -4188,6 +4221,41 @@
       btn.disabled = false; btn.textContent = 'Reopen';
     }
   }
+
+  // ── AI Agent chat (visual only) ──────────────────────────────────
+  function aiChatTime() {
+    return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  }
+
+  function aiChatAddMessage(text, who) {
+    const body = document.getElementById('ai-chat-body');
+    const msg = document.createElement('div');
+    msg.className = 'ai-msg ' + who;
+    msg.innerHTML = (who === 'bot' ? '<div class="ai-chat-avatar"><span class="material-symbols-outlined">smart_toy</span></div>' : '')
+      + `<div><div class="ai-bubble">${escapeHtml(text)}</div><div class="ai-time">${aiChatTime()}</div></div>`;
+    body.appendChild(msg);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function aiChatAutosize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 112) + 'px';
+    document.getElementById('ai-chat-send').disabled = !el.value.trim();
+  }
+
+  function aiChatSend() {
+    const input = document.getElementById('ai-chat-text');
+    const text = input.value.trim();
+    if (!text) return;
+    aiChatAddMessage(text, 'user');
+    input.value = '';
+    aiChatAutosize(input);
+    input.focus();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('ai-chat-body')) aiChatAddMessage('Good day! What can I do for you today?', 'bot');
+  });
 
   // Payment status labels (release breakdown window)
   const DSA_STATUS_LABELS = { paid: 'Paid', not_claimed: 'Did not claim', deceased: 'Deceased', transferred: 'Moved away' };
