@@ -2242,7 +2242,7 @@
       <!-- Chat UI is visual only for now: messages stay on screen and are not sent anywhere. -->
       <div class="card ai-chat" id="ai-agent-box" style="margin-top:1.5rem;">
         <div class="ai-chat-header">
-          <div class="ai-chat-avatar"><span class="material-symbols-outlined">smart_toy</span></div>
+          <div class="ai-chat-avatar"><img src="/images/logo.webp" alt="Aruga"></div>
           <div>
             <div class="ai-chat-name">Aruga Assistant</div>
             <div class="ai-chat-status">Online</div>
@@ -4231,7 +4231,7 @@
     const body = document.getElementById('ai-chat-body');
     const msg = document.createElement('div');
     msg.className = 'ai-msg ' + who;
-    msg.innerHTML = (who === 'bot' ? '<div class="ai-chat-avatar"><span class="material-symbols-outlined">smart_toy</span></div>' : '')
+    msg.innerHTML = (who === 'bot' ? '<div class="ai-chat-avatar"><img src="/images/logo.webp" alt="Aruga"></div>' : '')
       + `<div><div class="ai-bubble">${escapeHtml(text)}</div><div class="ai-time">${aiChatTime()}</div></div>`;
     body.appendChild(msg);
     body.scrollTop = body.scrollHeight;
@@ -4240,6 +4240,7 @@
   function aiChatAutosize(el) {
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 112) + 'px';
+    el.style.overflowY = el.scrollHeight > 112 ? 'auto' : 'hidden';
     document.getElementById('ai-chat-send').disabled = !el.value.trim();
   }
 

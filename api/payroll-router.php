@@ -65,8 +65,9 @@ function loadPayrollForRelease(string $payrollId, bool $allowOpen = false): arra
     if (!empty($rel['data'])) {
         $release = $rel['data'][0];
         if (!$release['is_locked'] && $allowOpen) return [$pg, null, $release];
-        return [null, 'Already recorded on ' . date('F j, Y', strtotime($release['release_date']))
-            . ($release['is_locked'] ? '. Ask Admin to reopen it.' : '.'), null];
+        return [null, $release['is_locked']
+            ? 'Payout already recorded and locked. To make changes, ask an admin to reopen it.'
+            : 'Payout already recorded on ' . date('F j, Y', strtotime($release['release_date'])) . '.', null];
     }
     return [$pg, null, null];
 }
