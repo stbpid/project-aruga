@@ -86,112 +86,79 @@ function pretestRequireSession() {
     return [$sessionId, $interviewerId, $rpc['data']];
 }
 
-function pretestSafe($arr, $key, $default = null) {
-    return (is_array($arr) && isset($arr[$key]) && $arr[$key] !== '' && $arr[$key] !== null) ? $arr[$key] : $default;
-}
+// The v2 form's region list (docs/v2-profiling-preview.html, REGIONS) → the
+// region codes used in PRETEST IDs. Exact match, so "Region VIII" can never be
+// read as "Region VII".
+const PRETEST_V2_REGIONS = [
+    'NCR'                             => 'NCR',
+    'CAR'                             => 'CAR',
+    'Region I (Ilocos)'               => 'R1',
+    'Region II (Cagayan Valley)'      => 'R2',
+    'Region III (Central Luzon)'      => 'R3',
+    'Region IV-A (CALABARZON)'        => 'R4A',
+    'MIMAROPA'                        => 'R4B',
+    'Region V (Bicol)'                => 'R5',
+    'Region VI (Western Visayas)'     => 'R6',
+    'NIR (Negros Island Region)'      => 'NIR',
+    'Region VII (Central Visayas)'    => 'R7',
+    'Region VIII (Eastern Visayas)'   => 'R8',
+    'Region IX (Zamboanga Peninsula)' => 'R9',
+    'Region X (Northern Mindanao)'    => 'R10',
+    'Region XI (Davao)'               => 'R11',
+    'Region XII (SOCCSKSARGEN)'       => 'R12',
+    'Region XIII (Caraga)'            => 'R13',
+    'BARMM'                           => 'BARMM',
+];
 
-function pretestBool($arr, $key) {
-    return (bool)(is_array($arr) ? ($arr[$key] ?? false) : false);
-}
-
-function pretestFloat($arr, $key) {
-    $v = is_array($arr) ? ($arr[$key] ?? 0) : 0;
-    return is_numeric($v) ? (float)$v : 0.0;
-}
-
-function pretestSanitizeArray($value, array $allowed, $fieldName) {
-    if (!is_array($value)) return [];
-    if (count($value) > 20) {
-        sendResponse(false, "Too many values for {$fieldName}.", null, 400);
-    }
-    foreach ($value as $item) {
-        if (!is_string($item) || !in_array($item, $allowed, true)) {
-            sendResponse(false, "Invalid value for {$fieldName}.", null, 400);
-        }
-    }
-    return array_values($value);
-}
-
-// Same mapping as the live submit-assessment, so PRETEST IDs use the same region codes.
-function pretestRegionCode($region) {
-    if (!$region) return 'XX';
-    $map = [
-        'national capital' => 'NCR', 'ncr' => 'NCR',
-        'cordillera' => 'CAR',       'car' => 'CAR',
-        'bangsamoro' => 'BARMM',     'barmm' => 'BARMM',
-        'region i '  => 'R1',  'region 1'  => 'R1',
-        'region ii ' => 'R2',  'region 2'  => 'R2',
-        'region iii' => 'R3',  'region 3'  => 'R3',
-        'region iv-a'=> 'R4A', 'calabarzon'=> 'R4A',
-        'region iv-b'=> 'R4B', 'mimaropa'  => 'R4B',
-        'region iv'  => 'R4',  'region 4'  => 'R4',
-        'region v '  => 'R5',  'region 5'  => 'R5',  'bicol' => 'R5',
-        'region vi ' => 'R6',  'region 6'  => 'R6',
-        'region vii' => 'R7',  'region 7'  => 'R7',
-        'region viii'=> 'R8',  'region 8'  => 'R8',
-        'region ix ' => 'R9',  'region 9'  => 'R9',
-        'region x '  => 'R10', 'region 10' => 'R10',
-        'region xi ' => 'R11', 'region 11' => 'R11',
-        'region xii' => 'R12', 'region 12' => 'R12',
-        'caraga'     => 'R13', 'region xiii'=>'R13', 'region 13' => 'R13',
-    ];
-    $lower = strtolower(trim($region));
-    foreach ($map as $pattern => $code) {
-        if (strpos($lower, $pattern) !== false) return $code;
-    }
-    return 'XX';
-}
+// v2 answer keys are the pretest.v2_profiles column names: s2_1, s4b_10,
+// s6_2a, s2_5_region, s6_5_spec, s13_functional_notes, ...
+const PRETEST_ANSWER_KEY_RE = '/^s[0-9]{1,2}[a-z]?_[a-z0-9_]{1,40}$/';
+const PRETEST_ARRAY_KEYS    = ['s3_types'];
 
 /**
- * Server-side checks of the required answers. The app checks these too, but
- * the server cannot trust the device. Returns a list of problems (empty = OK).
+ * Checks the v2 answers. The app checks every question too, but the server
+ * cannot trust the device, so the answer shape and the key identifying answers
+ * are checked here. Returns [cleanAnswers, problems] (problems empty = OK).
  */
-function pretestValidate(array $in) {
+function pretestValidateAnswers($answers) {
     $errors = [];
-    $nameRe = "/^[A-Za-zÑñ\\s\\-']+$/u";
+    $clean  = [];
 
-    $resp = $in['respondent'] ?? [];
-    $respName = trim((string)($resp['full_name'] ?? ''));
-    if (mb_strlen($respName) < 2 || mb_strlen($respName) > 255 || !preg_match($nameRe, $respName)) $errors[] = 'respondent.full_name';
-    if (!pretestSafe($resp, 'relationship_to_child')) $errors[] = 'respondent.relationship_to_child';
-
-    $pq = $in['pre_qualification'] ?? [];
-    if (!empty($pq['is_4ps_member']) && !preg_match('/^[A-Za-z0-9]{13,18}$/', (string)($pq['household_id'] ?? ''))) {
-        $errors[] = 'pre_qualification.household_id';
+    if (!is_array($answers) || count($answers) > 250) {
+        return [[], ['answers']];
     }
 
-    $child = $in['child'] ?? [];
-    foreach (['first_name', 'last_name'] as $k) {
-        $v = trim((string)($child[$k] ?? ''));
-        if (mb_strlen($v) < 2 || mb_strlen($v) > 100 || !preg_match($nameRe, $v)) $errors[] = "child.$k";
-    }
-    foreach (['region', 'province', 'city_municipality', 'barangay'] as $k) {
-        if (!pretestSafe($child, $k)) $errors[] = "child.$k";
-    }
-    $street = trim((string)($child['street_address'] ?? ''));
-    if (mb_strlen($street) < 5 || mb_strlen($street) > 255) $errors[] = 'child.street_address';
-    $dob = (string)($child['date_of_birth'] ?? '');
-    $dobDate = DateTime::createFromFormat('!Y-m-d', $dob);
-    if (!$dobDate || $dobDate->format('Y-m-d') !== $dob || $dobDate > new DateTime('tomorrow')) $errors[] = 'child.date_of_birth';
-
-    $members = $in['family_members'] ?? [];
-    if (!is_array($members) || count($members) < 1 || count($members) > 50) {
-        $errors[] = 'family_members';
-    } else {
-        foreach ($members as $i => $m) {
-            if (!is_array($m)) { $errors[] = "family_members[$i]"; continue; }
-            $n = trim((string)($m['full_name'] ?? ''));
-            if (mb_strlen($n) < 2 || !preg_match($nameRe, $n)) $errors[] = "family_members[$i].full_name";
-            if (isset($m['age']) && $m['age'] !== null && (!is_numeric($m['age']) || $m['age'] < 0 || $m['age'] > 150)) $errors[] = "family_members[$i].age";
+    foreach ($answers as $key => $value) {
+        if (!is_string($key) || !preg_match(PRETEST_ANSWER_KEY_RE, $key)) { $errors[] = 'answers.key'; continue; }
+        if (in_array($key, PRETEST_ARRAY_KEYS, true)) {
+            if (!is_array($value) || count($value) > 20) { $errors[] = $key; continue; }
+            $items = [];
+            foreach ($value as $item) {
+                if (!is_string($item) || mb_strlen($item) > 100) { $errors[] = $key; continue 2; }
+                $items[] = trim($item);
+            }
+            $clean[$key] = $items;
+            continue;
         }
+        if (is_int($value) || is_float($value)) $value = (string)$value;
+        if (!is_string($value) || mb_strlen($value) > 2000) { $errors[] = $key; continue; }
+        $clean[$key] = trim($value);
     }
 
-    $ec = $in['economic_capacity'] ?? [];
-    if (!pretestSafe($ec, 'primary_income_source')) $errors[] = 'economic_capacity.primary_income_source';
+    $name = $clean['s2_1'] ?? '';
+    if (mb_strlen($name) < 2 || mb_strlen($name) > 255) $errors[] = 's2_1';
+    $age = $clean['s2_3'] ?? '';
+    if (!preg_match('/^[0-9]{1,2}$/', $age) || (int)$age > 17) $errors[] = 's2_3';
+    if (!in_array($clean['s2_4'] ?? '', ['Male', 'Female'], true)) $errors[] = 's2_4';
+    if (!isset(PRETEST_V2_REGIONS[$clean['s2_5_region'] ?? ''])) $errors[] = 's2_5_region';
+    foreach (['s2_5_province', 's2_5_city'] as $k) {
+        if (($clean[$k] ?? '') === '') $errors[] = $k;
+    }
+    foreach (['s9_1', 's9_2'] as $k) {
+        if (($clean[$k] ?? '') !== '' && (!is_numeric($clean[$k]) || (float)$clean[$k] < 0 || (float)$clean[$k] > 9999999999)) $errors[] = $k;
+    }
 
-    if (!in_array($in['readiness_score'] ?? null, ['severe', 'moderate', 'low', 'stable'], true)) $errors[] = 'readiness_score';
-
-    return $errors;
+    return [$clean, array_values(array_unique($errors))];
 }
 
 // ----------------------------------------------------------------
@@ -277,7 +244,7 @@ switch ($action) {
             sendResponse(false, 'Missing or invalid record ID.', null, 400);
         }
 
-        $problems = pretestValidate($in);
+        [$answers, $problems] = pretestValidateAnswers($in['answers'] ?? null);
         if ($problems) {
             sendResponse(false, 'Some required answers are missing or invalid.', ['fields' => $problems], 422);
         }
@@ -288,175 +255,26 @@ switch ($action) {
         }
         $appVersion = preg_match('/^[0-9A-Za-z.\-+]{1,32}$/', (string)($in['app_version'] ?? '')) ? $in['app_version'] : null;
 
-        $VALID_DISABILITIES = [
-            'None', 'Visual Disability', 'Hearing Disability',
-            'Speech and Language Impairment', 'Orthopedic / Physical Disability',
-            'Mental / Intellectual Disability', 'Learning Disability',
-            'Psychosocial Disability', 'Disability Resulting from a Chronic Illness',
-            'Multiple Disabilities', 'Other (specify)',
-        ];
-        $VALID_ILLNESSES = [
-            'None', 'Cancer', 'Heart Disease', 'Kidney Disease', 'Diabetes',
-            'Respiratory Disease', 'Neurological Disorder', 'Blood Disorder',
-            'Chronic Illness', 'Others',
-        ];
-
-        // Normalise exactly like the live submit-assessment does.
-        $pq    = $in['pre_qualification'] ?? [];
-        $resp  = $in['respondent'] ?? [];
-        $child = $in['child'] ?? [];
-        $ceh   = $in['child_education_health'] ?? [];
-        $se    = $in['socio_economic'] ?? [];
-        $hi    = $in['health_info'] ?? [];
-        $ei    = $in['education_info'] ?? [];
-        $ec    = $in['economic_capacity'] ?? [];
-        $sa    = $in['service_availment'] ?? [];
-        $an    = $in['assessment_notes'] ?? [];
-
-        $members = [];
-        foreach (($in['family_members'] ?? []) as $m) {
-            $members[] = [
-                'member_number'          => (int)($m['member_number'] ?? 1),
-                'full_name'              => trim((string)($m['full_name'] ?? '')),
-                'relationship_to_head'   => pretestSafe($m, 'relationship_to_head'),
-                'is_solo_parent'         => pretestBool($m, 'is_solo_parent'),
-                'is_authorized_claimant' => pretestBool($m, 'is_authorized_claimant'),
-                'civil_status'           => pretestSafe($m, 'civil_status'),
-                'age'                    => isset($m['age']) && is_numeric($m['age']) ? (int)$m['age'] : null,
-                'sex'                    => pretestSafe($m, 'sex'),
-                'occupation'             => pretestSafe($m, 'occupation'),
-                'occupation_class'       => pretestSafe($m, 'occupation_class'),
-                'disabilities'           => pretestSanitizeArray($m['disabilities'] ?? [], $VALID_DISABILITIES, 'member disabilities'),
-                'critical_illnesses'     => pretestSanitizeArray($m['critical_illnesses'] ?? [], $VALID_ILLNESSES, 'member critical_illnesses'),
-            ];
-        }
-
         $feedback = [];
         foreach (array_slice(is_array($in['feedback'] ?? null) ? $in['feedback'] : [], 0, 50) as $f) {
             $comment = trim((string)($f['comment'] ?? ''));
             if ($comment === '') continue;
-            $step = isset($f['step']) && is_numeric($f['step']) && $f['step'] >= 1 && $f['step'] <= 11 ? (int)$f['step'] : null;
+            $step = isset($f['step']) && is_numeric($f['step']) && $f['step'] >= 1 && $f['step'] <= 12 ? (int)$f['step'] : null;
             $feedback[] = ['step' => $step, 'comment' => mb_substr($comment, 0, 2000)];
         }
 
-        $monthlyIncome = (isset($ec['monthly_income']) && is_numeric($ec['monthly_income']) && (float)$ec['monthly_income'] > 0)
-            ? (float)$ec['monthly_income'] : null;
-
         $data = [
             'assessment_id'        => $assessmentId,
-            'readiness_score'      => $in['readiness_score'],
             'created_on_device_at' => $createdOnDevice,
             'app_version'          => $appVersion,
-            'pre_qualification' => [
-                'is_4ps_member' => pretestBool($pq, 'is_4ps_member'),
-                'household_id'  => pretestSafe($pq, 'household_id'),
-            ],
-            'respondent' => [
-                'full_name'             => trim((string)($resp['full_name'] ?? '')),
-                'relationship_to_child' => pretestSafe($resp, 'relationship_to_child'),
-                'email'                 => pretestSafe($resp, 'email'),
-                'contact_number'        => pretestSafe($resp, 'contact_number'),
-            ],
-            'child' => [
-                'first_name'          => trim((string)($child['first_name'] ?? '')),
-                'middle_name'         => pretestSafe($child, 'middle_name'),
-                'last_name'           => trim((string)($child['last_name'] ?? '')),
-                'name_extension'      => pretestSafe($child, 'name_extension'),
-                'region'              => pretestSafe($child, 'region'),
-                'province'            => pretestSafe($child, 'province'),
-                'city_municipality'   => pretestSafe($child, 'city_municipality'),
-                'barangay'            => pretestSafe($child, 'barangay'),
-                'street_address'      => pretestSafe($child, 'street_address'),
-                'contact_number'      => pretestSafe($child, 'contact_number'),
-                'date_of_birth'       => pretestSafe($child, 'date_of_birth'),
-                'sex'                 => pretestSafe($child, 'sex'),
-                'religion'            => pretestSafe($child, 'religion'),
-                'religion_other'      => pretestSafe($child, 'religion_other'),
-                'ip_membership'       => pretestSafe($child, 'ip_membership'),
-                'ip_membership_other' => pretestSafe($child, 'ip_membership_other'),
-            ],
-            'child_education_health' => [
-                'highest_education'       => pretestSafe($ceh, 'highest_education'),
-                'highest_education_other' => pretestSafe($ceh, 'highest_education_other'),
-                'disabilities'            => pretestSanitizeArray($ceh['disabilities'] ?? [], $VALID_DISABILITIES, 'disabilities'),
-                'critical_illnesses'      => pretestSanitizeArray($ceh['critical_illnesses'] ?? [], $VALID_ILLNESSES, 'critical_illnesses'),
-                'illness_other'           => pretestSafe($ceh, 'illness_other'),
-            ],
-            'family_members' => $members,
-            'socio_economic' => [
-                'housing_materials'               => pretestSafe($se, 'housing_materials'),
-                'housing_materials_other'         => pretestSafe($se, 'housing_materials_other'),
-                'tenure_status'                   => pretestSafe($se, 'tenure_status'),
-                'tenure_status_other'             => pretestSafe($se, 'tenure_status_other'),
-                'has_accessibility_modifications' => pretestBool($se, 'has_accessibility_modifications'),
-                'modification_details'            => pretestSafe($se, 'modification_details'),
-                'electricity_source'              => pretestSafe($se, 'electricity_source'),
-                'electricity_source_other'        => pretestSafe($se, 'electricity_source_other'),
-                'water_source'                    => pretestSafe($se, 'water_source'),
-                'water_source_other'              => pretestSafe($se, 'water_source_other'),
-                'toilet_type'                     => pretestSafe($se, 'toilet_type'),
-                'toilet_type_other'               => pretestSafe($se, 'toilet_type_other'),
-                'is_toilet_accessible'            => pretestBool($se, 'is_toilet_accessible'),
-                'garbage_disposal'                => pretestSafe($se, 'garbage_disposal'),
-                'garbage_disposal_other'          => pretestSafe($se, 'garbage_disposal_other'),
-            ],
-            'health_info' => [
-                'has_all_vaccinations'          => pretestBool($hi, 'has_all_vaccinations'),
-                'has_ongoing_health_conditions' => pretestBool($hi, 'has_ongoing_health_conditions'),
-                'health_conditions_details'     => pretestSafe($hi, 'health_conditions_details'),
-                'expense_food'                  => pretestFloat($hi, 'expense_food'),
-                'expense_medication'            => pretestFloat($hi, 'expense_medication'),
-                'expense_therapy'               => pretestFloat($hi, 'expense_therapy'),
-                'expense_hygiene'               => pretestFloat($hi, 'expense_hygiene'),
-                'expense_assistive_device'      => pretestFloat($hi, 'expense_assistive_device'),
-                'expense_other'                 => pretestFloat($hi, 'expense_other'),
-                'availed_services_6months'      => pretestBool($hi, 'availed_services_6months'),
-                'availed_services_details'      => pretestSafe($hi, 'availed_services_details'),
-                'is_facility_accessible'        => pretestBool($hi, 'is_facility_accessible'),
-                'has_barriers_to_healthcare'    => pretestBool($hi, 'has_barriers_to_healthcare'),
-                'healthcare_barriers_details'   => pretestSafe($hi, 'healthcare_barriers_details'),
-            ],
-            'education_info' => [
-                'is_currently_enrolled'          => pretestBool($ei, 'is_currently_enrolled'),
-                'grade_year_level'               => pretestSafe($ei, 'grade_year_level'),
-                'not_enrolled_reason'            => pretestSafe($ei, 'not_enrolled_reason'),
-                'has_accessibility_features'     => pretestBool($ei, 'has_accessibility_features'),
-                'accessibility_features_details' => pretestSafe($ei, 'accessibility_features_details'),
-                'has_sped_programs'              => pretestBool($ei, 'has_sped_programs'),
-                'sped_programs_details'          => pretestSafe($ei, 'sped_programs_details'),
-                'receives_learning_support'      => pretestBool($ei, 'receives_learning_support'),
-                'learning_support_details'       => pretestSafe($ei, 'learning_support_details'),
-            ],
-            'economic_capacity' => [
-                'primary_income_source' => pretestSafe($ec, 'primary_income_source'),
-                'monthly_income'        => $monthlyIncome,
-                'income_classification' => pretestSafe($ec, 'income_classification'),
-                'are_parents_employed'  => pretestBool($ec, 'are_parents_employed'),
-                'employment_details'    => pretestSafe($ec, 'employment_details'),
-            ],
-            'service_availment' => [
-                'receives_financial_assistance' => pretestBool($sa, 'receives_financial_assistance'),
-                'financial_assistance_details'  => pretestSafe($sa, 'financial_assistance_details'),
-                'is_aware_of_social_services'   => pretestBool($sa, 'is_aware_of_social_services'),
-                'awareness_details'             => pretestSafe($sa, 'awareness_details'),
-                'has_availed_services'          => pretestBool($sa, 'has_availed_services'),
-                'availed_services_details'      => pretestSafe($sa, 'availed_services_details'),
-                'service_challenges'            => pretestSafe($sa, 'service_challenges'),
-                'service_challenges_other'      => pretestSafe($sa, 'service_challenges_other'),
-            ],
-            'assessment_notes' => [
-                'strengths'           => pretestSafe($an, 'strengths'),
-                'assessment_details'  => pretestSafe($an, 'assessment_details'),
-                'recommended_actions' => pretestSafe($an, 'recommended_actions'),
-                'readiness_score'     => pretestSafe($an, 'readiness_score'),
-            ],
-            'feedback' => $feedback,
+            'answers'              => $answers,
+            'feedback'             => $feedback,
         ];
 
         $rpc = supabaseRPC('pretest_submit_assessment', [
             'p_session_id'     => $sessionId,
             'p_interviewer_id' => $interviewerId,
-            'p_region_code'    => pretestRegionCode($data['child']['region']),
+            'p_region_code'    => PRETEST_V2_REGIONS[$answers['s2_5_region']],
             'p_data'           => $data,
         ]);
 
