@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>Pre-Test Result — Project Aruga</title>
+  <title>Profiling Tool Pre-test — Project Aruga</title>
   <link rel="icon" href="/images/logo.webp" type="image/webp">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
@@ -27,6 +27,39 @@
     .pt-error { min-height:1.25rem; font-size:0.75rem; color:var(--error); margin-bottom:0.75rem; }
     .pt-gate .btn { width:100%; justify-content:center; }
 
+    .pt-stat-sub { font-size:0.72rem; color:var(--gray-400); }
+
+    /* Page header + Report / Pre-test Data toggle */
+    .pt-page-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .pt-toggle { display:inline-flex; background:#fff; border:1px solid var(--border); border-radius:0.625rem; padding:0.25rem; gap:0.25rem; }
+    .pt-toggle button { display:inline-flex; align-items:center; gap:0.375rem; height:2rem; padding:0 0.875rem; border:0; border-radius:0.4rem; background:transparent; font-family:'Poppins',sans-serif; font-size:0.78rem; font-weight:600; color:var(--gray-500); cursor:pointer; transition:background 0.15s, color 0.15s; }
+    .pt-toggle button .material-symbols-outlined { font-size:1rem; }
+    .pt-toggle button:hover { color:var(--blue); background:var(--blue-light); }
+    .pt-toggle button[aria-selected="true"] { background:var(--blue); color:#fff; }
+    .pt-toggle button:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+    [hidden] { display:none !important; }
+
+    /* Report section (same look as the live dashboard reports) */
+    .rpt-section { background:#fff; border:1px solid var(--border); border-radius:0.625rem; margin-bottom:0.625rem; overflow:hidden; }
+    .pt-dis-row { display:flex; align-items:center; gap:0.75rem; padding:0.2rem 0.375rem; border-radius:0.375rem; transition:background 0.13s; cursor:default; }
+    .pt-dis-row:hover { background:var(--blue-light); }
+    .pt-dis-label { font-size:0.75rem; font-weight:600; color:var(--dark); width:190px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .pt-dis-track { flex:1; height:10px; background:var(--gray-200); border-radius:999px; overflow:hidden; }
+    .pt-dis-fill { height:100%; border-radius:999px; }
+    .pt-dis-val { font-size:0.75rem; font-weight:800; color:var(--dark); width:48px; text-align:right; flex-shrink:0; }
+    @media (max-width: 640px) { .pt-dis-label { width:120px; } }
+    .rpt-section-header { display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1.125rem; cursor:pointer; user-select:none; transition:background 0.13s; width:100%; border:0; background:none; font-family:inherit; text-align:left; }
+    .rpt-section-header:hover { background:var(--gray-50); }
+    .rpt-section-title { font-size:0.875rem; font-weight:700; color:var(--dark); }
+    .rpt-section-badge { font-size:0.68rem; font-weight:600; padding:0.15rem 0.5rem; border-radius:999px; background:var(--gray-100); color:var(--gray-500); }
+    .rpt-chevron { font-size:1.125rem; color:var(--gray-400); transition:transform 0.2s; }
+    .rpt-chevron.open { transform:rotate(180deg); }
+    .rpt-section-body { padding:0 1.125rem 1rem; }
+    .pt-chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .pt-chart-empty { text-align:center; color:var(--gray-400); font-size:0.75rem; padding:2.5rem 0; }
+    #pt-tip { display:none; position:fixed; background:#1e293b; color:#fff; border-radius:0.5rem; padding:0.4rem 0.75rem; font-size:0.7rem; pointer-events:none; z-index:9999; box-shadow:0 4px 12px rgba(0,0,0,0.2); white-space:nowrap; }
+    @media (max-width: 760px) { .pt-chart-grid { grid-template-columns:1fr; } }
+
     /* Detail view */
     .pt-section-title { font-size:0.8125rem; font-weight:700; color:var(--dark); margin:0 0 0.75rem; }
     .pt-fields { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:0.75rem 1.5rem; }
@@ -46,7 +79,7 @@
 <div class="pt-gate" id="pt-gate">
   <div class="card">
     <div class="pt-gate-icon"><span class="material-symbols-outlined">lock</span></div>
-    <div class="page-title" style="margin:0;">Pre-Test Result</div>
+    <div class="page-title" style="margin:0;">Profiling Tool Pre-test</div>
     <div class="page-subtitle" style="margin:0.25rem 0 0;">Enter the 4-digit access code</div>
     <form id="pt-gate-form" autocomplete="off">
       <div class="pt-digits">
@@ -75,10 +108,127 @@
 
     <!-- List View -->
     <div id="pt-list-view">
-      <div style="margin-bottom:1.5rem;">
-        <div class="page-title" style="margin:0;">Pre-Test Result</div>
-        <div class="page-subtitle" style="margin:0;">All submitted pretest profiles across all regions</div>
+      <div class="pt-page-head">
+        <div style="min-width:0;">
+          <div class="page-title" style="margin:0;">Profiling Tool Pre-test</div>
+          <div class="page-subtitle" style="margin:0;" id="pt-page-subtitle">Summary of all submitted pretest profiles</div>
+        </div>
+        <div class="pt-toggle" role="tablist" aria-label="View">
+          <button type="button" role="tab" id="pt-tabbtn-report" aria-controls="pt-tab-report" aria-selected="true" data-tab="report">
+            <span class="material-symbols-outlined">bar_chart</span>Report
+          </button>
+          <button type="button" role="tab" id="pt-tabbtn-data" aria-controls="pt-tab-data" aria-selected="false" data-tab="data">
+            <span class="material-symbols-outlined">table_rows</span>Pre-test Data
+          </button>
+        </div>
       </div>
+
+      <!-- Tab: Report -->
+      <div id="pt-tab-report" role="tabpanel" aria-labelledby="pt-tabbtn-report">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">assignment</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="pt-stat-total">—</div>
+            <div class="stat-label">Total Assessments</div>
+            <div class="pt-stat-sub">All regions</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">task_alt</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="pt-stat-rate">—</div>
+            <div class="stat-label">Completion Rate</div>
+            <div class="pt-stat-sub" id="pt-stat-rate-sub">Target: 100 beneficiaries</div>
+            <div id="pt-stat-rate-badge" style="margin-top:0.25rem;"></div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">timer</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="pt-stat-time">—</div>
+            <div class="stat-label">Avg. Profiling Time</div>
+            <div class="pt-stat-sub" id="pt-stat-time-sub">Per profile</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="pt-stat-interviewers">—</div>
+            <div class="stat-label">Active Interviewers</div>
+            <div class="pt-stat-sub">Submitted at least once</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports -->
+      <div id="pt-reports" style="margin-bottom:1.5rem;">
+      <div class="rpt-section">
+        <button type="button" class="rpt-section-header" aria-expanded="true" aria-controls="pt-rpt-ben-body">
+          <span style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">group</span>
+            <span class="rpt-section-title">Beneficiaries</span>
+            <span class="rpt-section-badge" id="pt-rpt-ben-badge">—</span>
+          </span>
+          <span class="material-symbols-outlined rpt-chevron open">expand_more</span>
+        </button>
+        <div class="rpt-section-body" id="pt-rpt-ben-body">
+          <div class="pt-chart-grid">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Sex Disaggregation</div></div>
+              <div id="pt-sex-chart" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Age Groups</div></div>
+              <div id="pt-age-chart" style="padding:0.75rem 1rem 0;min-height:180px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section">
+        <button type="button" class="rpt-section-header" aria-expanded="true" aria-controls="pt-rpt-dis-body">
+          <span style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">accessible</span>
+            <span class="rpt-section-title">Disabilities</span>
+            <span class="rpt-section-badge" id="pt-rpt-dis-badge">—</span>
+          </span>
+          <span class="material-symbols-outlined rpt-chevron open">expand_more</span>
+        </button>
+        <div class="rpt-section-body" id="pt-rpt-dis-body">
+          <div id="pt-dis-chart" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div>
+        </div>
+      </div>
+
+      <div class="rpt-section">
+        <button type="button" class="rpt-section-header" aria-expanded="true" aria-controls="pt-rpt-ana-body">
+          <span style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">auto_awesome</span>
+            <span class="rpt-section-title">Report Analysis</span>
+          </span>
+          <span class="material-symbols-outlined rpt-chevron open">expand_more</span>
+        </button>
+        <div class="rpt-section-body" id="pt-rpt-ana-body">
+          <div class="card" style="margin:0;">
+            <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
+              <div>
+                <div class="card-title">Report Analysis</div>
+                <div class="card-subtitle" style="font-size:0.72rem;color:var(--gray-500);">Summary based on current report data</div>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" id="pt-ana-btn" style="flex-shrink:0;">
+                <span class="material-symbols-outlined" style="font-size:1rem;">auto_awesome</span>Generate
+              </button>
+            </div>
+            <div id="pt-ana-output" style="padding:0.75rem 0 0.25rem;"></div>
+          </div>
+        </div>
+      </div>
+      </div>
+      </div><!-- /pt-tab-report -->
+      <div id="pt-tip" role="tooltip"></div>
+
+      <!-- Tab: Pre-test Data -->
+      <div id="pt-tab-data" role="tabpanel" aria-labelledby="pt-tabbtn-data" hidden>
       <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
         <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
           <div class="search-bar" style="flex:1;min-width:140px;max-width:240px;">
@@ -117,6 +267,7 @@
           <div class="pagination" id="pt-pagination"></div>
         </div>
       </div>
+      </div><!-- /pt-tab-data -->
     </div>
 
     <!-- Detail View (read-only) -->
@@ -139,6 +290,9 @@
   const API = '/api/pretest-router.php';
   const TOKEN_KEY = 'pt_result_token';
   const PER_PAGE = 10;
+  const TARGET = 100;              // pretest target: 100 beneficiaries
+  const MIN_SECONDS = 60;          // timings outside 1 min – 8 h are left out of the
+  const MAX_SECONDS = 8 * 3600;    // average (clock changes, form left open overnight)
   const STEPS = [
     ['s2_',  'Step 1 · Identifying Information'],
     ['s3_',  'Step 2 · Disability or Functional Condition'],
@@ -255,10 +409,287 @@
       if (err.message !== 'expired') $('pt-tbody').innerHTML = msgRow('Failed to load. ' + esc(err.message));
       return;
     }
+    renderStats();
     fillSelect('pt-region', 'All Regions', data.map(r => r.region ? [r.region] : []));
     fillSelect('pt-disability', 'All Disabilities', data.map(r => r.disabilities || []));
     applyFilters();
   }
+
+  // ── Summary cards (all records, not the current filter) ──────
+  function fmtDuration(sec) {
+    const m = Math.round(sec / 60);
+    if (m < 60) return m + ' min';
+    return Math.floor(m / 60) + ' h ' + String(m % 60).padStart(2, '0') + ' m';
+  }
+
+  function renderStats() {
+    const total = data.length;
+    $('pt-stat-total').textContent = total.toLocaleString();
+
+    const rate = Math.round(total / TARGET * 100);
+    $('pt-stat-rate').textContent = rate + '%';
+    $('pt-stat-rate-sub').textContent = `${total.toLocaleString()} of ${TARGET} beneficiaries`;
+    $('pt-stat-rate-badge').innerHTML = rate >= 100
+      ? '<span class="badge badge-green">Target reached</span>'
+      : `<span class="badge badge-blue">${TARGET - total} to go</span>`;
+
+    const times = data.map(r => Number(r.duration_seconds))
+      .filter(s => Number.isFinite(s) && s >= MIN_SECONDS && s <= MAX_SECONDS);
+    if (times.length) {
+      $('pt-stat-time').textContent = fmtDuration(times.reduce((a, b) => a + b, 0) / times.length);
+      $('pt-stat-time-sub').textContent = `Per profile · based on ${times.length} of ${total}`;
+    } else {
+      $('pt-stat-time').textContent = '—';
+      $('pt-stat-time-sub').textContent = 'No timing data yet';
+    }
+
+    $('pt-stat-interviewers').textContent =
+      new Set(data.map(r => r.interviewer_id || r.interviewer).filter(Boolean)).size.toLocaleString();
+
+    renderReport();
+  }
+
+  // ── Beneficiaries report (all records) ───────────────────────
+  // Colors and shapes copied from the live dashboard reports.
+  const SEX = [{ label: 'Male', color: '#1152d4' }, { label: 'Female', color: '#93c5fd' }];
+  // Pretest ages are 0–17 (enforced by the database), so there is no 18+ group.
+  const AGE_GROUPS = [{ label: '0–5', min: 0, max: 5 }, { label: '6–11', min: 6, max: 11 }, { label: '12–17', min: 12, max: 17 }];
+  const AGE_COLORS = ['#1152d4', '#2563eb', '#3b82f6'];
+
+  function renderReport() {
+    const total = data.length;
+    $('pt-rpt-ben-badge').textContent = `${total.toLocaleString()} profiled`;
+    resetAnalysis();
+
+    // Sex donut
+    const sex = SEX.map(s => ({ ...s, val: data.filter(r => r.sex === s.label).length }));
+    const sTotal = sex.reduce((a, s) => a + s.val, 0);
+    if (!sTotal) {
+      $('pt-sex-chart').innerHTML = '<div class="pt-chart-empty">No data yet</div>';
+    } else {
+      const circ = 2 * Math.PI * 50;
+      let offset = 0;
+      const arcs = sex.filter(s => s.val).map(s => {
+        const dash = s.val / sTotal * circ;
+        const pct = Math.round(s.val / sTotal * 100);
+        const arc = `<circle cx="70" cy="70" r="50" fill="none" stroke="${s.color}" stroke-width="20"
+          stroke-dasharray="${dash} ${circ - dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 70 70)"
+          data-tip="${esc(`${s.label}: ${s.val.toLocaleString()} (${pct}%)`)}" style="cursor:pointer;transition:stroke-width 0.2s,opacity 0.2s;"/>`;
+        offset += dash;
+        return arc;
+      }).join('');
+      const summary = sex.map(s => `${s.label} ${s.val} (${Math.round(s.val / sTotal * 100)}%)`).join(', ');
+      $('pt-sex-chart').innerHTML = `
+        <svg id="pt-sex-svg" viewBox="0 0 140 140" width="150" height="150" style="overflow:visible;" role="img" aria-label="Sex: ${esc(summary)}">${arcs}</svg>
+        <div style="display:flex;gap:1.25rem;">${sex.map(s => `
+          <div style="text-align:center;">
+            <div style="width:10px;height:10px;border-radius:50%;background:${s.color};margin:0 auto 4px;"></div>
+            <div style="font-size:0.75rem;font-weight:700;color:var(--dark);">${s.label}</div>
+            <div style="font-size:0.8125rem;font-weight:800;color:var(--dark);">${Math.round(s.val / sTotal * 100)}%</div>
+          </div>`).join('')}
+        </div>`;
+    }
+
+    // Age bars
+    const ages = AGE_GROUPS.map(g => ({ ...g, val: data.filter(r => r.age !== null && r.age !== '' && +r.age >= g.min && +r.age <= g.max).length }));
+    const maxA = Math.max(...ages.map(a => a.val), 0);
+    if (!maxA) {
+      $('pt-age-chart').innerHTML = '<div class="pt-chart-empty">No data yet</div>';
+    } else {
+      const H = 130;
+      const top = ages.findIndex(a => a.val === maxA);
+      $('pt-age-chart').innerHTML = `
+        <div style="display:flex;align-items:flex-end;gap:0.875rem;height:${H + 24}px;border-bottom:2px solid #e5e7eb;" role="img"
+             aria-label="Age groups: ${esc(ages.map(a => `${a.label} ${a.val}`).join(', '))}">
+          ${ages.map((a, i) => `
+            <div data-tip="${esc(`Age ${a.label}: ${a.val.toLocaleString()} (${Math.round(a.val / data.length * 100)}%)`)}"
+                 style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:100%;cursor:pointer;">
+              <div style="font-size:0.78rem;font-weight:800;color:${AGE_COLORS[i]};margin-bottom:6px;">${a.val ? a.val.toLocaleString() : ''}</div>
+              <div style="width:100%;height:${Math.max(Math.round(a.val / maxA * H), a.val ? 6 : 2)}px;background:${AGE_COLORS[i]};border-radius:5px 5px 0 0;transition:height 0.6s ease;"></div>
+            </div>`).join('')}
+        </div>
+        <div style="display:flex;gap:0.875rem;padding-top:0.5rem;">
+          ${ages.map((a, i) => `<div style="flex:1;text-align:center;font-size:0.72rem;font-weight:${i === top ? 700 : 500};color:${i === top ? AGE_COLORS[i] : 'var(--gray-400)'};">${a.label}</div>`).join('')}
+        </div>`;
+    }
+
+    // Disability bars. A profile can have more than one type, so "cases"
+    // (all selections) can be more than the number of profiles.
+    const disCounts = new Map();
+    data.forEach(r => (r.disabilities || []).forEach(d => { if (d) disCounts.set(d, (disCounts.get(d) || 0) + 1); }));
+    const dis = [...disCounts.entries()].map(([label, val]) => ({ label, val })).sort((a, b) => b.val - a.val || a.label.localeCompare(b.label));
+    const cases = dis.reduce((a, d) => a + d.val, 0);
+    $('pt-rpt-dis-badge').textContent = `${cases.toLocaleString()} cases`;
+    if (!dis.length) {
+      $('pt-dis-chart').innerHTML = '<div class="pt-chart-empty">No data yet</div>';
+    } else {
+      const maxD = dis[0].val;
+      $('pt-dis-chart').innerHTML = dis.map(d => `
+        <div class="pt-dis-row" data-tip="${esc(`${d.label}: ${d.val.toLocaleString()} (${Math.round(d.val / total * 100)}% of profiles)`)}">
+          <div class="pt-dis-label" title="${esc(d.label)}">${esc(d.label)}</div>
+          <div class="pt-dis-track"><div class="pt-dis-fill" style="width:${Math.round(d.val / maxD * 100)}%;background:${DIS_COLORS[Math.round((1 - d.val / maxD) * (DIS_COLORS.length - 1))]};"></div></div>
+          <div class="pt-dis-val">${d.val.toLocaleString()}</div>
+        </div>`).join('');
+    }
+  }
+  // ── Report Analysis ──────────────────────────────────────────
+  // Same approach as the live Reports tab: fixed sentences filled in with the
+  // numbers above (no AI, nothing leaves the page). Pretest has no readiness
+  // scores or social-service summary, so those paragraphs are replaced with
+  // beneficiary profile and interviewer activity.
+  const ANA_PLACEHOLDER = `<div style="padding:1.25rem;background:#f8faff;border:1px solid #dbeafe;border-radius:0.625rem;text-align:center;color:var(--gray-400);font-size:0.8125rem;">
+    Click <b>Generate</b> to create an automated analysis of the current report data.</div>`;
+
+  function resetAnalysis() {
+    $('pt-ana-output').innerHTML = ANA_PLACEHOLDER;
+    $('pt-ana-btn').innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">auto_awesome</span>Generate';
+  }
+
+  function generateAnalysis() {
+    const total = data.length;
+    const n = v => Number(v).toLocaleString();
+    const pctOf = (v, of) => of ? Math.round(v / of * 100) : 0;
+    const countBy = (rows, key) => {
+      const m = new Map();
+      rows.forEach(r => { const k = key(r); if (k) m.set(k, (m.get(k) || 0) + 1); });
+      return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    };
+
+    if (!total) {
+      $('pt-ana-output').innerHTML = `<div style="padding:1.25rem;text-align:center;color:var(--gray-400);font-size:0.8125rem;">No pretest profiles yet. Generate again once profiles are submitted.</div>`;
+      return;
+    }
+
+    // Completion
+    const rate = pctOf(total, TARGET);
+    const statusColor = rate >= 100 ? '#059669' : '#1152d4';
+    const statusLabel = rate >= 100 ? 'Target Reached' : 'In Progress';
+    const times = data.map(r => Number(r.duration_seconds)).filter(s => Number.isFinite(s) && s >= MIN_SECONDS && s <= MAX_SECONDS);
+    const avgTime = times.length ? fmtDuration(times.reduce((a, b) => a + b, 0) / times.length) : null;
+
+    // Regions
+    const regions = countBy(data, r => r.region);
+    const [topReg, botReg] = [regions[0], regions[regions.length - 1]];
+
+    // Sex & age
+    const male = data.filter(r => r.sex === 'Male').length, female = data.filter(r => r.sex === 'Female').length;
+    const ages = AGE_GROUPS.map(g => ({ ...g, val: data.filter(r => r.age !== null && r.age !== '' && +r.age >= g.min && +r.age <= g.max).length }))
+      .sort((a, b) => b.val - a.val);
+
+    // Disabilities
+    const dis = countBy(data.flatMap(r => (r.disabilities || []).map(d => ({ d }))), x => x.d);
+    const multi = data.filter(r => (r.disabilities || []).length > 1).length;
+
+    // Interviewers
+    const ints = countBy(data, r => r.interviewer_id || r.interviewer);
+    const avgPerInt = ints.length ? (total / ints.length).toFixed(1).replace(/\.0$/, '') : 0;
+    const topIntShare = ints.length ? pctOf(ints[0][1], total) : 0;
+
+    const sections = [
+      {
+        icon: 'assignment_turned_in', color: '#1152d4',
+        title: 'Pretest Completion Status',
+        body: `As of this report, <b>${n(total)}</b> pretest profiles have been submitted against the target of <b>${TARGET}</b> beneficiaries, a completion rate of <b style="color:${statusColor}">${rate}%</b> — <b>${statusLabel}</b>. `
+          + (rate >= 100 ? 'The pretest sample is complete and ready for review. '
+                         : `<b>${n(TARGET - total)}</b> more profiles are needed to complete the sample. `)
+          + (avgTime ? `Profiling takes an average of <b>${avgTime}</b> per child (based on ${n(times.length)} timed profiles).`
+                     : 'Profiling time is not yet available.')
+      },
+      {
+        icon: 'map', color: '#2563eb',
+        title: 'Regional Coverage',
+        body: !regions.length ? 'No region data recorded yet.'
+          : regions.length === 1
+            ? `All profiles come from <b>${esc(topReg[0])}</b>. Testing in more regions will make the pretest findings more representative.`
+            : topReg[1] === botReg[1]
+              ? `Profiles come from <b>${regions.length}</b> regions and are evenly spread, with <b>${n(topReg[1])}</b> each.`
+              : `Profiles come from <b>${regions.length}</b> regions. <b>${esc(topReg[0])}</b> leads with <b>${n(topReg[1])}</b> profile${topReg[1] !== 1 ? 's' : ''} (${pctOf(topReg[1], total)}%), while <b>${esc(botReg[0])}</b> has the fewest, with <b>${n(botReg[1])}</b>. A more even regional spread will make the pretest findings more representative.`
+      },
+      {
+        icon: 'group', color: '#3b82f6',
+        title: 'Beneficiary Profile',
+        body: `Of <b>${n(total)}</b> children profiled, <b>${pctOf(male, total)}%</b> are male and <b>${pctOf(female, total)}%</b> are female. `
+          + (ages[0].val === ages[ages.length - 1].val
+              ? `Children are evenly spread across the <b>0–5</b>, <b>6–11</b> and <b>12–17</b> age groups.`
+              : ages[0].val === ages[1].val
+                ? `The largest age groups are <b>${ages[0].label}</b> and <b>${ages[1].label}</b> years, with <b>${n(ages[0].val)}</b> children each.`
+                : `The largest age group is <b>${ages[0].label}</b> years with <b>${n(ages[0].val)}</b> children (${pctOf(ages[0].val, total)}%).`)
+          + (ages.some(a => a.val === 0) ? ` No children aged <b>${ages.filter(a => a.val === 0).map(a => a.label).join(', ')}</b> have been profiled yet, so questions for that age range are untested.` : '')
+      },
+      {
+        icon: 'accessible', color: '#60a5fa',
+        title: 'Disability Prevalence',
+        body: dis.length
+          ? `The most common disability type is <b>${esc(dis[0][0])}</b>, recorded in <b>${n(dis[0][1])}</b> profile${dis[0][1] !== 1 ? 's' : ''} (${pctOf(dis[0][1], total)}%). <b>${dis.length}</b> different types were recorded in total. `
+            + (multi ? `<b>${n(multi)}</b> child${multi !== 1 ? 'ren have' : ' has'} more than one disability type (${pctOf(multi, total)}%), which should factor into service planning.` : 'No child has more than one disability type recorded.')
+          : 'No disability data recorded yet.'
+      },
+      {
+        icon: 'badge', color: '#1d4ed8',
+        title: 'Interviewer Activity',
+        body: `<b>${n(ints.length)}</b> interviewer${ints.length !== 1 ? 's have' : ' has'} submitted pretest profiles, averaging <b>${avgPerInt}</b> profile${avgPerInt !== '1' ? 's' : ''} each. `
+          + (ints.length === 1
+              ? 'Adding more testers will give broader feedback on the form.'
+              : topIntShare >= 50 && ints[0][1] > ints[1][1]
+                ? `The most active interviewer accounts for <b>${topIntShare}%</b> of all profiles; spreading the work across testers gives broader feedback on the form.`
+                : 'Workload is spread across testers, which gives broader feedback on the form.')
+      },
+    ];
+
+    $('pt-ana-output').innerHTML = `<div style="display:flex;flex-direction:column;gap:0.875rem;padding-top:0.25rem;">
+      ${sections.map(sec => `
+        <div style="display:flex;gap:0.875rem;padding:1rem 1.125rem;background:#eff6ff;border:1px solid #dbeafe;border-radius:0.625rem;">
+          <div style="width:2.25rem;height:2.25rem;border-radius:50%;background:${sec.color};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:0.1rem;">
+            <span class="material-symbols-outlined" style="color:white;font-size:1.1rem;">${sec.icon}</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.8125rem;font-weight:800;color:var(--dark);margin-bottom:0.3rem;">${sec.title}</div>
+            <div style="font-size:0.8rem;color:var(--gray-600);line-height:1.6;">${sec.body}</div>
+          </div>
+        </div>`).join('')}
+      <div style="font-size:0.68rem;color:var(--gray-400);text-align:right;padding-top:0.25rem;">Generated ${new Date().toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' })} · Based on all pretest profiles</div>
+    </div>`;
+    $('pt-ana-btn').innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">refresh</span>Regenerate';
+  }
+
+  // Live dashboard blues. Shade follows the count (equal counts = same shade,
+  // most common = darkest); the faintest live shades are left out so short bars
+  // stay visible on the gray track.
+  const DIS_COLORS = ['#1152d4', '#1d4ed8', '#2563eb', '#3b82f6', '#60a5fa', '#93c5fd'];
+
+  $('pt-ana-btn').addEventListener('click', generateAnalysis);
+
+  // One tooltip for every chart mark that has data-tip.
+  const tip = $('pt-tip');
+  function moveTip(e) { tip.style.left = (e.clientX + 12) + 'px'; tip.style.top = (e.clientY - 10) + 'px'; }
+  $('pt-reports').addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-tip]');
+    if (!el) return;
+    tip.textContent = el.dataset.tip;
+    tip.style.display = 'block';
+    moveTip(e);
+    if (el.tagName === 'circle') {
+      el.parentNode.querySelectorAll('circle').forEach(c => { c.style.opacity = c === el ? '1' : '0.3'; });
+      el.style.strokeWidth = '27px';
+    }
+  });
+  $('pt-reports').addEventListener('mousemove', e => { if (tip.style.display === 'block') moveTip(e); });
+  $('pt-reports').addEventListener('mouseout', e => {
+    const el = e.target.closest('[data-tip]');
+    if (!el || el.contains(e.relatedTarget)) return;
+    tip.style.display = 'none';
+    if (el.tagName === 'circle') el.parentNode.querySelectorAll('circle').forEach(c => { c.style.opacity = '1'; c.style.strokeWidth = '20px'; });
+  });
+
+  document.querySelectorAll('#pt-reports .rpt-section-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const body = $(btn.getAttribute('aria-controls'));
+      const opening = body.style.display === 'none';
+      body.style.display = opening ? '' : 'none';
+      btn.querySelector('.rpt-chevron').classList.toggle('open', opening);
+      btn.setAttribute('aria-expanded', String(opening));
+    });
+  });
 
   function fillSelect(id, allLabel, lists) {
     const counts = new Map();
@@ -436,6 +867,41 @@
     $('pt-detail-view').style.display = 'none';
     $('pt-list-view').style.display = '';
   }
+
+  // ── Report / Pre-test Data toggle ────────────────────────────
+  const TAB_KEY = 'pt_result_tab';
+  const TAB_SUBTITLES = {
+    report: 'Summary of all submitted pretest profiles',
+    data:   'All submitted pretest profiles across all regions',
+  };
+  const tabButtons = [...document.querySelectorAll('.pt-toggle [role="tab"]')];
+
+  function setTab(name) {
+    if (!TAB_SUBTITLES[name]) name = 'report';
+    tabButtons.forEach(b => {
+      const on = b.dataset.tab === name;
+      b.setAttribute('aria-selected', String(on));
+      b.tabIndex = on ? 0 : -1;
+      $(b.getAttribute('aria-controls')).hidden = !on;
+    });
+    $('pt-page-subtitle').textContent = TAB_SUBTITLES[name];
+    tip.style.display = 'none';
+    try { sessionStorage.setItem(TAB_KEY, name); } catch (e) {}
+  }
+
+  tabButtons.forEach((b, i) => {
+    b.addEventListener('click', () => setTab(b.dataset.tab));
+    b.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const next = tabButtons[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabButtons.length) % tabButtons.length];
+      setTab(next.dataset.tab);
+      next.focus();
+    });
+  });
+
+  let savedTab = null;
+  try { savedTab = sessionStorage.getItem(TAB_KEY); } catch (e) {}
+  setTab(savedTab || 'report');
   $('pt-back').addEventListener('click', closeDetail);
 
   // ── Start ────────────────────────────────────────────────────
