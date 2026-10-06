@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Pre-Test Result — Project Aruga</title>
+  <link rel="icon" href="/images/logo.webp" type="image/webp">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <style>
+    .pt-topbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:0.75rem 1.5rem; background:#fff; border-bottom:1px solid var(--border); }
+    .pt-brand { display:flex; align-items:center; gap:0.625rem; font-size:0.875rem; font-weight:700; color:var(--dark); }
+    .pt-brand img { width:32px; height:32px; }
+    .pt-brand small { display:block; font-size:0.65rem; font-weight:500; color:var(--gray-500); }
+    .pt-wrap { max-width:1280px; margin:0 auto; }
+
+    /* Code gate */
+    .pt-gate { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1rem; box-sizing:border-box; }
+    .pt-gate .card { width:100%; max-width:380px; text-align:center; padding:2rem 1.75rem; }
+    .pt-gate-icon { width:3.5rem; height:3.5rem; margin:0 auto 1rem; border-radius:50%; background:var(--blue-light); display:flex; align-items:center; justify-content:center; }
+    .pt-gate-icon .material-symbols-outlined { color:var(--blue); font-size:1.75rem; }
+    .pt-digits { display:flex; justify-content:center; gap:0.625rem; margin:1.5rem 0 1rem; }
+    .pt-digits input { width:3.25rem; height:3.75rem; text-align:center; font-family:'Poppins',sans-serif; font-size:1.5rem; font-weight:700; color:var(--dark); border:1.5px solid var(--border); border-radius:0.625rem; outline:none; -webkit-text-security:disc; }
+    .pt-digits input:focus { border-color:var(--blue); box-shadow:0 0 0 2px var(--blue-light); }
+    .pt-error { min-height:1.25rem; font-size:0.75rem; color:var(--error); margin-bottom:0.75rem; }
+    .pt-gate .btn { width:100%; justify-content:center; }
+
+    /* Detail view */
+    .pt-section-title { font-size:0.8125rem; font-weight:700; color:var(--dark); margin:0 0 0.75rem; }
+    .pt-fields { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:0.75rem 1.5rem; }
+    .pt-field-label { font-size:0.68rem; font-weight:600; color:var(--gray-500); text-transform:uppercase; letter-spacing:0.03em; }
+    .pt-field-value { font-size:0.8125rem; color:var(--dark); word-break:break-word; white-space:pre-wrap; }
+    .pt-feedback { font-size:0.8125rem; background:#fffbeb; border:1px solid #fde68a; border-radius:0.5rem; padding:0.625rem 0.875rem; margin-bottom:0.5rem; }
+
+    @media (max-width: 640px) {
+      .pt-topbar { padding:0.625rem 1rem; }
+      .dash-content { padding:1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Code gate -->
+<div class="pt-gate" id="pt-gate">
+  <div class="card">
+    <div class="pt-gate-icon"><span class="material-symbols-outlined">lock</span></div>
+    <div class="page-title" style="margin:0;">Pre-Test Result</div>
+    <div class="page-subtitle" style="margin:0.25rem 0 0;">Enter the 4-digit access code</div>
+    <form id="pt-gate-form" autocomplete="off">
+      <div class="pt-digits">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4">
+      </div>
+      <div class="pt-error" id="pt-gate-error" role="alert"></div>
+      <button type="submit" class="btn btn-primary" id="pt-gate-btn">Continue</button>
+    </form>
+  </div>
+</div>
+
+<!-- Results -->
+<div id="pt-app" style="display:none;">
+  <div class="pt-topbar">
+    <div class="pt-brand">
+      <img src="/images/logo.webp" alt="">
+      <div>Project Aruga<small>v2 Pretest</small></div>
+    </div>
+    <button class="btn btn-secondary btn-sm" id="pt-logout"><span class="material-symbols-outlined" style="font-size:1rem;">logout</span>Log out</button>
+  </div>
+
+  <div class="dash-content pt-wrap">
+
+    <!-- List View -->
+    <div id="pt-list-view">
+      <div style="margin-bottom:1.5rem;">
+        <div class="page-title" style="margin:0;">Pre-Test Result</div>
+        <div class="page-subtitle" style="margin:0;">All submitted pretest profiles across all regions</div>
+      </div>
+      <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
+          <div class="search-bar" style="flex:1;min-width:140px;max-width:240px;">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" id="pt-search" placeholder="Search name, ID..." aria-label="Search">
+          </div>
+          <select id="pt-region" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:180px;min-width:0;">
+            <option value="">All Regions</option>
+          </select>
+          <select id="pt-disability" class="btn btn-secondary btn-sm" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0.35rem 0.5rem;max-width:180px;min-width:0;">
+            <option value="">All Disabilities</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" id="pt-reset">Reset</button>
+          <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="pt-count">—</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th data-sort="name" style="cursor:pointer;user-select:none;white-space:nowrap;">Beneficiary <span class="material-symbols-outlined pt-sort-icon" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th data-sort="age" style="cursor:pointer;user-select:none;white-space:nowrap;">Age <span class="material-symbols-outlined pt-sort-icon" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th>Disability</th>
+                <th data-sort="region" style="cursor:pointer;user-select:none;white-space:nowrap;">Region <span class="material-symbols-outlined pt-sort-icon" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="pt-tbody">
+              <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <span style="font-size:0.75rem;color:#6b7280;" id="pt-page-info">—</span>
+          <div class="pagination" id="pt-pagination"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail View (read-only) -->
+    <div id="pt-detail-view" style="display:none;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" id="pt-back" style="display:flex;align-items:center;gap:0.3rem;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>Back</button>
+        <div style="flex:1;min-width:0;">
+          <div class="page-title" style="margin:0;" id="pt-detail-title">Profile</div>
+          <div class="page-subtitle" style="margin:0;" id="pt-detail-subtitle"></div>
+        </div>
+      </div>
+      <div id="pt-detail-body"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  const API = '/api/pretest-router.php';
+  const TOKEN_KEY = 'pt_result_token';
+  const PER_PAGE = 10;
+  const STEPS = [
+    ['s2_',  'Step 1 · Identifying Information'],
+    ['s3_',  'Step 2 · Disability or Functional Condition'],
+    ['s4a_', 'Step 3 · Child Functioning (ages 2–4)'],
+    ['s4b_', 'Step 3 · Child Functioning (ages 5–17)'],
+    ['s5_',  'Step 4 · Child Care and Family Support'],
+    ['s6_',  'Step 5 · Education and Participation'],
+    ['s7_',  'Step 6 · Health, Rehabilitation and Assistive Devices'],
+    ['s8_',  'Step 7 · Caregiver Capacity and Support'],
+    ['s9_',  'Step 8 · Household Economic Situation'],
+    ['s10_', 'Step 9 · Social Protection and Entitlements'],
+    ['s11_', 'Step 10 · Environmental Barriers'],
+    ['s12_', 'Step 11 · Priority Needs and Referral'],
+    ['s13_', 'Step 12 · Enumerator Summary'],
+  ];
+
+  let token = null;
+  let data = [], filtered = [], page = 0;
+  let sortCol = null, sortDir = 'asc';
+
+  const $ = id => document.getElementById(id);
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  const store = {
+    get() { try { return sessionStorage.getItem(TOKEN_KEY); } catch (e) { return null; } },
+    set(v) { try { sessionStorage.setItem(TOKEN_KEY, v); } catch (e) {} },
+    clear() { try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {} },
+  };
+
+  async function api(action, opts = {}) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['X-Viewer-Token'] = token;
+    const res = await fetch(API + '?action=' + action + (opts.query || ''), {
+      method: opts.method || 'GET',
+      headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      cache: 'no-store',
+    });
+    let json = {};
+    try { json = await res.json(); } catch (e) {}
+    if (res.status === 401 && action !== 'results-login') { showGate('Session expired. Please enter the code again.'); throw new Error('expired'); }
+    if (!res.ok || !json.success) throw new Error(json.message || 'Something went wrong. Please try again.');
+    return json.data;
+  }
+
+  // ── Code gate ────────────────────────────────────────────────
+  const digits = [...document.querySelectorAll('.pt-digits input')];
+  digits.forEach((input, i) => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/g, '').slice(-1);
+      if (input.value && digits[i + 1]) digits[i + 1].focus();
+      if (digits.every(d => d.value)) $('pt-gate-form').requestSubmit();
+    });
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !input.value && digits[i - 1]) digits[i - 1].focus();
+    });
+    input.addEventListener('paste', e => {
+      const t = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 4);
+      if (!t) return;
+      e.preventDefault();
+      digits.forEach((d, j) => { d.value = t[j] || ''; });
+      (digits[t.length] || digits[3]).focus();
+      if (t.length === 4) $('pt-gate-form').requestSubmit();
+    });
+  });
+
+  $('pt-gate-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const code = digits.map(d => d.value).join('');
+    if (!/^\d{4}$/.test(code)) { $('pt-gate-error').textContent = 'Enter all 4 digits.'; return; }
+    const btn = $('pt-gate-btn');
+    btn.disabled = true; btn.textContent = 'Checking...';
+    $('pt-gate-error').textContent = '';
+    try {
+      const r = await api('results-login', { method: 'POST', body: { code } });
+      token = r.token; store.set(token);
+      showApp();
+    } catch (err) {
+      $('pt-gate-error').textContent = err.message;
+      digits.forEach(d => { d.value = ''; });
+      digits[0].focus();
+    } finally {
+      btn.disabled = false; btn.textContent = 'Continue';
+    }
+  });
+
+  function showGate(message) {
+    token = null; store.clear();
+    data = []; filtered = [];
+    $('pt-app').style.display = 'none';
+    $('pt-gate').style.display = '';
+    $('pt-gate-error').textContent = message || '';
+    digits.forEach(d => { d.value = ''; });
+    digits[0].focus();
+  }
+
+  function showApp() {
+    $('pt-gate').style.display = 'none';
+    $('pt-app').style.display = '';
+    closeDetail();
+    load();
+  }
+
+  $('pt-logout').addEventListener('click', async () => {
+    try { await api('results-logout', { method: 'POST' }); } catch (e) {}
+    showGate('');
+  });
+
+  // ── Table ────────────────────────────────────────────────────
+  async function load() {
+    $('pt-tbody').innerHTML = msgRow('Loading...');
+    try {
+      data = await api('results');
+    } catch (err) {
+      if (err.message !== 'expired') $('pt-tbody').innerHTML = msgRow('Failed to load. ' + esc(err.message));
+      return;
+    }
+    fillSelect('pt-region', 'All Regions', data.map(r => r.region ? [r.region] : []));
+    fillSelect('pt-disability', 'All Disabilities', data.map(r => r.disabilities || []));
+    applyFilters();
+  }
+
+  function fillSelect(id, allLabel, lists) {
+    const counts = new Map();
+    lists.forEach(list => list.forEach(v => { if (v) counts.set(v, (counts.get(v) || 0) + 1); }));
+    const sel = $(id), keep = sel.value;
+    sel.innerHTML = `<option value="">${allLabel}</option>` +
+      [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([v, n]) => `<option value="${esc(v)}">${esc(v)} (${n})</option>`).join('');
+    if (counts.has(keep)) sel.value = keep;
+  }
+
+  function applyFilters() {
+    const q = $('pt-search').value.trim().toLowerCase();
+    const region = $('pt-region').value;
+    const dis = $('pt-disability').value;
+    filtered = data.filter(r =>
+      (!q || (r.name || '').toLowerCase().includes(q) || (r.aruga_id || '').toLowerCase().includes(q)) &&
+      (!region || r.region === region) &&
+      (!dis || (r.disabilities || []).includes(dis)));
+    sortRows();
+    page = 0;
+    render();
+  }
+
+  function sortRows() {
+    if (!sortCol) return;
+    filtered.sort((a, b) => {
+      let va, vb;
+      if (sortCol === 'age') { va = parseInt(a.age) || 0; vb = parseInt(b.age) || 0; }
+      else { va = (a[sortCol] || '').toString().toLowerCase(); vb = (b[sortCol] || '').toString().toLowerCase(); }
+      if (va < vb) return sortDir === 'asc' ? -1 : 1;
+      if (va > vb) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.sort;
+      if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      else { sortCol = col; sortDir = 'asc'; }
+      document.querySelectorAll('th[data-sort] .pt-sort-icon').forEach(i => { i.textContent = 'unfold_more'; i.style.color = 'var(--gray-400)'; });
+      const icon = th.querySelector('.pt-sort-icon');
+      icon.textContent = sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
+      icon.style.color = 'var(--blue)';
+      sortRows(); page = 0; render();
+    });
+  });
+
+  function msgRow(text) {
+    return `<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">${text}</td></tr>`;
+  }
+
+  function row(r) {
+    const parts = r.disabilities || [];
+    const disCell = parts.length === 0
+      ? '<span style="color:var(--gray-400);font-size:0.8rem;">—</span>'
+      : `<div style="display:flex;align-items:center;gap:0.375rem;" title="${esc(parts.join(', '))}">
+           <span class="badge badge-blue">${esc(parts[0])}</span>
+           ${parts.length > 1 ? `<span style="font-size:0.7rem;font-weight:700;background:var(--gray-200);color:var(--gray-700);padding:0.1rem 0.4rem;border-radius:999px;">+${parts.length - 1}</span>` : ''}
+         </div>`;
+    return `<tr class="table-row-hover">
+      <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${esc(r.name || '—')}</div><div style="font-size:0.65rem;color:#9ca3af;">${esc(r.aruga_id)}</div></td>
+      <td>${esc(r.age ?? '—')}</td>
+      <td>${disCell}</td>
+      <td>${esc(r.region || '—')}</td>
+      <td><button class="btn btn-ghost btn-sm table-action-btn" data-view="${esc(r.assessment_id)}" title="View Details" aria-label="View details of ${esc(r.name)}"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+    </tr>`;
+  }
+
+  function render() {
+    const total = filtered.length;
+    const pages = Math.max(1, Math.ceil(total / PER_PAGE));
+    if (page >= pages) page = pages - 1;
+    const slice = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
+    $('pt-tbody').innerHTML = slice.length ? slice.map(row).join('') : msgRow(data.length ? 'No matching records.' : 'No pretest profiles submitted yet.');
+    $('pt-count').textContent = `${total} of ${data.length} records`;
+    $('pt-page-info').textContent = total ? `Showing ${page * PER_PAGE + 1}–${Math.min(total, (page + 1) * PER_PAGE)} of ${total}` : '—';
+    buildPagination(page, pages);
+  }
+
+  function buildPagination(current, total) {
+    const c = $('pt-pagination');
+    c.innerHTML = '';
+    if (total <= 1) return;
+    const mkBtn = (label, p, active, disabled) => {
+      const b = document.createElement('button');
+      b.className = 'page-btn' + (active ? ' active' : '');
+      b.textContent = label; b.disabled = !!disabled;
+      if (!disabled && !active) b.addEventListener('click', () => { page = p; render(); });
+      return b;
+    };
+    c.appendChild(mkBtn('‹', current - 1, false, current === 0));
+    const range = new Set([0, total - 1, current, current - 1, current + 1].filter(p => p >= 0 && p < total));
+    let prev = -1;
+    [...range].sort((a, b) => a - b).forEach(p => {
+      if (prev !== -1 && p - prev > 1) { const s = document.createElement('span'); s.className = 'page-ellipsis'; s.textContent = '…'; c.appendChild(s); }
+      c.appendChild(mkBtn(p + 1, p, p === current, false));
+      prev = p;
+    });
+    c.appendChild(mkBtn('›', current + 1, false, current >= total - 1));
+  }
+
+  $('pt-search').addEventListener('input', applyFilters);
+  $('pt-region').addEventListener('change', applyFilters);
+  $('pt-disability').addEventListener('change', applyFilters);
+  $('pt-reset').addEventListener('click', () => {
+    $('pt-search').value = ''; $('pt-region').value = ''; $('pt-disability').value = '';
+    applyFilters();
+  });
+  $('pt-tbody').addEventListener('click', e => {
+    const btn = e.target.closest('[data-view]');
+    if (btn) openDetail(btn.dataset.view);
+  });
+
+  // ── Detail (read-only) ───────────────────────────────────────
+  function fmtValue(v) {
+    if (Array.isArray(v)) return v.join(', ');
+    return String(v);
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return isNaN(d) ? '' : d.toLocaleString('en-PH', { year:'numeric', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+  }
+
+  async function openDetail(id) {
+    $('pt-list-view').style.display = 'none';
+    $('pt-detail-view').style.display = '';
+    $('pt-detail-title').textContent = 'Loading...';
+    $('pt-detail-subtitle').textContent = '';
+    $('pt-detail-body').innerHTML = '';
+    window.scrollTo(0, 0);
+    let d;
+    try {
+      d = await api('results-profile', { query: '&id=' + encodeURIComponent(id) });
+    } catch (err) {
+      if (err.message !== 'expired') $('pt-detail-title').textContent = err.message;
+      return;
+    }
+    const p = d.profile || {};
+    const name = (d.fields.find(f => f.key === 's2_1') || {}).value || 'Profile';
+    $('pt-detail-title').textContent = String(name).toUpperCase();
+    $('pt-detail-subtitle').textContent = [p.aruga_id, p.interviewer && 'Interviewer: ' + p.interviewer, fmtDate(p.submitted_at) && 'Submitted ' + fmtDate(p.submitted_at)].filter(Boolean).join(' · ');
+
+    // Longest prefix first, so "s4a_" is not caught by a shorter one.
+    const prefixes = STEPS.map(s => s[0]).sort((a, b) => b.length - a.length);
+    const groups = new Map(STEPS.map(s => [s[0], []]));
+    const other = [];
+    d.fields.forEach(f => {
+      const pre = prefixes.find(x => f.key.startsWith(x));
+      (pre ? groups.get(pre) : other).push(f);
+    });
+
+    const section = (title, fields) => !fields.length ? '' : `
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="pt-section-title">${esc(title)}</div>
+        <div class="pt-fields">
+          ${fields.map(f => `<div><div class="pt-field-label">${esc(f.label)}</div><div class="pt-field-value">${esc(fmtValue(f.value))}</div></div>`).join('')}
+        </div>
+      </div>`;
+
+    let html = STEPS.map(([pre, title]) => section(title, groups.get(pre))).join('') + section('Other', other);
+    if ((d.feedback || []).length) {
+      html += `<div class="card" style="margin-bottom:1rem;">
+        <div class="pt-section-title">Tester Feedback</div>
+        ${d.feedback.map(f => `<div class="pt-feedback">${f.step ? `<strong>Step ${esc(f.step)}:</strong> ` : ''}${esc(f.comment)}</div>`).join('')}
+      </div>`;
+    }
+    $('pt-detail-body').innerHTML = html;
+  }
+
+  function closeDetail() {
+    $('pt-detail-view').style.display = 'none';
+    $('pt-list-view').style.display = '';
+  }
+  $('pt-back').addEventListener('click', closeDetail);
+
+  // ── Start ────────────────────────────────────────────────────
+  token = store.get();
+  if (token) showApp(); else digits[0].focus();
+})();
+</script>
+</body>
+</html>

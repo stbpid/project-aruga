@@ -19,6 +19,7 @@ $map = [
     '/dashboard-central'     => 'dashboard-central.html',
     '/dashboard-stu-head'    => 'dashboard-stu-head.html',
     '/dashboard-field-officer' => 'dashboard-field-officer.html',
+    '/pretestv2result'       => 'pretest-v2-result.html',
 ];
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

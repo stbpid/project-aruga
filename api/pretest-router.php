@@ -7,6 +7,13 @@
  *   - action=submit   (POST) save one complete profile to the pretest schema
  *   - action=logout   (POST) end the session
  *
+ * Results viewer (/pretestv2result web page, read-only, 4-digit viewer code):
+ *   - action=results-login   (POST) code -> viewer token
+ *   - action=results         (GET)  table rows
+ *   - action=results-profile (GET)  one full profile (&id=<assessment uuid>)
+ *   - action=results-logout  (POST) end the viewer session
+ *   The token travels in the X-Viewer-Token header. Same-origin page, so no CORS change.
+ *
  * Isolation from the live tool:
  *   - Does NOT include lib/auth.php (that checks LIVE sessions).
  *   - Reads and writes only through the public.pretest_* database functions,
@@ -84,6 +91,15 @@ function pretestRequireSession() {
         sendResponse(false, 'Session expired or invalid. Please log in again.', null, 401);
     }
     return [$sessionId, $interviewerId, $rpc['data']];
+}
+
+/** Results viewer token from the X-Viewer-Token header (401 if malformed). */
+function pretestViewerToken() {
+    $token = $_SERVER['HTTP_X_VIEWER_TOKEN'] ?? '';
+    if (!preg_match(PRETEST_UUID_RE, $token)) {
+        sendResponse(false, 'Authentication required.', null, 401);
+    }
+    return $token;
 }
 
 // The v2 form's region list (docs/v2-profiling-preview.html, REGIONS) → the
@@ -314,6 +330,91 @@ switch ($action) {
                 'p_session_id'     => $sessionId,
                 'p_interviewer_id' => $interviewerId,
             ]);
+        }
+        sendResponse(true, 'Logged out');
+        break;
+    }
+
+    // ================================================================
+    // action=results-login — 4-digit viewer code for /pretestv2result
+    // ================================================================
+    case 'results-login': {
+        pretestRequireMethod('POST');
+        $input = pretestReadJson();
+        $code  = trim((string)($input['code'] ?? ''));
+        if (!preg_match('/^[0-9]{4}$/', $code)) {
+            sendResponse(false, 'Enter the 4-digit access code.', null, 400);
+        }
+
+        $rpc = supabaseRPC('pretest_viewer_login', [
+            'p_code'       => $code,
+            'p_ip'         => getUserIP(),
+            'p_user_agent' => getUserAgent(),
+        ]);
+        if (!$rpc['success'] || !is_array($rpc['data'])) {
+            error_log('pretest viewer login failed: HTTP ' . $rpc['httpCode']);
+            sendResponse(false, 'A server error occurred. Please try again.', null, 500);
+        }
+
+        $r = $rpc['data'];
+        if (empty($r['ok'])) {
+            if (($r['error'] ?? '') === 'rate_limited') sendResponse(false, 'Too many wrong codes. Please try again in 15 minutes.', null, 429);
+            sendResponse(false, 'Incorrect access code.', null, 401);
+        }
+        sendResponse(true, 'Access granted', ['token' => $r['token']]);
+        break;
+    }
+
+    // ================================================================
+    // action=results — table rows for /pretestv2result
+    // ================================================================
+    case 'results': {
+        pretestRequireMethod('GET');
+        $rpc = supabaseRPC('pretest_viewer_results', ['p_token' => pretestViewerToken()]);
+        if (!$rpc['success']) {
+            error_log('pretest viewer results failed: HTTP ' . $rpc['httpCode']);
+            sendResponse(false, 'A server error occurred. Please try again.', null, 500);
+        }
+        if (!is_array($rpc['data'])) {
+            sendResponse(false, 'Session expired. Please enter the code again.', null, 401);
+        }
+        sendResponse(true, 'ok', $rpc['data']);
+        break;
+    }
+
+    // ================================================================
+    // action=results-profile&id=<assessment uuid> — one full profile
+    // ================================================================
+    case 'results-profile': {
+        pretestRequireMethod('GET');
+        $token = pretestViewerToken();
+        $id    = (string)($_GET['id'] ?? '');
+        if (!preg_match(PRETEST_UUID_RE, $id)) {
+            sendResponse(false, 'Invalid record ID.', null, 400);
+        }
+        $rpc = supabaseRPC('pretest_viewer_profile', ['p_token' => $token, 'p_assessment_id' => $id]);
+        if (!$rpc['success']) {
+            error_log('pretest viewer profile failed: HTTP ' . $rpc['httpCode']);
+            sendResponse(false, 'A server error occurred. Please try again.', null, 500);
+        }
+        if (!is_array($rpc['data'])) {
+            sendResponse(false, 'Session expired. Please enter the code again.', null, 401);
+        }
+        if (empty($rpc['data']['found'])) {
+            sendResponse(false, 'Record not found.', null, 404);
+        }
+        sendResponse(true, 'ok', $rpc['data']);
+        break;
+    }
+
+    // ================================================================
+    // action=results-logout
+    // ================================================================
+    case 'results-logout': {
+        pretestRequireMethod('POST');
+        $token = $_SERVER['HTTP_X_VIEWER_TOKEN'] ?? '';
+        if (preg_match(PRETEST_UUID_RE, $token)) {
+            supabaseRPC('pretest_viewer_logout', ['p_token' => $token]);
         }
         sendResponse(true, 'Logged out');
         break;
