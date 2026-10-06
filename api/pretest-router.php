@@ -249,10 +249,11 @@ switch ($action) {
             sendResponse(false, 'Some required answers are missing or invalid.', ['fields' => $problems], 422);
         }
 
-        $createdOnDevice = null;
-        if (!empty($in['created_on_device_at']) && strtotime((string)$in['created_on_device_at']) !== false) {
-            $createdOnDevice = date('c', strtotime((string)$in['created_on_device_at']));
-        }
+        $deviceTime = function ($v) {
+            return (!empty($v) && strtotime((string)$v) !== false) ? date('c', strtotime((string)$v)) : null;
+        };
+        $createdOnDevice   = $deviceTime($in['created_on_device_at'] ?? null);
+        $completedOnDevice = $deviceTime($in['completed_on_device_at'] ?? null);
         $appVersion = preg_match('/^[0-9A-Za-z.\-+]{1,32}$/', (string)($in['app_version'] ?? '')) ? $in['app_version'] : null;
 
         $feedback = [];
@@ -264,11 +265,12 @@ switch ($action) {
         }
 
         $data = [
-            'assessment_id'        => $assessmentId,
-            'created_on_device_at' => $createdOnDevice,
-            'app_version'          => $appVersion,
-            'answers'              => $answers,
-            'feedback'             => $feedback,
+            'assessment_id'          => $assessmentId,
+            'created_on_device_at'   => $createdOnDevice,
+            'completed_on_device_at' => $completedOnDevice,
+            'app_version'            => $appVersion,
+            'answers'                => $answers,
+            'feedback'               => $feedback,
         ];
 
         $rpc = supabaseRPC('pretest_submit_assessment', [
