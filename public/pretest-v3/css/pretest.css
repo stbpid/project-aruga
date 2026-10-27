@@ -1,0 +1,113 @@
+/* Project Aruga — pretest desktop app additions (banner, feedback button). */
+
+.pretest-banner {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  width: 100%;
+  padding: 6px 12px;
+  background: #4b5563;
+  color: #fff;
+  font: 700 12px/1.4 'Poppins', system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.pretest-feedback-fab {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #6b7280;
+  font: 500 12px/1 'Poppins', system-ui, sans-serif;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+/* Phones: keep the button in the corner and leave room under the form so it
+   never covers the last question or the Next button. */
+@media (max-width: 640px) {
+  .pretest-feedback-fab { left: 12px; bottom: 12px; }
+  body:has(.pretest-feedback-fab) { padding-bottom: 56px; }
+}
+
+/* Form navbar on narrow phones: Exit becomes an icon, then the timer hides,
+   so the buttons never run off the screen. */
+@media (max-width: 374px) {
+  .nav-exit-label { display: none; }
+}
+@media (max-width: 339px) {
+  .nav-timer { display: none; }
+}
+.pretest-feedback-fab:hover {
+  color: #374151;
+  border-color: #d1d5db;
+  background: #fff;
+}
+
+.pretest-feedback-count {
+  min-width: 18px;
+  padding: 2px 5px;
+  border-radius: 9999px;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* v3: 1–5 agreement scale (1 Strongly agree … 5 Strongly disagree) plus
+   Not applicable / Don't know / Refused, recorded separately. */
+.likert-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+.likert-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.25rem;
+  padding: 6px 4px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.likert-card:hover { border-color: #93c5fd; }
+.likert-num { font-size: 15px; line-height: 1; color: #374151; }
+.likert-txt { margin-top: 3px; font-size: 10px; line-height: 1.15; color: #6b7280; }
+.likert-card:has(input:checked) .likert-txt { color: #1152d4; font-weight: 600; }
+.likert-card:has(input:focus-visible) { outline: 2px solid #1a73e8; outline-offset: 1px; }
+.likert-alt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.likert-alt .likert-card { min-height: 0; padding: 5px 10px; }
+.likert-alt .likert-num { font-size: 11px; font-weight: 600; }
+.q-block.has-error .likert-card { border-color: #fca5a5; }
+
+/* Sub-items of a question (e.g. "such as: Financial assistance, Health care…") */
+.q-sub {
+  padding-left: 14px;
+  border-left: 3px solid #eff6ff;
+}
+
+@media (max-width: 420px) {
+  .likert-row { gap: 4px; }
+  .likert-card { padding: 6px 2px; }
+  .likert-txt { font-size: 9px; }
+}

@@ -1,0 +1,252 @@
+/* Project Aruga — v2 pretest form styles.
+ * Copied as-is from docs/v2-profiling-preview.html (the approved v2 UI), plus the
+ * app's toast styles from styles.css. Used instead of styles.css by the v2 pages,
+ * because styles.css has rules that change the v2 look (e.g. it forces sections
+ * to overflow, which breaks the landing panel scroll).
+ */
+
+/* ---- Copied from project-aruga/public/css/styles.css (current profiling UI) ---- */
+:root { color-scheme: light; }
+body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: #f9fafb; }
+html { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+.thin-scroll { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+.thin-scroll::-webkit-scrollbar { width: 6px; }
+.thin-scroll::-webkit-scrollbar-track { background: transparent; }
+.thin-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 999px; }
+.thin-scroll::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+.dropdown-option.is-active { background-color: #eff6ff; }
+.dropdown-option.is-selected { color: #1152d4; font-weight: 600; }
+.step-section { transition: opacity 0.3s ease-in-out; }
+.hidden-step { display: none; opacity: 0; }
+.radio-card:has(input:checked) { border-color: #1152d4; background-color: rgba(25, 127, 230, 0.05); box-shadow: 0 0 0 1px #1152d4; }
+.radio-card:has(input:checked) h3,
+.radio-card:has(input:checked) span.font-bold { color: #1152d4; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; line-height: 1; }
+.google-dropdown-style { appearance: none !important; color-scheme: light; border: 1px solid #dadce0 !important; border-radius: 4px !important; background-color: #fff !important; color: #3c4043 !important; transition: all .2s ease-in-out !important; outline: none !important; box-shadow: none !important; }
+.google-dropdown-style option { color: #3c4043; background-color: #fff; }
+.google-dropdown-style:hover { border-color: #80868b !important; }
+.google-dropdown-style:focus { border-color: #1a73e8 !important; box-shadow: 0 0 0 1px #1a73e8 !important; }
+.google-dropdown-style:invalid { color: #9ca3af !important; }
+.slide-toggle-container { position: relative; display: flex; background-color: #f1f3f4; padding: 4px; border-radius: 8px; flex-shrink: 0; min-width: 5rem; }
+.slide-toggle-slider { position: absolute; top: 4px; bottom: 4px; width: calc(50% - 4px); background-color: #1a73e8; border-radius: 6px; transition: transform .3s cubic-bezier(.4,0,.2,1), opacity .2s; z-index: 1; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+.slide-toggle-label { flex: 1; position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; cursor: pointer; transition: color .3s ease; }
+.input-invalid, .input-invalid:focus { border-color: #ef4444 !important; box-shadow: none !important; outline: 2px solid #ef4444 !important; outline-offset: 0 !important; }
+.field-error { display: block; color: #ef4444; font-size: 11px; font-weight: 500; margin-top: 3px; line-height: 1.4; }
+.review-group { padding-bottom: .75rem; margin-bottom: .75rem; }
+.review-label { font-size: .7rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .05em; display: block; margin-bottom: .125rem; }
+.review-value { font-size: .9rem; font-weight: 600; color: #1f2937; word-wrap: break-word; line-height: 1.4; }
+.review-section-header { font-size: 1.125rem; font-weight: 800; color: #1152d4; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #eff6ff; padding-bottom: .5rem; display: flex; align-items: center; gap: .5rem; }
+.review-section-header:first-child { margin-top: 0; }
+/* ---- v2 additions (same visual language) ---- */
+.q-block.has-error .pill-group .radio-card { border-color: #fca5a5; }
+.pill-group .radio-card { min-height: 2.25rem; }
+/* ---- Rating slider (continuous track + labeled ticks) ---- */
+.slider-input { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 999px; background: linear-gradient(to right, #1152d4 var(--fill, 0%), #e5e7eb var(--fill, 0%)); outline: none; cursor: pointer; transition: background .25s ease; }
+.slider-input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #1152d4; border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; margin-top: 0; transition: left .2s ease; }
+.slider-input::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #1152d4; border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: left .2s ease; }
+.slider-input::-moz-range-track { height: 6px; border-radius: 999px; background: #e5e7eb; }
+.slider-input::-moz-range-progress { height: 6px; border-radius: 999px; background: #1152d4; }
+.slider-input.unanswered { background: #e5e7eb; }
+.slider-input.unanswered::-webkit-slider-thumb { opacity: 0; }
+.slider-input.unanswered::-moz-range-thumb { opacity: 0; }
+.slider-input.unanswered::-moz-range-progress { background: transparent; }
+.slider-tick { cursor: pointer; background: none; border: none; padding: 0; }
+.slider-dot { transition: all .2s ease; }
+.slider-label { transition: color .2s ease; }
+.slider-tick.active .slider-dot { border-color: #1152d4; background: #1152d4; transform: scale(1.2); }
+.slider-tick.active .slider-label { color: #1152d4; }
+.slider-tick:hover .slider-label { color: #1152d4; }
+.slider-input.dragging { transition: none; }
+.slider-input.dragging::-webkit-slider-thumb { transition: none; }
+.slider-input.dragging::-moz-range-thumb { transition: none; }
+/* ---- Landing (login) ---- */
+/* Landing fits one screen (minus the footer); the panel scrolls inside if needed. */
+#landing-view { height: calc(100vh - 2.25rem); height: calc(100dvh - 2.25rem); min-height: 480px; }
+#landing-card { max-height: 560px; }
+.landing-select { appearance: none; }
+
+/* =============================================
+   TOAST NOTIFICATIONS
+   ============================================= */
+
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+}
+
+.toast {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 300px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.toast.success {
+  background: #ecfdf5;
+}
+
+.toast.error {
+  background: #fef2f2;
+}
+
+.toast.warning {
+  background: #fffbeb;
+}
+
+.toast.info {
+  background: #eff6ff;
+}
+
+.toast-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.toast.success .toast-icon {
+  color: #22c55e;
+}
+
+.toast.error .toast-icon {
+  color: #ef4444;
+}
+
+.toast.warning .toast-icon {
+  color: #f59e0b;
+}
+
+.toast.info .toast-icon {
+  color: #3b82f6;
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  display: none;
+}
+
+.toast-message {
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.toast.success .toast-message {
+  color: #22c55e;
+}
+
+.toast.error .toast-message {
+  color: #ef4444;
+}
+
+.toast.warning .toast-message {
+  color: #f59e0b;
+}
+
+.toast.info .toast-message {
+  color: #3b82f6;
+}
+
+.toast-close {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.toast-close:hover {
+  opacity: 0.7;
+}
+
+.toast.success .toast-close {
+  color: #22c55e;
+}
+
+.toast.error .toast-close {
+  color: #ef4444;
+}
+
+.toast.warning .toast-close {
+  color: #f59e0b;
+}
+
+.toast.info .toast-close {
+  color: #3b82f6;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+.toast.hiding {
+  animation: slideOut 0.3s ease-out forwards;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .toast-container {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+  
+  .toast {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .toast-content {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}

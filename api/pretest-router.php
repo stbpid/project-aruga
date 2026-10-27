@@ -1,6 +1,12 @@
 <?php
 /**
- * Pretest Router — the ONLY server endpoint for the v2 pretest desktop app.
+ * Pretest Router — the ONLY server endpoint for the v2 and v3 pretest apps.
+ *
+ * Form version: requests with &v=3 use the v3 questions, tester list and
+ * pretest_*_v3 database functions. No v (or v=2) is v2, so the v2 app and
+ * /pretestv2result work unchanged. ping, logout, results-login and
+ * results-logout are shared by both versions.
+ *
  *   - action=ping     (GET)  connection check, no database call
  *   - action=login    (POST) Interviewer Code login (pretest users only)
  *   - action=session  (GET)  is my session still valid?
@@ -51,6 +57,18 @@ header('Cache-Control: no-store');
 const PRETEST_UUID_RE = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
 const PRETEST_MAX_BODY = 262144; // 256 KB is far above a real profile
 
+$pretestV = $_GET['v'] ?? '2';
+if ($pretestV !== '2' && $pretestV !== '3') {
+    sendResponse(false, 'Unknown form version', null, 400);
+}
+$pretestIsV3 = $pretestV === '3';
+
+/** Database function for this form version: v3 adds the "_v3" suffix. */
+function pretestFn($name) {
+    global $pretestIsV3;
+    return $pretestIsV3 ? $name . '_v3' : $name;
+}
+
 // ----------------------------------------------------------------
 // Helpers
 // ----------------------------------------------------------------
@@ -79,7 +97,7 @@ function pretestRequireSession() {
     if (!preg_match(PRETEST_UUID_RE, $sessionId) || !preg_match(PRETEST_UUID_RE, $interviewerId)) {
         sendResponse(false, 'Authentication required.', null, 401);
     }
-    $rpc = supabaseRPC('pretest_check_session', [
+    $rpc = supabaseRPC(pretestFn('pretest_check_session'), [
         'p_session_id'     => $sessionId,
         'p_interviewer_id' => $interviewerId,
     ]);
@@ -126,17 +144,24 @@ const PRETEST_V2_REGIONS = [
     'BARMM'                           => 'BARMM',
 ];
 
-// v2 answer keys are the pretest.v2_profiles column names: s2_1, s4b_10,
-// s6_2a, s2_5_region, s6_5_spec, s13_functional_notes, ...
+// v3 covers Region III only for now. Names match the main Profiling Tool's
+// location list (api/admin-router.php?action=locations).
+const PRETEST_V3_REGIONS = [
+    'Region III (Central Luzon)' => 'R3',
+];
+
+// Answer keys are the pretest.v2_profiles / v3_profiles column names: s2_1,
+// s4b_10, s6_2a, s2_5_region, s7_1a, s11_1a_met, s12_functional_note, ...
 const PRETEST_ANSWER_KEY_RE = '/^s[0-9]{1,2}[a-z]?_[a-z0-9_]{1,40}$/';
 const PRETEST_ARRAY_KEYS    = ['s3_types'];
+const PRETEST_V3_ARRAY_KEYS = ['s3_types', 's9_1a'];
+const PRETEST_V3_MONEY_KEYS = ['s8_1_earn', 's8_1_pension', 's8_1_govt', 's8_1_other', 's8_1_total', 's8_2_amount'];
 
 /**
- * Checks the v2 answers. The app checks every question too, but the server
- * cannot trust the device, so the answer shape and the key identifying answers
- * are checked here. Returns [cleanAnswers, problems] (problems empty = OK).
+ * Checks the answer shape shared by both versions: known key pattern, list
+ * answers only for $arrayKeys, text length limits. Returns [cleanAnswers, problems].
  */
-function pretestValidateAnswers($answers) {
+function pretestCleanAnswers($answers, $arrayKeys) {
     $errors = [];
     $clean  = [];
 
@@ -146,7 +171,7 @@ function pretestValidateAnswers($answers) {
 
     foreach ($answers as $key => $value) {
         if (!is_string($key) || !preg_match(PRETEST_ANSWER_KEY_RE, $key)) { $errors[] = 'answers.key'; continue; }
-        if (in_array($key, PRETEST_ARRAY_KEYS, true)) {
+        if (in_array($key, $arrayKeys, true)) {
             if (!is_array($value) || count($value) > 20) { $errors[] = $key; continue; }
             $items = [];
             foreach ($value as $item) {
@@ -161,6 +186,18 @@ function pretestValidateAnswers($answers) {
         $clean[$key] = trim($value);
     }
 
+    return [$clean, $errors];
+}
+
+/**
+ * Checks the v2 answers. The app checks every question too, but the server
+ * cannot trust the device, so the answer shape and the key identifying answers
+ * are checked here. Returns [cleanAnswers, problems] (problems empty = OK).
+ */
+function pretestValidateAnswers($answers) {
+    [$clean, $errors] = pretestCleanAnswers($answers, PRETEST_ARRAY_KEYS);
+    if ($errors === ['answers']) return [[], $errors];
+
     $name = $clean['s2_1'] ?? '';
     if (mb_strlen($name) < 2 || mb_strlen($name) > 255) $errors[] = 's2_1';
     $age = $clean['s2_3'] ?? '';
@@ -171,6 +208,40 @@ function pretestValidateAnswers($answers) {
         if (($clean[$k] ?? '') === '') $errors[] = $k;
     }
     foreach (['s9_1', 's9_2'] as $k) {
+        if (($clean[$k] ?? '') !== '' && (!is_numeric($clean[$k]) || (float)$clean[$k] < 0 || (float)$clean[$k] > 9999999999)) $errors[] = $k;
+    }
+
+    return [$clean, array_values(array_unique($errors))];
+}
+
+/**
+ * Checks the v3 answers (same idea as v2). The child's full name is optional
+ * in v3, so the preferred name is required instead. Age is recalculated here
+ * from the date of birth rather than trusted from the device.
+ */
+function pretestValidateAnswersV3($answers) {
+    [$clean, $errors] = pretestCleanAnswers($answers, PRETEST_V3_ARRAY_KEYS);
+    if ($errors === ['answers']) return [[], $errors];
+
+    $pref = $clean['s2_3'] ?? '';
+    if (mb_strlen($pref) < 1 || mb_strlen($pref) > 255) $errors[] = 's2_3';
+
+    $dob = DateTime::createFromFormat('!Y-m-d', $clean['s2_4'] ?? '');
+    $today = new DateTime('today');
+    if (!$dob || $dob->format('Y-m-d') !== ($clean['s2_4'] ?? '') || $dob > $today || $dob->diff($today)->y > 17) {
+        $errors[] = 's2_4';
+    } else {
+        $clean['s2_4_age'] = (string)$dob->diff($today)->y;
+    }
+
+    if (!in_array($clean['s2_5'] ?? '', ['Male', 'Female', 'Other'], true)) $errors[] = 's2_5';
+    if (($clean['s2_2'] ?? '') !== '' && !preg_match('/^[0-9 \-]{1,30}$/', $clean['s2_2'])) $errors[] = 's2_2';
+
+    if (!isset(PRETEST_V3_REGIONS[$clean['s2_6_region'] ?? ''])) $errors[] = 's2_6_region';
+    foreach (['s2_6_province', 's2_6_city', 's2_6_barangay'] as $k) {
+        if (($clean[$k] ?? '') === '') $errors[] = $k;
+    }
+    foreach (PRETEST_V3_MONEY_KEYS as $k) {
         if (($clean[$k] ?? '') !== '' && (!is_numeric($clean[$k]) || (float)$clean[$k] < 0 || (float)$clean[$k] > 9999999999)) $errors[] = $k;
     }
 
@@ -203,7 +274,7 @@ switch ($action) {
             sendResponse(false, 'Invalid interviewer code format. Must be 8 alphanumeric characters.', null, 400);
         }
 
-        $rpc = supabaseRPC('pretest_login', [
+        $rpc = supabaseRPC(pretestFn('pretest_login'), [
             'p_code'       => $code,
             'p_ip'         => getUserIP(),
             'p_user_agent' => getUserAgent(),
@@ -260,7 +331,9 @@ switch ($action) {
             sendResponse(false, 'Missing or invalid record ID.', null, 400);
         }
 
-        [$answers, $problems] = pretestValidateAnswers($in['answers'] ?? null);
+        [$answers, $problems] = $pretestIsV3
+            ? pretestValidateAnswersV3($in['answers'] ?? null)
+            : pretestValidateAnswers($in['answers'] ?? null);
         if ($problems) {
             sendResponse(false, 'Some required answers are missing or invalid.', ['fields' => $problems], 422);
         }
@@ -289,10 +362,12 @@ switch ($action) {
             'feedback'               => $feedback,
         ];
 
-        $rpc = supabaseRPC('pretest_submit_assessment', [
+        $rpc = supabaseRPC(pretestFn('pretest_submit_assessment'), [
             'p_session_id'     => $sessionId,
             'p_interviewer_id' => $interviewerId,
-            'p_region_code'    => PRETEST_V2_REGIONS[$answers['s2_5_region']],
+            'p_region_code'    => $pretestIsV3
+                ? PRETEST_V3_REGIONS[$answers['s2_6_region']]
+                : PRETEST_V2_REGIONS[$answers['s2_5_region']],
             'p_data'           => $data,
         ]);
 
@@ -370,7 +445,7 @@ switch ($action) {
     // ================================================================
     case 'results': {
         pretestRequireMethod('GET');
-        $rpc = supabaseRPC('pretest_viewer_results', ['p_token' => pretestViewerToken()]);
+        $rpc = supabaseRPC(pretestFn('pretest_viewer_results'), ['p_token' => pretestViewerToken()]);
         if (!$rpc['success']) {
             error_log('pretest viewer results failed: HTTP ' . $rpc['httpCode']);
             sendResponse(false, 'A server error occurred. Please try again.', null, 500);
@@ -392,7 +467,7 @@ switch ($action) {
         if (!preg_match(PRETEST_UUID_RE, $id)) {
             sendResponse(false, 'Invalid record ID.', null, 400);
         }
-        $rpc = supabaseRPC('pretest_viewer_profile', ['p_token' => $token, 'p_assessment_id' => $id]);
+        $rpc = supabaseRPC(pretestFn('pretest_viewer_profile'), ['p_token' => $token, 'p_assessment_id' => $id]);
         if (!$rpc['success']) {
             error_log('pretest viewer profile failed: HTTP ' . $rpc['httpCode']);
             sendResponse(false, 'A server error occurred. Please try again.', null, 500);
