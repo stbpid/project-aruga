@@ -50,7 +50,7 @@ const STEPS = [
     no: 2, title: 'Identifying Information', label: 'Identifying Information', heading: 'Identifying Information',
     subtext: 'Basic details about the child, residence, and caregiver.',
     sections: [
-      { title: 'Child’s Name', icon: 'badge', note: 'Optional. Leave blank if the family prefers not to give it.', fields: [
+      { title: 'Child’s Name', icon: 'badge', fields: [
         { id: 's2_1_first', area: 'First name', q: 'First Name', type: 'text', icon: 'person', ph: 'First name', half: true, optional: true },
         { id: 's2_1_middle', area: 'Middle name', q: 'Middle Name', type: 'text', icon: 'person', ph: 'Middle name', half: true, optional: true },
         { id: 's2_1_last', area: 'Last name', q: 'Last Name', type: 'text', icon: 'person', ph: 'Last name', half: true, optional: true },
@@ -60,7 +60,7 @@ const STEPS = [
         { id: 's2_2', area: 'PhilSys ID Number', q: 'PhilSys ID Number', type: 'text', icon: 'fingerprint', ph: 'Numbers only (optional)', digits: true, half: true, optional: true },
         { id: 's2_3', area: 'Preferred name', q: 'What name does the child usually use at home?', type: 'text', icon: 'badge', ph: 'Preferred name', half: true },
         { id: 's2_4', area: 'Date of birth', q: 'What is the child’s date of birth?', type: 'date', half: true },
-        { id: 's2_5', area: 'Sex', q: 'What is the child’s sex?', type: 'choice', options: ['Male', 'Female', 'Other'], specify: ['Other'], specSuffix: '_other', specifyPh: 'Specify', half: true }
+        { id: 's2_5', area: 'Sex', q: 'What is the child’s sex?', type: 'select', ph: 'Select sex', options: ['Male', 'Female', 'Other'], specify: ['Other'], specSuffix: '_other', specifyPh: 'Specify', half: true }
       ] },
       { title: 'Residence and Living Arrangement', icon: 'home', fields: [
         { id: 's2_6', area: 'Residence', q: 'Where does the child currently live?', type: 'address' },
@@ -79,7 +79,7 @@ const STEPS = [
     subtext: 'Identification only. This domain is not scored.',
     sections: [{
       title: 'Type of Disability or Condition', icon: 'accessible',
-      intro: 'Ask: “Has the child been identified as having a disability, developmental condition, or difficulty doing activities that other children of the same age can usually do?” More than one answer is allowed.',
+      tip: 'Ask: “Has the child been identified as having a disability, developmental condition, or difficulty doing activities that other children of the same age can usually do?” More than one answer is allowed.',
       fields: [
         { id: 's3_types', area: 'Type', q: 'Disability or condition type', type: 'multiselect', ph: 'Select all that apply…', specify: ['Other'], specSuffix: '_other', specifyPh: 'Specify other type',
           options: ['Physical/Mobility', 'Visual', 'Hearing', 'Intellectual Disability', 'Communication/Speech', 'Cognitive/Intellectual', 'Learning/Developmental', 'Mental Disability (as reported or documented)', 'Physical disability, including orthopedic disability', 'Speech and language impairment', 'Psychosocial disability (as reported or documented)', 'Cancer', 'Rare disease', 'Autism/Neurodevelopmental', 'Psychosocial/Behavioral', 'Multiple Disabilities', 'Other'] }
@@ -92,7 +92,7 @@ const STEPS = [
     subtext: 'Choose the number that best matches the respondent’s answer.',
     sections: [
       { title: 'Adequacy of Family Caregiving Support', icon: 'volunteer_activism', note: LEGEND,
-        intro: 'Together, my family and I have enough time to provide the help and care my child needs, which include the following:', fields: [
+        tip: 'Together, my family and I have enough time to provide the help and care my child needs, which include the following:', fields: [
         L('s4_1_1', 'Family activities', 'Family activities with the child’s needed support or adaptations'),
         L('s4_1_2', 'Household tasks', 'Age-appropriate household tasks', { specify: RATED, specifyPh: 'Specify household tasks' }),
         L('s4_1_3', 'Family interaction', 'Interaction with family members'),
@@ -153,7 +153,7 @@ const STEPS = [
         L('s7_6', 'Support', 'When I experience stress or difficulty, I can get counseling or other support if I need it.')
       ] },
       { title: 'Caregiver Dependency', icon: 'support', fields: [
-        { id: 's7_6a', area: 'Caregiver dependency', q: 'Do you currently need additional help or support to look after your own well-being while caring for your child?', type: 'choice', options: ['Yes', 'No', 'Not sure'], specify: ['Yes'], specifyPh: 'What help or support do you need?' }
+        { id: 's7_6a', area: 'Caregiver dependency', q: 'Do you currently need additional help or support to look after your own well-being while caring for your child?', type: 'select', ph: 'Select answer', options: ['Yes', 'No', 'Not sure'], specify: ['Yes'], specifyPh: 'What help or support do you need?' }
       ] }
     ]
   },
@@ -163,7 +163,7 @@ const STEPS = [
     subtext: 'Ask about household income, disability-related costs, and affordability.',
     sections: [
       { title: 'Monthly Household Cash Income', icon: 'monetization_on', note: 'Enter 0 if the household received nothing from a source.',
-        intro: 'During the past month, approximately how much money did your household receive from all sources combined? Mention each source and ask for the average amount received during the past month.', fields: [
+        tip: 'During the past month, approximately how much money did your household receive from all sources combined? Mention each source and ask for the average amount received during the past month.', fields: [
         { id: 's8_1_earn', area: 'Earnings', q: 'Earnings and net business/livelihood income', type: 'money', half: true },
         { id: 's8_1_earn_note', area: 'Earnings', q: 'Notes/Explanations', type: 'text', ph: 'Notes (optional)', half: true, optional: true },
         { id: 's8_1_pension', area: 'Pensions and remittances', q: 'Pensions, remittances, and other financial support', type: 'money', half: true },
@@ -177,7 +177,7 @@ const STEPS = [
         { id: 's8_1_total', area: 'Total household cash income', q: 'Total household cash income and assistance', type: 'computed', money: true, compute: incomeTotal }
       ] },
       { title: 'Disability-related Expenses', icon: 'receipt_long', note: 'Expense share (%) = disability-related expenses ÷ total household cash income × 100',
-        intro: 'During the past month, approximately how much did your household pay out of pocket for your child’s disability-related care and support needs?', fields: [
+        tip: 'During the past month, approximately how much did your household pay out of pocket for your child’s disability-related care and support needs?', fields: [
         { id: 's8_2_amount', area: 'Disability-related expenses', q: 'Amount spent during the past month', type: 'money', half: true },
         { id: 's8_2_note', area: 'Disability-related expenses', q: 'Notes/Explanations', type: 'text', ph: 'What the money was spent on (optional)', half: true, optional: true },
         { id: 's8_2_share', area: 'Expense share', q: 'Expense share', type: 'computed', compute: expenseShare }
@@ -269,24 +269,14 @@ const STEPS = [
   },
   // ---------------------------------------------------------------- STEP 11 · N + Q
   {
-    no: 12, title: 'Enumerator Summary', label: 'Enumerator Summary and Quality Check', heading: 'Enumerator Summary and Quality Check',
+    no: 12, title: 'Summary', label: 'Summary', heading: 'Summary',
     subtext: 'To be completed by the interviewer after the interview.', last: true,
     sections: [
       { title: 'Case Flags', icon: 'flag', fields: [
         ['functional', 'Functional difficulty identified'], ['priority', 'Priority support need'], ['unmet', 'Unmet service need'],
         ['environment', 'Environmental barrier'], ['caregiver', 'Caregiver support concern'], ['economic', 'Economic barrier'],
         ['social', 'Social protection concern'], ['urgent', 'Urgent referral trigger']
-      ].map(([k, label]) => ({ id: 's12_' + k, area: 'Concern', q: label, type: 'yn', order: ['No', 'Yes'], notes: true })) },
-      { title: 'Final Quality Check', icon: 'fact_check', fields: [
-        { id: 's12_qc', area: 'Quality check', q: 'Confirm each item before reviewing the profile.', type: 'checks', cols: 1, allRequired: true, split: true, options: [
-          'Correct response scale used for every item.',
-          'Care, education, health, caregiver, economic, social protection and environmental sections are complete.',
-          'Urgent concerns/referrals are recorded under the approved protocol.',
-          'Domain calculations use only applicable scored items.',
-          'Only necessary identifying information is retained in the analytical dataset.',
-          'Composite score is used to support assessment/case planning, not as a substitute for clinical, educational or specialized assessment.'
-        ] }
-      ] }
+      ].map(([k, label]) => ({ id: 's12_' + k, area: 'Concern', q: label, type: 'yn', order: ['No', 'Yes'], notes: true })) }
     ]
   }
 ];
@@ -351,36 +341,36 @@ function specifyInput(f) {
 // Custom-styled single-select dropdown with a thin-scrollbar option list.
 // A real <select> (visually hidden, but focusable/tabbable) stays the source
 // of truth so valueOf()/fillSample()/validateStep() need no special cases.
-function customSelect(id, options, placeholder) {
+// `onchange` runs after the label sync (the address cascade uses it).
+function customSelect(id, options, placeholder, onchange) {
   return `<div class="relative" data-dropdown="${id}">
     <select id="${id}" class="sr-only" required
-      onchange="syncDropdownFromSelect('${id}')">
+      onchange="syncDropdownFromSelect('${id}')${onchange ? `; ${onchange}` : ''}">
       <option value="" disabled selected>${esc(placeholder)}</option>${options.map(v => `<option>${esc(v)}</option>`).join('')}
     </select>
-    <button type="button" onclick="toggleDropdown('${id}')" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm text-left flex items-center" id="${id}_trigger">
+    <button type="button" onclick="toggleDropdown('${id}')" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm text-left flex items-center" id="${id}_trigger" ${options.length ? '' : 'disabled'}>
       <span id="${id}_trigger_label" class="text-gray-400 truncate" data-ph="${esc(placeholder)}">${esc(placeholder)}</span>
     </button>
     <span class="material-symbols-outlined pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[18px] text-gray-400">expand_more</span>
-    <div id="${id}_panel" class="hidden absolute z-20 mt-1 w-full max-h-64 overflow-y-auto thin-scroll bg-white border border-gray-200 rounded-lg shadow-lg py-1">${options.map(v => `
-      <button type="button" class="dropdown-option w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-blue-50" onclick="selectDropdownOption('${id}', this.textContent)">${esc(v)}</button>`).join('')}
+    <div id="${id}_panel" class="hidden absolute z-20 mt-1 w-full max-h-64 overflow-y-auto thin-scroll bg-white border border-gray-200 rounded-lg shadow-lg py-1">${dropdownOptions(id, options)}
     </div>
   </div>`;
 }
 
-// Native select (address and DSA main use): its options change with other answers.
-function nativeSelect(id, placeholder, onchange) {
-  return `<div class="relative">
-    <select id="${id}" class="google-dropdown-style w-full h-9 pl-3 pr-8 text-xs sm:text-sm" ${onchange ? `onchange="${onchange}"` : ''} disabled>
-      <option value="">${esc(placeholder)}</option>
-    </select>
-    <span class="material-symbols-outlined pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[18px] text-gray-400">expand_more</span>
-  </div>`;
+function dropdownOptions(id, options) {
+  return options.map(v => `
+      <button type="button" class="dropdown-option w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-blue-50" onclick="selectDropdownOption('${id}', this.textContent)">${esc(v)}</button>`).join('');
+}
+
+// Small grey label above the question; skipped when it would repeat the question.
+function areaLabel(f) {
+  return f.area && f.area.toLowerCase() !== f.q.toLowerCase() ?`<p class="text-[10px] uppercase tracking-wider font-bold text-gray-400">${esc(f.area)}</p>` : '';
 }
 
 function questionHead(f) {
   return `
     <div class="mb-2">
-      <p class="text-[10px] uppercase tracking-wider font-bold text-gray-400">${esc(f.area)}</p>
+      ${areaLabel(f)}
       <p class="font-bold text-brand-dark text-xs sm:text-sm leading-snug">${esc(f.q)}${req(f)}</p>
     </div>`;
 }
@@ -405,7 +395,7 @@ function renderField(f) {
           </button>` : '';
       const head = `
           <div class="flex-1 min-w-0">
-            <p class="text-[10px] uppercase tracking-wider font-bold text-gray-400">${esc(f.area)}</p>
+            ${areaLabel(f)}
             <p class="font-bold text-brand-dark text-xs sm:text-sm leading-snug">${esc(f.q)}${req(f)}</p>
             ${notesBtn}
           </div>`;
@@ -437,7 +427,7 @@ function renderField(f) {
       break;
 
     case 'dynselect':
-      body = nativeSelect(f.id, f.ph || 'Select');
+      body = customSelect(f.id, [], f.ph || 'Select');
       break;
 
     case 'checks':
@@ -500,10 +490,10 @@ function renderField(f) {
 
     case 'address':
       body = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div><label class="block text-[10px] font-bold text-gray-500 mb-1">Region <span class="text-red-500">*</span></label>${nativeSelect(`${f.id}_region`, 'Select region', `addressChanged('${f.id}', 'region')`)}</div>
-        <div><label class="block text-[10px] font-bold text-gray-500 mb-1">Province <span class="text-red-500">*</span></label>${nativeSelect(`${f.id}_province`, 'Select province', `addressChanged('${f.id}', 'province')`)}</div>
-        <div><label class="block text-[10px] font-bold text-gray-500 mb-1">City/Municipality <span class="text-red-500">*</span></label>${nativeSelect(`${f.id}_city`, 'Select city/municipality', `addressChanged('${f.id}', 'city')`)}</div>
-        <div><label class="block text-[10px] font-bold text-gray-500 mb-1">Barangay <span class="text-red-500">*</span></label>${nativeSelect(`${f.id}_barangay`, 'Select barangay', `addressChanged('${f.id}', 'barangay')`)}</div>
+        <div><label class="block text-[10px] font-bold text-gray-500 mb-1">Region <span class="text-red-500">*</span></label>${customSelect(`${f.id}_region`, [], 'Select region', `addressChanged('${f.id}', 'region')`)}</div>
+        <div><label class="block text-[10px] font-bold text-gray-500 mb-1">Province <span class="text-red-500">*</span></label>${customSelect(`${f.id}_province`, [], 'Select province', `addressChanged('${f.id}', 'province')`)}</div>
+        <div><label class="block text-[10px] font-bold text-gray-500 mb-1">City/Municipality <span class="text-red-500">*</span></label>${customSelect(`${f.id}_city`, [], 'Select city/municipality', `addressChanged('${f.id}', 'city')`)}</div>
+        <div><label class="block text-[10px] font-bold text-gray-500 mb-1">Barangay <span class="text-red-500">*</span></label>${customSelect(`${f.id}_barangay`, [], 'Select barangay', `addressChanged('${f.id}', 'barangay')`)}</div>
         <div class="sm:col-span-2"><label class="block text-[10px] font-bold text-gray-500 mb-1">Street Address</label><input id="${f.id}_street" type="text" class="${INPUT}" placeholder="House no., street, purok/sitio (optional)"></div>
       </div>`;
       break;
@@ -520,7 +510,13 @@ function renderSection(s, si, stepNo) {
           <span class="material-symbols-outlined text-[18px] text-brand-blue">${s.icon}</span>
         </div>
         <div>
-          <h3 class="font-bold text-brand-dark text-base">${esc(s.title)}</h3>
+          <h3 class="font-bold text-brand-dark text-base flex items-center gap-1.5">${esc(s.title)}${s.tip ? `
+            <span class="section-tip relative inline-flex">
+              <button type="button" class="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-brand-blue hover:bg-blue-50 focus:text-brand-blue focus:bg-blue-50 outline-none transition-colors" aria-label="Interviewer tip">
+                <span class="material-symbols-outlined text-[18px]">help</span>
+              </button>
+              <span class="tip-bubble" role="tooltip">${esc(s.tip)}</span>
+            </span>` : ''}</h3>
           ${s.note ? `<p class="text-gray-500 text-[11px] sm:text-xs">${esc(s.note)}</p>` : ''}
         </div>
       </div>
@@ -597,12 +593,15 @@ function addressChanged(id, changed) {
   const start = changed === null ? 0 : ADDRESS_LEVELS.indexOf(changed) + 1;
   for (let i = start; i < ADDRESS_LEVELS.length; i++) {
     const level = ADDRESS_LEVELS[i];
-    const sel = document.getElementById(`${id}_${level}`);
+    const selId = `${id}_${level}`;
+    const sel = document.getElementById(selId);
     const opts = addressOptions(id, level);
     const ph = sel.options[0].textContent;
-    sel.innerHTML = `<option value="">${esc(ph)}</option>` + opts.map(o => `<option>${esc(o)}</option>`).join('');
-    sel.disabled = opts.length === 0;
+    sel.innerHTML = `<option value="" disabled selected>${esc(ph)}</option>` + opts.map(o => `<option>${esc(o)}</option>`).join('');
+    document.getElementById(selId + '_panel').innerHTML = dropdownOptions(selId, opts);
+    document.getElementById(selId + '_trigger').disabled = opts.length === 0;
     if (opts.length === 1) sel.value = opts[0];
+    syncDropdownFromSelect(selId);
   }
   refresh();
 }
@@ -645,10 +644,12 @@ function refreshDynSelect(f, a) {
   const key = opts.join('\n');
   if (sel.dataset.opts !== key) {
     sel.dataset.opts = key;
-    sel.innerHTML = `<option value="">${esc(f.ph || 'Select')}</option>` + opts.map(o => `<option>${esc(o)}</option>`).join('');
-    sel.value = opts.includes(current) ? current : '';
+    sel.innerHTML = `<option value="" disabled selected>${esc(f.ph || 'Select')}</option>` + opts.map(o => `<option>${esc(o)}</option>`).join('');
+    if (opts.includes(current)) sel.value = current;
+    document.getElementById(f.id + '_panel').innerHTML = dropdownOptions(f.id, opts);
+    updateDropdownLabel(f.id);
   }
-  sel.disabled = opts.length === 0;
+  document.getElementById(f.id + '_trigger').disabled = opts.length === 0;
 }
 
 function refresh() {
@@ -700,7 +701,7 @@ function validateStep(n) {
     if (f.type === 'computed') return;
     if (f.type === 'address') {
       ADDRESS_LEVELS.forEach((k, i) => {
-        if (!v[i]) { ok = false; document.getElementById(`${f.id}_${k}`).classList.add('input-invalid'); }
+        if (!v[i]) { ok = false; document.getElementById(`${f.id}_${k}_trigger`).classList.add('input-invalid'); }
       });
       if (ADDRESS_LEVELS.some((k, i) => !v[i])) flag(f, 'Please complete the region, province, city/municipality and barangay.');
       return;
@@ -710,8 +711,8 @@ function validateStep(n) {
     if (empty) {
       if (f.optional) return;
       ok = false;
-      const input = f.type === 'select' ? document.getElementById(f.id + '_trigger')
-        : ['text', 'money', 'textarea', 'date', 'dynselect'].includes(f.type) ? document.getElementById(f.id) : null;
+      const input = ['select', 'dynselect'].includes(f.type) ? document.getElementById(f.id + '_trigger')
+        : ['text', 'money', 'textarea', 'date'].includes(f.type) ? document.getElementById(f.id) : null;
       flag(f, f.type === 'checks' || f.type === 'multiselect' ? 'Please select at least one.' : 'This question is required.', input);
       return;
     }
@@ -810,13 +811,19 @@ function toggleDropdown(id) {
 function selectDropdownOption(id, value) {
   const select = document.getElementById(id);
   select.value = value;
-  syncDropdownFromSelect(id);
+  select.dispatchEvent(new Event('change'));
   document.getElementById(id + '_panel').classList.add('hidden');
 }
 
 // Keeps the visible trigger label/panel in sync whenever the hidden <select>'s
 // value changes directly (fillSample(), programmatic set(), etc.), not just via click.
 function syncDropdownFromSelect(id) {
+  updateDropdownLabel(id);
+  refresh();
+}
+
+// Label only, no refresh(): refreshDynSelect() runs inside refresh().
+function updateDropdownLabel(id) {
   const value = document.getElementById(id).value;
   const label = document.getElementById(id + '_trigger_label');
   if (label) {
@@ -824,7 +831,6 @@ function syncDropdownFromSelect(id) {
     label.classList.toggle('text-gray-400', !value);
     label.classList.toggle('text-gray-800', !!value);
   }
-  refresh();
 }
 
 function updateMultiselectLabel(id) {
@@ -895,6 +901,7 @@ function fillSample() {
   addressChanged('s2_6', null);
   const brgy = document.getElementById('s2_6_barangay');
   if (brgy.options.length > 1) brgy.value = brgy.options[1 + Math.floor(Math.random() * (brgy.options.length - 1))].value;
+  syncDropdownFromSelect('s2_6_barangay');
   set('s2_6_street', 'Purok 3');
   set('s8_1_earn', '12000'); set('s8_1_pension', '0'); set('s8_1_govt', '3000'); set('s8_1_other', '0');
   set('s8_1_govt_prog', '4Ps'); set('s8_2_amount', String(pick([0, 800, 2500, 6000])));

@@ -2,7 +2,7 @@
   "functions": {
     "api/serve.php": {
       "runtime": "vercel-php@0.7.1",
-      "excludeFiles": "{public/images/**,public/data/**,public/js/**,public/css/**,public/pretest-v3/**,archive/**,docs/**,supabase-migrations/**,node_modules/**,*.js,*.md,*.sql}"
+      "excludeFiles": "{public/images/**,public/data/**,public/js/**,public/css/**,public/pretestv3/**,archive/**,docs/**,supabase-migrations/**,node_modules/**,*.js,*.md,*.sql}"
     },
     "api/*-router.php": {
       "runtime": "vercel-php@0.7.1",
@@ -46,17 +46,13 @@
       "dest": "/public/data/$1"
     },
     {
-      "src": "/pretestv3",
+      "src": "/pretestv3/?",
       "status": 308,
-      "headers": { "Location": "/pretestv3/" }
-    },
-    {
-      "src": "/pretestv3/",
-      "dest": "/public/pretest-v3/index.html"
+      "headers": { "Location": "/pretestv3/index.html" }
     },
     {
       "src": "/pretestv3/(.*)",
-      "dest": "/public/pretest-v3/$1"
+      "dest": "/public/pretestv3/$1"
     },
     {
       "src": "/(.*)",

@@ -2,9 +2,8 @@
 // Keeps the v3 pretest app on this device so it works offline. API calls
 // (/api/...) always go to the network; offline profiles wait in the app's
 // own outbox (js/offline.js) until they upload.
-const CACHE = 'aruga-pretest-v3-633b2d8f8032';
+const CACHE = 'aruga-pretest-v3-bf3648cba566';
 const FILES = [
-  "./",
   "css/fonts.css",
   "css/pretest.css",
   "css/styles.css",
@@ -67,7 +66,9 @@ self.addEventListener('fetch', event => {
         if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
         return res;
       })
-      .catch(() => caches.match(req, { ignoreSearch: true })));
+      // /pretestv3/ itself is a server redirect, so offline it opens the saved start page.
+      .catch(() => caches.match(req, { ignoreSearch: true })
+        .then(hit => hit || (req.mode === 'navigate' ? caches.match('index.html') : undefined))));
     return;
   }
 
