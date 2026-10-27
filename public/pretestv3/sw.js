@@ -2,7 +2,7 @@
 // Keeps the v3 pretest app on this device so it works offline. API calls
 // (/api/...) always go to the network; offline profiles wait in the app's
 // own outbox (js/offline.js) until they upload.
-const CACHE = 'aruga-pretest-v3-bf3648cba566';
+const CACHE = 'aruga-pretest-v3-9747fdf08cb0';
 const FILES = [
   "css/fonts.css",
   "css/pretest.css",

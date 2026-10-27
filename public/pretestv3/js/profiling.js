@@ -26,7 +26,6 @@ const LIKERT = [['1', 'Strongly agree'], ['2', 'Agree'], ['3', 'Neither agree no
 const LIKERT_OTHER = [['NA', 'Not applicable'], ['DK', 'Don’t know'], ['REF', 'Refused']];
 const LIKERT_LABEL = Object.fromEntries([...LIKERT, ...LIKERT_OTHER]);
 const RATED = ['1', '2', '3', '4', '5'];
-const LEGEND = 'Scale: 1 Strongly agree · 2 Agree · 3 Neither agree nor disagree · 4 Disagree · 5 Strongly disagree';
 
 // Residence: Region III only, from the main Profiling Tool's location list
 // (data/locations.json, exported from api/admin-router.php?action=locations).
@@ -91,14 +90,14 @@ const STEPS = [
     no: 4, title: 'Child Care and Family Support', label: 'Domain 2 · Child Care and Family Support', heading: 'Child Care and Family Support',
     subtext: 'Choose the number that best matches the respondent’s answer.',
     sections: [
-      { title: 'Adequacy of Family Caregiving Support', icon: 'volunteer_activism', note: LEGEND,
+      { title: 'Adequacy of Family Caregiving Support', icon: 'volunteer_activism',
         tip: 'Together, my family and I have enough time to provide the help and care my child needs, which include the following:', fields: [
         L('s4_1_1', 'Family activities', 'Family activities with the child’s needed support or adaptations'),
         L('s4_1_2', 'Household tasks', 'Age-appropriate household tasks', { specify: RATED, specifyPh: 'Specify household tasks' }),
         L('s4_1_3', 'Family interaction', 'Interaction with family members'),
         L('s4_1_4', 'Other', 'Other (optional)', { specify: RATED, specifyPh: 'Specify other', optional: true })
       ] },
-      { title: 'Dependency and Caregiver Assistance', icon: 'family_restroom', note: LEGEND, fields: [
+      { title: 'Dependency and Caregiver Assistance', icon: 'family_restroom', fields: [
         L('s4_2', 'Dependency on caregivers', 'Compared with children of the same age, my child needs more help from a parent or recognized caregiver to carry out everyday activities.'),
         L('s4_3', 'Adequacy of caregiver assistance', 'My child receives the help they need from a parent or recognized caregiver for everyday activities.')
       ] }
@@ -109,10 +108,10 @@ const STEPS = [
     no: 5, title: 'Education and Participation', label: 'Domain 3 · Education and Participation', heading: 'Education and Participation',
     subtext: 'Ask how the child learns, takes part, and interacts with other children.',
     sections: [
-      { title: 'Learning Arrangement', icon: 'school', note: 'Profiling indicator only. Not added to the score.', fields: [
+      { title: 'Learning Arrangement', icon: 'school', fields: [
         { id: 's5_1', area: 'Learning arrangement', q: 'Where and how does the child currently learn?', type: 'select', ph: 'Select arrangement', options: ['School', 'Early learning', 'Home-based', 'Online-distance', 'Other', 'None'], specify: ['Other'], specSuffix: '_other' }
       ] },
-      { title: 'Learning and Participation', icon: 'menu_book', note: LEGEND, fields: [
+      { title: 'Learning and Participation', icon: 'menu_book', fields: [
         L('s5_2', 'Suitability of learning arrangement', 'My child’s current learning arrangement meets his/her learning and support needs.'),
         L('s5_3', 'Accessibility barriers', 'My child’s learning environment provides the accessibility and support needed to participate in learning activities.'),
         L('s5_4', 'Peer interaction', 'When opportunities are available, my child can interact with other children, with the support or communication methods s/he needs.'),
@@ -124,7 +123,7 @@ const STEPS = [
   {
     no: 6, title: 'Health, Rehabilitation and Assistive Devices', label: 'Domain 4 · Health, Rehabilitation and Assistive Devices', heading: 'Health, Rehabilitation and Assistive Devices',
     subtext: 'Ask about health care, rehabilitation services, and assistive products.',
-    sections: [{ title: 'Health, Rehabilitation and Assistive Devices', icon: 'local_hospital', note: LEGEND, fields: [
+    sections: [{ title: 'Health, Rehabilitation and Assistive Devices', icon: 'local_hospital', fields: [
       L('s6_1', 'Access to needed health assessment', 'My child has received the health assessment or evaluation needed to understand her/his condition and support needs, without unnecessary delay.'),
       L('s6_2', 'Access to medical rehabilitation services', 'My child currently receives the medical and/or rehabilitation services s/he needs.'),
       L('s6_3', 'Accessibility of health or rehabilitation services', 'I can bring my child to the health or rehabilitation services s/he needs without difficulty.'),
@@ -137,7 +136,7 @@ const STEPS = [
     no: 7, title: 'Caregiver Capacity and Support', label: 'Domain 5 · Caregiver Capacity and Support', heading: 'Caregiver Capacity and Support',
     subtext: 'Ask the caregiver about understanding the child, care skills, and coping.',
     sections: [
-      { title: 'Caregiver’s Understanding of the Child', icon: 'psychology', note: LEGEND, fields: [
+      { title: 'Caregiver’s Understanding of the Child', icon: 'psychology', fields: [
         L('s7_1a', 'Understanding the child’s condition', 'I understand my child’s condition (what it is and how it affects his/her everyday life).'),
         L('s7_1b', 'Understanding the child’s daily needs', 'I understand my child’s daily needs (such as food, rest, personal care, and safety).'),
         L('s7_1c', 'Understanding the child’s strengths', 'I understand my child’s strengths (his/her abilities and what s/he does well, with or without support).'),
@@ -145,7 +144,7 @@ const STEPS = [
         L('s7_1e', 'Understanding the child’s communication', 'I understand how my child communicates (through words, sounds, gestures, signs, pictures, or other methods).'),
         L('s7_1f', 'Understanding the child’s support needs', 'I understand the support my child needs (assistance, equipment, or adaptations that help him/her participate in everyday activities).')
       ] },
-      { title: 'Care Skills and Coping', icon: 'favorite', note: LEGEND, fields: [
+      { title: 'Care Skills and Coping', icon: 'favorite', fields: [
         L('s7_2', 'Care skills', 'I can safely carry out the daily care tasks my child needs.'),
         L('s7_3', 'Home care', 'I regularly carry out the home-care activities recommended for my child.'),
         L('s7_4', 'Caregiving responsibilities', 'I can manage my caregiving responsibilities.'),
@@ -182,7 +181,7 @@ const STEPS = [
         { id: 's8_2_note', area: 'Disability-related expenses', q: 'Notes/Explanations', type: 'text', ph: 'What the money was spent on (optional)', half: true, optional: true },
         { id: 's8_2_share', area: 'Expense share', q: 'Expense share', type: 'computed', compute: expenseShare }
       ] },
-      { title: 'Affordability', icon: 'account_balance_wallet', note: LEGEND, fields: [
+      { title: 'Affordability', icon: 'account_balance_wallet', fields: [
         L('s8_3', 'Unmet needs due to cost', 'During the past six months, my household could afford the services my child needed.'),
         L('s8_4', 'Financial capacity for emergencies', 'If my child had an emergency, my household could afford the expenses needed to respond.'),
         L('s8_5', 'Affordability of health or rehabilitation services', 'I can afford the health or rehabilitation services my child needs.'),
@@ -195,14 +194,14 @@ const STEPS = [
     no: 9, title: 'Social Protection and Entitlements', label: 'Domain 7 · Social Protection and Entitlements', heading: 'Social Protection and Entitlements',
     subtext: 'Use “Not applicable” when an item does not apply to this child. Verify eligibility and documents where feasible.',
     sections: [
-      { title: 'Disability Support Allowance (DSA)', icon: 'payments', note: LEGEND, fields: [
+      { title: 'Disability Support Allowance (DSA)', icon: 'payments', fields: [
         L('s9_1', 'DSA', 'I receive my child’s Disability Support Allowance according to the expected payment schedule.'),
         { id: 's9_1a', area: 'Use of DSA', q: 'If you received your child’s DSA, what did you use it for? (Check all that apply.)', type: 'multiselect', ph: 'Select all that apply…', optional: true, specify: ['Other'], specSuffix: '_other', specifyPh: 'Specify other use',
           options: ['Food or nutritional needs', 'Medicines', 'Medical consultations, tests, or treatment', 'Therapy or rehabilitation', 'Transportation', 'Assistive products, including repair or maintenance', 'Education or learning materials', 'Personal care or hygiene supplies', 'Paid caregiving assistance', 'Other', 'Not yet used'] },
         { id: 's9_1a_main', area: 'Main use of DSA', q: 'Which was the main use?', type: 'dynselect', from: 's9_1a', exclude: ['Not yet used'], ph: 'Select main use',
           showIf: a => (a['s9_1a'] || []).some(v => v !== 'Not yet used') }
       ] },
-      { title: 'Health Protection and Referrals', icon: 'health_and_safety', note: LEGEND, fields: [
+      { title: 'Health Protection and Referrals', icon: 'health_and_safety', fields: [
         L('s9_3', 'Health protection', 'I can access PhilHealth benefits for my child when needed.'),
         L('s9_4', 'Access to referred programs and services', 'Through the referrals made for my child, I have been able to obtain the assistance or services s/he needs, such as:'),
         L('s9_4_1', 'Referred: financial assistance', 'Financial assistance', { sub: true }),
@@ -213,7 +212,7 @@ const STEPS = [
         L('s9_4_6', 'Referred: other', 'Other (optional)', { sub: true, optional: true, specify: RATED, specifyPh: 'Specify other service' }),
         L('s9_5', 'Receipt of DSA', 'My household has received the Disability Support Allowance intended for my child.')
       ] },
-      { title: 'Awareness of Rights', icon: 'gavel', note: LEGEND, intro: 'I understand my child’s rights, specifically:', fields: [
+      { title: 'Awareness of Rights', icon: 'gavel', tip: 'I understand my child’s rights, specifically:', fields: [
         L('s9_6a_1', 'Rights: access to education', 'Access to education'),
         L('s9_6a_2', 'Rights: access to health care', 'Access to health care'),
         L('s9_6a_3', 'Rights: participation', 'Participation'),
@@ -221,12 +220,12 @@ const STEPS = [
         L('s9_6a_5', 'Rights: protection from discrimination', 'Protection from discrimination'),
         L('s9_6a_6', 'Rights: other', 'Other (optional)', { optional: true, specify: RATED, specifyPh: 'Specify other right' })
       ] },
-      { title: 'Awareness of Benefits', icon: 'redeem', note: LEGEND, intro: 'I understand the benefits my child may be eligible for, specifically:', fields: [
+      { title: 'Awareness of Benefits', icon: 'redeem', tip: 'I understand the benefits my child may be eligible for, specifically:', fields: [
         L('s9_6b_1', 'Benefits: financial assistance', 'Financial assistance'),
         L('s9_6b_2', 'Benefits: discounts', 'Discounts'),
         L('s9_6b_3', 'Benefits: other', 'Other (optional)', { optional: true, specify: RATED, specifyPh: 'Specify other benefit' })
       ] },
-      { title: 'Awareness of Available Services', icon: 'storefront', note: LEGEND, fields: [
+      { title: 'Awareness of Available Services', icon: 'storefront', fields: [
         L('s9_6c', 'Awareness of available services', 'I know what services are available to support my child and where to access them, such as:'),
         L('s9_6c_1', 'Services: health care', 'Health care', { sub: true }),
         L('s9_6c_2', 'Services: rehabilitation', 'Rehabilitation', { sub: true }),
@@ -240,12 +239,12 @@ const STEPS = [
     no: 10, title: 'Environmental Barriers', label: 'Domain 8 · Environmental Barriers', heading: 'Environmental Barriers',
     subtext: 'Ask about barriers at home, in travel, and in the community.',
     sections: [
-      { title: 'Home and Travel', icon: 'directions_bus', note: LEGEND, fields: [
+      { title: 'Home and Travel', icon: 'directions_bus', fields: [
         L('s10_1', 'Child-friendly home environment', 'Our home is friendly to my child’s needs (it allows my child to move safely and carry out daily activities, with support or adaptations when needed).'),
         L('s10_2', 'Transportation', 'I can arrange safe and suitable transportation for my child to reach the services they need without difficulty.'),
         { id: 's10_2a', area: 'Travel time', q: 'How long does the journey usually take, one way, to reach the services?', type: 'select', ph: 'Select travel time', options: ['15 minutes or less', '16–30 minutes', '31–40 minutes', '41–50 minutes', '51–60 minutes', 'Other'], specify: ['Other'], specSuffix: '_other' }
       ] },
-      { title: 'Attitudes and Discrimination', icon: 'diversity_3', note: LEGEND, fields: [
+      { title: 'Attitudes and Discrimination', icon: 'diversity_3', fields: [
         L('s10_3', 'Negative attitudes', 'My child can participate in everyday activities without being excluded or treated unfairly because of her/his disability (such as being teased, judged, or avoided by others).'),
         L('s10_5', 'Stigma/discrimination', 'My child and our family are treated with respect and fairness, without discrimination because of my child’s disability (such as exclusion, ridicule, or other negative treatment).')
       ] }
@@ -256,12 +255,12 @@ const STEPS = [
     no: 11, title: 'Priority Needs and Referral', label: 'Domain 9 · Priority Needs and Referral', heading: 'Priority Needs and Referral',
     subtext: 'Separate trigger domain, not part of the score. If an urgent concern is found, follow the approved referral procedure immediately.',
     sections: [
-      { title: 'Urgent Needs', icon: 'priority_high', note: LEGEND, fields: URGENT.flatMap(([k, area, q, kind]) => [
+      { title: 'Urgent Needs', icon: 'priority_high', fields: URGENT.flatMap(([k, area, q, kind]) => [
         L('s11_1' + k, area, q, k === 'f' ? { optional: true, specify: RATED, specifyPh: 'Specify the need and support received' } : {}),
         { id: `s11_1${k}_met`, area: `${area}: need met?`, q: `Is your child currently receiving enough support to meet this urgent ${kind} need?`, type: 'yn', sub: true,
           showIf: k === 'f' ? a => RATED.includes(a['s11_1f']) : undefined }
       ]) },
-      { title: 'Social Protection and Follow-up', icon: 'assignment_turned_in', note: LEGEND, fields: [
+      { title: 'Social Protection and Follow-up', icon: 'assignment_turned_in', fields: [
         L('s11_2', 'Awareness of social protection programs', 'I know which social protection programs may meet my child’s needs and where to apply for assistance, including financial aid, health benefits, and other support.'),
         L('s11_3', 'Need for referral or follow-up', 'My child receives the referrals and follow-up visits needed to address his/her care and support needs.')
       ] }

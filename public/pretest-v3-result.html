@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Profiling Tool Pre-test v3 — Project Aruga</title>
+  <link rel="icon" href="/images/logo.webp" type="image/webp">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <style>
+    .pt-topbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:0.75rem 1.5rem; background:#fff; border-bottom:1px solid var(--border); }
+    .pt-brand { display:flex; align-items:center; gap:0.625rem; font-size:0.875rem; font-weight:700; color:var(--dark); }
+    .pt-brand img { width:32px; height:32px; }
+    .pt-brand small { display:block; font-size:0.65rem; font-weight:500; color:var(--gray-500); }
+    .pt-wrap { max-width:1280px; margin:0 auto; }
+
+    /* Code gate */
+    .pt-gate { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1rem; box-sizing:border-box; }
+    .pt-gate .card { width:100%; max-width:380px; text-align:center; padding:2rem 1.75rem; }
+    .pt-gate-icon { width:3.5rem; height:3.5rem; margin:0 auto 1rem; border-radius:50%; background:var(--blue-light); display:flex; align-items:center; justify-content:center; }
+    .pt-gate-icon .material-symbols-outlined { color:var(--blue); font-size:1.75rem; }
+    .pt-digits { display:flex; justify-content:center; gap:0.625rem; margin:1.5rem 0 1rem; }
+    .pt-digits input { width:3.25rem; height:3.75rem; text-align:center; font-family:'Poppins',sans-serif; font-size:1.5rem; font-weight:700; color:var(--dark); border:1.5px solid var(--border); border-radius:0.625rem; outline:none; -webkit-text-security:disc; }
+    .pt-digits input:focus { border-color:var(--blue); box-shadow:0 0 0 2px var(--blue-light); }
+    .pt-error { min-height:1.25rem; font-size:0.75rem; color:var(--error); margin-bottom:0.75rem; }
+    .pt-gate .btn { width:100%; justify-content:center; }
+
+    .pt-stat-sub { font-size:0.72rem; color:var(--gray-400); }
+    /* Search + dropdowns share one size */
+    .pt-filter { flex:0 1 180px; width:180px; min-width:0; box-sizing:border-box; }
+    .search-bar.pt-filter input { font-size:0.72rem; min-width:0; }
+    .pt-btn-danger { background:#dc2626; color:#fff; border:1px solid #dc2626; }
+    .pt-btn-danger:hover { background:#b91c1c; border-color:#b91c1c; }
+    .pt-btn-danger:focus-visible { outline:2px solid #dc2626; outline-offset:2px; }
+
+    /* Page header + Report / Pre-test Data toggle */
+    .pt-page-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .pt-toggle { display:inline-flex; background:#fff; border:1px solid var(--border); border-radius:0.625rem; padding:0.25rem; gap:0.25rem; }
+    .pt-toggle button { display:inline-flex; align-items:center; gap:0.375rem; height:2rem; padding:0 0.875rem; border:0; border-radius:0.4rem; background:transparent; font-family:'Poppins',sans-serif; font-size:0.78rem; font-weight:600; color:var(--gray-500); cursor:pointer; transition:background 0.15s, color 0.15s; }
+    .pt-toggle button .material-symbols-outlined { font-size:1rem; }
+    .pt-toggle button:hover { color:var(--blue); background:var(--blue-light); }
+    .pt-toggle button[aria-selected="true"] { background:var(--blue); color:#fff; }
+    .pt-toggle button:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+    [hidden] { display:none !important; }
+
+    /* Report section (same look as the live dashboard reports) */
+    .rpt-section { background:#fff; border:1px solid var(--border); border-radius:0.625rem; margin-bottom:0.625rem; overflow:hidden; }
+    .pt-dis-row { display:flex; align-items:center; gap:0.75rem; padding:0.2rem 0.375rem; border-radius:0.375rem; transition:background 0.13s; cursor:default; }
+    .pt-dis-row:hover { background:var(--blue-light); }
+    .pt-dis-label { font-size:0.75rem; font-weight:600; color:var(--dark); width:190px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .pt-dis-track { flex:1; height:10px; background:var(--gray-200); border-radius:999px; overflow:hidden; }
+    .pt-dis-fill { height:100%; border-radius:999px; }
+    .pt-dis-val { font-size:0.75rem; font-weight:800; color:var(--dark); width:48px; text-align:right; flex-shrink:0; }
+    @media (max-width: 640px) { .pt-dis-label { width:120px; } }
+    .rpt-section-header { display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1.125rem; cursor:pointer; user-select:none; transition:background 0.13s; width:100%; border:0; background:none; font-family:inherit; text-align:left; }
+    .rpt-section-header:hover { background:var(--gray-50); }
+    .rpt-section-title { font-size:0.875rem; font-weight:700; color:var(--dark); }
+    .rpt-section-badge { font-size:0.68rem; font-weight:600; padding:0.15rem 0.5rem; border-radius:999px; background:var(--gray-100); color:var(--gray-500); }
+    .rpt-chevron { font-size:1.125rem; color:var(--gray-400); transition:transform 0.2s; }
+    .rpt-chevron.open { transform:rotate(180deg); }
+    .rpt-section-body { padding:0 1.125rem 1rem; }
+    .pt-chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .pt-chart-empty { text-align:center; color:var(--gray-400); font-size:0.75rem; padding:2.5rem 0; }
+    #pt-tip { display:none; position:fixed; background:#1e293b; color:#fff; border-radius:0.5rem; padding:0.4rem 0.75rem; font-size:0.7rem; pointer-events:none; z-index:9999; box-shadow:0 4px 12px rgba(0,0,0,0.2); white-space:nowrap; }
+    @media (max-width: 760px) { .pt-chart-grid { grid-template-columns:1fr; } }
+
+    /* Detail view */
+    .pt-section-title { font-size:0.8125rem; font-weight:700; color:var(--dark); margin:0 0 0.75rem; }
+    .pt-fields { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:0.75rem 1.5rem; }
+    .pt-field-label { font-size:0.68rem; font-weight:600; color:var(--gray-500); text-transform:uppercase; letter-spacing:0.03em; }
+    .pt-field-value { font-size:0.8125rem; color:var(--dark); word-break:break-word; white-space:pre-wrap; }
+    .pt-feedback { font-size:0.8125rem; background:#fffbeb; border:1px solid #fde68a; border-radius:0.5rem; padding:0.625rem 0.875rem; margin-bottom:0.5rem; }
+
+    @media (max-width: 640px) {
+      .pt-topbar { padding:0.625rem 1rem; }
+      .dash-content { padding:1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Code gate -->
+<div class="pt-gate" id="pt-gate">
+  <div class="card">
+    <div class="pt-gate-icon"><span class="material-symbols-outlined">lock</span></div>
+    <div class="page-title" style="margin:0;">Profiling Tool Pre-test v3</div>
+    <div class="page-subtitle" style="margin:0.25rem 0 0;">Enter the 4-digit access code</div>
+    <form id="pt-gate-form" autocomplete="off">
+      <div class="pt-digits">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4">
+      </div>
+      <div class="pt-error" id="pt-gate-error" role="alert"></div>
+      <button type="submit" class="btn btn-primary" id="pt-gate-btn">Continue</button>
+    </form>
+  </div>
+</div>
+
+<!-- Results -->
+<div id="pt-app" style="display:none;">
+  <div class="pt-topbar">
+    <div class="pt-brand">
+      <img src="/images/logo.webp" alt="">
+      <div>Project Aruga<small>v3 Pretest</small></div>
+    </div>
+    <button class="btn btn-sm pt-btn-danger" id="pt-logout"><span class="material-symbols-outlined" style="font-size:1rem;">logout</span>Log out</button>
+  </div>
+
+  <div class="dash-content pt-wrap">
+
+    <!-- List View -->
+    <div id="pt-list-view">
+      <div class="pt-page-head">
+        <div style="min-width:0;">
+          <div class="page-title" style="margin:0;">Profiling Tool Pre-test v3</div>
+          <div class="page-subtitle" style="margin:0;" id="pt-page-subtitle">Summary of all submitted pretest profiles</div>
+        </div>
+        <div class="pt-toggle" role="tablist" aria-label="View">
+          <button type="button" role="tab" id="pt-tabbtn-report" aria-controls="pt-tab-report" aria-selected="true" data-tab="report">
+            <span class="material-symbols-outlined">bar_chart</span>Report
+          </button>
+          <button type="button" role="tab" id="pt-tabbtn-data" aria-controls="pt-tab-data" aria-selected="false" data-tab="data">
+            <span class="material-symbols-outlined">table_rows</span>Pre-test Data
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab: Report -->
+      <div id="pt-tab-report" role="tabpanel" aria-labelledby="pt-tabbtn-report">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">assignment</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="pt-stat-total">—</div>
+            <div class="stat-label">Total Assessments</div>
+            <div class="pt-stat-sub">All barangays</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">task_alt</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="pt-stat-rate">—</div>
+            <div class="stat-label">Completion Rate</div>
+            <div class="pt-stat-sub" id="pt-stat-rate-sub">Target: 100 beneficiaries</div>
+            <div id="pt-stat-rate-badge" style="margin-top:0.25rem;"></div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">timer</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="pt-stat-time">—</div>
+            <div class="stat-label">Avg. Profiling Time</div>
+            <div class="pt-stat-sub" id="pt-stat-time-sub">Per profile</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><span class="material-symbols-outlined">badge</span></div>
+          <div class="stat-body">
+            <div class="stat-value" id="pt-stat-interviewers">—</div>
+            <div class="stat-label">Active Interviewers</div>
+            <div class="pt-stat-sub">Submitted at least once</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports -->
+      <div id="pt-reports" style="margin-bottom:1.5rem;">
+      <div class="rpt-section">
+        <button type="button" class="rpt-section-header" aria-expanded="true" aria-controls="pt-rpt-dis-body">
+          <span style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">accessible</span>
+            <span class="rpt-section-title">Disabilities</span>
+            <span class="rpt-section-badge" id="pt-rpt-dis-badge">—</span>
+          </span>
+          <span class="material-symbols-outlined rpt-chevron open">expand_more</span>
+        </button>
+        <div class="rpt-section-body" id="pt-rpt-dis-body">
+          <div id="pt-dis-chart" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div>
+        </div>
+      </div>
+
+      <div class="rpt-section">
+        <button type="button" class="rpt-section-header" aria-expanded="true" aria-controls="pt-rpt-ben-body">
+          <span style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">group</span>
+            <span class="rpt-section-title">Beneficiaries</span>
+            <span class="rpt-section-badge" id="pt-rpt-ben-badge">—</span>
+          </span>
+          <span class="material-symbols-outlined rpt-chevron open">expand_more</span>
+        </button>
+        <div class="rpt-section-body" id="pt-rpt-ben-body">
+          <div class="pt-chart-grid">
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Sex Disaggregation</div></div>
+              <div id="pt-sex-chart" style="display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem 0;"></div>
+            </div>
+            <div class="card" style="margin:0;">
+              <div class="card-header"><div class="card-title">Age Groups</div></div>
+              <div id="pt-age-chart" style="padding:0.75rem 1rem 0;min-height:180px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section">
+        <button type="button" class="rpt-section-header" aria-expanded="true" aria-controls="pt-rpt-perf-body">
+          <span style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">leaderboard</span>
+            <span class="rpt-section-title">Interviewer Performance</span>
+            <span class="rpt-section-badge" id="pt-rpt-perf-badge">—</span>
+          </span>
+          <span class="material-symbols-outlined rpt-chevron open">expand_more</span>
+        </button>
+        <div class="rpt-section-body" id="pt-rpt-perf-body">
+          <div class="card" style="margin:0;">
+            <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+              <div class="card-title">Productivity Table</div>
+              <div style="font-size:0.72rem;color:var(--gray-500);">All interviewers — ranked by completions</div>
+            </div>
+            <div class="table-wrap">
+              <table class="dash-table">
+                <thead><tr><th>Rank</th><th>Name</th><th>Region</th><th>Completed</th><th title="Total time spent profiling, from opening each form to finishing it">Time Profiled</th></tr></thead>
+                <tbody id="pt-perf-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpt-section">
+        <button type="button" class="rpt-section-header" aria-expanded="true" aria-controls="pt-rpt-ana-body">
+          <span style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">auto_awesome</span>
+            <span class="rpt-section-title">Report Analysis</span>
+          </span>
+          <span class="material-symbols-outlined rpt-chevron open">expand_more</span>
+        </button>
+        <div class="rpt-section-body" id="pt-rpt-ana-body">
+          <div class="card" style="margin:0;">
+            <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
+              <div>
+                <div class="card-title">Report Analysis</div>
+                <div class="card-subtitle" style="font-size:0.72rem;color:var(--gray-500);">Summary based on current report data</div>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" id="pt-ana-btn" style="flex-shrink:0;">
+                <span class="material-symbols-outlined" style="font-size:1rem;">auto_awesome</span>Generate
+              </button>
+            </div>
+            <div id="pt-ana-output" style="padding:0.75rem 0 0.25rem;"></div>
+          </div>
+        </div>
+      </div>
+      </div>
+      </div><!-- /pt-tab-report -->
+      <div id="pt-tip" role="tooltip"></div>
+
+      <!-- Tab: Pre-test Data -->
+      <div id="pt-tab-data" role="tabpanel" aria-labelledby="pt-tabbtn-data" hidden>
+      <div class="card" style="margin-bottom:1rem;padding:0.75rem 1.25rem;min-width:0;">
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;row-gap:0.4rem;">
+          <div class="search-bar pt-filter" style="height:1.875rem;">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" id="pt-search" placeholder="Search name, ID..." aria-label="Search">
+          </div>
+          <select id="pt-region" class="btn btn-secondary btn-sm pt-filter" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0 0.5rem;">
+            <option value="">All Barangays</option>
+          </select>
+          <select id="pt-disability" class="btn btn-secondary btn-sm pt-filter" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0 0.5rem;">
+            <option value="">All Disabilities</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" id="pt-reset">Reset</button>
+          <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="pt-count">—</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th data-sort="name" style="cursor:pointer;user-select:none;white-space:nowrap;">Beneficiary <span class="material-symbols-outlined pt-sort-icon" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th data-sort="age" style="cursor:pointer;user-select:none;white-space:nowrap;">Age <span class="material-symbols-outlined pt-sort-icon" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th>Disability</th>
+                <th data-sort="barangay" style="cursor:pointer;user-select:none;white-space:nowrap;">Barangay <span class="material-symbols-outlined pt-sort-icon" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="pt-tbody">
+              <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.875rem;border-top:1px solid #f3f4f6;margin-top:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+          <span style="font-size:0.75rem;color:#6b7280;" id="pt-page-info">—</span>
+          <div class="pagination" id="pt-pagination"></div>
+        </div>
+      </div>
+      </div><!-- /pt-tab-data -->
+    </div>
+
+    <!-- Detail View (read-only) -->
+    <div id="pt-detail-view" style="display:none;">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" id="pt-back" style="display:flex;align-items:center;gap:0.3rem;flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:1rem;">arrow_back</span>Back</button>
+        <div style="flex:1;min-width:0;">
+          <div class="page-title" style="margin:0;" id="pt-detail-title">Profile</div>
+          <div class="page-subtitle" style="margin:0;" id="pt-detail-subtitle"></div>
+        </div>
+      </div>
+      <div id="pt-detail-body"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  const API = '/api/pretest-router.php';
+  const VERSION = '&v=3';          // v3 profiles; the viewer code and login are shared with v2
+  const TOKEN_KEY = 'pt3_result_token';
+  const PER_PAGE = 10;
+  const TARGET = 100;              // pretest target: 100 beneficiaries
+  const MIN_SECONDS = 60;          // timings outside 1 min – 8 h are left out of the
+  const MAX_SECONDS = 8 * 3600;    // average (clock changes, form left open overnight)
+  // [column prefix, title]. Form section N (s<N>_) is app step N − 1; the
+  // feedback "step" holds the section number.
+  const STEPS = [
+    ['s1_',  'Interview Language'],
+    ['s2_',  'Step 1 · Identifying Information'],
+    ['s3_',  'Step 2 · Child Disability and Functional Status'],
+    ['s4_',  'Step 3 · Child Care and Family Support'],
+    ['s5_',  'Step 4 · Education and Participation'],
+    ['s6_',  'Step 5 · Health, Rehabilitation and Assistive Devices'],
+    ['s7_',  'Step 6 · Caregiver Capacity and Support'],
+    ['s8_',  'Step 7 · Household Economic Situation'],
+    ['s9_',  'Step 8 · Social Protection and Entitlements'],
+    ['s10_', 'Step 9 · Environmental Barriers'],
+    ['s11_', 'Step 10 · Priority Needs and Referral'],
+    ['s12_', 'Step 11 · Summary'],
+  ];
+
+  let token = null;
+  let data = [], filtered = [], page = 0;
+  let sortCol = null, sortDir = 'asc';
+
+  const $ = id => document.getElementById(id);
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  const store = {
+    get() { try { return sessionStorage.getItem(TOKEN_KEY); } catch (e) { return null; } },
+    set(v) { try { sessionStorage.setItem(TOKEN_KEY, v); } catch (e) {} },
+    clear() { try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {} },
+  };
+
+  async function api(action, opts = {}) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['X-Viewer-Token'] = token;
+    const res = await fetch(API + '?action=' + action + VERSION + (opts.query || ''), {
+      method: opts.method || 'GET',
+      headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      cache: 'no-store',
+    });
+    let json = {};
+    try { json = await res.json(); } catch (e) {}
+    if (res.status === 401 && action !== 'results-login') { showGate('Session expired. Please enter the code again.'); throw new Error('expired'); }
+    if (!res.ok || !json.success) throw new Error(json.message || 'Something went wrong. Please try again.');
+    return json.data;
+  }
+
+  // ── Code gate ────────────────────────────────────────────────
+  const digits = [...document.querySelectorAll('.pt-digits input')];
+  digits.forEach((input, i) => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/g, '').slice(-1);
+      if (input.value && digits[i + 1]) digits[i + 1].focus();
+      if (digits.every(d => d.value)) $('pt-gate-form').requestSubmit();
+    });
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !input.value && digits[i - 1]) digits[i - 1].focus();
+    });
+    input.addEventListener('paste', e => {
+      const t = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 4);
+      if (!t) return;
+      e.preventDefault();
+      digits.forEach((d, j) => { d.value = t[j] || ''; });
+      (digits[t.length] || digits[3]).focus();
+      if (t.length === 4) $('pt-gate-form').requestSubmit();
+    });
+  });
+
+  $('pt-gate-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const code = digits.map(d => d.value).join('');
+    if (!/^\d{4}$/.test(code)) { $('pt-gate-error').textContent = 'Enter all 4 digits.'; return; }
+    const btn = $('pt-gate-btn');
+    btn.disabled = true; btn.textContent = 'Checking...';
+    $('pt-gate-error').textContent = '';
+    try {
+      const r = await api('results-login', { method: 'POST', body: { code } });
+      token = r.token; store.set(token);
+      showApp();
+    } catch (err) {
+      $('pt-gate-error').textContent = err.message;
+      digits.forEach(d => { d.value = ''; });
+      digits[0].focus();
+    } finally {
+      btn.disabled = false; btn.textContent = 'Continue';
+    }
+  });
+
+  function showGate(message) {
+    token = null; store.clear();
+    data = []; filtered = [];
+    $('pt-app').style.display = 'none';
+    $('pt-gate').style.display = '';
+    $('pt-gate-error').textContent = message || '';
+    digits.forEach(d => { d.value = ''; });
+    digits[0].focus();
+  }
+
+  function showApp() {
+    $('pt-gate').style.display = 'none';
+    $('pt-app').style.display = '';
+    closeDetail();
+    load();
+  }
+
+  $('pt-logout').addEventListener('click', async () => {
+    try { await api('results-logout', { method: 'POST' }); } catch (e) {}
+    showGate('');
+  });
+
+  // ── Table ────────────────────────────────────────────────────
+  async function load() {
+    $('pt-tbody').innerHTML = msgRow('Loading...');
+    try {
+      data = await api('results');
+    } catch (err) {
+      if (err.message !== 'expired') $('pt-tbody').innerHTML = msgRow('Failed to load. ' + esc(err.message));
+      return;
+    }
+    renderStats();
+    fillSelect('pt-region', 'All Barangays', data.map(r => r.barangay ? [r.barangay] : []));
+    fillSelect('pt-disability', 'All Disabilities', data.map(r => r.disabilities || []));
+    applyFilters();
+  }
+
+  // ── Summary cards (all records, not the current filter) ──────
+  function fmtDuration(sec) {
+    const m = Math.round(sec / 60);
+    if (m < 60) return m + ' min';
+    return Math.floor(m / 60) + ' h ' + String(m % 60).padStart(2, '0') + ' m';
+  }
+
+  function renderStats() {
+    const total = data.length;
+    $('pt-stat-total').textContent = total.toLocaleString();
+
+    const rate = Math.round(total / TARGET * 100);
+    $('pt-stat-rate').textContent = rate + '%';
+    $('pt-stat-rate-sub').textContent = `${total.toLocaleString()} of ${TARGET} beneficiaries`;
+    $('pt-stat-rate-badge').innerHTML = rate >= 100
+      ? '<span class="badge badge-green">Target reached</span>'
+      : `<span class="badge badge-blue">${TARGET - total} to go</span>`;
+
+    const times = data.map(r => Number(r.duration_seconds))
+      .filter(s => Number.isFinite(s) && s >= MIN_SECONDS && s <= MAX_SECONDS);
+    if (times.length) {
+      $('pt-stat-time').textContent = fmtDuration(times.reduce((a, b) => a + b, 0) / times.length);
+      $('pt-stat-time-sub').textContent = `Per profile · based on ${times.length} of ${total}`;
+    } else {
+      $('pt-stat-time').textContent = '—';
+      $('pt-stat-time-sub').textContent = 'No timing data yet';
+    }
+
+    $('pt-stat-interviewers').textContent =
+      new Set(data.map(r => r.interviewer_id || r.interviewer).filter(Boolean)).size.toLocaleString();
+
+    renderReport();
+  }
+
+  // ── Beneficiaries report (all records) ───────────────────────
+  // Colors and shapes copied from the live dashboard reports.
+  // v3 also allows "Other"; it is only shown when a profile uses it.
+  const SEX = [{ label: 'Male', color: '#1152d4' }, { label: 'Female', color: '#93c5fd' }, { label: 'Other', color: '#94a3b8' }];
+  // Pretest ages are 0–17 (enforced by the database), so there is no 18+ group.
+  const AGE_GROUPS = [{ label: '0–5', min: 0, max: 5 }, { label: '6–11', min: 6, max: 11 }, { label: '12–17', min: 12, max: 17 }];
+  const AGE_COLORS = ['#1152d4', '#2563eb', '#3b82f6'];
+
+  function renderReport() {
+    const total = data.length;
+    $('pt-rpt-ben-badge').textContent = `${total.toLocaleString()} profiled`;
+    resetAnalysis();
+
+    // Sex donut
+    const sex = SEX.map(s => ({ ...s, val: data.filter(r => r.sex === s.label).length }))
+      .filter(s => s.label !== 'Other' || s.val);
+    const sTotal = sex.reduce((a, s) => a + s.val, 0);
+    if (!sTotal) {
+      $('pt-sex-chart').innerHTML = '<div class="pt-chart-empty">No data yet</div>';
+    } else {
+      const circ = 2 * Math.PI * 50;
+      let offset = 0;
+      const arcs = sex.filter(s => s.val).map(s => {
+        const dash = s.val / sTotal * circ;
+        const pct = Math.round(s.val / sTotal * 100);
+        const arc = `<circle cx="70" cy="70" r="50" fill="none" stroke="${s.color}" stroke-width="20"
+          stroke-dasharray="${dash} ${circ - dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 70 70)"
+          data-tip="${esc(`${s.label}: ${s.val.toLocaleString()} (${pct}%)`)}" style="cursor:pointer;transition:stroke-width 0.2s,opacity 0.2s;"/>`;
+        offset += dash;
+        return arc;
+      }).join('');
+      const summary = sex.map(s => `${s.label} ${s.val} (${Math.round(s.val / sTotal * 100)}%)`).join(', ');
+      $('pt-sex-chart').innerHTML = `
+        <svg id="pt-sex-svg" viewBox="0 0 140 140" width="150" height="150" style="overflow:visible;" role="img" aria-label="Sex: ${esc(summary)}">${arcs}</svg>
+        <div style="display:flex;gap:1.25rem;">${sex.map(s => `
+          <div style="text-align:center;">
+            <div style="width:10px;height:10px;border-radius:50%;background:${s.color};margin:0 auto 4px;"></div>
+            <div style="font-size:0.75rem;font-weight:700;color:var(--dark);">${s.label}</div>
+            <div style="font-size:0.8125rem;font-weight:800;color:var(--dark);white-space:nowrap;"><span style="font-weight:600;color:var(--gray-500);">(${s.val.toLocaleString()})</span> ${Math.round(s.val / sTotal * 100)}%</div>
+          </div>`).join('')}
+        </div>`;
+    }
+
+    // Age bars
+    const ages = AGE_GROUPS.map(g => ({ ...g, val: data.filter(r => r.age !== null && r.age !== '' && +r.age >= g.min && +r.age <= g.max).length }));
+    const maxA = Math.max(...ages.map(a => a.val), 0);
+    if (!maxA) {
+      $('pt-age-chart').innerHTML = '<div class="pt-chart-empty">No data yet</div>';
+    } else {
+      const H = 130;
+      const top = ages.findIndex(a => a.val === maxA);
+      $('pt-age-chart').innerHTML = `
+        <div style="display:flex;align-items:flex-end;gap:0.875rem;height:${H + 24}px;border-bottom:2px solid #e5e7eb;" role="img"
+             aria-label="Age groups: ${esc(ages.map(a => `${a.label} ${a.val}`).join(', '))}">
+          ${ages.map((a, i) => `
+            <div data-tip="${esc(`Age ${a.label}: ${a.val.toLocaleString()} (${Math.round(a.val / data.length * 100)}%)`)}"
+                 style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:100%;cursor:pointer;">
+              <div style="font-size:0.78rem;font-weight:800;color:${AGE_COLORS[i]};margin-bottom:6px;">${a.val ? a.val.toLocaleString() : ''}</div>
+              <div style="width:100%;max-width:56px;height:${Math.max(Math.round(a.val / maxA * H), a.val ? 6 : 2)}px;background:${AGE_COLORS[i]};border-radius:5px 5px 0 0;transition:height 0.6s ease;"></div>
+            </div>`).join('')}
+        </div>
+        <div style="display:flex;gap:0.875rem;padding-top:0.5rem;">
+          ${ages.map((a, i) => `<div style="flex:1;text-align:center;font-size:0.72rem;font-weight:${i === top ? 700 : 500};color:${i === top ? AGE_COLORS[i] : 'var(--gray-400)'};">${a.label}</div>`).join('')}
+        </div>`;
+    }
+
+    // Disability bars. A profile can have more than one type, so "cases"
+    // (all selections) can be more than the number of profiles.
+    const disCounts = new Map();
+    data.forEach(r => (r.disabilities || []).forEach(d => { if (d) disCounts.set(d, (disCounts.get(d) || 0) + 1); }));
+    const dis = [...disCounts.entries()].map(([label, val]) => ({ label, val })).sort((a, b) => b.val - a.val || a.label.localeCompare(b.label));
+    const cases = dis.reduce((a, d) => a + d.val, 0);
+    $('pt-rpt-dis-badge').textContent = `${cases.toLocaleString()} cases`;
+    if (!dis.length) {
+      $('pt-dis-chart').innerHTML = '<div class="pt-chart-empty">No data yet</div>';
+    } else {
+      const maxD = dis[0].val;
+      $('pt-dis-chart').innerHTML = dis.map(d => `
+        <div class="pt-dis-row" data-tip="${esc(`${d.label}: ${d.val.toLocaleString()} (${Math.round(d.val / total * 100)}% of profiles)`)}">
+          <div class="pt-dis-label" title="${esc(d.label)}">${esc(d.label)}</div>
+          <div class="pt-dis-track"><div class="pt-dis-fill" style="width:${Math.round(d.val / maxD * 100)}%;background:${DIS_COLORS[Math.round((1 - d.val / maxD) * (DIS_COLORS.length - 1))]};"></div></div>
+          <div class="pt-dis-val">${d.val.toLocaleString()}</div>
+        </div>`).join('');
+    }
+
+    renderPerformance();
+  }
+
+  // ── Interviewer Performance: productivity table ──────────────
+  // Time Profiled = sum of each interviewer's profile times, using the same
+  // 1 min – 8 h rule as the Avg. Profiling Time card.
+  function renderPerformance() {
+    const byInt = new Map();
+    data.forEach(r => {
+      const key = r.interviewer_id || r.interviewer;
+      if (!key) return;
+      if (!byInt.has(key)) byInt.set(key, { name: r.interviewer || 'Unknown', region: r.interviewer_region || '', completed: 0, seconds: 0, timed: 0 });
+      const iv = byInt.get(key);
+      iv.completed++;
+      const s = Number(r.duration_seconds);
+      if (Number.isFinite(s) && s >= MIN_SECONDS && s <= MAX_SECONDS) { iv.seconds += s; iv.timed++; }
+    });
+    const rows = [...byInt.values()].sort((a, b) => b.completed - a.completed || b.seconds - a.seconds || a.name.localeCompare(b.name));
+
+    $('pt-rpt-perf-badge').textContent = `${rows.length.toLocaleString()} interviewer${rows.length !== 1 ? 's' : ''}`;
+    $('pt-perf-tbody').innerHTML = rows.length
+      ? rows.map((iv, i) => `<tr>
+          <td style="font-weight:700;color:var(--gray-400);">${i + 1}</td>
+          <td style="font-weight:700;color:var(--dark);">${esc(iv.name)}</td>
+          <td>${esc(iv.region || '—')}</td>
+          <td style="font-weight:800;color:#1152d4;">${iv.completed.toLocaleString()}</td>
+          <td title="${iv.timed < iv.completed ? esc(`Based on ${iv.timed} of ${iv.completed} timed profiles`) : ''}">${iv.timed ? fmtDuration(iv.seconds) : '<span style="color:var(--gray-400);">—</span>'}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No data yet</td></tr>';
+  }
+
+  // ── Report Analysis ──────────────────────────────────────────
+  // Same approach as the live Reports tab: fixed sentences filled in with the
+  // numbers above (no AI, nothing leaves the page). Pretest has no readiness
+  // scores or social-service summary, so those paragraphs are replaced with
+  // beneficiary profile and interviewer activity.
+  const ANA_PLACEHOLDER = `<div style="padding:1.25rem;background:#f8faff;border:1px solid #dbeafe;border-radius:0.625rem;text-align:center;color:var(--gray-400);font-size:0.8125rem;">
+    Click <b>Generate</b> to create an automated analysis of the current report data.</div>`;
+
+  function resetAnalysis() {
+    $('pt-ana-output').innerHTML = ANA_PLACEHOLDER;
+    $('pt-ana-btn').innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">auto_awesome</span>Generate';
+  }
+
+  function generateAnalysis() {
+    const total = data.length;
+    const n = v => Number(v).toLocaleString();
+    const pctOf = (v, of) => of ? Math.round(v / of * 100) : 0;
+    const countBy = (rows, key) => {
+      const m = new Map();
+      rows.forEach(r => { const k = key(r); if (k) m.set(k, (m.get(k) || 0) + 1); });
+      return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    };
+
+    if (!total) {
+      $('pt-ana-output').innerHTML = `<div style="padding:1.25rem;text-align:center;color:var(--gray-400);font-size:0.8125rem;">No pretest profiles yet. Generate again once profiles are submitted.</div>`;
+      return;
+    }
+
+    // Completion
+    const rate = pctOf(total, TARGET);
+    const statusColor = rate >= 100 ? '#059669' : '#1152d4';
+    const statusLabel = rate >= 100 ? 'Target Reached' : 'In Progress';
+    const times = data.map(r => Number(r.duration_seconds)).filter(s => Number.isFinite(s) && s >= MIN_SECONDS && s <= MAX_SECONDS);
+    const avgTime = times.length ? fmtDuration(times.reduce((a, b) => a + b, 0) / times.length) : null;
+
+    // Barangays (v3 is Lubao, Pampanga only)
+    const regions = countBy(data, r => r.barangay);
+    const [topReg, botReg] = [regions[0], regions[regions.length - 1]];
+
+    // Sex & age
+    const male = data.filter(r => r.sex === 'Male').length, female = data.filter(r => r.sex === 'Female').length;
+    const ages = AGE_GROUPS.map(g => ({ ...g, val: data.filter(r => r.age !== null && r.age !== '' && +r.age >= g.min && +r.age <= g.max).length }))
+      .sort((a, b) => b.val - a.val);
+
+    // Disabilities
+    const dis = countBy(data.flatMap(r => (r.disabilities || []).map(d => ({ d }))), x => x.d);
+    const multi = data.filter(r => (r.disabilities || []).length > 1).length;
+
+    // Interviewers
+    const ints = countBy(data, r => r.interviewer_id || r.interviewer);
+    const avgPerInt = ints.length ? (total / ints.length).toFixed(1).replace(/\.0$/, '') : 0;
+    const topIntShare = ints.length ? pctOf(ints[0][1], total) : 0;
+
+    const sections = [
+      {
+        icon: 'assignment_turned_in', color: '#1152d4',
+        title: 'Pretest Completion Status',
+        body: `As of this report, <b>${n(total)}</b> pretest profiles have been submitted against the target of <b>${TARGET}</b> beneficiaries, a completion rate of <b style="color:${statusColor}">${rate}%</b> — <b>${statusLabel}</b>. `
+          + (rate >= 100 ? 'The pretest sample is complete and ready for review. '
+                         : `<b>${n(TARGET - total)}</b> more profiles are needed to complete the sample. `)
+          + (avgTime ? `Profiling takes an average of <b>${avgTime}</b> per child (based on ${n(times.length)} timed profiles).`
+                     : 'Profiling time is not yet available.')
+      },
+      {
+        icon: 'map', color: '#2563eb',
+        title: 'Barangay Coverage',
+        body: !regions.length ? 'No barangay data recorded yet.'
+          : regions.length === 1
+            ? `All profiles come from Barangay <b>${esc(topReg[0])}</b>, Lubao. Testing in more barangays will make the pretest findings more representative.`
+            : topReg[1] === botReg[1]
+              ? `Profiles come from <b>${regions.length}</b> barangays in Lubao and are evenly spread, with <b>${n(topReg[1])}</b> each.`
+              : `Profiles come from <b>${regions.length}</b> barangays in Lubao. <b>${esc(topReg[0])}</b> leads with <b>${n(topReg[1])}</b> profile${topReg[1] !== 1 ? 's' : ''} (${pctOf(topReg[1], total)}%), while <b>${esc(botReg[0])}</b> has the fewest, with <b>${n(botReg[1])}</b>. A more even spread across barangays will make the pretest findings more representative.`
+      },
+      {
+        icon: 'group', color: '#3b82f6',
+        title: 'Beneficiary Profile',
+        body: `Of <b>${n(total)}</b> children profiled, <b>${pctOf(male, total)}%</b> are male and <b>${pctOf(female, total)}%</b> are female`
+          + (total - male - female ? `, and <b>${pctOf(total - male - female, total)}%</b> are recorded as other. ` : '. ')
+          + (ages[0].val === ages[ages.length - 1].val
+              ? `Children are evenly spread across the <b>0–5</b>, <b>6–11</b> and <b>12–17</b> age groups.`
+              : ages[0].val === ages[1].val
+                ? `The largest age groups are <b>${ages[0].label}</b> and <b>${ages[1].label}</b> years, with <b>${n(ages[0].val)}</b> children each.`
+                : `The largest age group is <b>${ages[0].label}</b> years with <b>${n(ages[0].val)}</b> children (${pctOf(ages[0].val, total)}%).`)
+          + (ages.some(a => a.val === 0) ? ` No children aged <b>${ages.filter(a => a.val === 0).map(a => a.label).join(', ')}</b> have been profiled yet, so questions for that age range are untested.` : '')
+      },
+      {
+        icon: 'accessible', color: '#60a5fa',
+        title: 'Disability Prevalence',
+        body: dis.length
+          ? `The most common disability type is <b>${esc(dis[0][0])}</b>, recorded in <b>${n(dis[0][1])}</b> profile${dis[0][1] !== 1 ? 's' : ''} (${pctOf(dis[0][1], total)}%). <b>${dis.length}</b> different types were recorded in total. `
+            + (multi ? `<b>${n(multi)}</b> child${multi !== 1 ? 'ren have' : ' has'} more than one disability type (${pctOf(multi, total)}%), which should factor into service planning.` : 'No child has more than one disability type recorded.')
+          : 'No disability data recorded yet.'
+      },
+      {
+        icon: 'badge', color: '#1d4ed8',
+        title: 'Interviewer Activity',
+        body: `<b>${n(ints.length)}</b> interviewer${ints.length !== 1 ? 's have' : ' has'} submitted pretest profiles, averaging <b>${avgPerInt}</b> profile${avgPerInt !== '1' ? 's' : ''} each. `
+          + (ints.length === 1
+              ? 'Adding more testers will give broader feedback on the form.'
+              : topIntShare >= 50 && ints[0][1] > ints[1][1]
+                ? `The most active interviewer accounts for <b>${topIntShare}%</b> of all profiles; spreading the work across testers gives broader feedback on the form.`
+                : 'Workload is spread across testers, which gives broader feedback on the form.')
+      },
+    ];
+
+    $('pt-ana-output').innerHTML = `<div style="display:flex;flex-direction:column;gap:0.875rem;padding-top:0.25rem;">
+      ${sections.map(sec => `
+        <div style="display:flex;gap:0.875rem;padding:1rem 1.125rem;background:#eff6ff;border:1px solid #dbeafe;border-radius:0.625rem;">
+          <div style="width:2.25rem;height:2.25rem;border-radius:50%;background:${sec.color};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:0.1rem;">
+            <span class="material-symbols-outlined" style="color:white;font-size:1.1rem;">${sec.icon}</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.8125rem;font-weight:800;color:var(--dark);margin-bottom:0.3rem;">${sec.title}</div>
+            <div style="font-size:0.8rem;color:var(--gray-600);line-height:1.6;">${sec.body}</div>
+          </div>
+        </div>`).join('')}
+      <div style="font-size:0.68rem;color:var(--gray-400);text-align:right;padding-top:0.25rem;">Generated ${new Date().toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' })} · Based on all pretest profiles</div>
+    </div>`;
+    $('pt-ana-btn').innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;">refresh</span>Regenerate';
+  }
+
+  // Live dashboard blues. Shade follows the count (equal counts = same shade,
+  // most common = darkest); the faintest live shades are left out so short bars
+  // stay visible on the gray track.
+  const DIS_COLORS = ['#1152d4', '#1d4ed8', '#2563eb', '#3b82f6', '#60a5fa', '#93c5fd'];
+
+  $('pt-ana-btn').addEventListener('click', generateAnalysis);
+
+  // One tooltip for every chart mark that has data-tip.
+  const tip = $('pt-tip');
+  function moveTip(e) { tip.style.left = (e.clientX + 12) + 'px'; tip.style.top = (e.clientY - 10) + 'px'; }
+  $('pt-reports').addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-tip]');
+    if (!el) return;
+    tip.textContent = el.dataset.tip;
+    tip.style.display = 'block';
+    moveTip(e);
+    if (el.tagName === 'circle') {
+      el.parentNode.querySelectorAll('circle').forEach(c => { c.style.opacity = c === el ? '1' : '0.3'; });
+      el.style.strokeWidth = '27px';
+    }
+  });
+  $('pt-reports').addEventListener('mousemove', e => { if (tip.style.display === 'block') moveTip(e); });
+  $('pt-reports').addEventListener('mouseout', e => {
+    const el = e.target.closest('[data-tip]');
+    if (!el || el.contains(e.relatedTarget)) return;
+    tip.style.display = 'none';
+    if (el.tagName === 'circle') el.parentNode.querySelectorAll('circle').forEach(c => { c.style.opacity = '1'; c.style.strokeWidth = '20px'; });
+  });
+
+  document.querySelectorAll('#pt-reports .rpt-section-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const body = $(btn.getAttribute('aria-controls'));
+      const opening = body.style.display === 'none';
+      body.style.display = opening ? '' : 'none';
+      btn.querySelector('.rpt-chevron').classList.toggle('open', opening);
+      btn.setAttribute('aria-expanded', String(opening));
+    });
+  });
+
+  function fillSelect(id, allLabel, lists) {
+    const counts = new Map();
+    lists.forEach(list => list.forEach(v => { if (v) counts.set(v, (counts.get(v) || 0) + 1); }));
+    const sel = $(id), keep = sel.value;
+    sel.innerHTML = `<option value="">${allLabel}</option>` +
+      [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([v, n]) => `<option value="${esc(v)}">${esc(v)} (${n})</option>`).join('');
+    if (counts.has(keep)) sel.value = keep;
+  }
+
+  function applyFilters() {
+    const q = $('pt-search').value.trim().toLowerCase();
+    const region = $('pt-region').value;
+    const dis = $('pt-disability').value;
+    filtered = data.filter(r =>
+      (!q || (r.name || '').toLowerCase().includes(q) || (r.aruga_id || '').toLowerCase().includes(q)) &&
+      (!region || r.barangay === region) &&
+      (!dis || (r.disabilities || []).includes(dis)));
+    sortRows();
+    page = 0;
+    render();
+  }
+
+  function sortRows() {
+    if (!sortCol) return;
+    filtered.sort((a, b) => {
+      let va, vb;
+      if (sortCol === 'age') { va = parseInt(a.age) || 0; vb = parseInt(b.age) || 0; }
+      else { va = (a[sortCol] || '').toString().toLowerCase(); vb = (b[sortCol] || '').toString().toLowerCase(); }
+      if (va < vb) return sortDir === 'asc' ? -1 : 1;
+      if (va > vb) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.sort;
+      if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      else { sortCol = col; sortDir = 'asc'; }
+      document.querySelectorAll('th[data-sort] .pt-sort-icon').forEach(i => { i.textContent = 'unfold_more'; i.style.color = 'var(--gray-400)'; });
+      const icon = th.querySelector('.pt-sort-icon');
+      icon.textContent = sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward';
+      icon.style.color = 'var(--blue)';
+      sortRows(); page = 0; render();
+    });
+  });
+
+  function msgRow(text) {
+    return `<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">${text}</td></tr>`;
+  }
+
+  function row(r) {
+    const parts = r.disabilities || [];
+    const disCell = parts.length === 0
+      ? '<span style="color:var(--gray-400);font-size:0.8rem;">—</span>'
+      : `<div style="display:flex;align-items:center;gap:0.375rem;" title="${esc(parts.join(', '))}">
+           <span class="badge badge-blue">${esc(parts[0])}</span>
+           ${parts.length > 1 ? `<span style="font-size:0.7rem;font-weight:700;background:var(--gray-200);color:var(--gray-700);padding:0.1rem 0.4rem;border-radius:999px;">+${parts.length - 1}</span>` : ''}
+         </div>`;
+    return `<tr class="table-row-hover">
+      <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${esc(r.name || '—')}</div><div style="font-size:0.65rem;color:#9ca3af;">${esc(r.aruga_id)}</div></td>
+      <td>${esc(r.age ?? '—')}</td>
+      <td>${disCell}</td>
+      <td>${esc(r.barangay || '—')}</td>
+      <td><button class="btn btn-ghost btn-sm table-action-btn" data-view="${esc(r.assessment_id)}" title="View Details" aria-label="View details of ${esc(r.name)}"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
+    </tr>`;
+  }
+
+  function render() {
+    const total = filtered.length;
+    const pages = Math.max(1, Math.ceil(total / PER_PAGE));
+    if (page >= pages) page = pages - 1;
+    const slice = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
+    $('pt-tbody').innerHTML = slice.length ? slice.map(row).join('') : msgRow(data.length ? 'No matching records.' : 'No pretest profiles submitted yet.');
+    $('pt-count').textContent = `${total} of ${data.length} records`;
+    $('pt-page-info').textContent = total ? `Showing ${page * PER_PAGE + 1}–${Math.min(total, (page + 1) * PER_PAGE)} of ${total}` : '—';
+    buildPagination(page, pages);
+  }
+
+  function buildPagination(current, total) {
+    const c = $('pt-pagination');
+    c.innerHTML = '';
+    if (total <= 1) return;
+    const mkBtn = (label, p, active, disabled) => {
+      const b = document.createElement('button');
+      b.className = 'page-btn' + (active ? ' active' : '');
+      b.textContent = label; b.disabled = !!disabled;
+      if (!disabled && !active) b.addEventListener('click', () => { page = p; render(); });
+      return b;
+    };
+    c.appendChild(mkBtn('‹', current - 1, false, current === 0));
+    const range = new Set([0, total - 1, current, current - 1, current + 1].filter(p => p >= 0 && p < total));
+    let prev = -1;
+    [...range].sort((a, b) => a - b).forEach(p => {
+      if (prev !== -1 && p - prev > 1) { const s = document.createElement('span'); s.className = 'page-ellipsis'; s.textContent = '…'; c.appendChild(s); }
+      c.appendChild(mkBtn(p + 1, p, p === current, false));
+      prev = p;
+    });
+    c.appendChild(mkBtn('›', current + 1, false, current >= total - 1));
+  }
+
+  $('pt-search').addEventListener('input', applyFilters);
+  $('pt-region').addEventListener('change', applyFilters);
+  $('pt-disability').addEventListener('change', applyFilters);
+  $('pt-reset').addEventListener('click', () => {
+    $('pt-search').value = ''; $('pt-region').value = ''; $('pt-disability').value = '';
+    applyFilters();
+  });
+  $('pt-tbody').addEventListener('click', e => {
+    const btn = e.target.closest('[data-view]');
+    if (btn) openDetail(btn.dataset.view);
+  });
+
+  // ── Detail (read-only) ───────────────────────────────────────
+  function fmtValue(v) {
+    if (Array.isArray(v)) return v.join(', ');
+    return String(v);
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return isNaN(d) ? '' : d.toLocaleString('en-PH', { year:'numeric', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+  }
+
+  async function openDetail(id) {
+    $('pt-list-view').style.display = 'none';
+    $('pt-detail-view').style.display = '';
+    $('pt-detail-title').textContent = 'Loading...';
+    $('pt-detail-subtitle').textContent = '';
+    $('pt-detail-body').innerHTML = '';
+    window.scrollTo(0, 0);
+    let d;
+    try {
+      d = await api('results-profile', { query: '&id=' + encodeURIComponent(id) });
+    } catch (err) {
+      if (err.message !== 'expired') $('pt-detail-title').textContent = err.message;
+      return;
+    }
+    const p = d.profile || {};
+    const name = (data.find(r => r.assessment_id === id) || {}).name || 'Profile';
+    $('pt-detail-title').textContent = String(name).toUpperCase();
+    $('pt-detail-subtitle').textContent = [p.aruga_id, p.interviewer && 'Interviewer: ' + p.interviewer, fmtDate(p.submitted_at) && 'Submitted ' + fmtDate(p.submitted_at)].filter(Boolean).join(' · ');
+
+    // Longest prefix first, so "s10_" is never matched by a shorter prefix.
+    const prefixes = STEPS.map(s => s[0]).sort((a, b) => b.length - a.length);
+    const groups = new Map(STEPS.map(s => [s[0], []]));
+    const other = [];
+    d.fields.forEach(f => {
+      const pre = prefixes.find(x => f.key.startsWith(x));
+      (pre ? groups.get(pre) : other).push(f);
+    });
+
+    const section = (title, fields) => !fields.length ? '' : `
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="pt-section-title">${esc(title)}</div>
+        <div class="pt-fields">
+          ${fields.map(f => `<div><div class="pt-field-label">${esc(f.label)}</div><div class="pt-field-value">${esc(fmtValue(f.value))}</div></div>`).join('')}
+        </div>
+      </div>`;
+
+    let html = STEPS.map(([pre, title]) => section(title, groups.get(pre))).join('') + section('Other', other);
+    if ((d.feedback || []).length) {
+      html += `<div class="card" style="margin-bottom:1rem;">
+        <div class="pt-section-title">Tester Feedback</div>
+        ${d.feedback.map(f => `<div class="pt-feedback">${f.step ? `<strong>${esc((STEPS.find(s => s[0] === 's' + f.step + '_') || [, 'Step ' + f.step])[1])}:</strong> ` : ''}${esc(f.comment)}</div>`).join('')}
+      </div>`;
+    }
+    $('pt-detail-body').innerHTML = html;
+  }
+
+  function closeDetail() {
+    $('pt-detail-view').style.display = 'none';
+    $('pt-list-view').style.display = '';
+  }
+
+  // ── Report / Pre-test Data toggle ────────────────────────────
+  const TAB_KEY = 'pt3_result_tab';
+  const TAB_SUBTITLES = {
+    report: 'Summary of all submitted v3 pretest profiles',
+    data:   'All submitted v3 pretest profiles · Lubao, Pampanga',
+  };
+  const tabButtons = [...document.querySelectorAll('.pt-toggle [role="tab"]')];
+
+  function setTab(name) {
+    if (!TAB_SUBTITLES[name]) name = 'report';
+    tabButtons.forEach(b => {
+      const on = b.dataset.tab === name;
+      b.setAttribute('aria-selected', String(on));
+      b.tabIndex = on ? 0 : -1;
+      $(b.getAttribute('aria-controls')).hidden = !on;
+    });
+    $('pt-page-subtitle').textContent = TAB_SUBTITLES[name];
+    tip.style.display = 'none';
+    try { sessionStorage.setItem(TAB_KEY, name); } catch (e) {}
+  }
+
+  tabButtons.forEach((b, i) => {
+    b.addEventListener('click', () => setTab(b.dataset.tab));
+    b.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const next = tabButtons[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabButtons.length) % tabButtons.length];
+      setTab(next.dataset.tab);
+      next.focus();
+    });
+  });
+
+  let savedTab = null;
+  try { savedTab = sessionStorage.getItem(TAB_KEY); } catch (e) {}
+  setTab(savedTab || 'report');
+  $('pt-back').addEventListener('click', closeDetail);
+
+  // ── Start ────────────────────────────────────────────────────
+  token = store.get();
+  if (token) showApp(); else digits[0].focus();
+})();
+</script>
+</body>
+</html>

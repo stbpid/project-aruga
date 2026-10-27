@@ -20,6 +20,7 @@ $map = [
     '/dashboard-stu-head'    => 'dashboard-stu-head.html',
     '/dashboard-field-officer' => 'dashboard-field-officer.html',
     '/pretestv2result'       => 'pretest-v2-result.html',
+    '/pretestv3result'       => 'pretest-v3-result.html',
     '/pretestappdownload'    => 'pretest-app-download.html',
 ];
 
