@@ -71,6 +71,15 @@
     .pt-fields { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:0.75rem 1.5rem; }
     .pt-field-label { font-size:0.68rem; font-weight:600; color:var(--gray-500); text-transform:uppercase; letter-spacing:0.03em; }
     .pt-field-value { font-size:0.8125rem; color:var(--dark); word-break:break-word; white-space:pre-wrap; }
+    .pt-score-head { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.375rem; }
+    .pt-score-total { font-size:1.75rem; font-weight:800; color:var(--dark); line-height:1; }
+    .pt-score-total small { font-size:0.8125rem; font-weight:600; color:var(--gray-400); }
+    .pt-score-desc { font-size:0.78rem; color:var(--gray-600); margin-bottom:1rem; max-width:60rem; }
+    .pt-score-table td, .pt-score-table th { white-space:nowrap; }
+    .pt-score-table .num { text-align:right; }
+    .pt-score-table tfoot td { font-weight:700; border-top:1px solid var(--border); }
+    .pt-score-skip { font-size:0.68rem; font-weight:600; color:#d97706; margin-left:0.375rem; }
+    .pt-score-note { font-size:0.7rem; color:var(--gray-500); margin-top:0.75rem; }
     .pt-feedback { font-size:0.8125rem; background:#fffbeb; border:1px solid #fde68a; border-radius:0.5rem; padding:0.625rem 0.875rem; margin-bottom:0.5rem; }
 
     @media (max-width: 640px) {
@@ -272,6 +281,9 @@
           <select id="pt-disability" class="btn btn-secondary btn-sm pt-filter" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0 0.5rem;">
             <option value="">All Disabilities</option>
           </select>
+          <select id="pt-rating" class="btn btn-secondary btn-sm pt-filter" style="font-family:inherit;font-size:0.72rem;cursor:pointer;padding:0 0.5rem;">
+            <option value="">All Ratings</option>
+          </select>
           <button class="btn btn-secondary btn-sm" id="pt-reset">Reset</button>
           <span style="font-size:0.72rem;color:var(--gray-500);white-space:nowrap;" id="pt-count">—</span>
         </div>
@@ -285,11 +297,13 @@
                 <th data-sort="age" style="cursor:pointer;user-select:none;white-space:nowrap;">Age <span class="material-symbols-outlined pt-sort-icon" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th>Disability</th>
                 <th data-sort="barangay" style="cursor:pointer;user-select:none;white-space:nowrap;">Barangay <span class="material-symbols-outlined pt-sort-icon" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th data-sort="score" style="cursor:pointer;user-select:none;white-space:nowrap;" title="Vulnerability score, 4.4 to 22.0">Score <span class="material-symbols-outlined pt-sort-icon" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
+                <th data-sort="rating" style="cursor:pointer;user-select:none;white-space:nowrap;">Rating <span class="material-symbols-outlined pt-sort-icon" style="font-size:0.8rem;vertical-align:middle;color:var(--gray-400);">unfold_more</span></th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody id="pt-tbody">
-              <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
+              <tr><td colspan="7"style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -341,6 +355,54 @@
     ['s11_', 'Step 10 · Priority Needs and Referral'],
     ['s12_', 'Step 11 · Summary'],
   ];
+
+  // Domain Scoring Worksheet (tool revised 25 Oct 2026). Each domain is
+  // [title, weight, indicators]; an indicator lists the Likert columns behind
+  // it. A grouped question (several sub-items) counts as ONE indicator, scored
+  // as the average of its answered sub-items. Domain points = sum of answered
+  // indicators × weight; total = sum of domain points (4.4–22.0 when complete).
+  // Skipped answers (NA / DK / REF) are left out for now. s4_2 is scored as
+  // written (not reversed) until the tool authors confirm.
+  const DOMAINS = [
+    ['Child Care and Family Support', 0.20, [['s4_1_1', 's4_1_2', 's4_1_3', 's4_1_4'], ['s4_2'], ['s4_3']]],
+    ['Education and Participation', 0.15, [['s5_2'], ['s5_3'], ['s5_4'], ['s5_5']]],
+    ['Health, Rehabilitation and Assistive Devices', 0.10, [['s6_1'], ['s6_2'], ['s6_3'], ['s6_4'], ['s6_5']]],
+    ['Caregiver Capacity and Support', 0.15, [['s7_1a', 's7_1b', 's7_1c', 's7_1d', 's7_1e', 's7_1f'], ['s7_2'], ['s7_3'], ['s7_4'], ['s7_5'], ['s7_6']]],
+    ['Household Economic Situation', 0.10, [['s8_3'], ['s8_4'], ['s8_5'], ['s8_6']]],
+    ['Social Protection and Entitlements', 0.20, [['s9_1'], ['s9_3'], ['s9_4_1', 's9_4_2', 's9_4_3', 's9_4_4', 's9_4_5', 's9_4_6'], ['s9_5'],
+      ['s9_6a_1', 's9_6a_2', 's9_6a_3', 's9_6a_4', 's9_6a_5', 's9_6a_6', 's9_6b_1', 's9_6b_2', 's9_6b_3', 's9_6c_1', 's9_6c_2', 's9_6c_3', 's9_6c_4']]],
+    ['Environmental Barriers', 0.10, [['s10_1'], ['s10_2'], ['s10_3'], ['s10_5']]],
+  ];
+  // [name, lowest score, badge class, description] — Interpretation table.
+  const RATINGS = [
+    ['Stable', 0, 'badge-green', 'Responses generally indicate adequate caregiving support, access to needed services, and opportunities for participation. Maintain existing support and routine monitoring, while addressing any specific unmet need identified in individual items. This classification does not rule out an urgent concern.'],
+    ['Low', 8.8, 'badge-yellow', 'Responses indicate some gaps in caregiving support, service access, caregiver capacity, financial resources, social protection, or environmental accessibility. Identify the affected areas, agree on targeted assistance or referrals, and monitor follow-through.'],
+    ['Moderate', 13.2, 'badge-orange', 'Responses indicate substantial support gaps or barriers affecting the child’s participation and the family’s ability to meet care needs. Develop a coordinated support plan with the caregiver and relevant providers, assign responsibility for agreed actions, and arrange closer follow-up.'],
+    ['Severe', 17.6, 'badge-red', 'Responses indicate extensive inadequacy of support or access across the assessed areas. Prioritize comprehensive case review and coordinated assistance, including service linkage, caregiver support, and measures to address financial or environmental barriers. Determine urgency from the specific needs and referral findings, rather than the overall score alone.'],
+  ];
+
+  // likert: { column: '1'–'5' | 'NA' | 'DK' | 'REF' }. total is null when no
+  // scored item was answered (or the list has no answers yet).
+  function scoreOf(likert) {
+    let any = false;
+    const domains = DOMAINS.map(([title, weight, indicators]) => {
+      let sum = 0, answered = 0;
+      indicators.forEach(keys => {
+        const vals = keys.map(k => Number(likert?.[k])).filter(v => v >= 1 && v <= 5);
+        if (vals.length) { sum += vals.reduce((a, b) => a + b, 0) / vals.length; answered++; }
+      });
+      if (answered) any = true;
+      return { title, weight, sum, answered, count: indicators.length, points: sum * weight, max: indicators.length * 5 * weight };
+    });
+    // Rounded to the one decimal shown, so the rating always matches the number.
+    const total = any ? Math.round(domains.reduce((a, d) => a + d.points, 0) * 10) / 10 : null;
+    const rating = total === null ? null : RATINGS.filter(r => total >= r[1]).pop();
+    return { domains, total, rating };
+  }
+
+  function ratingBadge(rating) {
+    return rating ? `<span class="badge ${rating[2]}">${rating[0]}</span>` : '<span style="color:var(--gray-400);font-size:0.8rem;">—</span>';
+  }
 
   let token = null;
   let data = [], filtered = [], page = 0;
@@ -442,9 +504,19 @@
       if (err.message !== 'expired') $('pt-tbody').innerHTML = msgRow('Failed to load. ' + esc(err.message));
       return;
     }
+    data.forEach(r => {
+      r.scoring = scoreOf(r.likert);
+      r.score = r.scoring.total;
+      r.rating = r.scoring.rating ? r.scoring.rating[0] : '';
+    });
     renderStats();
     fillSelect('pt-region', 'All Barangays', data.map(r => r.barangay ? [r.barangay] : []));
     fillSelect('pt-disability', 'All Disabilities', data.map(r => r.disabilities || []));
+    // Ratings keep their Stable → Severe order rather than alphabetical.
+    const sel = $('pt-rating'), keep = sel.value;
+    sel.innerHTML = '<option value="">All Ratings</option>' + RATINGS.map(([name]) =>
+      `<option value="${name}">${name} (${data.filter(r => r.rating === name).length})</option>`).join('');
+    sel.value = keep;
     applyFilters();
   }
 
@@ -772,10 +844,12 @@
     const q = $('pt-search').value.trim().toLowerCase();
     const region = $('pt-region').value;
     const dis = $('pt-disability').value;
+    const rating = $('pt-rating').value;
     filtered = data.filter(r =>
       (!q || (r.name || '').toLowerCase().includes(q) || (r.aruga_id || '').toLowerCase().includes(q)) &&
       (!region || r.barangay === region) &&
-      (!dis || (r.disabilities || []).includes(dis)));
+      (!dis || (r.disabilities || []).includes(dis)) &&
+      (!rating || r.rating === rating));
     sortRows();
     page = 0;
     render();
@@ -786,6 +860,8 @@
     filtered.sort((a, b) => {
       let va, vb;
       if (sortCol === 'age') { va = parseInt(a.age) || 0; vb = parseInt(b.age) || 0; }
+      // Rating follows the score, so both sort Stable → Severe; no score sorts first.
+      else if (sortCol === 'score' || sortCol === 'rating') { va = a.score ?? -1; vb = b.score ?? -1; }
       else { va = (a[sortCol] || '').toString().toLowerCase(); vb = (b[sortCol] || '').toString().toLowerCase(); }
       if (va < vb) return sortDir === 'asc' ? -1 : 1;
       if (va > vb) return sortDir === 'asc' ? 1 : -1;
@@ -807,7 +883,7 @@
   });
 
   function msgRow(text) {
-    return `<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">${text}</td></tr>`;
+    return `<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">${text}</td></tr>`;
   }
 
   function row(r) {
@@ -823,6 +899,8 @@
       <td>${esc(r.age ?? '—')}</td>
       <td>${disCell}</td>
       <td>${esc(r.barangay || '—')}</td>
+      <td style="font-weight:600;">${r.score === null ? '—' : r.score.toFixed(1)}</td>
+      <td>${ratingBadge(r.scoring.rating)}</td>
       <td><button class="btn btn-ghost btn-sm table-action-btn" data-view="${esc(r.assessment_id)}" title="View Details" aria-label="View details of ${esc(r.name)}"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
     </tr>`;
   }
@@ -863,8 +941,9 @@
   $('pt-search').addEventListener('input', applyFilters);
   $('pt-region').addEventListener('change', applyFilters);
   $('pt-disability').addEventListener('change', applyFilters);
+  $('pt-rating').addEventListener('change', applyFilters);
   $('pt-reset').addEventListener('click', () => {
-    $('pt-search').value = ''; $('pt-region').value = ''; $('pt-disability').value = '';
+    $('pt-search').value = ''; $('pt-region').value = ''; $('pt-disability').value = ''; $('pt-rating').value = '';
     applyFilters();
   });
   $('pt-tbody').addEventListener('click', e => {
@@ -882,6 +961,33 @@
     if (!iso) return '';
     const d = new Date(iso);
     return isNaN(d) ? '' : d.toLocaleString('en-PH', { year:'numeric', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+  }
+
+  function scoreCard(s) {
+    const n = (v, d) => v.toFixed(d);
+    const rows = s.domains.map(d => `<tr>
+        <td>${esc(d.title)}</td>
+        <td class="num">${Math.round(d.weight * 100)}%</td>
+        <td class="num">${d.answered} / ${d.count}${d.answered < d.count ? `<span class="pt-score-skip">⚠ ${d.count - d.answered} skipped</span>` : ''}</td>
+        <td class="num">${d.answered ? n(d.sum, 1) : '—'}</td>
+        <td class="num">${d.answered ? n(d.points, 2) : '—'} / ${n(d.max, 1)}</td>
+      </tr>`).join('');
+    return `<div class="card" style="margin-bottom:1rem;">
+      <div class="pt-section-title">Vulnerability Score</div>
+      <div class="pt-score-head">
+        <span class="pt-score-total">${s.total === null ? '—' : n(s.total, 1)} <small>/ 22.0</small></span>
+        ${ratingBadge(s.rating)}
+      </div>
+      <div class="pt-score-desc">${s.rating ? esc(s.rating[3]) : 'No scored questions were answered.'}</div>
+      <div class="table-wrap">
+        <table class="dash-table pt-score-table">
+          <thead><tr><th>Domain</th><th class="num">Weight</th><th class="num">Answered</th><th class="num">Sum</th><th class="num">Points</th></tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot><tr><td>Total</td><td class="num">100%</td><td></td><td></td><td class="num">${s.total === null ? '—' : n(s.total, 1)} / 22.0</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="pt-score-note">Domain 1 (Child Disability and Functional Status) and Domain 9 (Priority Needs and Referral) are not scored. Urgent cases need action regardless of the score.</div>
+    </div>`;
   }
 
   async function openDetail(id) {
@@ -920,7 +1026,9 @@
         </div>
       </div>`;
 
-    let html = STEPS.map(([pre, title]) => section(title, groups.get(pre))).join('') + section('Other', other);
+    const rec = data.find(r => r.assessment_id === id);
+    let html = (rec ? scoreCard(rec.scoring) : '') +
+      STEPS.map(([pre, title]) => section(title, groups.get(pre))).join('') + section('Other', other);
     if ((d.feedback || []).length) {
       html += `<div class="card" style="margin-bottom:1rem;">
         <div class="pt-section-title">Tester Feedback</div>
