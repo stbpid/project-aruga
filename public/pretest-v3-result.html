@@ -65,22 +65,9 @@
     .pt-chart-empty { text-align:center; color:var(--gray-400); font-size:0.75rem; padding:2.5rem 0; }
     #pt-tip { display:none; position:fixed; background:#1e293b; color:#fff; border-radius:0.5rem; padding:0.4rem 0.75rem; font-size:0.7rem; pointer-events:none; z-index:9999; box-shadow:0 4px 12px rgba(0,0,0,0.2); white-space:nowrap; }
     @media (max-width: 760px) { .pt-chart-grid { grid-template-columns:1fr; } }
-    .pt-urg-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.8fr); gap:1rem; align-items:start; }
-    .pt-urg-list { max-height:26rem; overflow-y:auto; }
-    .pt-urg-list thead th { position:sticky; top:0; z-index:1; }
-    .pt-urg-list td:first-child, .pt-urg-list td:nth-child(2) { white-space:nowrap; }
-    @media (max-width: 960px) { .pt-urg-grid { grid-template-columns:1fr; } }
-    .pt-rate-bar { display:flex; height:14px; border-radius:999px; overflow:hidden; background:var(--gray-200); margin:0.25rem 0 1rem; }
-    .pt-rate-tiles { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:0.75rem; }
-    .pt-rate-tile { text-align:left; border:1px solid var(--border); border-radius:0.625rem; background:#fff; padding:0.75rem 0.875rem; cursor:pointer; font-family:inherit; transition:border-color 0.15s, background 0.15s; }
-    .pt-rate-tile:hover { background:var(--gray-50); border-color:var(--blue); }
-    .pt-rate-tile:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
-    .pt-rate-name { display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; color:var(--dark); }
-    .pt-rate-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-    .pt-rate-count { font-size:1.5rem; font-weight:800; color:var(--dark); line-height:1.2; margin-top:0.25rem; }
-    .pt-rate-pct { font-size:0.7rem; color:var(--gray-500); }
-    .pt-rate-foot { font-size:0.72rem; color:var(--gray-500); margin-top:0.875rem; }
-    @media (max-width: 640px) { .pt-rate-tiles { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+    .pt-status-row { display:flex; align-items:center; gap:0.5rem; width:100%; padding:0.2rem 0.35rem; border:0; border-radius:0.375rem; background:none; font-family:inherit; color:var(--dark); text-align:left; cursor:pointer; transition:background 0.13s; }
+    .pt-status-row:hover { background:var(--blue-light); }
+    .pt-status-row:focus-visible { outline:2px solid var(--blue); outline-offset:1px; }
 
     /* Detail view */
     .pt-section-title { font-size:0.8125rem; font-weight:700; color:var(--dark); margin:0 0 0.75rem; }
@@ -91,21 +78,11 @@
     .pt-score-total { font-size:1.75rem; font-weight:800; color:var(--dark); line-height:1; }
     .pt-score-total small { font-size:0.8125rem; font-weight:600; color:var(--gray-400); }
     .pt-score-desc { font-size:0.78rem; color:var(--gray-600); margin-bottom:1rem; max-width:60rem; }
-    .pt-dom { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 5.5rem; gap:0.375rem 1.25rem; align-items:center; padding:0.7rem 0; border-top:1px solid var(--gray-100); }
-    .pt-dom-title { font-size:0.8rem; font-weight:600; color:var(--dark); }
-    .pt-dom-meta { font-size:0.68rem; color:var(--gray-500); margin-top:0.125rem; }
-    .pt-dom-skip { font-weight:600; color:#d97706; }
-    .pt-dom-track { height:10px; background:var(--gray-200); border-radius:999px; overflow:hidden; }
-    .pt-dom-fill { height:100%; border-radius:999px; }
-    .pt-dom-pts { font-size:0.875rem; font-weight:700; color:var(--dark); text-align:right; white-space:nowrap; }
-    .pt-dom-pts small { font-size:0.72rem; font-weight:500; color:var(--gray-400); }
-    .pt-dom.total { border-top:1.5px solid var(--border); }
-    .pt-dom.total .pt-dom-title, .pt-dom.total .pt-dom-pts { font-size:0.9375rem; font-weight:800; }
-    .pt-score-note { font-size:0.7rem; color:var(--gray-500); margin-top:0.5rem; }
-    @media (max-width: 640px) {
-      .pt-dom { grid-template-columns:minmax(0,1fr) auto; }
-      .pt-dom-track { grid-column:1 / -1; grid-row:2; }
-    }
+    .pt-score-table td, .pt-score-table th { white-space:nowrap; }
+    .pt-score-table td:first-child { white-space:normal; min-width:12rem; }
+    .pt-score-table .num { text-align:right; }
+    .pt-score-table tfoot td { padding:0.75rem 0.875rem; font-weight:700; color:var(--dark); border-top:1px solid var(--border); }
+    .pt-score-skip { font-size:0.68rem; font-weight:600; color:#d97706; margin-left:0.375rem; }
     .pt-feedback { font-size:0.8125rem; background:#fffbeb; border:1px solid #fde68a; border-radius:0.5rem; padding:0.625rem 0.875rem; margin-bottom:0.5rem; }
 
     @media (max-width: 640px) {
@@ -204,62 +181,26 @@
 
       <!-- Reports -->
       <div id="pt-reports" style="margin-bottom:1.5rem;">
-      <div class="rpt-section">
-        <button type="button" class="rpt-section-header" aria-expanded="true" aria-controls="pt-rpt-urg-body">
-          <span style="display:flex;align-items:center;gap:0.6rem;">
-            <span class="material-symbols-outlined" style="font-size:1.1rem;color:#dc2626;">emergency</span>
-            <span class="rpt-section-title">Urgent Needs Not Met</span>
-            <span class="rpt-section-badge" id="pt-rpt-urg-badge">—</span>
-          </span>
-          <span class="material-symbols-outlined rpt-chevron open">expand_more</span>
-        </button>
-        <div class="rpt-section-body" id="pt-rpt-urg-body">
-          <div class="pt-urg-grid">
-            <div class="card" style="margin:0;">
-              <div class="card-header"><div class="card-title">By Need Area</div></div>
-              <div id="pt-urg-chart" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div>
-            </div>
-            <div class="card" style="margin:0;min-width:0;">
-              <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
-                <div class="card-title">Children to Follow Up</div>
-                <div style="font-size:0.72rem;color:var(--gray-500);">Answered “No” to “Is the need met?”</div>
-              </div>
-              <div class="table-wrap pt-urg-list">
-                <table class="dash-table">
-                  <thead><tr><th>Beneficiary</th><th>Barangay</th><th>Unmet Needs</th><th>Rating</th><th>Action</th></tr></thead>
-                  <tbody id="pt-urg-tbody"></tbody>
-                </table>
-              </div>
+      <!-- Disabilities + Assessment Status (same layout as the live dashboard's
+           Monthly Assessments + Assessment Status row) -->
+      <div class="grid-3-1" style="margin-bottom:0.625rem;">
+        <div class="card" style="margin:0;min-width:0;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Disabilities</div>
+              <div class="card-subtitle" id="pt-rpt-dis-badge">—</div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="rpt-section">
-        <button type="button" class="rpt-section-header" aria-expanded="true" aria-controls="pt-rpt-rate-body">
-          <span style="display:flex;align-items:center;gap:0.6rem;">
-            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">monitoring</span>
-            <span class="rpt-section-title">Vulnerability Rating</span>
-            <span class="rpt-section-badge" id="pt-rpt-rate-badge">—</span>
-          </span>
-          <span class="material-symbols-outlined rpt-chevron open">expand_more</span>
-        </button>
-        <div class="rpt-section-body" id="pt-rpt-rate-body">
-          <div id="pt-rate-chart" style="padding:0.25rem 0;"></div>
-        </div>
-      </div>
-
-      <div class="rpt-section">
-        <button type="button" class="rpt-section-header" aria-expanded="true" aria-controls="pt-rpt-dis-body">
-          <span style="display:flex;align-items:center;gap:0.6rem;">
-            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--blue);">accessible</span>
-            <span class="rpt-section-title">Disabilities</span>
-            <span class="rpt-section-badge" id="pt-rpt-dis-badge">—</span>
-          </span>
-          <span class="material-symbols-outlined rpt-chevron open">expand_more</span>
-        </button>
-        <div class="rpt-section-body" id="pt-rpt-dis-body">
           <div id="pt-dis-chart" style="display:flex;flex-direction:column;gap:0.75rem;padding:0.5rem 0;"></div>
+        </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Assessment Status</div>
+              <div class="card-subtitle" id="pt-status-subtitle">—</div>
+            </div>
+          </div>
+          <div id="pt-status-chart" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem 1rem 1.25rem;gap:0.75rem;"></div>
         </div>
       </div>
 
@@ -444,12 +385,12 @@
       ['s9_6a_1', 's9_6a_2', 's9_6a_3', 's9_6a_4', 's9_6a_5', 's9_6a_6', 's9_6b_1', 's9_6b_2', 's9_6b_3', 's9_6c_1', 's9_6c_2', 's9_6c_3', 's9_6c_4']]],
     ['Environmental Barriers', 0.10, [['s10_1'], ['s10_2'], ['s10_3'], ['s10_5']]],
   ];
-  // [name, lowest score, badge class, description, bar colour] — Interpretation table.
+  // [name, lowest score, badge class, description] — Interpretation table.
   const RATINGS = [
-    ['Stable', 0, 'badge-green','Responses generally indicate adequate caregiving support, access to needed services, and opportunities for participation. Maintain existing support and routine monitoring, while addressing any specific unmet need identified in individual items. This classification does not rule out an urgent concern.', '#059669'],
-    ['Low', 8.8, 'badge-yellow', 'Responses indicate some gaps in caregiving support, service access, caregiver capacity, financial resources, social protection, or environmental accessibility. Identify the affected areas, agree on targeted assistance or referrals, and monitor follow-through.', '#eab308'],
-    ['Moderate', 13.2, 'badge-orange', 'Responses indicate substantial support gaps or barriers affecting the child’s participation and the family’s ability to meet care needs. Develop a coordinated support plan with the caregiver and relevant providers, assign responsibility for agreed actions, and arrange closer follow-up.', '#ea580c'],
-    ['Severe', 17.6, 'badge-red', 'Responses indicate extensive inadequacy of support or access across the assessed areas. Prioritize comprehensive case review and coordinated assistance, including service linkage, caregiver support, and measures to address financial or environmental barriers. Determine urgency from the specific needs and referral findings, rather than the overall score alone.', '#dc2626'],
+    ['Stable', 0, 'badge-green','Responses generally indicate adequate caregiving support, access to needed services, and opportunities for participation. Maintain existing support and routine monitoring, while addressing any specific unmet need identified in individual items. This classification does not rule out an urgent concern.'],
+    ['Low', 8.8, 'badge-yellow', 'Responses indicate some gaps in caregiving support, service access, caregiver capacity, financial resources, social protection, or environmental accessibility. Identify the affected areas, agree on targeted assistance or referrals, and monitor follow-through.'],
+    ['Moderate', 13.2, 'badge-orange', 'Responses indicate substantial support gaps or barriers affecting the child’s participation and the family’s ability to meet care needs. Develop a coordinated support plan with the caregiver and relevant providers, assign responsibility for agreed actions, and arrange closer follow-up.'],
+    ['Severe', 17.6, 'badge-red', 'Responses indicate extensive inadequacy of support or access across the assessed areas. Prioritize comprehensive case review and coordinated assistance, including service linkage, caregiver support, and measures to address financial or environmental barriers. Determine urgency from the specific needs and referral findings, rather than the overall score alone.'],
   ];
 
   // likert: { column: '1'–'5' | 'NA' | 'DK' | 'REF' }. total is null when no
@@ -697,7 +638,8 @@
     data.forEach(r => (r.disabilities || []).forEach(d => { if (d) disCounts.set(d, (disCounts.get(d) || 0) + 1); }));
     const dis = [...disCounts.entries()].map(([label, val]) => ({ label, val })).sort((a, b) => b.val - a.val || a.label.localeCompare(b.label));
     const cases = dis.reduce((a, d) => a + d.val, 0);
-    $('pt-rpt-dis-badge').textContent = `${cases.toLocaleString()} cases`;
+    const withDis = data.filter(r => (r.disabilities || []).some(Boolean)).length;
+    $('pt-rpt-dis-badge').textContent = `${cases.toLocaleString()} ${cases === 1 ? 'case' : 'cases'} across ${withDis.toLocaleString()} ${withDis === 1 ? 'profile' : 'profiles'}`;
     if (!dis.length) {
       $('pt-dis-chart').innerHTML = '<div class="pt-chart-empty">No data yet</div>';
     } else {
@@ -710,71 +652,55 @@
         </div>`).join('');
     }
 
-    renderUrgent();
     renderRatings();
     renderPerformance();
   }
 
-  // ── Urgent Needs Not Met (Domain 9 follow-ups answered "No") ─
-  // [follow-up column, need area] — same order as the form.
-  const URGENT_AREAS = [['s11_1a_met', 'Health'], ['s11_1b_met', 'Rehabilitation'], ['s11_1c_met', 'Education'],
-                        ['s11_1d_met', 'Protection'], ['s11_1e_met', 'Daily care'], ['s11_1f_met', 'Other support']];
+  // ── Assessment Status donut (vulnerability ratings) ──────────
+  // Shape and blues copied from the live dashboard's Assessment Status card.
+  const STATUS_COLORS = { Severe: '#1152d4', Moderate: '#2563eb', Low: '#60a5fa', Stable: '#bfdbfe' };
 
-  function renderUrgent() {
-    const rows = data.map(r => ({ r, unmet: URGENT_AREAS.filter(([k]) => r.urgent?.[k] === 'No').map(a => a[1]) }))
-      .filter(x => x.unmet.length)
-      .sort((a, b) => b.unmet.length - a.unmet.length || (b.r.score ?? -1) - (a.r.score ?? -1));
-    $('pt-rpt-urg-badge').textContent = `${rows.length.toLocaleString()} ${rows.length === 1 ? 'child' : 'children'}`;
-
-    const areas = URGENT_AREAS.map(([, label]) => ({ label, val: rows.filter(x => x.unmet.includes(label)).length }));
-    const maxU = Math.max(...areas.map(a => a.val), 0);
-    $('pt-urg-chart').innerHTML = !maxU
-      ? '<div class="pt-chart-empty">No urgent unmet needs recorded</div>'
-      : areas.map(a => `
-        <div class="pt-dis-row" data-tip="${esc(`${a.label}: ${a.val.toLocaleString()} ${a.val === 1 ? 'child' : 'children'}`)}">
-          <div class="pt-dis-label" title="${esc(a.label)}">${esc(a.label)}</div>
-          <div class="pt-dis-track"><div class="pt-dis-fill" style="width:${Math.round(a.val / maxU * 100)}%;background:#dc2626;"></div></div>
-          <div class="pt-dis-val">${a.val.toLocaleString()}</div>
-        </div>`).join('');
-
-    $('pt-urg-tbody').innerHTML = !rows.length
-      ? '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:2rem;font-size:0.75rem;">No children with an urgent unmet need</td></tr>'
-      : rows.map(({ r, unmet }) => `<tr class="table-row-hover">
-          <td><div style="font-weight:600;color:#111811;text-transform:uppercase;">${esc(r.name || '—')}</div><div style="font-size:0.65rem;color:#9ca3af;">${esc(r.aruga_id)}</div></td>
-          <td>${esc(r.barangay || '—')}</td>
-          <td><div style="display:flex;flex-wrap:wrap;gap:0.25rem;">${unmet.map(u => `<span class="badge badge-red"${u === 'Other support' && r.urgent.s11_1f_spec ? ` title="${esc(r.urgent.s11_1f_spec)}"` : ''}>${esc(u)}</span>`).join('')}</div></td>
-          <td>${ratingBadge(r.scoring.rating)}</td>
-          <td><button class="btn btn-ghost btn-sm table-action-btn" data-view="${esc(r.assessment_id)}" title="View Details" aria-label="View details of ${esc(r.name)}"><span class="material-symbols-outlined" style="font-size:0.875rem;">visibility</span></button></td>
-        </tr>`).join('');
-  }
-
-  // ── Vulnerability Rating breakdown ───────────────────────────
   function renderRatings() {
     const scored = data.filter(r => r.score !== null);
     const unscored = data.length - scored.length;
-    $('pt-rpt-rate-badge').textContent = `${scored.length.toLocaleString()} rated`;
+    $('pt-status-subtitle').textContent = `${scored.length.toLocaleString()} rated ${scored.length === 1 ? 'assessment' : 'assessments'}` +
+      (unscored ? ` · ${unscored.toLocaleString()} not scored` : '');
     if (!scored.length) {
-      $('pt-rate-chart').innerHTML = '<div class="pt-chart-empty">No data yet</div>';
+      $('pt-status-chart').innerHTML = '<div class="pt-chart-empty">No data yet</div>';
       return;
     }
-    const counts = RATINGS.map(([name, , , , color]) => ({ name, color, val: scored.filter(r => r.rating === name).length }));
+    const counts = ['Severe', 'Moderate', 'Low', 'Stable'].map(name => ({ name, color: STATUS_COLORS[name], val: scored.filter(r => r.rating === name).length }));
     const pct = v => Math.round(v / scored.length * 100);
     const avg = scored.reduce((a, r) => a + r.score, 0) / scored.length;
-    $('pt-rate-chart').innerHTML = `
-      <div class="pt-rate-bar" role="img" aria-label="${esc(counts.map(c => `${c.name} ${c.val}`).join(', '))}">
-        ${counts.filter(c => c.val).map(c => `<div data-tip="${esc(`${c.name}: ${c.val.toLocaleString()} (${pct(c.val)}%)`)}" style="width:${c.val / scored.length * 100}%;background:${c.color};cursor:pointer;"></div>`).join('')}
-      </div>
-      <div class="pt-rate-tiles">
-        ${counts.map(c => `<button type="button" class="pt-rate-tile" data-rating="${c.name}" title="Show ${c.name} profiles in Pre-test Data">
-          <div class="pt-rate-name"><span class="pt-rate-dot" style="background:${c.color};"></span>${c.name}</div>
-          <div class="pt-rate-count">${c.val.toLocaleString()}</div>
-          <div class="pt-rate-pct">${pct(c.val)}% of rated profiles</div>
+    const R = 68, C = 80, W = 24, circ = 2 * Math.PI * R;
+    let offset = 0;
+    const arcs = counts.filter(c => c.val).map(c => {
+      const dash = c.val / scored.length * circ;
+      const arc = `<circle cx="${C}" cy="${C}" r="${R}" fill="none" stroke="${c.color}" stroke-width="${W}" data-stroke="${W}"
+        stroke-dasharray="${dash} ${circ - dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${C} ${C})"
+        data-tip="${esc(`${c.name}: ${c.val.toLocaleString()} (${pct(c.val)}%)`)}" style="cursor:pointer;transition:stroke-width 0.2s,opacity 0.2s;"/>`;
+      offset += dash;
+      return arc;
+    }).join('');
+    $('pt-status-chart').innerHTML = `
+      <svg viewBox="0 0 160 160" width="160" height="160" style="overflow:visible;" role="img"
+           aria-label="${esc(counts.map(c => `${c.name} ${c.val}`).join(', '))}">
+        ${arcs}
+        <text x="${C}" y="${C - 8}" text-anchor="middle" dominant-baseline="middle" style="font-family:Poppins,sans-serif;font-size:16px;font-weight:800;fill:#111827;pointer-events:none;">${scored.length.toLocaleString()}</text>
+        <text x="${C}" y="${C + 10}" text-anchor="middle" dominant-baseline="middle" style="font-family:Poppins,sans-serif;font-size:8px;font-weight:600;fill:#9ca3af;letter-spacing:0.05em;pointer-events:none;">TOTAL</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;width:100%;max-width:200px;">
+        ${counts.map(c => `<button type="button" class="pt-status-row" data-rating="${c.name}" title="Show ${c.name} profiles in Pre-test Data">
+          <span style="width:10px;height:10px;border-radius:50%;background:${c.color};flex-shrink:0;"></span>
+          <span style="font-size:0.75rem;font-weight:600;flex:1;">${c.name}</span>
+          <span style="font-size:0.75rem;font-weight:700;">${c.val.toLocaleString()}</span>
+          <span style="font-size:0.7rem;color:var(--gray-400);width:32px;text-align:right;">${pct(c.val)}%</span>
         </button>`).join('')}
       </div>
-      <div class="pt-rate-foot">Average score <strong style="color:var(--dark);">${avg.toFixed(1)} / 22.0</strong>${unscored ? ` · ${unscored.toLocaleString()} ${unscored === 1 ? 'profile' : 'profiles'} not scored yet` : ''} · Click a rating to see its profiles.</div>`;
+      <div style="font-size:0.72rem;color:var(--gray-500);text-align:center;">Average score <strong style="color:var(--dark);">${avg.toFixed(1)} / 22.0</strong></div>`;
   }
 
-  $('pt-rate-chart').addEventListener('click', e => {
+  $('pt-status-chart').addEventListener('click', e => {
     const tile = e.target.closest('[data-rating]');
     if (!tile) return;
     $('pt-search').value = ''; $('pt-region').value = ''; $('pt-disability').value = '';
@@ -782,10 +708,6 @@
     applyFilters();
     setTab('data');
     window.scrollTo(0, 0);
-  });
-  $('pt-urg-tbody').addEventListener('click', e => {
-    const btn = e.target.closest('[data-view]');
-    if (btn) openDetail(btn.dataset.view);
   });
 
   // ── Interviewer Performance: productivity table ──────────────
@@ -955,7 +877,7 @@
     moveTip(e);
     if (el.tagName === 'circle') {
       el.parentNode.querySelectorAll('circle').forEach(c => { c.style.opacity = c === el ? '1' : '0.3'; });
-      el.style.strokeWidth = '27px';
+      el.style.strokeWidth = (Number(el.dataset.stroke) || 20) + 7 + 'px';
     }
   });
   $('pt-reports').addEventListener('mousemove', e => { if (tip.style.display === 'block') moveTip(e); });
@@ -963,7 +885,7 @@
     const el = e.target.closest('[data-tip]');
     if (!el || el.contains(e.relatedTarget)) return;
     tip.style.display = 'none';
-    if (el.tagName === 'circle') el.parentNode.querySelectorAll('circle').forEach(c => { c.style.opacity = '1'; c.style.strokeWidth = '20px'; });
+    if (el.tagName === 'circle') el.parentNode.querySelectorAll('circle').forEach(c => { c.style.opacity = '1'; c.style.strokeWidth = (Number(c.dataset.stroke) || 20) + 'px'; });
   });
 
   document.querySelectorAll('#pt-reports .rpt-section-header').forEach(btn => {
@@ -1115,20 +1037,13 @@
 
   function scoreCard(s) {
     const n = (v, d) => v.toFixed(d);
-    // Bar length = points ÷ domain maximum; colour = the rating band that share
-    // falls in on the 22-point scale, so each bar reads like the overall rating.
-    const bar = (points, max) => {
-      const band = RATINGS.filter(r => points / max * 22 >= r[1]).pop();
-      return `<div class="pt-dom-track"><div class="pt-dom-fill" style="width:${(points / max * 100).toFixed(1)}%;background:${band[4]};"></div></div>`;
-    };
-    const rows = s.domains.map(d => `<div class="pt-dom">
-        <div>
-          <div class="pt-dom-title">${esc(d.title)}</div>
-          <div class="pt-dom-meta">${Math.round(d.weight * 100)}% weight · ${d.answered} of ${d.count} answered${d.answered ? ` · sum ${n(d.sum, 1)}` : ''}${d.answered < d.count ? ` · <span class="pt-dom-skip">⚠ ${d.count - d.answered} skipped</span>` : ''}</div>
-        </div>
-        ${d.answered ? bar(d.points, d.max) : '<div class="pt-dom-track"></div>'}
-        <div class="pt-dom-pts">${d.answered ? n(d.points, 2) : '—'} <small>/ ${n(d.max, 1)}</small></div>
-      </div>`).join('');
+    const rows = s.domains.map(d => `<tr>
+        <td>${esc(d.title)}</td>
+        <td class="num">${Math.round(d.weight * 100)}%</td>
+        <td class="num">${d.answered} / ${d.count}${d.answered < d.count ? `<span class="pt-score-skip">⚠ ${d.count - d.answered} skipped</span>` : ''}</td>
+        <td class="num">${d.answered ? n(d.sum, 1) : '—'}</td>
+        <td class="num">${d.answered ? n(d.points, 2) : '—'} / ${n(d.max, 1)}</td>
+      </tr>`).join('');
     const total = s.total === null ? '—' : n(s.total, 1);
     return `<div class="card" style="margin-bottom:1rem;">
       <div class="pt-section-title">Vulnerability Score</div>
@@ -1137,13 +1052,13 @@
         ${ratingBadge(s.rating)}
       </div>
       <div class="pt-score-desc">${s.rating ? esc(s.rating[3]) : 'No scored questions were answered.'}</div>
-      ${rows}
-      <div class="pt-dom total">
-        <div class="pt-dom-title">Total</div>
-        ${s.total === null ? '<div class="pt-dom-track"></div>' : bar(s.total, 22)}
-        <div class="pt-dom-pts">${total} <small>/ 22.0</small></div>
+      <div class="table-wrap">
+        <table class="dash-table pt-score-table">
+          <thead><tr><th>Domain</th><th class="num">Weight</th><th class="num">Answered</th><th class="num">Sum</th><th class="num">Points</th></tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot><tr><td>Total</td><td class="num">100%</td><td></td><td></td><td class="num">${total} / 22.0</td></tr></tfoot>
+        </table>
       </div>
-      <div class="pt-score-note">Bar colours use the same Stable / Low / Moderate / Severe bands as the overall rating.</div>
     </div>`;
   }
 
