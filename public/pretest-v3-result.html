@@ -570,9 +570,10 @@
   // Colors and shapes copied from the live dashboard reports.
   // v3 also allows "Other"; it is only shown when a profile uses it.
   const SEX = [{ label: 'Male', color: '#1152d4' }, { label: 'Female', color: '#93c5fd' }, { label: 'Other', color: '#94a3b8' }];
-  // Pretest ages are 0–17 (enforced by the database), so there is no 18+ group.
-  const AGE_GROUPS = [{ label: '0–5', min: 0, max: 5 }, { label: '6–11', min: 6, max: 11 }, { label: '12–17', min: 12, max: 17 }];
-  const AGE_COLORS = ['#1152d4', '#2563eb', '#3b82f6'];
+  // Same groups as the live dashboard. Pretest ages are 0–17 (enforced by the
+  // database), so 18+ stays at 0; it is shown to match the dashboard.
+  const AGE_GROUPS = [{ label: '0–5', min: 0, max: 5 }, { label: '6–11', min: 6, max: 11 }, { label: '12–17', min: 12, max: 17 }, { label: '18+', min: 18, max: Infinity }];
+  const AGE_COLORS = ['#1152d4', '#2563eb', '#3b82f6', '#60a5fa'];
 
   function renderReport() {
     const total = data.length;
@@ -624,7 +625,7 @@
             <div data-tip="${esc(`Age ${a.label}: ${a.val.toLocaleString()} (${Math.round(a.val / data.length * 100)}%)`)}"
                  style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:100%;cursor:pointer;">
               <div style="font-size:0.78rem;font-weight:800;color:${AGE_COLORS[i]};margin-bottom:6px;">${a.val ? a.val.toLocaleString() : ''}</div>
-              <div style="width:100%;max-width:56px;height:${Math.max(Math.round(a.val / maxA * H), a.val ? 6 : 2)}px;background:${AGE_COLORS[i]};border-radius:5px 5px 0 0;transition:height 0.6s ease;"></div>
+              <div style="width:100%;height:${Math.max(Math.round(a.val / maxA * H), a.val ? 6 : 2)}px;background:${AGE_COLORS[i]};border-radius:5px 5px 0 0;transition:height 0.6s ease;"></div>
             </div>`).join('')}
         </div>
         <div style="display:flex;gap:0.875rem;padding-top:0.5rem;">
@@ -780,6 +781,7 @@
     // Sex & age
     const male = data.filter(r => r.sex === 'Male').length, female = data.filter(r => r.sex === 'Female').length;
     const ages = AGE_GROUPS.map(g => ({ ...g, val: data.filter(r => r.age !== null && r.age !== '' && +r.age >= g.min && +r.age <= g.max).length }))
+      .filter(g => g.val || g.label !== '18+')   // 18+ is always empty in the pretest
       .sort((a, b) => b.val - a.val);
 
     // Disabilities
