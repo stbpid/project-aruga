@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gabay-Magulang Facilitators' Training - Project Aruga</title>
+  <link rel="icon" href="/images/logo.webp" type="image/webp">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #2b2a7a;
+      --ink-deep: #23226a;
+      --accent: #4b3fa8;
+      --lav: #ebe9f7;
+      --lav-banner: #dcd8f0;
+      --bg: #f3f2f9;
+      --card: #ffffff;
+      --border: #e6e4f2;
+      --muted: #6b6a85;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+      padding: 32px 16px;
+    }
+    a { color: inherit; text-decoration: none; }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(43, 42, 122, .06);
+    }
+    .banner { height: 240px; background: var(--lav-banner) center/cover no-repeat; }
+    .content { padding: 40px 48px 32px; }
+
+    .logos { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
+    .logos img { height: 34px; width: auto; }
+
+    .eyebrow {
+      font-family: 'Poppins', sans-serif; font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--accent); font-size: 18px; margin: 0 0 6px;
+    }
+    h1 {
+      font-family: 'Poppins', sans-serif; font-weight: 800;
+      font-size: 44px; line-height: 1.1; margin: 0 0 18px;
+      color: var(--ink-deep); text-transform: uppercase;
+    }
+    .date-pill {
+      display: inline-block; background: var(--ink); color: #fff;
+      font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 14px;
+      padding: 8px 18px; border-radius: 999px; margin-bottom: 16px;
+    }
+    .venue { font-size: 14px; line-height: 1.7; color: var(--accent); margin: 0; }
+    hr { border: 0; border-top: 2px solid var(--accent); margin: 40px 0; opacity: .8; }
+
+    .folder {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      background: linear-gradient(110deg, #5a4db5 0%, #2b2a7a 100%);
+      color: #fff; border-radius: 14px; padding: 30px 32px; margin-bottom: 40px;
+    }
+    .folder h2 { font-family: 'Poppins', sans-serif; font-size: 26px; margin: 0 0 4px; }
+    .folder p { margin: 0; font-size: 14px; opacity: .9; }
+    .btn-white {
+      background: #fff; color: var(--ink); font-family: 'Poppins', sans-serif;
+      font-weight: 500; font-size: 14px; padding: 11px 22px; border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .section { margin-bottom: 40px; }
+    .label {
+      font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 12px;
+      letter-spacing: .14em; text-transform: uppercase; color: var(--accent);
+      margin: 0 0 14px;
+    }
+    .label + .hint { margin: -10px 0 14px; font-size: 14px; color: var(--muted); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+    .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+
+    .toggle {
+      width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer;
+      border: 1px solid var(--border); border-radius: 12px; background: #fff;
+      padding: 20px 22px; transition: border-color .15s;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    }
+    .toggle h3 { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 16px; margin: 0 0 4px; color: var(--ink-deep); }
+    .toggle p { margin: 0; font-size: 12px; color: var(--muted); }
+    .toggle[aria-expanded="true"] { border-color: var(--accent); }
+    .chev { flex-shrink: 0; color: var(--accent); transition: transform .2s; }
+    .toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+    .panel {
+      margin-top: 14px; border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px 22px;
+    }
+    .panel-empty { margin: 0; font-size: 14px; color: var(--muted); }
+    .day-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .day-tab {
+      font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 13px;
+      padding: 8px 14px; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--border); background: #fff; color: var(--ink);
+    }
+    .day-tab:hover { border-color: #c9c4ea; }
+    .day-tab.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .agenda { list-style: none; margin: 0; padding: 0; }
+    .agenda li {
+      background: var(--lav); border-radius: 10px; padding: 14px 18px;
+      font-size: 15px; margin-bottom: 8px; line-height: 1.45;
+    }
+    .agenda li:last-child { margin-bottom: 0; }
+    .agenda li em {
+      display: block; font-style: normal; font-family: 'Poppins', sans-serif;
+      font-weight: 600; font-size: 11px; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 2px;
+    }
+    .agenda li.session { background: #fff; border: 1px solid #d6d1ef; }
+    .agenda li span { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    .material {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--lav); border-radius: 10px; padding: 20px 22px;
+      font-size: 15px; margin-bottom: 10px; transition: background .15s;
+    }
+    .material:hover { background: #e0ddf3; }
+    .material svg { flex-shrink: 0; }
+
+    .day {
+      border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+      transition: border-color .15s;
+    }
+    .day:hover, .toggle:hover, .test:hover { border-color: #c9c4ea; }
+    .day strong { display: block; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 16px; }
+    .day span { font-size: 12px; color: var(--muted); }
+
+    .test { border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .test .when { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+    .test .when b { color: var(--ink-deep); font-weight: 600; }
+    .btn-test {
+      display: block; font-family: 'Poppins', sans-serif; font-weight: 600;
+      font-size: 14px; letter-spacing: .06em; padding: 11px 16px; border-radius: 6px;
+      border: 1.5px solid var(--ink);
+    }
+    .btn-test.solid { background: var(--ink); color: #fff; }
+    .btn-test.outline { background: #fff; color: var(--ink); }
+    .test .note { font-size: 12px; color: var(--muted); margin: 12px 0 0; }
+
+    .cert { background: var(--lav); border-radius: 14px; padding: 28px; margin-bottom: 40px; }
+    .cert h2 { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 19px; margin: 0 0 6px; color: var(--ink-deep); }
+    .cert p { font-size: 13px; color: var(--muted); margin: 0 0 18px; }
+    .cert .label { margin-bottom: 6px; }
+    .btn-outline {
+      display: inline-block; background: #fff; border: 1px solid var(--border);
+      font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 14px;
+      letter-spacing: .06em; padding: 12px 20px; border-radius: 8px;
+    }
+
+    footer {
+      border-top: 1px solid var(--border); padding-top: 24px;
+      text-align: center; font-size: 13px; color: var(--muted);
+    }
+    footer a { color: var(--accent); }
+
+    @media (max-width: 720px) {
+      body { padding: 0; }
+      .page { border-radius: 0; }
+      .banner { height: 160px; }
+      .content { padding: 28px 16px 24px; }
+      .eyebrow { font-size: 14px; }
+      h1 { font-size: 30px; }
+      .folder { flex-direction: column; align-items: flex-start; padding: 24px; }
+      .folder h2 { font-size: 22px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .grid-5 { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="banner"></div>
+
+    <div class="content">
+      <div class="logos">
+        <img src="/images/form-logo.webp" alt="DSWD">
+        <img src="/images/bagong-pilipinas.webp" alt="Bagong Pilipinas">
+      </div>
+
+      <p class="eyebrow">Facilitators' Training on the</p>
+      <h1>Gabay-Magulang<br>Peer Support Session Guide</h1>
+      <span class="date-pill">9 to 13 November 2026</span>
+      <p class="venue">The Clover Hotel, Fil-Am Friendship Highway<br>Barangay Cutcut, Angeles City, Pampanga</p>
+
+      <hr>
+
+      <!-- Links: replace each "#" with the real URL -->
+      <div class="folder">
+        <div>
+          <h2>Participants Folder</h2>
+          <p>All your training files in one Google Drive folder</p>
+        </div>
+        <a class="btn-white" href="#" target="_blank" rel="noopener">Open Google Drive &rarr;</a>
+      </div>
+
+      <div class="section">
+        <p class="label">Training Essentials</p>
+        <div class="grid-2">
+          <button class="toggle" type="button" aria-expanded="false" aria-controls="panel-program">
+            <div><h3>Program of Activities</h3><p>Five day schedule and sessions</p></div>
+            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <button class="toggle" type="button" aria-expanded="false" aria-controls="panel-modules">
+            <div><h3>Module Assignment</h3><p>Your group and session for the return demonstration</p></div>
+            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+
+        <div class="panel" id="panel-program" hidden>
+          <div class="day-tabs" role="tablist">
+            <button type="button" role="tab" class="day-tab active" data-day="1">Day 1 &middot; November 09</button>
+            <button type="button" role="tab" class="day-tab" data-day="2">Day 2 &middot; November 10</button>
+            <button type="button" role="tab" class="day-tab" data-day="3">Day 3 &middot; November 11</button>
+            <button type="button" role="tab" class="day-tab" data-day="4">Day 4 &middot; November 12</button>
+            <button type="button" role="tab" class="day-tab" data-day="5">Day 5 &middot; November 13</button>
+          </div>
+
+          <ol class="agenda" data-day="1">
+            <li>Registration of Participants</li>
+            <li>Preliminaries<span>Opening Prayer, National Anthem, Acknowledgement of Participants, Welcome Remarks and Messages</span></li>
+            <li>Expectation Setting and Overview of the Activity</li>
+            <li>Administration of Pretest</li>
+            <li class="session"><em>Session I</em>Implementation of the Gabay-Magulang Peer Support Sessions</li>
+            <li>Daily Learning Journal and Administrative Announcements</li>
+          </ol>
+          <ol class="agenda" data-day="2" hidden>
+            <li>Recapitulation</li>
+            <li class="session"><em>Session II</em>Understanding Children with Disabilities</li>
+            <li class="session"><em>Session III</em>The Framework of Acceptance, Adjustment and Advocacy</li>
+            <li class="session"><em>Session IV</em>Psychoeducation on Group Process</li>
+            <li class="session"><em>Session V</em>The Gabay-Magulang Peer Support Session Guide (Pagtanggap, Pagsasaayos at Adbokasiya)</li>
+            <li>Daily Learning Journal and Administrative Announcements</li>
+          </ol>
+          <ol class="agenda" data-day="3" hidden>
+            <li>Recapitulation</li>
+            <li>Demonstration of Module 1</li>
+            <li>Simulation Exercises for Modules 2 to 6</li>
+            <li>Simulation Exercises for Modules 7 to 12</li>
+            <li>Daily Learning Journal and Administrative Announcements</li>
+          </ol>
+          <ol class="agenda" data-day="4" hidden>
+            <li>Recapitulation</li>
+            <li class="session"><em>Session VI</em>Exit Coaching</li>
+            <li class="session"><em>Session VII</em>Self Care for Facilitators (Avoiding Transference and Countertransference)</li>
+            <li>Daily Learning Journal and Administrative Announcements</li>
+          </ol>
+          <ol class="agenda" data-day="5" hidden>
+            <li>Recapitulation</li>
+            <li class="session"><em>Session VIII</em>Module Pretesting, Monitoring and Evaluation Schemes</li>
+            <li>Reentry Planning</li>
+            <li>Closing Activity<span>Synthesis, Ways Forward, Awarding of Certificates and Closing Messages</span></li>
+          </ol>
+        </div>
+
+        <div class="panel" id="panel-modules" hidden>
+          <p class="panel-empty">Module assignments to follow.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <p class="label">Learning Materials</p>
+        <a class="material" href="#" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Presentation Slides of Resource Persons
+        </a>
+        <a class="material" href="#" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 2h6v4H9zM9 13l2 2 4-4"/></svg>
+          Process Observation Guide
+        </a>
+        <a class="material" href="#" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          Guided Observation Guide for the Return Demonstration
+        </a>
+      </div>
+
+      <div class="section">
+        <p class="label">Daily Learning Journal</p>
+        <p class="hint">Fill this out before you leave each day.</p>
+        <div class="grid-5">
+          <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 1</strong><span>Mon, 9 Nov</span></a>
+          <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 2</strong><span>Tue, 10 Nov</span></a>
+          <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 3</strong><span>Wed, 11 Nov</span></a>
+          <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 4</strong><span>Thu, 12 Nov</span></a>
+          <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 5</strong><span>Fri, 13 Nov</span></a>
+        </div>
+      </div>
+
+      <div class="section">
+        <p class="label">Pre-Test and Post-Test</p>
+        <div class="grid-2">
+          <div class="test">
+            <p class="when"><b>Day 1</b> &middot; Mon, 9 Nov</p>
+            <a class="btn-test solid" href="https://docs.google.com/forms/d/1PyTslUr8PI7oEBFfOdVcGkvrOb0GGbWUxb592nzRWNU/viewform?edit_requested=true" target="_blank" rel="noopener">PRE-TEST</a>
+            <p class="note">Answer before the first session</p>
+          </div>
+          <div class="test">
+            <p class="when"><b>Day 5</b> &middot; Fri, 13 Nov</p>
+            <a class="btn-test outline" href="https://docs.google.com/forms/d/1NnPlX07TdTNWRC9Q2dy8xR9ODB2HVsflD4vMd_eWbyU/viewform?edit_requested=true" target="_blank" rel="noopener">POST-TEST</a>
+            <p class="note">Opens after the last session</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cert">
+        <p class="label">Certificates</p>
+        <h2>Certificate of Participation</h2>
+        <p>Please make sure you have answered the Evaluation Form before getting your certificate.</p>
+        <a class="btn-outline" href="#" target="_blank" rel="noopener">ANSWER EVALUATION FORM &rarr;</a>
+      </div>
+
+      <footer>
+        Social Technology Bureau &middot; DSWD in partnership with UNICEF &middot;
+        <a href="mailto:soctech@dswd.gov.ph">soctech@dswd.gov.ph</a>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // Essentials cards: open one panel below the pair, close the other
+    var toggles = document.querySelectorAll('.toggle');
+    toggles.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var open = btn.getAttribute('aria-expanded') === 'true';
+        toggles.forEach(function (b) {
+          b.setAttribute('aria-expanded', 'false');
+          document.getElementById(b.getAttribute('aria-controls')).hidden = true;
+        });
+        if (!open) {
+          btn.setAttribute('aria-expanded', 'true');
+          document.getElementById(btn.getAttribute('aria-controls')).hidden = false;
+        }
+      });
+    });
+
+    // Day controller for the program
+    var tabs = document.querySelectorAll('.day-tab');
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        tabs.forEach(function (t) { t.classList.toggle('active', t === tab); });
+        document.querySelectorAll('.agenda').forEach(function (list) {
+          list.hidden = list.dataset.day !== tab.dataset.day;
+        });
+      });
+    });
+  </script>
+</body>
+</html>
