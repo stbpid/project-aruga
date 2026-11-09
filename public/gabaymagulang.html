@@ -35,11 +35,18 @@
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(43, 42, 122, .06);
     }
-    .banner { height: 240px; background: var(--lav-banner) center/cover no-repeat; }
+    .banner {
+      aspect-ratio: 4 / 1;
+      background: var(--lav-banner) url('/images/gabaymagulang-cover.png') center/cover no-repeat;
+    }
     .content { padding: 40px 48px 32px; }
 
-    .logos { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
-    .logos img { height: 34px; width: auto; }
+    /* Partner logo strip has wide top/bottom padding in the file; crop it to the logos */
+    .logos { margin: 0 0 32px -18px; }
+    .logos img {
+      display: block; width: 100%; max-width: 440px;
+      aspect-ratio: 1600 / 240; object-fit: cover; object-position: center 47%;
+    }
 
     .eyebrow {
       font-family: 'Poppins', sans-serif; font-weight: 600;
@@ -81,7 +88,7 @@
     .label + .hint { margin: -10px 0 14px; font-size: 14px; color: var(--muted); }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
-    .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 
     .toggle {
       width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer;
@@ -95,32 +102,80 @@
     .chev { flex-shrink: 0; color: var(--accent); transition: transform .2s; }
     .toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
 
+    .stack { display: flex; flex-direction: column; gap: 14px; }
     .panel {
-      margin-top: 14px; border: 1px solid var(--border); border-radius: 12px;
+      border: 1px solid var(--border); border-radius: 12px;
       padding: 20px 22px;
     }
     .panel-empty { margin: 0; font-size: 14px; color: var(--muted); }
-    .day-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-    .day-tab {
-      font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 13px;
-      padding: 8px 14px; border-radius: 999px; cursor: pointer;
-      border: 1px solid var(--border); background: #fff; color: var(--ink);
+    /* Day switcher: one segmented bar */
+    .day-tabs {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;
+      background: var(--lav); border-radius: 12px; padding: 4px; margin-bottom: 22px;
     }
-    .day-tab:hover { border-color: #c9c4ea; }
-    .day-tab.active { background: var(--ink); border-color: var(--ink); color: #fff; }
-    .agenda { list-style: none; margin: 0; padding: 0; }
-    .agenda li {
+    .day-tab {
+      font-family: 'Poppins', sans-serif; cursor: pointer; text-align: center;
+      border: 0; border-radius: 9px; background: transparent; color: var(--muted);
+      padding: 8px 4px; line-height: 1.2; transition: background .15s, color .15s;
+    }
+    .day-tab small {
+      display: block; font-size: 9px; font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase; opacity: .8;
+    }
+    .day-tab b { display: block; font-size: 14px; font-weight: 600; }
+    .day-tab:hover { color: var(--ink); }
+    .day-tab.active { background: var(--ink); color: #fff; box-shadow: 0 2px 6px rgba(43, 42, 122, .25); }
+
+    .day-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+    .day-head h4 { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 19px; margin: 0; color: var(--ink-deep); }
+    .day-head span { font-size: 12px; color: var(--muted); }
+
+    /* Module assignment */
+    .grp-tabs { grid-template-columns: repeat(3, 1fr); }
+    .grp-tabs .day-tab { padding: 10px 4px; }
+    .grp-info {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 14px;
       background: var(--lav); border-radius: 10px; padding: 14px 18px;
-      font-size: 15px; margin-bottom: 8px; line-height: 1.45;
+    }
+    .grp-info dt {
+      font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 10px;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
+    }
+    .grp-info dd { margin: 2px 0 0; font-size: 15px; font-weight: 600; color: var(--ink-deep); }
+    .roster { list-style: none; margin: 0; padding: 0; }
+    .roster li {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 18px; margin-bottom: 8px; font-size: 15px; color: var(--ink-deep);
+    }
+    .roster li:last-child { margin-bottom: 0; }
+    .roster li b {
+      flex-shrink: 0; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 12px;
+      background: var(--lav); color: var(--ink); border-radius: 999px; padding: 4px 11px;
+    }
+
+    .agenda { list-style: none; margin: 0; padding: 0; counter-reset: item; }
+    .agenda li {
+      counter-increment: item; position: relative;
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 18px 14px 50px; margin-bottom: 8px;
+      font-size: 15px; line-height: 1.45; color: var(--ink-deep);
+    }
+    .agenda li::before {
+      content: counter(item, decimal-leading-zero);
+      position: absolute; left: 18px; top: 17px;
+      font-size: 11px; color: #a9a7c0; font-variant-numeric: tabular-nums;
     }
     .agenda li:last-child { margin-bottom: 0; }
     .agenda li em {
-      display: block; font-style: normal; font-family: 'Poppins', sans-serif;
-      font-weight: 600; font-size: 11px; letter-spacing: .12em;
-      text-transform: uppercase; color: var(--accent); margin-bottom: 2px;
+      display: table; font-style: normal; font-family: 'Poppins', sans-serif;
+      font-weight: 600; font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+      background: var(--ink); color: #fff; border-radius: 999px;
+      padding: 3px 9px; margin-bottom: 8px;
     }
-    .agenda li.session { background: #fff; border: 1px solid #d6d1ef; }
-    .agenda li span { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .agenda li.session { background: var(--lav); border-color: #d6d1ef; font-weight: 500; }
+    .agenda li.session::before { top: 19px; }
+    .agenda li span { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
 
     .material {
       display: flex; align-items: center; gap: 14px;
@@ -129,6 +184,17 @@
     }
     .material:hover { background: #e0ddf3; }
     .material svg { flex-shrink: 0; }
+
+    .toast {
+      position: fixed; right: 20px; bottom: 20px; z-index: 50;
+      max-width: calc(100% - 40px);
+      background: var(--ink-deep); color: #fff; font-size: 14px;
+      padding: 13px 18px; border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(35, 34, 106, .25);
+      opacity: 0; transform: translateY(12px); pointer-events: none;
+      transition: opacity .2s, transform .2s;
+    }
+    .toast.show { opacity: 1; transform: none; }
 
     .day {
       border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
@@ -148,6 +214,10 @@
     }
     .btn-test.solid { background: var(--ink); color: #fff; }
     .btn-test.outline { background: #fff; color: var(--ink); }
+    .btn-test[aria-disabled="true"] {
+      border-color: var(--border); background: var(--bg); color: #a9a7c0;
+      cursor: not-allowed; pointer-events: none;
+    }
     .test .note { font-size: 12px; color: var(--muted); margin: 12px 0 0; }
 
     .cert { background: var(--lav); border-radius: 14px; padding: 28px; margin-bottom: 40px; }
@@ -169,14 +239,13 @@
     @media (max-width: 720px) {
       body { padding: 0; }
       .page { border-radius: 0; }
-      .banner { height: 160px; }
+      .logos { margin-left: -12px; }
       .content { padding: 28px 16px 24px; }
       .eyebrow { font-size: 14px; }
       h1 { font-size: 30px; }
       .folder { flex-direction: column; align-items: flex-start; padding: 24px; }
       .folder h2 { font-size: 22px; }
       .grid-2 { grid-template-columns: 1fr; }
-      .grid-5 { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -186,8 +255,7 @@
 
     <div class="content">
       <div class="logos">
-        <img src="/images/form-logo.webp" alt="DSWD">
-        <img src="/images/bagong-pilipinas.webp" alt="Bagong Pilipinas">
+        <img src="/images/gabaymagulang-partner-logo.png" alt="DSWD, Social Technology Bureau, Bagong Pilipinas and UNICEF">
       </div>
 
       <p class="eyebrow">Facilitators' Training on the</p>
@@ -208,29 +276,26 @@
 
       <div class="section">
         <p class="label">Training Essentials</p>
-        <div class="grid-2">
+        <div class="stack">
           <button class="toggle" type="button" aria-expanded="false" aria-controls="panel-program">
             <div><h3>Program of Activities</h3><p>Five day schedule and sessions</p></div>
             <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
           </button>
-          <button class="toggle" type="button" aria-expanded="false" aria-controls="panel-modules">
-            <div><h3>Module Assignment</h3><p>Your group and session for the return demonstration</p></div>
-            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-          </button>
-        </div>
 
         <div class="panel" id="panel-program" hidden>
           <div class="day-tabs" role="tablist">
-            <button type="button" role="tab" class="day-tab active" data-day="1">Day 1 &middot; November 09</button>
-            <button type="button" role="tab" class="day-tab" data-day="2">Day 2 &middot; November 10</button>
-            <button type="button" role="tab" class="day-tab" data-day="3">Day 3 &middot; November 11</button>
-            <button type="button" role="tab" class="day-tab" data-day="4">Day 4 &middot; November 12</button>
-            <button type="button" role="tab" class="day-tab" data-day="5">Day 5 &middot; November 13</button>
+            <button type="button" role="tab" class="day-tab active" data-day="1" aria-selected="true"><small>Day 1</small><b>Nov 09</b></button>
+            <button type="button" role="tab" class="day-tab" data-day="2" aria-selected="false"><small>Day 2</small><b>Nov 10</b></button>
+            <button type="button" role="tab" class="day-tab" data-day="3" aria-selected="false"><small>Day 3</small><b>Nov 11</b></button>
+            <button type="button" role="tab" class="day-tab" data-day="4" aria-selected="false"><small>Day 4</small><b>Nov 12</b></button>
+            <button type="button" role="tab" class="day-tab" data-day="5" aria-selected="false"><small>Day 5</small><b>Nov 13</b></button>
           </div>
+
+          <div class="day-head"><h4 id="day-title">November 09</h4><span id="day-count"></span></div>
 
           <ol class="agenda" data-day="1">
             <li>Registration of Participants</li>
-            <li>Preliminaries<span>Opening Prayer, National Anthem, Acknowledgement of Participants, Welcome Remarks and Messages</span></li>
+            <li>Preliminaries<span>Opening Prayer &middot; National Anthem &middot; Acknowledgement of Participants &middot; Welcome Remarks and Messages</span></li>
             <li>Expectation Setting and Overview of the Activity</li>
             <li>Administration of Pretest</li>
             <li class="session"><em>Session I</em>Implementation of the Gabay-Magulang Peer Support Sessions</li>
@@ -261,41 +326,103 @@
             <li>Recapitulation</li>
             <li class="session"><em>Session VIII</em>Module Pretesting, Monitoring and Evaluation Schemes</li>
             <li>Reentry Planning</li>
-            <li>Closing Activity<span>Synthesis, Ways Forward, Awarding of Certificates and Closing Messages</span></li>
+            <li>Closing Activity<span>Synthesis &middot; Ways Forward &middot; Awarding of Certificates &middot; Closing Messages</span></li>
           </ol>
         </div>
 
+          <button class="toggle" type="button" aria-expanded="false" aria-controls="panel-modules">
+            <div><h3>Module Assignment</h3><p>Your group and session for the return demonstration</p></div>
+            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+
         <div class="panel" id="panel-modules" hidden>
-          <p class="panel-empty">Module assignments to follow.</p>
+          <div class="day-tabs grp-tabs" role="tablist">
+            <button type="button" role="tab" class="day-tab active" data-group="1" aria-selected="true"><b>Group 1</b></button>
+            <button type="button" role="tab" class="day-tab" data-group="2" aria-selected="false"><b>Group 2</b></button>
+            <button type="button" role="tab" class="day-tab" data-group="3" aria-selected="false"><b>Group 3</b></button>
+          </div>
+
+          <!-- Fill in each group's Function Room where it says &mdash; -->
+          <div class="group" data-group="1">
+            <dl class="grp-info">
+              <div><dt>Facilitator</dt><dd>Aimee Rose A. Manda</dd></div>
+              <div><dt>Function Room</dt><dd>&mdash;</dd></div>
+            </dl>
+            <ul class="roster">
+              <li>April Rose L. Dela Cruz<b>Modules 2, 3</b></li>
+              <li>Kimberly C. Nicolas<b>Module 4</b></li>
+              <li>Alan Poul S. Besa<b>Module 5</b></li>
+              <li>Christopher B. Fernandez<b>Module 6</b></li>
+              <li>Develyn D. Telan<b>Module 7</b></li>
+              <li>Joyce Ann C. Meonada-Jaime<b>Module 8</b></li>
+              <li>Julie Ann A. Gonzales-Bionson<b>Module 9</b></li>
+              <li>Arlene R. Saluta<b>Module 10</b></li>
+            </ul>
+          </div>
+
+          <div class="group" data-group="2" hidden>
+            <dl class="grp-info">
+              <div><dt>Facilitator</dt><dd>Geraldine F. Santos</dd></div>
+              <div><dt>Function Room</dt><dd>&mdash;</dd></div>
+            </dl>
+            <ul class="roster">
+              <li>Rene T. Villarosa Jr.<b>Module 2</b></li>
+              <li>Pamela P. Culango<b>Module 3</b></li>
+              <li>Joanne G. Boter<b>Module 4</b></li>
+              <li>John Rey S. Resoco<b>Module 5</b></li>
+              <li>Redentor D. Japon<b>Module 6</b></li>
+              <li>Sheena M. Madrona<b>Module 7</b></li>
+              <li>Jaharah M. Amintao<b>Module 8</b></li>
+              <li>Lowella Marie P. Napoles<b>Module 9</b></li>
+              <li>Annie Rose P. Ortiz<b>Module 10</b></li>
+            </ul>
+          </div>
+
+          <div class="group" data-group="3" hidden>
+            <dl class="grp-info">
+              <div><dt>Facilitator</dt><dd>Kevin A. Bumagat</dd></div>
+              <div><dt>Function Room</dt><dd>&mdash;</dd></div>
+            </dl>
+            <ul class="roster">
+              <li>Jessica Zahir P. Braga<b>Module 2</b></li>
+              <li>Amie M. Dava<b>Module 3</b></li>
+              <li>Hannah Bee T. Sibugan<b>Module 4</b></li>
+              <li>Gene Pawlak T. Cruz<b>Module 5</b></li>
+              <li>Juliet S. Fetalvero<b>Module 6</b></li>
+              <li>Erwin M. Meneses<b>Module 7</b></li>
+              <li>Norhata P. Sarip<b>Module 8</b></li>
+              <li>Gene Antonette G. Lacanaria<b>Module 9</b></li>
+              <li>Ma. Natasha Q. Ratuita<b>Module 10</b></li>
+            </ul>
+          </div>
+        </div>
+
+          <!-- Replace "#" with the Viber group invite link -->
+          <a class="toggle" href="#" target="_blank" rel="noopener">
+            <div><h3>Join Viber Group</h3><p>Announcements and updates during the training</p></div>
+            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </a>
         </div>
       </div>
 
       <div class="section">
         <p class="label">Learning Materials</p>
-        <a class="material" href="#" target="_blank" rel="noopener">
+        <a class="material" href="#" data-toast="Presentation to follow.">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
           Presentation Slides of Resource Persons
         </a>
-        <a class="material" href="#" target="_blank" rel="noopener">
+        <a class="material" href="#" data-toast="Presentation to follow.">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 2h6v4H9zM9 13l2 2 4-4"/></svg>
           Process Observation Guide
-        </a>
-        <a class="material" href="#" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
-          Guided Observation Guide for the Return Demonstration
-        </a>
-      </div>
+        </a>      </div>
 
       <div class="section">
         <p class="label">Daily Learning Journal</p>
         <p class="hint">Fill this out before you leave each day.</p>
-        <div class="grid-5">
+        <div class="grid-3">
           <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 1</strong><span>Mon, 9 Nov</span></a>
           <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 2</strong><span>Tue, 10 Nov</span></a>
-          <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 3</strong><span>Wed, 11 Nov</span></a>
-          <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 4</strong><span>Thu, 12 Nov</span></a>
-          <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 5</strong><span>Fri, 13 Nov</span></a>
-        </div>
+          <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 3</strong><span>Wed, 11 Nov</span></a>        </div>
       </div>
 
       <div class="section">
@@ -308,8 +435,11 @@
           </div>
           <div class="test">
             <p class="when"><b>Day 5</b> &middot; Fri, 13 Nov</p>
-            <a class="btn-test outline" href="https://docs.google.com/forms/d/1NnPlX07TdTNWRC9Q2dy8xR9ODB2HVsflD4vMd_eWbyU/viewform?edit_requested=true" target="_blank" rel="noopener">POST-TEST</a>
-            <p class="note">Opens after the last session</p>
+            <!-- Locked until data-opens (Philippine Time); the script swaps in the link then -->
+            <a class="btn-test outline" id="posttest" role="link" aria-disabled="true"
+               data-href="https://docs.google.com/forms/d/1NnPlX07TdTNWRC9Q2dy8xR9ODB2HVsflD4vMd_eWbyU/viewform?edit_requested=true"
+               data-opens="2026-11-13T01:00:00+08:00" target="_blank" rel="noopener">POST-TEST</a>
+            <p class="note" id="posttest-note">Opens Fri, 13 Nov, 1:00 AM</p>
           </div>
         </div>
       </div>
@@ -328,9 +458,23 @@
     </div>
   </div>
 
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script>
-    // Essentials cards: open one panel below the pair, close the other
-    var toggles = document.querySelectorAll('.toggle');
+    // Links not ready yet: show a notice at the bottom right instead of opening
+    var toast = document.getElementById('toast'), toastTimer;
+    document.querySelectorAll('[data-toast]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        toast.textContent = el.dataset.toast;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 3000);
+      });
+    });
+
+    // Essentials cards: open the panel under the clicked card, close the other
+    var toggles = document.querySelectorAll('button.toggle');
     toggles.forEach(function (btn) {
       btn.addEventListener('click', function () {
         var open = btn.getAttribute('aria-expanded') === 'true';
@@ -345,13 +489,48 @@
       });
     });
 
+    // Post-test stays locked until its opening time, then unlocks (even if the page is left open)
+    var post = document.getElementById('posttest');
+    var opensAt = new Date(post.dataset.opens).getTime();
+    function unlockPost() {
+      post.href = post.dataset.href;
+      post.removeAttribute('aria-disabled');
+      document.getElementById('posttest-note').textContent = 'Now open';
+    }
+    var wait = opensAt - Date.now();
+    if (wait <= 0) unlockPost();
+    else if (wait < 2147483647) setTimeout(unlockPost, wait);
+
     // Day controller for the program
-    var tabs = document.querySelectorAll('.day-tab');
+    var tabs = document.querySelectorAll('#panel-program .day-tab');
+    function showDay(tab) {
+      tabs.forEach(function (t) {
+        t.classList.toggle('active', t === tab);
+        t.setAttribute('aria-selected', t === tab);
+      });
+      var count = 0;
+      document.querySelectorAll('.agenda').forEach(function (list) {
+        list.hidden = list.dataset.day !== tab.dataset.day;
+        if (!list.hidden) count = list.children.length;
+      });
+      document.getElementById('day-title').textContent = 'November ' + tab.querySelector('b').textContent.slice(4);
+      document.getElementById('day-count').textContent = count + ' items';
+    }
     tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () { showDay(tab); });
+    });
+    showDay(tabs[0]);
+
+    // Group switcher for module assignments
+    var grpTabs = document.querySelectorAll('.grp-tabs .day-tab');
+    grpTabs.forEach(function (tab) {
       tab.addEventListener('click', function () {
-        tabs.forEach(function (t) { t.classList.toggle('active', t === tab); });
-        document.querySelectorAll('.agenda').forEach(function (list) {
-          list.hidden = list.dataset.day !== tab.dataset.day;
+        grpTabs.forEach(function (t) {
+          t.classList.toggle('active', t === tab);
+          t.setAttribute('aria-selected', t === tab);
+        });
+        document.querySelectorAll('.group').forEach(function (g) {
+          g.hidden = g.dataset.group !== tab.dataset.group;
         });
       });
     });
