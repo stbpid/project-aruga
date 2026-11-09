@@ -128,7 +128,6 @@
 
     .day-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
     .day-head h4 { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 19px; margin: 0; color: var(--ink-deep); }
-    .day-head span { font-size: 12px; color: var(--muted); }
 
     /* Module assignment */
     .grp-tabs { grid-template-columns: repeat(3, 1fr); }
@@ -188,9 +187,9 @@
     .toast {
       position: fixed; right: 20px; bottom: 20px; z-index: 50;
       max-width: calc(100% - 40px);
-      background: var(--ink-deep); color: #fff; font-size: 14px;
+      background: #15803d; color: #fff; font-size: 14px;
       padding: 13px 18px; border-radius: 10px;
-      box-shadow: 0 8px 24px rgba(35, 34, 106, .25);
+      box-shadow: 0 8px 24px rgba(21, 128, 61, .25);
       opacity: 0; transform: translateY(12px); pointer-events: none;
       transition: opacity .2s, transform .2s;
     }
@@ -214,6 +213,8 @@
     }
     .btn-test.solid { background: var(--ink); color: #fff; }
     .btn-test.outline { background: #fff; color: var(--ink); }
+    .day[aria-disabled="true"] { background: var(--bg); cursor: not-allowed; pointer-events: none; }
+    .day[aria-disabled="true"] strong { color: #a9a7c0; }    .btn-outline[aria-disabled="true"] { background: var(--bg); color: #a9a7c0; cursor: not-allowed; pointer-events: none; }
     .btn-test[aria-disabled="true"] {
       border-color: var(--border); background: var(--bg); color: #a9a7c0;
       cursor: not-allowed; pointer-events: none;
@@ -268,10 +269,11 @@
       <!-- Links: replace each "#" with the real URL -->
       <div class="folder">
         <div>
-          <h2>Participants Folder</h2>
-          <p>All your training files in one Google Drive folder</p>
+          <h2>Gabay-Magulang Session Guide Handbook</h2>
+          <p>Your copy of the peer support session guide</p>
         </div>
-        <a class="btn-white" href="#" target="_blank" rel="noopener">Open Google Drive &rarr;</a>
+        <!-- Handbook link to follow: put it in href and remove data-toast -->
+        <a class="btn-white" href="#" data-toast="Handbook to follow." target="_blank" rel="noopener">Open Digital Handbook &rarr;</a>
       </div>
 
       <div class="section">
@@ -291,7 +293,7 @@
             <button type="button" role="tab" class="day-tab" data-day="5" aria-selected="false"><small>Day 5</small><b>Nov 13</b></button>
           </div>
 
-          <div class="day-head"><h4 id="day-title">November 09</h4><span id="day-count"></span></div>
+          <div class="day-head"><h4 id="day-title">November 09</h4></div>
 
           <ol class="agenda" data-day="1">
             <li>Registration of Participants</li>
@@ -342,11 +344,10 @@
             <button type="button" role="tab" class="day-tab" data-group="3" aria-selected="false"><b>Group 3</b></button>
           </div>
 
-          <!-- Fill in each group's Function Room where it says &mdash; -->
           <div class="group" data-group="1">
             <dl class="grp-info">
               <div><dt>Facilitator</dt><dd>Aimee Rose A. Manda</dd></div>
-              <div><dt>Function Room</dt><dd>&mdash;</dd></div>
+              <div><dt>Function Room</dt><dd>Clover Function Room</dd></div>
             </dl>
             <ul class="roster">
               <li>April Rose L. Dela Cruz<b>Modules 2, 3</b></li>
@@ -363,7 +364,7 @@
           <div class="group" data-group="2" hidden>
             <dl class="grp-info">
               <div><dt>Facilitator</dt><dd>Geraldine F. Santos</dd></div>
-              <div><dt>Function Room</dt><dd>&mdash;</dd></div>
+              <div><dt>Function Room</dt><dd>Emerald Function Room</dd></div>
             </dl>
             <ul class="roster">
               <li>Rene T. Villarosa Jr.<b>Module 2</b></li>
@@ -381,7 +382,7 @@
           <div class="group" data-group="3" hidden>
             <dl class="grp-info">
               <div><dt>Facilitator</dt><dd>Kevin A. Bumagat</dd></div>
-              <div><dt>Function Room</dt><dd>&mdash;</dd></div>
+              <div><dt>Function Room</dt><dd>Elysuna Function Room</dd></div>
             </dl>
             <ul class="roster">
               <li>Jessica Zahir P. Braga<b>Module 2</b></li>
@@ -397,8 +398,7 @@
           </div>
         </div>
 
-          <!-- Replace "#" with the Viber group invite link -->
-          <a class="toggle" href="#" target="_blank" rel="noopener">
+          <a class="toggle" href="https://invite.viber.com/?g=AdIzHuwHbFd30gfx8M7w65aaAc9KcyGI" target="_blank" rel="noopener">
             <div><h3>Join Viber Group</h3><p>Announcements and updates during the training</p></div>
             <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M8 7h9v9"/></svg>
           </a>
@@ -411,7 +411,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
           Presentation Slides of Resource Persons
         </a>
-        <a class="material" href="#" data-toast="Presentation to follow.">
+        <a class="material" href="#" data-toast="Process Observation Guide to follow.">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 2h6v4H9zM9 13l2 2 4-4"/></svg>
           Process Observation Guide
         </a>      </div>
@@ -420,9 +420,11 @@
         <p class="label">Daily Learning Journal</p>
         <p class="hint">Fill this out before you leave each day.</p>
         <div class="grid-3">
-          <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 1</strong><span>Mon, 9 Nov</span></a>
-          <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 2</strong><span>Tue, 10 Nov</span></a>
-          <a class="day" href="#" target="_blank" rel="noopener"><strong>Day 3</strong><span>Wed, 11 Nov</span></a>        </div>
+          <!-- Each card is locked until 1:00 AM PHT of its day; put the form link in data-href -->
+          <a class="day" role="link" aria-disabled="true" data-href="#" data-opens="2026-11-09T01:00:00+08:00" target="_blank" rel="noopener"><strong>Day 1</strong><span>Mon, 9 Nov</span></a>
+          <a class="day" role="link" aria-disabled="true" data-href="#" data-opens="2026-11-10T01:00:00+08:00" target="_blank" rel="noopener"><strong>Day 2</strong><span>Tue, 10 Nov</span></a>
+          <a class="day" role="link" aria-disabled="true" data-href="#" data-opens="2026-11-11T01:00:00+08:00" target="_blank" rel="noopener"><strong>Day 3</strong><span>Wed, 11 Nov</span></a>
+        </div>
       </div>
 
       <div class="section">
@@ -436,10 +438,10 @@
           <div class="test">
             <p class="when"><b>Day 5</b> &middot; Fri, 13 Nov</p>
             <!-- Locked until data-opens (Philippine Time); the script swaps in the link then -->
-            <a class="btn-test outline" id="posttest" role="link" aria-disabled="true"
+            <a class="btn-test outline" role="link" aria-disabled="true" data-note="posttest-note"
                data-href="https://docs.google.com/forms/d/1NnPlX07TdTNWRC9Q2dy8xR9ODB2HVsflD4vMd_eWbyU/viewform?edit_requested=true"
                data-opens="2026-11-13T01:00:00+08:00" target="_blank" rel="noopener">POST-TEST</a>
-            <p class="note" id="posttest-note">Opens Fri, 13 Nov, 1:00 AM</p>
+            <p class="note" id="posttest-note">Opens Fri, 13 Nov</p>
           </div>
         </div>
       </div>
@@ -448,7 +450,8 @@
         <p class="label">Certificates</p>
         <h2>Certificate of Participation</h2>
         <p>Please make sure you have answered the Evaluation Form before getting your certificate.</p>
-        <a class="btn-outline" href="#" target="_blank" rel="noopener">ANSWER EVALUATION FORM &rarr;</a>
+        <!-- Locked until 13 Nov 1:00 AM PHT; put the form link in data-href -->
+        <a class="btn-outline" role="link" aria-disabled="true" data-href="#" data-opens="2026-11-13T01:00:00+08:00" target="_blank" rel="noopener">ANSWER EVALUATION FORM &rarr;</a>
       </div>
 
       <footer>
@@ -489,17 +492,18 @@
       });
     });
 
-    // Post-test stays locked until its opening time, then unlocks (even if the page is left open)
-    var post = document.getElementById('posttest');
-    var opensAt = new Date(post.dataset.opens).getTime();
-    function unlockPost() {
-      post.href = post.dataset.href;
-      post.removeAttribute('aria-disabled');
-      document.getElementById('posttest-note').textContent = 'Now open';
-    }
-    var wait = opensAt - Date.now();
-    if (wait <= 0) unlockPost();
-    else if (wait < 2147483647) setTimeout(unlockPost, wait);
+    // Scheduled links (journal days, post-test) stay locked until data-opens,
+    // then unlock, even if the page is left open
+    document.querySelectorAll('[data-opens]').forEach(function (el) {
+      function unlock() {
+        el.href = el.dataset.href;
+        el.removeAttribute('aria-disabled');
+        if (el.dataset.note) document.getElementById(el.dataset.note).textContent = 'Now open';
+      }
+      var wait = new Date(el.dataset.opens).getTime() - Date.now();
+      if (wait <= 0) unlock();
+      else if (wait < 2147483647) setTimeout(unlock, wait);
+    });
 
     // Day controller for the program
     var tabs = document.querySelectorAll('#panel-program .day-tab');
@@ -508,13 +512,10 @@
         t.classList.toggle('active', t === tab);
         t.setAttribute('aria-selected', t === tab);
       });
-      var count = 0;
       document.querySelectorAll('.agenda').forEach(function (list) {
         list.hidden = list.dataset.day !== tab.dataset.day;
-        if (!list.hidden) count = list.children.length;
       });
       document.getElementById('day-title').textContent = 'November ' + tab.querySelector('b').textContent.slice(4);
-      document.getElementById('day-count').textContent = count + ' items';
     }
     tabs.forEach(function (tab) {
       tab.addEventListener('click', function () { showDay(tab); });
