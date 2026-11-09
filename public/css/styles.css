@@ -461,22 +461,19 @@ section, .member-card {
     width: 100%;
   }
 }
-/* Login page partner logos (DSWD + UNICEF): each drawn in the same size box,
-   matching the old DSWD logo size (h-9 / sm:h-10 / 2xl:h-12). */
-.login-logos {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.login-logos img {
-  height: 36px;
-  width: 101px;
+/* Login page partner logos (DSWD, STB, Bagong Pilipinas, UNICEF in one
+   trimmed image). Height only; width follows the image. */
+.login-partner-logos {
+  display: block;
+  height: 32px;
+  width: auto;
+  max-width: 100%;
   object-fit: contain;
   object-position: left center;
 }
 @media (min-width: 640px) {
-  .login-logos img { height: 40px; width: 112px; }
+  .login-partner-logos { height: 36px; }
 }
 @media (min-width: 1536px) {
-  .login-logos img { height: 48px; width: 134px; }
+  .login-partner-logos { height: 44px; }
 }
